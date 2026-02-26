@@ -1,20 +1,27 @@
 package com.sas.lostandfound;
 
 public class ItemActivity {
-    private String name;
+    private int id;
+    private String title;
     private String location;
     private String timeAgo;
-    private String icon; // can be emoji or resource name
+    private String status; // "lost" or "found"
+    private String imageUrl;
 
-    public ItemActivity(String name, String location, String timeAgo, String icon) {
-        this.name = name;
+    public ItemActivity(int id, String title, String location, String timeAgo, String status, String imageUrl) {
+        this.id = id;
+        this.title = title;
         this.location = location;
         this.timeAgo = timeAgo;
-        this.icon = icon;
+        this.status = status;
+        this.imageUrl = imageUrl;
     }
 
-    public String getName() { return name; }
+    // Getters
+    public int getId() { return id; }
+    public String getTitle() { return title; }
     public String getLocation() { return location; }
     public String getTimeAgo() { return timeAgo; }
-    public String getIcon() { return icon; }
+    public String getStatus() { return status; }
+    public String getImageUrl() { return imageUrl; }
 }

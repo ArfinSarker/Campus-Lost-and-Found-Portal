@@ -25,6 +25,7 @@ public class RecentItemsActivity extends RecyclerView.Adapter<RecentItemsActivit
     @NonNull
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+        // Inflate a single item row layout – ensure this file exists (e.g., R.layout.item_recent)
         View view = LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.activity_recent_items, parent, false);
         return new ViewHolder(view);
@@ -33,8 +34,9 @@ public class RecentItemsActivity extends RecyclerView.Adapter<RecentItemsActivit
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         ItemActivity item = items.get(position);
-        holder.tvIcon.setText(item.getIcon());
-        holder.tvName.setText(item.getName());
+        // Use existing getters: getImageUrl() for the emoji, getTitle() for the name
+        holder.tvIcon.setText(item.getImageUrl());      // was getIcon()
+        holder.tvName.setText(item.getTitle());         // was getName()
         holder.tvLocation.setText(item.getLocation());
         holder.tvTimeAgo.setText(item.getTimeAgo());
 
