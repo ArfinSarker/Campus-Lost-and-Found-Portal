@@ -1,0 +1,42 @@
+<resources>
+    <string name="app_name">Lost &amp; Found</string>
+    <string name="campus_verified">CAMPUS VERIFIED • STUDENTS AND STAFF ONLY</string>
+    <string name="lost_something">Lost Something?</string>
+    <string name="we_help">We’ll Help You Find It</string>
+    <string name="description">A centralized platform for students to report and recover lost items.</string>
+    <string name="report_lost">Report Lost Item</string>
+    <string name="report_found">Report Found Item</string>
+    <string name="recent_title">Recently reported items</string>
+    <string name="browse_all">Browse all items ></string>
+    <string name="item_image_description">Item icon</string>
+    <!-- Placeholder strings for sample items (will be replaced by real data later) -->
+    <string name="sample_macbook">MacBook Pro</string>
+    <string name="sample_macbook_location">Library, 2nd floor</string>
+    <string name="sample_macbook_time">2h ago</string>
+    <string name="sample_found">Found</string>
+    <string name="sample_found_location">Cafeteria</string>
+    <string name="sample_found_time">5h ago</string>
+    <string name="sample_airpods">AirPods Pro</string>
+    <string name="sample_airpods_location">Building A, Room 301</string>
+    <string name="sample_airpods_time">1d ago</string>
+
+    <!-- Existing strings (keep them) -->
+    <string name="login_subtitle">Lost Something? We\'ll Help You Find It</string>
+    <string name="login_description">A centralized platform for students to report and recover lost items within the university campus. Fast, secure, verified.</string>
+    <string name="hint_email">Student ID / Email</string>
+    <string name="hint_password">Password</string>
+    <string name="forgot_password">Forgot password?</string>
+    <string name="sign_in">Sign in to portal</string>
+    <string name="register_link">Don\'t have an account? Register</string>
+    <string name="register_title">Create Account</string>
+    <string name="register_subtitle">Join the verified lost &amp; found network</string>
+    <string name="hint_full_name">Full name</string>
+    <string name="hint_university_id">University ID</string>
+    <string name="hint_department">Department</string>
+    <string name="hint_phone">Phone Number</string>
+    <string name="hint_confirm_password">Confirm Password</string>
+    <string name="create_account">Create Account</string>
+    <string name="login_link">Already have an account? Login</string>
+    <string name="footer_line1">Centralized student platform</string>
+    <string name="footer_line2">© 2026 Lost&amp;Found  support@baust.edu.bd</string>
+</resources>
