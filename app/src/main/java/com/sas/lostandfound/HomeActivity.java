@@ -30,11 +30,12 @@ public class HomeActivity extends AppCompatActivity {
         tvBrowseAll = findViewById(R.id.tvBrowseAll);
         recyclerView = findViewById(R.id.recyclerViewRecent);
 
-        // Sample data matching the image
+        // Sample data – now using the correct 6‑parameter constructor
         itemList = new ArrayList<>();
-        itemList.add(new ItemActivity("MacBook Pro", "Library, 2nd floor", "2h ago", "📂"));
-        itemList.add(new ItemActivity("Found", "Cafeteria", "5h ago", "📂"));
-        itemList.add(new ItemActivity("AirPods Pro", "Building A, Room 301", "1d ago", "📂"));
+        // Parameters: (id, title, location, timeAgo, status, imageUrl)
+        itemList.add(new ItemActivity(1, "MacBook Pro", "Library, 2nd floor", "2h ago", "lost", "📂"));
+        itemList.add(new ItemActivity(2, "Found", "Cafeteria", "5h ago", "found", "📂"));
+        itemList.add(new ItemActivity(3, "AirPods Pro", "Building A, Room 301", "1d ago", "lost", "📂"));
 
         adapter = new RecentItemsActivity(itemList, new RecentItemsActivity.OnItemClickListener() {
             @Override
@@ -43,8 +44,9 @@ public class HomeActivity extends AppCompatActivity {
                     Toast.makeText(HomeActivity.this, "Please login first", Toast.LENGTH_SHORT).show();
                     startActivity(new Intent(HomeActivity.this, LoginActivity.class));
                 } else {
+                    // Use correct getter: getTitle() instead of getName()
+                    Toast.makeText(HomeActivity.this, "Opening " + item.getTitle(), Toast.LENGTH_SHORT).show();
                     // TODO: Navigate to item details
-                    Toast.makeText(HomeActivity.this, "Opening " + item.getName(), Toast.LENGTH_SHORT).show();
                 }
             }
         });
@@ -57,7 +59,6 @@ public class HomeActivity extends AppCompatActivity {
                     Toast.makeText(HomeActivity.this, "Please login first", Toast.LENGTH_SHORT).show();
                     startActivity(new Intent(HomeActivity.this, LoginActivity.class));
                 } else {
-                    // TODO: Navigate to report lost form
                     Toast.makeText(HomeActivity.this, "Report Lost Item (requires login)", Toast.LENGTH_SHORT).show();
                 }
             }
@@ -70,7 +71,6 @@ public class HomeActivity extends AppCompatActivity {
                     Toast.makeText(HomeActivity.this, "Please login first", Toast.LENGTH_SHORT).show();
                     startActivity(new Intent(HomeActivity.this, LoginActivity.class));
                 } else {
-                    // TODO: Navigate to report found form
                     Toast.makeText(HomeActivity.this, "Report Found Item (requires login)", Toast.LENGTH_SHORT).show();
                 }
             }
@@ -83,7 +83,6 @@ public class HomeActivity extends AppCompatActivity {
                     Toast.makeText(HomeActivity.this, "Please login first", Toast.LENGTH_SHORT).show();
                     startActivity(new Intent(HomeActivity.this, LoginActivity.class));
                 } else {
-                    // TODO: Navigate to all items list
                     Toast.makeText(HomeActivity.this, "Browse all items (requires login)", Toast.LENGTH_SHORT).show();
                 }
             }

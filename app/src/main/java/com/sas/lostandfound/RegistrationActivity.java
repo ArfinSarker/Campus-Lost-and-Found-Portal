@@ -20,7 +20,6 @@ public class RegistrationActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_registration);
 
-        // Initialize views
         etFullName = findViewById(R.id.etFullName);
         etUniversityId = findViewById(R.id.etUniversityId);
         etDepartment = findViewById(R.id.etDepartment);
@@ -31,7 +30,6 @@ public class RegistrationActivity extends AppCompatActivity {
         btnCreateAccount = findViewById(R.id.btnCreateAccount);
         tvLogin = findViewById(R.id.tvLogin);
 
-        // Create Account button click
         btnCreateAccount.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -39,12 +37,10 @@ public class RegistrationActivity extends AppCompatActivity {
             }
         });
 
-        // Login link click
         tvLogin.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                // Go back to LoginActivity
-                finish(); // simply close this activity to return to login
+                finish(); // return to LoginActivity
             }
         });
     }
@@ -58,7 +54,6 @@ public class RegistrationActivity extends AppCompatActivity {
         String password = etPassword.getText().toString().trim();
         String confirmPassword = etConfirmPassword.getText().toString().trim();
 
-        // Basic validation
         if (TextUtils.isEmpty(fullName)) {
             etFullName.setError("Full name is required");
             etFullName.requestFocus();
@@ -100,9 +95,7 @@ public class RegistrationActivity extends AppCompatActivity {
             return;
         }
 
-        // TODO: Implement actual registration logic (e.g., API call, database)
-        // For now, just show a success message and finish (go back to login)
         Toast.makeText(this, "Registration successful! Please login.", Toast.LENGTH_SHORT).show();
-        finish(); // return to LoginActivity
+        finish();
     }
 }

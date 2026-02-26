@@ -1,156 +1,75 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/main"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:padding="16dp"
-    tools:context=".LoginActivity">
+    android:fillViewport="true"
+    android:padding="16dp">
 
-    <!-- Title -->
-    <TextView
-        android:id="@+id/title"
-        android:layout_width="wrap_content"
+    <LinearLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="@string/app_name"
-        android:textSize="36sp"
-        android:textStyle="bold"
-        android:textColor="@color/black"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginTop="32dp"/>
+        android:orientation="vertical">
 
-    <!-- Subtitle -->
-    <TextView
-        android:id="@+id/subtitle"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:text="@string/login_subtitle"
-        android:textSize="18sp"
-        android:textStyle="bold"
-        android:textColor="@color/black"
-        android:gravity="center"
-        app:layout_constraintTop_toBottomOf="@id/title"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginTop="16dp"/>
+        <!-- App Title -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Lost &amp; Found"
+            android:textSize="32sp"
+            android:textStyle="bold"
+            android:layout_marginBottom="24dp"/>
 
-    <!-- Description -->
-    <TextView
-        android:id="@+id/description"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:text="@string/login_description"
-        android:textSize="14sp"
-        android:textColor="@color/gray"
-        android:gravity="center"
-        app:layout_constraintTop_toBottomOf="@id/subtitle"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginTop="8dp"/>
+        <!-- Email -->
+        <EditText
+            android:id="@+id/etEmail"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Student ID / Email"
+            android:inputType="textEmailAddress"
+            android:padding="12dp"
+            android:layout_marginBottom="12dp"
+            android:background="@android:drawable/editbox_background"/>
 
-    <!-- Student ID / Email EditText -->
-    <EditText
-        android:id="@+id/etEmail"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:hint="@string/hint_email"
-        android:inputType="textEmailAddress"
-        android:autofillHints="emailAddress"
-        android:padding="12dp"
-        android:background="@drawable/edit_text_bg"
-        android:layout_marginTop="32dp"
-        app:layout_constraintTop_toBottomOf="@id/description"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"/>
+        <!-- Password -->
+        <EditText
+            android:id="@+id/etPassword"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Password"
+            android:inputType="textPassword"
+            android:padding="12dp"
+            android:layout_marginBottom="24dp"
+            android:background="@android:drawable/editbox_background"/>
 
-    <!-- Password EditText -->
-    <EditText
-        android:id="@+id/etPassword"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:hint="@string/hint_password"
-        android:inputType="textPassword"
-        android:autofillHints="password"
-        android:padding="12dp"
-        android:background="@drawable/edit_text_bg"
-        android:layout_marginTop="16dp"
-        app:layout_constraintTop_toBottomOf="@id/etEmail"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"/>
+        <!-- Sign In Button -->
+        <Button
+            android:id="@+id/btnSignIn"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Sign In"
+            android:padding="12dp"
+            android:layout_marginBottom="16dp"/>
 
-    <!-- Forgot password link -->
-    <TextView
-        android:id="@+id/tvForgotPassword"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/forgot_password"
-        android:textColor="@color/primary"
-        android:textSize="14sp"
-        android:padding="8dp"
-        android:clickable="true"
-        android:focusable="true"
-        app:layout_constraintTop_toBottomOf="@id/etPassword"
-        app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginTop="8dp"/>
+        <!-- Forgot Password Link -->
+        <TextView
+            android:id="@+id/tvForgotPassword"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Forgot password?"
+            android:textAlignment="center"
+            android:textColor="@android:color/holo_blue_dark"
+            android:textSize="14sp"
+            android:layout_marginBottom="16dp"/>
 
-    <!-- Sign in button -->
-    <Button
-        android:id="@+id/btnSignIn"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:text="@string/sign_in"
-        android:textAllCaps="false"
-        android:padding="12dp"
-        android:backgroundTint="@color/primary"
-        android:layout_marginTop="24dp"
-        app:layout_constraintTop_toBottomOf="@id/tvForgotPassword"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"/>
+        <!-- Register Link -->
+        <TextView
+            android:id="@+id/tvRegister"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Don't have an account? Register"
+            android:textAlignment="center"
+            android:textColor="@android:color/holo_blue_dark"
+            android:textSize="14sp"/>
 
-    <!-- Register link -->
-    <TextView
-        android:id="@+id/tvRegister"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/register_link"
-        android:textColor="@color/black"
-        android:textSize="14sp"
-        android:padding="8dp"
-        android:clickable="true"
-        android:focusable="true"
-        app:layout_constraintTop_toBottomOf="@id/btnSignIn"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginTop="16dp"/>
-
-    <!-- Footer: Centralized student platform -->
-    <TextView
-        android:id="@+id/footerLine1"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/footer_line1"
-        android:textSize="12sp"
-        android:textColor="@color/gray"
-        app:layout_constraintBottom_toTopOf="@id/footerLine2"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginBottom="4dp"/>
-
-    <!-- Footer: Copyright and email -->
-    <TextView
-        android:id="@+id/footerLine2"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/footer_line2"
-        android:textSize="12sp"
-        android:textColor="@color/gray"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginBottom="16dp"/>
-
-</androidx.constraintlayout.widget.ConstraintLayout>
+    </LinearLayout>
+</ScrollView>

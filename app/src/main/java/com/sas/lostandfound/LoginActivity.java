@@ -41,7 +41,7 @@ public class LoginActivity extends AppCompatActivity {
                     prefs.edit().putBoolean("isLoggedIn", true).apply();
 
                     Toast.makeText(LoginActivity.this, "Login successful", Toast.LENGTH_SHORT).show();
-                    finish(); // just go back to home (MainActivity)
+                    finish(); // return to previous activity (likely HomeActivity)
                 }
             }
         });

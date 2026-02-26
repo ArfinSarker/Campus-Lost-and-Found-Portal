@@ -1,157 +1,120 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.core.widget.NestedScrollView
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".HomeActivity">
+    android:fillViewport="true"
+    android:padding="16dp">
 
-    <androidx.constraintlayout.widget.ConstraintLayout
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:padding="16dp">
+        android:orientation="vertical">
 
-        <!-- App Name -->
-
-        <!-- Verified tag -->
-
-        <!-- Lost Something? -->
-
+        <!-- App Title -->
         <TextView
-            android:id="@+id/tvVerified"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="16dp"
-            android:text="@string/campus_verified"
-            android:textColor="@color/gray"
+            android:text="Lost &amp; Found"
+            android:textSize="32sp"
+            android:textStyle="bold"
+            android:layout_marginBottom="4dp"/>
+
+        <!-- Campus Verified Tag -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="CAMPUS VERIFIED • STUDENTS AND STAFF ONLY"
             android:textSize="12sp"
-            android:textStyle="bold"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            android:textColor="@android:color/darker_gray"
+            android:textAllCaps="true"
+            android:layout_marginBottom="24dp"/>
 
+        <!-- Lost Something? Section -->
         <TextView
-            android:id="@+id/tvLostSomething"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/lost_something"
-            android:textSize="24sp"
-            android:textStyle="bold"
-            android:textColor="@color/black"
-            app:layout_constraintTop_toBottomOf="@id/tvVerified"
-            app:layout_constraintStart_toStartOf="parent"
-            android:layout_marginTop="16dp"/>
-
-        <!-- We'll Help You Find It -->
-        <TextView
-            android:id="@+id/tvWeHelp"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/we_help"
+            android:text="Lost Something?"
             android:textSize="20sp"
-            android:textColor="@color/black"
-            app:layout_constraintTop_toBottomOf="@id/tvLostSomething"
-            app:layout_constraintStart_toStartOf="parent"
-            android:layout_marginTop="4dp"/>
-
-        <!-- Description -->
-        <TextView
-            android:id="@+id/tvDescription"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:text="@string/description"
-            android:textSize="14sp"
-            android:textColor="@color/gray"
-            app:layout_constraintTop_toBottomOf="@id/tvWeHelp"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            android:layout_marginTop="8dp"/>
-
-        <!-- Report Buttons -->
-
-        <Button
-            android:id="@+id/btnReportLost"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
-            android:layout_marginEnd="8dp"
-            android:backgroundTint="@color/primary"
-            android:text="@string/report_lost"
-            android:textAllCaps="false"
-            app:layout_constraintEnd_toStartOf="@id/btnReportFound"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/tvDescription" />
-
-        <!-- Recent title and browse all -->
-
-        <!-- RecyclerView for recent items -->
-
-        <!-- Footer (optional, but can be added if needed) -->
-
-        <Button
-            android:id="@+id/btnReportFound"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="8dp"
-            android:layout_marginTop="16dp"
-            android:backgroundTint="@color/primary"
-            android:text="@string/report_found"
-            android:textAllCaps="false"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toEndOf="@id/btnReportLost"
-            app:layout_constraintTop_toBottomOf="@id/tvDescription" />
-
-        <TextView
-            android:id="@+id/tvRecentTitle"
-            android:layout_width="197dp"
-            android:layout_height="27dp"
-            android:layout_marginTop="20dp"
-            android:text="@string/recent_title"
-            android:textColor="@color/black"
-            android:textSize="18sp"
             android:textStyle="bold"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/btnReportLost" />
+            android:layout_marginBottom="4dp"/>
 
         <TextView
-            android:id="@+id/tvBrowseAll"
-            android:layout_width="105dp"
-            android:layout_height="18dp"
-            android:layout_marginEnd="4dp"
-            android:clickable="true"
-            android:focusable="true"
-            android:text="@string/browse_all"
-            android:textColor="@color/primary"
-            android:textSize="14sp"
-            app:layout_constraintBottom_toBottomOf="@id/tvRecentTitle"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="@id/tvRecentTitle"
-            app:layout_constraintVertical_bias="1.0" />
-
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/recyclerViewRecent"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="40dp"
-            android:nestedScrollingEnabled="false"
-            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.0"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/tvRecentTitle" />
-
-        <TextView
-            android:id="@+id/footer"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/footer_line1"
-            android:textSize="12sp"
-            android:textColor="@color/gray"
-            app:layout_constraintTop_toBottomOf="@id/recyclerViewRecent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            android:layout_marginTop="24dp"
+            android:text="We’ll Help You Find It"
+            android:textSize="16sp"
+            android:textColor="@android:color/darker_gray"
+            android:layout_marginBottom="8dp"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="A centralized platform for students to report and recover lost items."
+            android:textSize="14sp"
             android:layout_marginBottom="16dp"/>
 
-    </androidx.constraintlayout.widget.ConstraintLayout>
+        <!-- Report Buttons side by side -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:weightSum="2"
+            android:layout_marginBottom="24dp">
+
+            <Button
+                android:id="@+id/btnReportLost"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Report Lost Item"
+                android:layout_marginEnd="8dp"/>
+
+            <Button
+                android:id="@+id/btnReportFound"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Report Found Item"
+                android:layout_marginStart="8dp"/>
+        </LinearLayout>
+
+        <!-- Recently Reported Section -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Recently reported"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:layout_marginBottom="12dp"/>
+
+        <!-- RecyclerView for recent items (nested scrolling disabled) -->
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/recyclerViewRecent"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:nestedScrollingEnabled="false"
+            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+            android:layout_marginBottom="16dp"/>
+
+        <!-- Browse All Link -->
+        <TextView
+            android:id="@+id/tvBrowseAll"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Browse all items →"
+            android:textColor="@android:color/holo_blue_dark"
+            android:textSize="16sp"
+            android:layout_marginBottom="24dp"/>
+
+        <!-- Footer -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Centralized student platform"
+            android:textSize="12sp"
+            android:textColor="@android:color/darker_gray"
+            android:layout_gravity="center_horizontal"/>
+
+    </LinearLayout>
 </androidx.core.widget.NestedScrollView>
