@@ -3,40 +3,117 @@
     <string name="campus_verified">CAMPUS VERIFIED • STUDENTS AND STAFF ONLY</string>
     <string name="lost_something">Lost Something?</string>
     <string name="we_help">We’ll Help You Find It</string>
-    <string name="description">A centralized platform for students to report and recover lost items.</string>
-    <string name="report_lost">Report Lost Item</string>
-    <string name="report_found">Report Found Item</string>
-    <string name="recent_title">Recently reported items</string>
-    <string name="browse_all">Browse all items ></string>
+    <string name="description">A centralized platform for students to report and recover lost items within the university campus.</string>
+    <string name="report_lost">Report Lost</string>
+    <string name="report_found">Report Found</string>
+    <string name="recent_title">Recently Reported</string>
+    <string name="browse_all">View All</string>
     <string name="item_image_description">Item icon</string>
-    <!-- Placeholder strings for sample items (will be replaced by real data later) -->
+
+    <!-- Dashboard Strings -->
+    <string name="welcome_back">Welcome back, %1$s! 👋</string>
+    <string name="active_items_count">You have %1$d active items</string>
+    <string name="stat_lost_items">Lost Items</string>
+    <string name="stat_found_items">Found Items</string>
+    <string name="stat_resolved">Resolved</string>
+    <string name="recently_reported_items">Recently reported items</string>
+    <string name="browse_all_arrow">Browse all →</string>
+    <string name="contact_us">Contact Us</string>
+
+    <!-- My Items Strings -->
+    <string name="my_items">My Items</string>
+    <string name="status_active">Active</string>
+    <string name="status_claimed">Claimed</string>
+    <string name="btn_view_details">View Details</string>
+    <string name="btn_edit">Edit</string>
+
+    <!-- Report Form Strings -->
+    <string name="report_lost_title">Report a lost item</string>
+    <string name="label_item_name">Item Name *</string>
+    <string name="hint_item_name">e.g. Blue Backpack</string>
+    <string name="label_category">Category</string>
+    <string name="hint_category">Select Category</string>
+    <string name="label_date_lost">Date lost</string>
+    <string name="hint_date">Select Date</string>
+    <string name="label_location_lost">Location lost</string>
+    <string name="hint_location">Location</string>
+    <string name="label_description">Description</string>
+    <string name="hint_description">Provide details about the item...</string>
+    <string name="label_upload_image">Upload image</string>
+    <string name="tap_to_upload">Tap to upload image</string>
+    <string name="confirm_accuracy">I confirm that the information provided is accurate.</string>
+    <string name="btn_submit_report">Submit Report</string>
+    <string name="success_report_submitted">Lost item report submitted successfully!</string>
+
+    <!-- Profile Dropdown -->
+    <string name="user_role_student">Student</string>
+    <string name="user_role_staff">Staff</string>
+    <string name="menu_settings">Settings</string>
+    <string name="btn_log_out">Log Out</string>
+
+    <!-- Placeholder strings for sample items -->
     <string name="sample_macbook">MacBook Pro</string>
     <string name="sample_macbook_location">Library, 2nd floor</string>
     <string name="sample_macbook_time">2h ago</string>
-    <string name="sample_found">Found</string>
+    <string name="sample_found">Found Wallet</string>
     <string name="sample_found_location">Cafeteria</string>
     <string name="sample_found_time">5h ago</string>
     <string name="sample_airpods">AirPods Pro</string>
     <string name="sample_airpods_location">Building A, Room 301</string>
     <string name="sample_airpods_time">1d ago</string>
 
-    <!-- Existing strings (keep them) -->
-    <string name="login_subtitle">Lost Something? We\'ll Help You Find It</string>
-    <string name="login_description">A centralized platform for students to report and recover lost items within the university campus. Fast, secure, verified.</string>
-    <string name="hint_email">Student ID / Email</string>
+    <!-- Login / Registration strings -->
+    <string name="login_subtitle">Recover what you\'ve lost</string>
+    <string name="login_description">Fast, secure, and verified campus network.</string>
+    <string name="hint_email">Email Address (Optional)</string>
     <string name="hint_password">Password</string>
-    <string name="forgot_password">Forgot password?</string>
-    <string name="sign_in">Sign in to portal</string>
-    <string name="register_link">Don\'t have an account? Register</string>
-    <string name="register_title">Create Account</string>
-    <string name="register_subtitle">Join the verified lost &amp; found network</string>
-    <string name="hint_full_name">Full name</string>
+    <string name="forgot_password">Forgot Password?</string>
+    <string name="lost_something_heading">Lost Something?</string>
+    <string name="sign_in">Sign In</string>
+    <string name="register_link">Don\'t have an account? <b>Register</b></string>
+    <string name="register_title">Create Your Account</string>
+    <string name="register_subtitle">Join the network\nHelp others and recover your won item</string>
+    <string name="hint_full_name">Full Name</string>
     <string name="hint_university_id">University ID</string>
     <string name="hint_department">Department</string>
     <string name="hint_phone">Phone Number</string>
     <string name="hint_confirm_password">Confirm Password</string>
     <string name="create_account">Create Account</string>
-    <string name="login_link">Already have an account? Login</string>
-    <string name="footer_line1">Centralized student platform</string>
-    <string name="footer_line2">© 2026 Lost&amp;Found  support@baust.edu.bd</string>
+    <string name="login_link">Already have an account? <b>Login</b></string>
+
+    <!-- New hints for registration -->
+    <string name="hint_session">Session (e.g., Winter 2026)</string>
+    <string name="hint_batch">Batch (e.g., 18th)</string>
+    <string name="hint_level_term">Level Term</string>
+
+    <!-- Profile picture dialog -->
+    <string name="select_profile_picture">Select Profile Picture</string>
+    <string name="choose_gallery">Choose from Gallery</string>
+    <string name="take_photo">Take Photo</string>
+    <string name="cancel">Cancel</string>
+
+    <!-- Admin Login strings -->
+    <string name="admin_login">Admin Login</string>
+    <string name="admin_login_subtitle">Restricted access for campus administrators</string>
+    <string name="hint_admin_id">Admin ID</string>
+    <string name="admin_sign_in">Secure Sign In</string>
+
+    <!-- Footer strings -->
+    <string name="footer_row1">Centralized student platform • © 2026 Lost&amp;Found</string>
+    <string name="footer_row2">support@baust.edu.bd</string>
+    <string name="footer_row3">Privacy Policy   •   Terms &amp; Conditions</string>
+    <string name="footer_row4">Developer Information</string>
+    <string name="dot_separator"> • </string>
+
+    <string name="privacy_policy">Privacy Policy</string>
+    <string name="terms_conditions">Terms &amp; Conditions</string>
+    <string name="developer_info">Developer Information</string>
+
+    <!-- New strings for HomeActivity -->
+    <string name="lost_part">Lost&amp;</string>
+    <string name="found_part">Found</string>
+    <string name="profile">Profile</string>
+    <string name="login_first">Please login first</string>
+    <string name="opening_item">Opening %s</string>
+    <string name="already_signed_in">You are already signed in</string>
 </resources>
