@@ -8,16 +8,19 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 import java.util.List;
 
-public class RecentItemsActivity extends RecyclerView.Adapter<RecentItemsActivity.ViewHolder> {
+/**
+ * Adapter for displaying lost and found items in a RecyclerView.
+ */
+public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ViewHolder> {
 
-    private List<ItemActivity> items;
+    private List<Item> items;
     private OnItemClickListener listener;
 
     public interface OnItemClickListener {
-        void onItemClick(ItemActivity item);
+        void onItemClick(Item item);
     }
 
-    public RecentItemsActivity(List<ItemActivity> items, OnItemClickListener listener) {
+    public ItemAdapter(List<Item> items, OnItemClickListener listener) {
         this.items = items;
         this.listener = listener;
     }
@@ -25,20 +28,18 @@ public class RecentItemsActivity extends RecyclerView.Adapter<RecentItemsActivit
     @NonNull
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        // Inflate a single item row layout – ensure this file exists (e.g., R.layout.item_recent)
         View view = LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.activity_recent_items, parent, false);
+                .inflate(R.layout.item_list_row, parent, false);
         return new ViewHolder(view);
     }
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-        ItemActivity item = items.get(position);
-        // Use existing getters: getImageUrl() for the emoji, getTitle() for the name
-        holder.tvIcon.setText(item.getImageUrl());      // was getIcon()
-        holder.tvName.setText(item.getTitle());         // was getName()
+        Item item = items.get(position);
+        holder.tvIcon.setText(item.getImageUrl());
+        holder.tvName.setText(item.getName());
         holder.tvLocation.setText(item.getLocation());
-        holder.tvTimeAgo.setText(item.getTimeAgo());
+        holder.tvTimeAgo.setText(item.getDate());
 
         holder.itemView.setOnClickListener(v -> listener.onItemClick(item));
     }

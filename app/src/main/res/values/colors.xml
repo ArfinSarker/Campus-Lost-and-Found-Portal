@@ -1,17 +1,47 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- Colors used by the theme (likely Theme.CampusLostAndFound) -->
-    <color name="darkBlue">#FF0D47A1</color>          <!-- Dark blue -->
-    <color name="vibrantBlue">#FF2196F3</color>       <!-- Vibrant blue -->
-    <color name="white">#FFFFFFFF</color>             <!-- White -->
-    <color name="teal_200">#FF03DAC5</color>          <!-- Teal 200 (Material) -->
-    <color name="teal_700">#FF018786</color>          <!-- Teal 700 (Material) -->
-    <color name="purple_200">#FFBB86FC</color>        <!-- Purple 200 (Material) -->
-    <color name="purple_700">#FF3700B3</color>        <!-- Purple 700 (Material) -->
+    <!-- Brand Colors -->
+    <color name="primaryColor">#2563EB</color>
+    <color name="primaryDarkColor">#1E40AF</color>
+    <color name="primaryLightColor">#DBEAFE</color>
+    <color name="accentColor">#2563EB</color>
 
-    <!-- Additional colors used in your login layout -->
-    <color name="black">#FF000000</color>              <!-- Black -->
-    <color name="gray">#FF888888</color>               <!-- Gray -->
-    <color name="primary">#FF6200EE</color>
-    <!-- Primary purple (like Material) -->
+    <!-- Compatibility Colors -->
+    <color name="vibrantBlue">#2563EB</color>
+    <color name="darkBlue">#1E40AF</color>
+    <color name="light_gray_background">#F5F7FA</color>
+
+    <!-- Text Colors (CamelCase) -->
+    <color name="textPrimary">#1E293B</color>
+    <color name="textSecondary">#5F6C84</color>
+    <color name="textSubtext">#33475B</color>
+    <color name="textHint">#94A3B8</color>
+
+    <!-- Text Colors (SnakeCase for compatibility) -->
+    <color name="text_primary">#1E293B</color>
+    <color name="text_secondary">#5F6C84</color>
+
+    <!-- Standard Template Colors -->
+    <color name="purple_200">#FFBB86FC</color>
+    <color name="purple_500">#FF6200EE</color>
+    <color name="purple_700">#FF3700B3</color>
+    <color name="teal_200">#FF03DAC5</color>
+    <color name="teal_700">#FF018786</color>
+
+    <!-- Background and Surface -->
+    <color name="backgroundColor">#F9FAFC</color>
+    <color name="surfaceColor">#FFFFFF</color>
+    <color name="dividerColor">#EDF2F7</color>
+
+    <!-- Status Colors -->
+    <color name="statusLost">#B91C1C</color>
+    <color name="statusFound">#166534</color>
+    <color name="statusResolved">#B91C1C</color>
+    <color name="error">#B91C1C</color>
+    <color name="success">#166534</color>
+
+    <!-- Original colors -->
+    <color name="white">#FFFFFFFF</color>
+    <color name="black">#FF000000</color>
+    <color name="gray">#FF888888</color>
 </resources>

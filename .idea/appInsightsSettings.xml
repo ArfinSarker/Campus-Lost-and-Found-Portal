@@ -8,10 +8,10 @@
             <InsightsFilterSettings>
               <option name="connection">
                 <ConnectionSetting>
-                  <option name="appId" value="PLACEHOLDER" />
-                  <option name="mobileSdkAppId" value="" />
-                  <option name="projectId" value="" />
-                  <option name="projectNumber" value="" />
+                  <option name="appId" value="com.sas.lostandfound" />
+                  <option name="mobileSdkAppId" value="1:207058759801:android:7fed94ad324b09146aa4a8" />
+                  <option name="projectId" value="campus-lost-and-found-portal" />
+                  <option name="projectNumber" value="207058759801" />
                 </ConnectionSetting>
               </option>
               <option name="signal" value="SIGNAL_UNSPECIFIED" />
