@@ -9,6 +9,7 @@ public class User {
     private String department;
     private String batch;
     private String levelTerm;
+    private String section;
     private String profileImageUrl;
     private String gender;
     private long registeredAt; // timestamp
@@ -18,7 +19,7 @@ public class User {
 
     // Constructor with all fields
     public User(String userId, String name, String universityId, String email, String phone,
-                String department, String batch, String levelTerm, String profileImageUrl, String gender) {
+                String department, String batch, String levelTerm, String section, String profileImageUrl, String gender) {
         this.userId = userId;
         this.name = name;
         this.universityId = universityId;
@@ -27,15 +28,22 @@ public class User {
         this.department = department;
         this.batch = batch;
         this.levelTerm = levelTerm;
+        this.section = section;
         this.profileImageUrl = profileImageUrl;
         this.gender = gender;
         this.registeredAt = System.currentTimeMillis();
     }
 
-    // Constructor without gender (defaults to "Not Specified")
+    // Constructor without section (for backwards compatibility if needed)
+    public User(String userId, String name, String universityId, String email, String phone,
+                String department, String batch, String levelTerm, String profileImageUrl, String gender) {
+        this(userId, name, universityId, email, phone, department, batch, levelTerm, "Not Specified", profileImageUrl, gender);
+    }
+
+    // Constructor with 9 parameters (matches UserRegistrationActivity call)
     public User(String userId, String name, String universityId, String email, String phone,
                 String department, String batch, String levelTerm, String profileImageUrl) {
-        this(userId, name, universityId, email, phone, department, batch, levelTerm, profileImageUrl, "Not Specified");
+        this(userId, name, universityId, email, phone, department, batch, levelTerm, "Not Specified", profileImageUrl, "Not Specified");
     }
 
     // Getters and setters
@@ -62,6 +70,9 @@ public class User {
 
     public String getLevelTerm() { return levelTerm; }
     public void setLevelTerm(String levelTerm) { this.levelTerm = levelTerm; }
+
+    public String getSection() { return section; }
+    public void setSection(String section) { this.section = section; }
 
     public String getProfileImageUrl() { return profileImageUrl; }
     public void setProfileImageUrl(String profileImageUrl) { this.profileImageUrl = profileImageUrl; }

@@ -16,7 +16,7 @@ import java.util.List;
 public class DashboardActivity extends AppCompatActivity {
 
     private MaterialButton btnReportLost, btnReportFound, btnSignIn;
-    private TextView tvBrowseAll;
+    private TextView tvBrowseAll, tvDeveloperInfo;
     private RecyclerView recyclerView;
     private ItemAdapter adapter;
     private List<Item> itemList;
@@ -30,18 +30,20 @@ public class DashboardActivity extends AppCompatActivity {
 
         mAuth = FirebaseAuth.getInstance();
 
-        btnReportLost = findViewById(R.id.btnReportLost);
-        btnReportFound = findViewById(R.id.btnReportFound);
-        btnSignIn = findViewById(R.id.btnSignIn);
-        tvBrowseAll = findViewById(R.id.tvBrowseAll);
-        recyclerView = findViewById(R.id.recyclerViewRecent);
-
         // Check if already logged in - if so, go to CampusDashboard
         if (mAuth.getCurrentUser() != null) {
             startActivity(new Intent(this, CampusDashboardActivity.class));
             finish();
             return;
         }
+
+        // Initialize views
+        btnReportLost = findViewById(R.id.btnReportLost);
+        btnReportFound = findViewById(R.id.btnReportFound);
+        btnSignIn = findViewById(R.id.btnSignIn);
+        tvBrowseAll = findViewById(R.id.tvBrowseAll);
+        tvDeveloperInfo = findViewById(R.id.tvDeveloperInfo);
+        recyclerView = findViewById(R.id.recyclerViewRecent);
 
         // Sample data
         itemList = new ArrayList<>();
@@ -60,6 +62,7 @@ public class DashboardActivity extends AppCompatActivity {
         });
         recyclerView.setAdapter(adapter);
 
+        // Set click listeners
         btnSignIn.setOnClickListener(v -> {
             startActivity(new Intent(DashboardActivity.this, UserLoginActivity.class));
         });
@@ -75,6 +78,12 @@ public class DashboardActivity extends AppCompatActivity {
         tvBrowseAll.setOnClickListener(v -> {
             startActivity(new Intent(DashboardActivity.this, UserLoginActivity.class));
         });
+
+        if (tvDeveloperInfo != null) {
+            tvDeveloperInfo.setOnClickListener(v -> {
+                startActivity(new Intent(DashboardActivity.this, DeveloperInfoActivity.class));
+            });
+        }
     }
 
     @Override
