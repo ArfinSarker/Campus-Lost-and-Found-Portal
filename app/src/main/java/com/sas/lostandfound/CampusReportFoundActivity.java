@@ -44,14 +44,13 @@ import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.Locale;
 
-public class CampusReportLostActivity extends AppCompatActivity {
+public class CampusReportFoundActivity extends AppCompatActivity {
 
-    private TextInputEditText etItemName, etDateLost, etTimeLost, etManualLocation, etLocationDetails, etDescription, etProofOwnership, etConfidentialDetail, etContactName, etContactPhone;
-    private AutoCompleteTextView actvCategory, actvLocation, actvPreferredContact;
-    private TextInputLayout tilManualLocation;
+    private TextInputEditText etItemName, etDateFound, etTimeFound, etManualLocation, etLocationDetails, etDescription, etAuthorityName, etOfficeRoom, etHiddenQuestion, etContactName, etContactPhone;
+    private AutoCompleteTextView actvCategory, actvLocation, actvHandlingStatus, actvVerificationMethod, actvPreferredContact;
+    private TextInputLayout tilManualLocation, tilAuthorityName, tilOfficeRoom;
     private MaterialCheckBox cbConfirm;
     private MaterialButton btnSubmit;
     private com.google.android.material.card.MaterialCardView uploadCard;
@@ -76,18 +75,18 @@ public class CampusReportLostActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_campus_report_lost);
+        setContentView(R.layout.activity_campus_report_found);
 
         mAuth = FirebaseAuth.getInstance();
         mDatabase = FirebaseDatabase.getInstance(DATABASE_URL).getReference();
-        mStorageRef = FirebaseStorage.getInstance().getReference("LostImages");
+        mStorageRef = FirebaseStorage.getInstance().getReference("FoundImages");
 
         initializeViews();
         setupToolbar();
         setupDropdowns();
         setupPickers();
         fetchCurrentUserData();
-        
+
         uploadCard.setOnClickListener(v -> showImageSourceDialog());
         btnSubmit.setOnClickListener(v -> validateAndSubmit());
     }
@@ -96,21 +95,27 @@ public class CampusReportLostActivity extends AppCompatActivity {
         etItemName = findViewById(R.id.etItemName);
         actvCategory = findViewById(R.id.actvCategory);
         etDescription = findViewById(R.id.etDescription);
-        
-        etDateLost = findViewById(R.id.etDateLost);
-        etTimeLost = findViewById(R.id.etTimeLost);
+
+        etDateFound = findViewById(R.id.etDateFound);
+        etTimeFound = findViewById(R.id.etTimeFound);
         actvLocation = findViewById(R.id.actvLocation);
         tilManualLocation = findViewById(R.id.tilManualLocation);
         etManualLocation = findViewById(R.id.etManualLocation);
         etLocationDetails = findViewById(R.id.etLocationDetails);
-        
-        etProofOwnership = findViewById(R.id.etProofOwnership);
-        etConfidentialDetail = findViewById(R.id.etConfidentialDetail);
-        
+
+        actvHandlingStatus = findViewById(R.id.actvHandlingStatus);
+        tilAuthorityName = findViewById(R.id.tilAuthorityName);
+        etAuthorityName = findViewById(R.id.etAuthorityName);
+        tilOfficeRoom = findViewById(R.id.tilOfficeRoom);
+        etOfficeRoom = findViewById(R.id.etOfficeRoom);
+
+        etHiddenQuestion = findViewById(R.id.etHiddenQuestion);
+        actvVerificationMethod = findViewById(R.id.actvVerificationMethod);
+
         etContactName = findViewById(R.id.etContactName);
         etContactPhone = findViewById(R.id.etContactPhone);
         actvPreferredContact = findViewById(R.id.actvPreferredContact);
-        
+
         cbConfirm = findViewById(R.id.cbConfirm);
         btnSubmit = findViewById(R.id.btnSubmitReport);
         uploadCard = findViewById(R.id.uploadCard);
@@ -154,35 +159,47 @@ public class CampusReportLostActivity extends AppCompatActivity {
         String[] locations = {"Academic Building", "Library", "Cafeteria", "Playground", "Lab Room", "Dormitory", "Other"};
         actvLocation.setAdapter(new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, locations));
         actvLocation.setOnItemClickListener((parent, view, position, id) -> {
-            if (locations[position].equals("Other")) {
-                tilManualLocation.setVisibility(View.VISIBLE);
+            if (locations[position].equals("Other")) tilManualLocation.setVisibility(View.VISIBLE);
+            else tilManualLocation.setVisibility(View.GONE);
+        });
+
+        String[] handlingStatuses = {"Kept with finder", "Submitted to university authority", "Submitted to department office", "Submitted to security office"};
+        actvHandlingStatus.setAdapter(new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, handlingStatuses));
+        actvHandlingStatus.setOnItemClickListener((parent, view, position, id) -> {
+            if (position > 0) {
+                tilAuthorityName.setVisibility(View.VISIBLE);
+                tilOfficeRoom.setVisibility(View.VISIBLE);
             } else {
-                tilManualLocation.setVisibility(View.GONE);
+                tilAuthorityName.setVisibility(View.GONE);
+                tilOfficeRoom.setVisibility(View.GONE);
             }
         });
+
+        String[] verificationMethods = {"Admin verification required", "Direct contact allowed"};
+        actvVerificationMethod.setAdapter(new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, verificationMethods));
 
         String[] contactMethods = {"Phone", "Email", "In-app chat"};
         actvPreferredContact.setAdapter(new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, contactMethods));
     }
 
     private void setupPickers() {
-        etDateLost.setOnClickListener(v -> {
+        etDateFound.setOnClickListener(v -> {
             Calendar calendar = Calendar.getInstance();
             DatePickerDialog datePickerDialog = new DatePickerDialog(this,
                     (view, year, month, dayOfMonth) -> {
                         String selectedDate = String.format(Locale.getDefault(), "%02d/%02d/%04d", dayOfMonth, month + 1, year);
-                        etDateLost.setText(selectedDate);
+                        etDateFound.setText(selectedDate);
                     }, calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH), calendar.get(Calendar.DAY_OF_MONTH));
             datePickerDialog.getDatePicker().setMaxDate(System.currentTimeMillis());
             datePickerDialog.show();
         });
 
-        etTimeLost.setOnClickListener(v -> {
+        etTimeFound.setOnClickListener(v -> {
             Calendar calendar = Calendar.getInstance();
             TimePickerDialog timePickerDialog = new TimePickerDialog(this,
                     (view, hourOfDay, minute) -> {
                         String selectedTime = String.format(Locale.getDefault(), "%02d:%02d", hourOfDay, minute);
-                        etTimeLost.setText(selectedTime);
+                        etTimeFound.setText(selectedTime);
                     }, calendar.get(Calendar.HOUR_OF_DAY), calendar.get(Calendar.MINUTE), false);
             timePickerDialog.show();
         });
@@ -202,9 +219,7 @@ public class CampusReportLostActivity extends AppCompatActivity {
     private void checkCameraPermission() {
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.CAMERA}, CAMERA_PERMISSION_CODE);
-        } else {
-            openCamera();
-        }
+        } else openCamera();
     }
 
     private void openCamera() {
@@ -242,7 +257,7 @@ public class CampusReportLostActivity extends AppCompatActivity {
                 imageUri = data.getData();
             }
             ivUploadedImage.setImageResource(R.drawable.ic_check_circle);
-            ivUploadedImage.setColorFilter(ContextCompat.getColor(this, R.color.primaryColor));
+            ivUploadedImage.setColorFilter(ContextCompat.getColor(this, R.color.statusFound));
             tvUploadStatus.setText("Image Ready");
         }
     }
@@ -251,15 +266,19 @@ public class CampusReportLostActivity extends AppCompatActivity {
         String name = etItemName.getText().toString().trim();
         String category = actvCategory.getText().toString().trim();
         String description = etDescription.getText().toString().trim();
-        String date = etDateLost.getText().toString().trim();
+        String date = etDateFound.getText().toString().trim();
         String location = actvLocation.getText().toString().trim();
+        String handlingStatus = actvHandlingStatus.getText().toString().trim();
+        String hiddenQuestion = etHiddenQuestion.getText().toString().trim();
         String phone = etContactPhone.getText().toString().trim();
 
         if (TextUtils.isEmpty(name)) { etItemName.setError("Required"); return; }
         if (TextUtils.isEmpty(category)) { actvCategory.setError("Required"); return; }
         if (TextUtils.isEmpty(description)) { etDescription.setError("Required"); return; }
-        if (TextUtils.isEmpty(date)) { etDateLost.setError("Required"); return; }
+        if (TextUtils.isEmpty(date)) { etDateFound.setError("Required"); return; }
         if (TextUtils.isEmpty(location)) { actvLocation.setError("Required"); return; }
+        if (TextUtils.isEmpty(handlingStatus)) { actvHandlingStatus.setError("Required"); return; }
+        if (TextUtils.isEmpty(hiddenQuestion)) { etHiddenQuestion.setError("Required"); return; }
         if (TextUtils.isEmpty(phone)) { etContactPhone.setError("Required"); return; }
         if (!cbConfirm.isChecked()) { Toast.makeText(this, "Please confirm accuracy", Toast.LENGTH_SHORT).show(); return; }
 
@@ -268,35 +287,39 @@ public class CampusReportLostActivity extends AppCompatActivity {
             if (TextUtils.isEmpty(location)) { etManualLocation.setError("Required"); return; }
         }
 
-        submitReport(name, category, description, date, location);
+        submitReport(name, category, description, date, location, handlingStatus, hiddenQuestion);
     }
 
-    private void submitReport(String name, String category, String description, String date, String location) {
-        DatabaseReference lostRef = mDatabase.child("LostItems");
-        String itemId = lostRef.push().getKey();
+    private void submitReport(String name, String category, String description, String date, String location, String handlingStatus, String hiddenQuestion) {
+        DatabaseReference foundRef = mDatabase.child("FoundItems");
+        String itemId = foundRef.push().getKey();
         String currentUserId = mAuth.getCurrentUser().getUid();
 
         if (imageUri != null) {
             StorageReference fileRef = mStorageRef.child(itemId + ".jpg");
-            fileRef.putFile(imageUri).addOnSuccessListener(taskSnapshot -> 
+            fileRef.putFile(imageUri).addOnSuccessListener(taskSnapshot ->
                 fileRef.getDownloadUrl().addOnSuccessListener(uri -> {
-                    saveToDatabase(itemId, name, category, description, date, location, uri.toString(), currentUserId);
+                    saveToDatabase(itemId, name, category, description, date, location, uri.toString(), currentUserId, handlingStatus, hiddenQuestion);
                 })
             ).addOnFailureListener(e -> Toast.makeText(this, "Upload failed: " + e.getMessage(), Toast.LENGTH_SHORT).show());
         } else {
-            saveToDatabase(itemId, name, category, description, date, location, "", currentUserId);
+            saveToDatabase(itemId, name, category, description, date, location, "", currentUserId, handlingStatus, hiddenQuestion);
         }
     }
 
-    private void saveToDatabase(String itemId, String name, String category, String description, String date, String location, String imageUrl, String userId) {
-        Item item = new Item(itemId, name, category, description, location, date, "lost", userId);
-        item.setTime(etTimeLost.getText().toString().trim());
+    private void saveToDatabase(String itemId, String name, String category, String description, String date, String location, String imageUrl, String userId, String handlingStatus, String hiddenQuestion) {
+        Item item = new Item(itemId, name, category, description, location, date, "found", userId);
+        item.setTime(etTimeFound.getText().toString().trim());
         item.setAdditionalLocationDetails(etLocationDetails.getText().toString().trim());
         item.setImageUrl(imageUrl);
-        item.setConfidentialIdentificationDetail(etConfidentialDetail.getText().toString().trim());
+        item.setItemHandlingStatus(handlingStatus);
+        item.setAuthorityName(etAuthorityName.getText().toString().trim());
+        item.setOfficeRoomNumber(etOfficeRoom.getText().toString().trim());
+        item.setHiddenIdentificationQuestion(hiddenQuestion);
+        item.setVerificationMethod(actvVerificationMethod.getText().toString().trim());
         item.setPreferredContactMethod(actvPreferredContact.getText().toString().trim());
         item.setUserPhone(etContactPhone.getText().toString().trim());
-        
+
         if (currentUser != null) {
             item.setUserName(currentUser.getName());
             item.setUserEmail(currentUser.getEmail());
@@ -304,7 +327,7 @@ public class CampusReportLostActivity extends AppCompatActivity {
             item.setUserDepartment(currentUser.getDepartment());
         }
 
-        mDatabase.child("LostItems").child(itemId).setValue(item).addOnCompleteListener(task -> {
+        mDatabase.child("FoundItems").child(itemId).setValue(item).addOnCompleteListener(task -> {
             if (task.isSuccessful()) {
                 mDatabase.child("UserItems").child(userId).child(itemId).setValue(true);
                 Toast.makeText(this, R.string.success_report_submitted, Toast.LENGTH_SHORT).show();

@@ -26,7 +26,7 @@
                 <com.google.android.material.card.MaterialCardView
                     android:layout_width="32dp"
                     android:layout_height="32dp"
-                    app:cardBackgroundColor="#E53935"
+                    app:cardBackgroundColor="#2E7D32"
                     app:cardCornerRadius="16dp"
                     app:cardElevation="0dp">
 
@@ -43,7 +43,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginStart="12dp"
                     android:fontFamily="sans-serif-medium"
-                    android:text="@string/report_lost_title"
+                    android:text="@string/report_found_title"
                     android:textColor="@color/textPrimary"
                     android:textSize="18sp"
                     android:textStyle="bold" />
@@ -67,7 +67,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Basic Information"
-                android:textColor="@color/primaryColor"
+                android:textColor="@color/statusFound"
                 android:textSize="16sp"
                 android:textStyle="bold" />
 
@@ -202,13 +202,13 @@
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 
-            <!-- Section: Loss Details -->
+            <!-- Section: Found Details -->
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="24dp"
-                android:text="Loss Details"
-                android:textColor="@color/primaryColor"
+                android:text="Found Details"
+                android:textColor="@color/statusFound"
                 android:textSize="16sp"
                 android:textStyle="bold" />
 
@@ -227,7 +227,7 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="@string/label_date_lost"
+                        android:text="@string/label_date_found"
                         android:textColor="@color/textPrimary"
                         android:textSize="14sp"
                         android:textStyle="bold" />
@@ -245,7 +245,7 @@
                         app:startIconDrawable="@drawable/ic_calendar">
 
                         <com.google.android.material.textfield.TextInputEditText
-                            android:id="@+id/etDateLost"
+                            android:id="@+id/etDateFound"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:focusable="false"
@@ -284,7 +284,7 @@
                         app:startIconDrawable="@drawable/ic_clock">
 
                         <com.google.android.material.textfield.TextInputEditText
-                            android:id="@+id/etTimeLost"
+                            android:id="@+id/etTimeFound"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:focusable="false"
@@ -368,13 +368,13 @@
                     android:hint="@string/hint_location_details" />
             </com.google.android.material.textfield.TextInputLayout>
 
-            <!-- Section: Ownership Verification -->
+            <!-- Section: Item Handling Status -->
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="24dp"
-                android:text="Ownership Verification"
-                android:textColor="@color/primaryColor"
+                android:text="Item Handling Status"
+                android:textColor="@color/statusFound"
                 android:textSize="16sp"
                 android:textStyle="bold" />
 
@@ -382,7 +382,85 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
-                android:text="@string/label_proof_ownership"
+                android:text="@string/label_found_handling"
+                android:textColor="@color/textPrimary"
+                android:textSize="14sp"
+                android:textStyle="bold" />
+
+            <com.google.android.material.textfield.TextInputLayout
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                app:boxCornerRadiusBottomEnd="12dp"
+                app:boxCornerRadiusBottomStart="12dp"
+                app:boxCornerRadiusTopEnd="12dp"
+                app:boxCornerRadiusTopStart="12dp"
+                app:hintEnabled="false">
+
+                <AutoCompleteTextView
+                    android:id="@+id/actvHandlingStatus"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="Select Status"
+                    android:inputType="none" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/tilAuthorityName"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:visibility="gone"
+                app:boxCornerRadiusBottomEnd="12dp"
+                app:boxCornerRadiusBottomStart="12dp"
+                app:boxCornerRadiusTopEnd="12dp"
+                app:boxCornerRadiusTopStart="12dp"
+                app:hintEnabled="false">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/etAuthorityName"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="@string/label_authority_name" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/tilOfficeRoom"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:visibility="gone"
+                app:boxCornerRadiusBottomEnd="12dp"
+                app:boxCornerRadiusBottomStart="12dp"
+                app:boxCornerRadiusTopEnd="12dp"
+                app:boxCornerRadiusTopStart="12dp"
+                app:hintEnabled="false">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/etOfficeRoom"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="@string/label_office_room" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <!-- Section: Security & Verification -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="24dp"
+                android:text="Security &amp; Verification"
+                android:textColor="@color/statusFound"
+                android:textSize="16sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:text="@string/label_hidden_question"
                 android:textColor="@color/textPrimary"
                 android:textSize="14sp"
                 android:textStyle="bold" />
@@ -399,24 +477,24 @@
                 app:hintEnabled="false">
 
                 <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/etProofOwnership"
+                    android:id="@+id/etHiddenQuestion"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:hint="@string/hint_proof_description"
-                    android:inputType="textMultiLine" />
+                    android:hint="@string/hint_hidden_question"
+                    android:inputType="text" />
             </com.google.android.material.textfield.TextInputLayout>
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
-                android:text="@string/label_confidential_detail"
+                android:text="@string/label_verification_method"
                 android:textColor="@color/textPrimary"
                 android:textSize="14sp"
                 android:textStyle="bold" />
 
             <com.google.android.material.textfield.TextInputLayout
-                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
@@ -426,21 +504,21 @@
                 app:boxCornerRadiusTopStart="12dp"
                 app:hintEnabled="false">
 
-                <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/etConfidentialDetail"
+                <AutoCompleteTextView
+                    android:id="@+id/actvVerificationMethod"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:hint="@string/hint_confidential_detail"
-                    android:inputType="text" />
+                    android:hint="Select Verification"
+                    android:inputType="none" />
             </com.google.android.material.textfield.TextInputLayout>
 
-            <!-- Section: Contact Information -->
+            <!-- Section: Finder Information -->
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="24dp"
-                android:text="Contact Information"
-                android:textColor="@color/primaryColor"
+                android:text="Finder Information"
+                android:textColor="@color/statusFound"
                 android:textSize="16sp"
                 android:textStyle="bold" />
 
@@ -516,7 +594,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="24dp"
-                android:text="@string/confirm_accuracy_lost"
+                android:text="@string/confirm_accuracy_found"
                 android:textColor="@color/textSecondary"
                 android:textSize="12sp" />
 
@@ -526,7 +604,7 @@
                 android:layout_height="56dp"
                 android:layout_marginTop="24dp"
                 android:layout_marginBottom="32dp"
-                android:backgroundTint="#E53935"
+                android:backgroundTint="#2E7D32"
                 android:text="@string/btn_submit_report"
                 android:textAllCaps="false"
                 android:textColor="@color/white"
