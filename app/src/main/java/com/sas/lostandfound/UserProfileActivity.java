@@ -2,6 +2,7 @@ package com.sas.lostandfound;
 
 import android.Manifest;
 import android.app.AlertDialog;
+import android.content.ClipData;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.Uri;
@@ -27,6 +28,7 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.core.content.FileProvider;
 
+import com.bumptech.glide.Glide;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
@@ -41,14 +43,14 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
-import com.google.firebase.storage.FirebaseStorage;
-import com.google.firebase.storage.StorageReference;
 
 import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
@@ -65,14 +67,14 @@ public class UserProfileActivity extends AppCompatActivity {
 
     private FirebaseAuth mAuth;
     private DatabaseReference mDatabase;
-    private StorageReference mStorageRef;
     private static final String DATABASE_URL = "https://campus-lost-and-found-portal-default-rtdb.asia-southeast1.firebasedatabase.app";
 
-    private static final int REQUEST_IMAGE_PICK = 2;
+    private static final int REQUEST_IMAGES_PICK = 2;
     private static final int REQUEST_IMAGE_CAPTURE = 3;
     private static final int CAMERA_PERMISSION_CODE = 100;
 
-    private Uri profileImageUri = null;
+    private final List<Uri> profileImageUris = new ArrayList<>();
+    private Uri cameraImageUri;
     private String currentPhotoPath;
     private String currentUserId;
     private String userEmail;
@@ -87,7 +89,6 @@ public class UserProfileActivity extends AppCompatActivity {
 
         mAuth = FirebaseAuth.getInstance();
         mDatabase = FirebaseDatabase.getInstance(DATABASE_URL).getReference();
-        mStorageRef = FirebaseStorage.getInstance().getReference("profile_pictures");
 
         FirebaseUser user = mAuth.getCurrentUser();
         if (user == null) {
@@ -225,7 +226,7 @@ public class UserProfileActivity extends AppCompatActivity {
         if (!actvSection.getText().toString().equals(originalUser.getSection())) changed = true;
         
         if (!TextUtils.isEmpty(etOldPassword.getText()) || !TextUtils.isEmpty(etNewPassword.getText())) changed = true;
-        if (profileImageUri != null) changed = true;
+        if (!profileImageUris.isEmpty()) changed = true;
 
         btnSaveChanges.setVisibility(changed ? View.VISIBLE : View.GONE);
     }
@@ -249,6 +250,15 @@ public class UserProfileActivity extends AppCompatActivity {
                         actvLevelTerm.setText(originalUser.getLevelTerm(), false);
                         etDepartment.setText(originalUser.getDepartment());
                         actvSection.setText(originalUser.getSection(), false);
+                        
+                        if (originalUser.getProfileImageUrl() != null && !originalUser.getProfileImageUrl().isEmpty()) {
+                            Glide.with(UserProfileActivity.this)
+                                    .load(originalUser.getProfileImageUrl())
+                                    .placeholder(R.drawable.ic_user)
+                                    .circleCrop()
+                                    .into(ivProfilePicture);
+                        }
+                        
                         isDataLoaded = true;
                     }
                 }
@@ -294,24 +304,32 @@ public class UserProfileActivity extends AppCompatActivity {
         updates.put("department", dept);
         updates.put("section", section);
 
-        if (profileImageUri != null) {
-            uploadImageAndFinishUpdate(updates);
+        if (!profileImageUris.isEmpty()) {
+            uploadImagesAndFinishUpdate(updates);
         } else {
             finalizeDatabaseUpdate(updates);
         }
     }
 
-    private void uploadImageAndFinishUpdate(Map<String, Object> updates) {
-        StorageReference fileRef = mStorageRef.child(currentUserId + ".jpg");
-        fileRef.putFile(profileImageUri)
-                .addOnSuccessListener(taskSnapshot -> fileRef.getDownloadUrl().addOnSuccessListener(uri -> {
-                    updates.put("profileImageUrl", uri.toString());
-                    finalizeDatabaseUpdate(updates);
-                }))
-                .addOnFailureListener(e -> {
-                    showLoading(false);
-                    Toast.makeText(this, "Image upload failed: " + e.getMessage(), Toast.LENGTH_SHORT).show();
-                });
+    private void uploadImagesAndFinishUpdate(Map<String, Object> updates) {
+        if (profileImageUris.isEmpty()) return;
+        
+        Uri uri = profileImageUris.get(0);
+        String fileName = currentUserId + "_" + System.currentTimeMillis() + ".jpg";
+
+        SupabaseStorageHelper.uploadImage(this, uri, "profiles", fileName, new SupabaseStorageHelper.UploadCallback() {
+            @Override
+            public void onSuccess(String publicUrl) {
+                updates.put("profileImageUrl", publicUrl);
+                finalizeDatabaseUpdate(updates);
+            }
+
+            @Override
+            public void onFailure(Exception e) {
+                showLoading(false);
+                Toast.makeText(UserProfileActivity.this, "Supabase Upload Failed: " + e.getMessage(), Toast.LENGTH_LONG).show();
+            }
+        });
     }
 
     private void finalizeDatabaseUpdate(Map<String, Object> updates) {
@@ -338,7 +356,7 @@ public class UserProfileActivity extends AppCompatActivity {
         actvSection.setEnabled(false);
         etOldPassword.setText("");
         etNewPassword.setText("");
-        profileImageUri = null;
+        profileImageUris.clear();
         btnSaveChanges.setVisibility(View.GONE);
     }
 
@@ -398,8 +416,7 @@ public class UserProfileActivity extends AppCompatActivity {
             if (which == 0) {
                 checkCameraPermission();
             } else if (which == 1) {
-                Intent pickPhotoIntent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
-                startActivityForResult(pickPhotoIntent, REQUEST_IMAGE_PICK);
+                openGallery();
             }
         });
         builder.show();
@@ -423,10 +440,10 @@ public class UserProfileActivity extends AppCompatActivity {
                 Toast.makeText(this, "Error occurred while creating file", Toast.LENGTH_SHORT).show();
             }
             if (photoFile != null) {
-                profileImageUri = FileProvider.getUriForFile(this,
+                cameraImageUri = FileProvider.getUriForFile(this,
                         getApplicationContext().getPackageName() + ".fileprovider",
                         photoFile);
-                takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, profileImageUri);
+                takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, cameraImageUri);
                 startActivityForResult(takePictureIntent, REQUEST_IMAGE_CAPTURE);
             }
         }
@@ -439,6 +456,12 @@ public class UserProfileActivity extends AppCompatActivity {
         File image = File.createTempFile(imageFileName, ".jpg", storageDir);
         currentPhotoPath = image.getAbsolutePath();
         return image;
+    }
+
+    private void openGallery() {
+        Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
+        intent.setType("image/*");
+        startActivityForResult(Intent.createChooser(intent, "Select Picture"), REQUEST_IMAGES_PICK);
     }
 
     @Override
@@ -457,12 +480,27 @@ public class UserProfileActivity extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (resultCode == RESULT_OK) {
-            if (requestCode == REQUEST_IMAGE_PICK && data != null && data.getData() != null) {
-                profileImageUri = data.getData();
-                ivProfilePicture.setImageURI(profileImageUri);
-                checkForChanges();
+            if (requestCode == REQUEST_IMAGES_PICK) {
+                profileImageUris.clear();
+                if (data != null) {
+                    if (data.getClipData() != null) {
+                        ClipData clipData = data.getClipData();
+                        for (int i = 0; i < clipData.getItemCount(); i++) {
+                            profileImageUris.add(clipData.getItemAt(i).getUri());
+                        }
+                    } else if (data.getData() != null) {
+                        profileImageUris.add(data.getData());
+                    }
+                }
             } else if (requestCode == REQUEST_IMAGE_CAPTURE) {
-                ivProfilePicture.setImageURI(profileImageUri);
+                if (cameraImageUri != null) {
+                    profileImageUris.clear();
+                    profileImageUris.add(cameraImageUri);
+                }
+            }
+            
+            if (!profileImageUris.isEmpty()) {
+                ivProfilePicture.setImageURI(profileImageUris.get(0));
                 checkForChanges();
             }
         }

@@ -6,6 +6,18 @@
     <color name="primaryLightColor">#DBEAFE</color>
     <color name="accentColor">#2563EB</color>
 
+    <!-- Browse Items Page Specific Colors -->
+    <color name="browse_background">#F8FAFC</color>
+    <color name="browse_primary">#1E3A8A</color>
+    <color name="browse_secondary">#3B82F6</color>
+    <color name="browse_text_primary">#1E293B</color>
+    <color name="browse_text_secondary">#64748B</color>
+    <color name="browse_chip_default">#E2E8F0</color>
+    <color name="lost_bg">#FEE2E2</color>
+    <color name="lost_text">#DC2626</color>
+    <color name="found_bg">#DCFCE7</color>
+    <color name="found_text">#16A34A</color>
+
     <!-- Compatibility Colors -->
     <color name="vibrantBlue">#2563EB</color>
     <color name="darkBlue">#1E40AF</color>

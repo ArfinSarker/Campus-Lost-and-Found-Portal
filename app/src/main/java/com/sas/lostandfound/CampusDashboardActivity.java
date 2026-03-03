@@ -15,6 +15,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.bumptech.glide.Glide;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.card.MaterialCardView;
 import com.google.android.material.tabs.TabLayout;
@@ -143,7 +144,17 @@ public class CampusDashboardActivity extends AppCompatActivity {
                 public void onDataChange(@NonNull DataSnapshot snapshot) {
                     if (snapshot.exists()) {
                         String name = snapshot.child("name").getValue(String.class);
+                        String profileImageUrl = snapshot.child("profileImageUrl").getValue(String.class);
+                        
                         tvWelcome.setText("Welcome back, " + name + "! 👋");
+                        
+                        if (profileImageUrl != null && !profileImageUrl.isEmpty() && !isFinishing()) {
+                            Glide.with(CampusDashboardActivity.this)
+                                    .load(profileImageUrl)
+                                    .placeholder(R.drawable.ic_user)
+                                    .circleCrop()
+                                    .into(ivUserProfile);
+                        }
                     }
                 }
 
@@ -165,7 +176,6 @@ public class CampusDashboardActivity extends AppCompatActivity {
     }
 
     private void fetchRecentItems() {
-        // Fetch both lost and found items for the recent list
         mDatabase.child("LostItems").limitToLast(5).addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
@@ -202,7 +212,6 @@ public class CampusDashboardActivity extends AppCompatActivity {
                 }
             }
         }
-        // Sort by timestamp if available
         itemList.sort((o1, o2) -> Long.compare(o2.getTimestamp(), o1.getTimestamp()));
         adapter.notifyDataSetChanged();
     }
@@ -228,11 +237,18 @@ public class CampusDashboardActivity extends AppCompatActivity {
             holder.tvLocation.setText(item.getLocation());
             holder.tvTime.setText(item.getDate());
             
-            // Color code based on status
             if ("lost".equals(item.getStatus())) {
-                holder.statusIndicator.setBackgroundColor(0xFFE53935); // Red
+                holder.statusIndicator.setBackgroundColor(0xFFE53935);
             } else {
-                holder.statusIndicator.setBackgroundColor(0xFF2E7D32); // Green
+                holder.statusIndicator.setBackgroundColor(0xFF2E7D32);
+            }
+
+            if (item.getImageUrl() != null && !item.getImageUrl().isEmpty()) {
+                Glide.with(holder.itemView.getContext())
+                        .load(item.getImageUrl())
+                        .placeholder(R.drawable.ic_package)
+                        .centerCrop()
+                        .into(holder.ivIcon);
             }
         }
 
@@ -252,7 +268,7 @@ public class CampusDashboardActivity extends AppCompatActivity {
                 tvLocation = itemView.findViewById(R.id.tvItemLocation);
                 tvTime = itemView.findViewById(R.id.tvItemTime);
                 ivIcon = itemView.findViewById(R.id.ivItemIcon);
-                statusIndicator = itemView.findViewById(R.id.viewStatusIndicator); // Ensure this exists in layout
+                statusIndicator = itemView.findViewById(R.id.viewStatusIndicator);
             }
         }
     }

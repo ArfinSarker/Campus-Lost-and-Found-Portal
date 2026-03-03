@@ -4,6 +4,7 @@ import android.Manifest;
 import android.app.AlertDialog;
 import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
+import android.content.ClipData;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.Uri;
@@ -36,15 +37,16 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
-import com.google.firebase.storage.FirebaseStorage;
-import com.google.firebase.storage.StorageReference;
 
 import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.List;
 import java.util.Locale;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class CampusReportFoundActivity extends AppCompatActivity {
 
@@ -58,16 +60,16 @@ public class CampusReportFoundActivity extends AppCompatActivity {
     private TextView tvUploadStatus;
     private Toolbar toolbar;
 
-    private static final int PICK_IMAGE_REQUEST = 1;
+    private static final int PICK_IMAGES_REQUEST = 1;
     private static final int REQUEST_IMAGE_CAPTURE = 2;
     private static final int CAMERA_PERMISSION_CODE = 100;
 
-    private Uri imageUri;
+    private final List<Uri> imageUris = new ArrayList<>();
+    private Uri cameraImageUri;
     private String currentPhotoPath;
 
     private FirebaseAuth mAuth;
     private DatabaseReference mDatabase;
-    private StorageReference mStorageRef;
     private static final String DATABASE_URL = "https://campus-lost-and-found-portal-default-rtdb.asia-southeast1.firebasedatabase.app";
 
     private User currentUser;
@@ -79,7 +81,6 @@ public class CampusReportFoundActivity extends AppCompatActivity {
 
         mAuth = FirebaseAuth.getInstance();
         mDatabase = FirebaseDatabase.getInstance(DATABASE_URL).getReference();
-        mStorageRef = FirebaseStorage.getInstance().getReference("FoundImages");
 
         initializeViews();
         setupToolbar();
@@ -135,6 +136,7 @@ public class CampusReportFoundActivity extends AppCompatActivity {
     }
 
     private void fetchCurrentUserData() {
+        if (mAuth.getCurrentUser() == null) return;
         String userId = mAuth.getCurrentUser().getUid();
         mDatabase.child("Users").child(userId).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
@@ -229,8 +231,8 @@ public class CampusReportFoundActivity extends AppCompatActivity {
             try { photoFile = createImageFile(); }
             catch (IOException ex) { Toast.makeText(this, "Error creating file", Toast.LENGTH_SHORT).show(); }
             if (photoFile != null) {
-                imageUri = FileProvider.getUriForFile(this, getApplicationContext().getPackageName() + ".fileprovider", photoFile);
-                takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, imageUri);
+                cameraImageUri = FileProvider.getUriForFile(this, getApplicationContext().getPackageName() + ".fileprovider", photoFile);
+                takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, cameraImageUri);
                 startActivityForResult(takePictureIntent, REQUEST_IMAGE_CAPTURE);
             }
         }
@@ -245,20 +247,39 @@ public class CampusReportFoundActivity extends AppCompatActivity {
     }
 
     private void openGallery() {
-        Intent intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
-        startActivityForResult(intent, PICK_IMAGE_REQUEST);
+        Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
+        intent.setType("image/*");
+        intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true);
+        startActivityForResult(Intent.createChooser(intent, "Select Picture"), PICK_IMAGES_REQUEST);
     }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (resultCode == RESULT_OK) {
-            if (requestCode == PICK_IMAGE_REQUEST && data != null && data.getData() != null) {
-                imageUri = data.getData();
+            if (requestCode == PICK_IMAGES_REQUEST) {
+                imageUris.clear();
+                if (data != null) {
+                    if (data.getClipData() != null) {
+                        ClipData clipData = data.getClipData();
+                        for (int i = 0; i < clipData.getItemCount(); i++) {
+                            imageUris.add(clipData.getItemAt(i).getUri());
+                        }
+                    } else if (data.getData() != null) {
+                        imageUris.add(data.getData());
+                    }
+                }
+            } else if (requestCode == REQUEST_IMAGE_CAPTURE) {
+                if (cameraImageUri != null) {
+                    imageUris.add(cameraImageUri);
+                }
             }
-            ivUploadedImage.setImageResource(R.drawable.ic_check_circle);
-            ivUploadedImage.setColorFilter(ContextCompat.getColor(this, R.color.statusFound));
-            tvUploadStatus.setText("Image Ready");
+            
+            if (!imageUris.isEmpty()) {
+                ivUploadedImage.setImageResource(R.drawable.ic_check_circle);
+                ivUploadedImage.setColorFilter(ContextCompat.getColor(this, R.color.statusFound));
+                tvUploadStatus.setText(String.format(Locale.getDefault(), "%d Image(s) Ready", imageUris.size()));
+            }
         }
     }
 
@@ -291,27 +312,55 @@ public class CampusReportFoundActivity extends AppCompatActivity {
     }
 
     private void submitReport(String name, String category, String description, String date, String location, String handlingStatus, String hiddenQuestion) {
+        btnSubmit.setEnabled(false);
+        Toast.makeText(this, "Submitting report...", Toast.LENGTH_SHORT).show();
+
         DatabaseReference foundRef = mDatabase.child("FoundItems");
         String itemId = foundRef.push().getKey();
-        String currentUserId = mAuth.getCurrentUser().getUid();
+        String currentUserId = mAuth.getUid();
 
-        if (imageUri != null) {
-            StorageReference fileRef = mStorageRef.child(itemId + ".jpg");
-            fileRef.putFile(imageUri).addOnSuccessListener(taskSnapshot ->
-                fileRef.getDownloadUrl().addOnSuccessListener(uri -> {
-                    saveToDatabase(itemId, name, category, description, date, location, uri.toString(), currentUserId, handlingStatus, hiddenQuestion);
-                })
-            ).addOnFailureListener(e -> Toast.makeText(this, "Upload failed: " + e.getMessage(), Toast.LENGTH_SHORT).show());
+        if (itemId == null || currentUserId == null) {
+            btnSubmit.setEnabled(true);
+            Toast.makeText(this, "Error generating ID", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        if (!imageUris.isEmpty()) {
+            List<String> imageUrlStrings = new ArrayList<>();
+            AtomicInteger remaining = new AtomicInteger(imageUris.size());
+
+            for (int i = 0; i < imageUris.size(); i++) {
+                String fileName = itemId + "_" + i + "_" + System.currentTimeMillis() + ".jpg";
+                SupabaseStorageHelper.uploadImage(this, imageUris.get(i), "found_items", fileName, new SupabaseStorageHelper.UploadCallback() {
+                    @Override
+                    public void onSuccess(String publicUrl) {
+                        imageUrlStrings.add(publicUrl);
+                        if (remaining.decrementAndGet() == 0) {
+                            saveToDatabase(itemId, name, category, description, date, location, imageUrlStrings, currentUserId, handlingStatus, hiddenQuestion);
+                        }
+                    }
+
+                    @Override
+                    public void onFailure(Exception e) {
+                        if (remaining.decrementAndGet() == 0) {
+                            saveToDatabase(itemId, name, category, description, date, location, imageUrlStrings, currentUserId, handlingStatus, hiddenQuestion);
+                        }
+                    }
+                });
+            }
         } else {
-            saveToDatabase(itemId, name, category, description, date, location, "", currentUserId, handlingStatus, hiddenQuestion);
+            saveToDatabase(itemId, name, category, description, date, location, new ArrayList<>(), currentUserId, handlingStatus, hiddenQuestion);
         }
     }
 
-    private void saveToDatabase(String itemId, String name, String category, String description, String date, String location, String imageUrl, String userId, String handlingStatus, String hiddenQuestion) {
+    private void saveToDatabase(String itemId, String name, String category, String description, String date, String location, List<String> imageUrls, String userId, String handlingStatus, String hiddenQuestion) {
         Item item = new Item(itemId, name, category, description, location, date, "found", userId);
         item.setTime(etTimeFound.getText().toString().trim());
         item.setAdditionalLocationDetails(etLocationDetails.getText().toString().trim());
-        item.setImageUrl(imageUrl);
+        item.setImageUrls(imageUrls);
+        if (!imageUrls.isEmpty()) {
+            item.setImageUrl(imageUrls.get(0));
+        }
         item.setItemHandlingStatus(handlingStatus);
         item.setAuthorityName(etAuthorityName.getText().toString().trim());
         item.setOfficeRoomNumber(etOfficeRoom.getText().toString().trim());
@@ -333,7 +382,8 @@ public class CampusReportFoundActivity extends AppCompatActivity {
                 Toast.makeText(this, R.string.success_report_submitted, Toast.LENGTH_SHORT).show();
                 finish();
             } else {
-                Toast.makeText(this, "Error: " + task.getException().getMessage(), Toast.LENGTH_SHORT).show();
+                btnSubmit.setEnabled(true);
+                Toast.makeText(this, "Database Error: " + (task.getException() != null ? task.getException().getMessage() : "Unknown"), Toast.LENGTH_SHORT).show();
             }
         });
     }

@@ -1,5 +1,8 @@
 package com.sas.lostandfound;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class User {
     private String userId;
     private String name;
@@ -11,11 +14,14 @@ public class User {
     private String levelTerm;
     private String section;
     private String profileImageUrl;
+    private List<String> profileImageUrls;
     private String gender;
     private long registeredAt; // timestamp
 
     // Required empty constructor for Firebase
-    public User() {}
+    public User() {
+        this.profileImageUrls = new ArrayList<>();
+    }
 
     // Constructor with all fields
     public User(String userId, String name, String universityId, String email, String phone,
@@ -32,18 +38,10 @@ public class User {
         this.profileImageUrl = profileImageUrl;
         this.gender = gender;
         this.registeredAt = System.currentTimeMillis();
-    }
-
-    // Constructor without section (for backwards compatibility if needed)
-    public User(String userId, String name, String universityId, String email, String phone,
-                String department, String batch, String levelTerm, String profileImageUrl, String gender) {
-        this(userId, name, universityId, email, phone, department, batch, levelTerm, "Not Specified", profileImageUrl, gender);
-    }
-
-    // Constructor with 9 parameters (matches UserRegistrationActivity call)
-    public User(String userId, String name, String universityId, String email, String phone,
-                String department, String batch, String levelTerm, String profileImageUrl) {
-        this(userId, name, universityId, email, phone, department, batch, levelTerm, "Not Specified", profileImageUrl, "Not Specified");
+        this.profileImageUrls = new ArrayList<>();
+        if (profileImageUrl != null && !profileImageUrl.isEmpty()) {
+            this.profileImageUrls.add(profileImageUrl);
+        }
     }
 
     // Getters and setters
@@ -76,6 +74,9 @@ public class User {
 
     public String getProfileImageUrl() { return profileImageUrl; }
     public void setProfileImageUrl(String profileImageUrl) { this.profileImageUrl = profileImageUrl; }
+
+    public List<String> getProfileImageUrls() { return profileImageUrls; }
+    public void setProfileImageUrls(List<String> profileImageUrls) { this.profileImageUrls = profileImageUrls; }
 
     public String getGender() { return gender; }
     public void setGender(String gender) { this.gender = gender; }

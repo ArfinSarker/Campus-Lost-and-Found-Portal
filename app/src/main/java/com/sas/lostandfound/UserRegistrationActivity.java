@@ -29,13 +29,12 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.core.content.FileProvider;
 
+import com.bumptech.glide.Glide;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.storage.FirebaseStorage;
-import com.google.firebase.storage.StorageReference;
 
 import java.io.File;
 import java.io.IOException;
@@ -64,7 +63,6 @@ public class UserRegistrationActivity extends AppCompatActivity {
 
     private FirebaseAuth mAuth;
     private DatabaseReference mDatabase;
-    private StorageReference mStorageRef;
     
     private static final String DATABASE_URL = "https://campus-lost-and-found-portal-default-rtdb.asia-southeast1.firebasedatabase.app";
 
@@ -75,7 +73,6 @@ public class UserRegistrationActivity extends AppCompatActivity {
 
         mAuth = FirebaseAuth.getInstance();
         mDatabase = FirebaseDatabase.getInstance(DATABASE_URL).getReference();
-        mStorageRef = FirebaseStorage.getInstance().getReference("profile_pictures");
 
         initializeViews();
         setupDropdowns();
@@ -101,7 +98,6 @@ public class UserRegistrationActivity extends AppCompatActivity {
     }
 
     private void setupDropdowns() {
-        // Level Term options
         String[] levelTermOptions = {
                 "Level 1 Term I", "Level 1 Term II",
                 "Level 2 Term I", "Level 2 Term II",
@@ -110,8 +106,6 @@ public class UserRegistrationActivity extends AppCompatActivity {
         };
         ArrayAdapter<String> levelTermAdapter = new ArrayAdapter<>(this, android.R.layout.simple_dropdown_item_1line, levelTermOptions);
         actvLevelTerm.setAdapter(levelTermAdapter);
-        
-        // Fix: Explicitly show dropdown on click
         actvLevelTerm.setOnClickListener(v -> actvLevelTerm.showDropDown());
     }
 
@@ -137,11 +131,8 @@ public class UserRegistrationActivity extends AppCompatActivity {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle(getString(R.string.select_profile_picture));
         builder.setItems(options, (dialog, which) -> {
-            if (which == 0) {
-                checkCameraPermission();
-            } else if (which == 1) {
-                openGallery();
-            }
+            if (which == 0) checkCameraPermission();
+            else if (which == 1) openGallery();
         });
         builder.show();
     }
@@ -149,24 +140,17 @@ public class UserRegistrationActivity extends AppCompatActivity {
     private void checkCameraPermission() {
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.CAMERA}, CAMERA_PERMISSION_CODE);
-        } else {
-            openCamera();
-        }
+        } else openCamera();
     }
 
     private void openCamera() {
         Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
         if (takePictureIntent.resolveActivity(getPackageManager()) != null) {
             File photoFile = null;
-            try {
-                photoFile = createImageFile();
-            } catch (IOException ex) {
-                Toast.makeText(this, "Error occurred while creating file", Toast.LENGTH_SHORT).show();
-            }
+            try { photoFile = createImageFile(); }
+            catch (IOException ex) { Toast.makeText(this, "Error creating file", Toast.LENGTH_SHORT).show(); }
             if (photoFile != null) {
-                profileImageUri = FileProvider.getUriForFile(this,
-                        getApplicationContext().getPackageName() + ".fileprovider",
-                        photoFile);
+                profileImageUri = FileProvider.getUriForFile(this, getApplicationContext().getPackageName() + ".fileprovider", photoFile);
                 takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, profileImageUri);
                 startActivityForResult(takePictureIntent, REQUEST_IMAGE_CAPTURE);
             }
@@ -175,9 +159,8 @@ public class UserRegistrationActivity extends AppCompatActivity {
 
     private File createImageFile() throws IOException {
         String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(new Date());
-        String imageFileName = "JPEG_" + timeStamp + "_";
         File storageDir = getExternalFilesDir(Environment.DIRECTORY_PICTURES);
-        File image = File.createTempFile(imageFileName, ".jpg", storageDir);
+        File image = File.createTempFile("JPEG_" + timeStamp + "_", ".jpg", storageDir);
         currentPhotoPath = image.getAbsolutePath();
         return image;
     }
@@ -188,26 +171,14 @@ public class UserRegistrationActivity extends AppCompatActivity {
     }
 
     @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        if (requestCode == CAMERA_PERMISSION_CODE) {
-            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                openCamera();
-            } else {
-                Toast.makeText(this, "Camera Permission Denied", Toast.LENGTH_SHORT).show();
-            }
-        }
-    }
-
-    @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (resultCode == RESULT_OK) {
             if (requestCode == REQUEST_IMAGE_PICK && data != null && data.getData() != null) {
                 profileImageUri = data.getData();
-                ivProfilePicture.setImageURI(profileImageUri);
+                Glide.with(this).load(profileImageUri).circleCrop().into(ivProfilePicture);
             } else if (requestCode == REQUEST_IMAGE_CAPTURE) {
-                ivProfilePicture.setImageURI(profileImageUri);
+                Glide.with(this).load(profileImageUri).circleCrop().into(ivProfilePicture);
             }
         }
     }
@@ -236,26 +207,12 @@ public class UserRegistrationActivity extends AppCompatActivity {
         String password = etPassword.getText().toString().trim();
         String confirmPassword = etConfirmPassword.getText().toString().trim();
 
-        if (TextUtils.isEmpty(universityId)) {
-            etUniversityId.setError("Required");
-            return;
-        }
-        if (TextUtils.isEmpty(fullName)) {
-            etFullName.setError("Required");
-            return;
-        }
+        if (TextUtils.isEmpty(universityId)) { etUniversityId.setError("Required"); return; }
+        if (TextUtils.isEmpty(fullName)) { etFullName.setError("Required"); return; }
         if (TextUtils.isEmpty(email) || !android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
-            etEmail.setError("Valid email required");
-            return;
-        }
-        if (password.length() < 6) {
-            etPassword.setError("Minimum 6 characters");
-            return;
-        }
-        if (!password.equals(confirmPassword)) {
-            etConfirmPassword.setError("Passwords do not match");
-            return;
-        }
+            etEmail.setError("Valid email required"); return; }
+        if (password.length() < 6) { etPassword.setError("Minimum 6 characters"); return; }
+        if (!password.equals(confirmPassword)) { etConfirmPassword.setError("Passwords do not match"); return; }
 
         showLoading(true);
 
@@ -271,21 +228,23 @@ public class UserRegistrationActivity extends AppCompatActivity {
                     if (mAuth.getCurrentUser() != null) {
                         String userId = mAuth.getCurrentUser().getUid();
                         if (profileImageUri != null) {
-                            uploadImage(userId, universityId, fullName, email);
+                            String fileName = userId + "_" + System.currentTimeMillis() + ".jpg";
+                            SupabaseStorageHelper.uploadImage(this, profileImageUri, "profiles", fileName, new SupabaseStorageHelper.UploadCallback() {
+                                @Override
+                                public void onSuccess(String publicUrl) {
+                                    saveUser(userId, publicUrl, universityId, fullName, email);
+                                }
+
+                                @Override
+                                public void onFailure(Exception e) {
+                                    saveUser(userId, null, universityId, fullName, email);
+                                }
+                            });
                         } else {
                             saveUser(userId, null, universityId, fullName, email);
                         }
                     }
                 });
-    }
-
-    private void uploadImage(String userId, String universityId, String fullName, String email) {
-        StorageReference fileRef = mStorageRef.child(userId + ".jpg");
-        fileRef.putFile(profileImageUri)
-                .addOnSuccessListener(taskSnapshot ->
-                        fileRef.getDownloadUrl().addOnSuccessListener(uri ->
-                                        saveUser(userId, uri.toString(), universityId, fullName, email)))
-                .addOnFailureListener(e -> saveUser(userId, null, universityId, fullName, email));
     }
 
     private void saveUser(String userId, String imageUrl, String universityId, String fullName, String email) {
@@ -294,23 +253,7 @@ public class UserRegistrationActivity extends AppCompatActivity {
         String batch = etBatch.getText().toString().trim();
         String levelTerm = actvLevelTerm.getText().toString().trim();
 
-        // Using the 11-parameter constructor
-        User user = new User(
-                userId,
-                fullName,
-                universityId,
-                email,
-                phone,
-                department,
-                batch,
-                levelTerm,
-                "Not Specified", // Section is now set later in Profile
-                imageUrl,
-                "Not Specified" // Gender
-        );
-
-        // Debug log point
-        android.util.Log.d("FIREBASE_DEBUG", "Saving user with ID: " + userId);
+        User user = new User(userId, fullName, universityId, email, phone, department, batch, levelTerm, "Not Specified", imageUrl, "Not Specified");
 
         mDatabase.child("Users").child(userId)
                 .setValue(user)
@@ -322,9 +265,7 @@ public class UserRegistrationActivity extends AppCompatActivity {
                                 .setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK));
                         finish();
                     } else {
-                        String errorMsg = task.getException() != null ? task.getException().getMessage() : "Unknown database error";
-                        android.util.Log.e("FIREBASE_ERROR", "Error: " + errorMsg);
-                        Toast.makeText(this, "Database error: " + errorMsg, Toast.LENGTH_LONG).show();
+                        Toast.makeText(this, "Database error", Toast.LENGTH_SHORT).show();
                     }
                 });
     }
