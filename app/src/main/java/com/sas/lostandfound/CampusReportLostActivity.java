@@ -1,18 +1,26 @@
 package com.sas.lostandfound;
 
+import android.Manifest;
+import android.app.AlertDialog;
 import android.app.DatePickerDialog;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Environment;
 import android.provider.MediaStore;
 import android.text.TextUtils;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
+import androidx.core.content.FileProvider;
 
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.checkbox.MaterialCheckBox;
@@ -26,8 +34,13 @@ import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 
+import java.io.File;
+import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.HashMap;
+import java.util.Locale;
 
 public class CampusReportLostActivity extends AppCompatActivity {
 
@@ -39,7 +52,11 @@ public class CampusReportLostActivity extends AppCompatActivity {
     private Toolbar toolbar;
 
     private static final int PICK_IMAGE_REQUEST = 1;
+    private static final int REQUEST_IMAGE_CAPTURE = 2;
+    private static final int CAMERA_PERMISSION_CODE = 100;
+
     private Uri imageUri;
+    private String currentPhotoPath;
 
     private FirebaseAuth mAuth;
     private DatabaseReference mDatabase;
@@ -64,7 +81,7 @@ public class CampusReportLostActivity extends AppCompatActivity {
         setupDatePicker();
         fetchCurrentUserData();
         
-        uploadCard.setOnClickListener(v -> openGallery());
+        uploadCard.setOnClickListener(v -> showImageSourceDialog());
         btnSubmit.setOnClickListener(v -> validateAndSubmit());
     }
 
@@ -127,17 +144,83 @@ public class CampusReportLostActivity extends AppCompatActivity {
         });
     }
 
+    private void showImageSourceDialog() {
+        String[] options = {getString(R.string.take_photo), getString(R.string.choose_gallery), getString(R.string.cancel)};
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle(getString(R.string.label_upload_image));
+        builder.setItems(options, (dialog, which) -> {
+            if (which == 0) {
+                checkCameraPermission();
+            } else if (which == 1) {
+                openGallery();
+            }
+        });
+        builder.show();
+    }
+
+    private void checkCameraPermission() {
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.CAMERA}, CAMERA_PERMISSION_CODE);
+        } else {
+            openCamera();
+        }
+    }
+
+    private void openCamera() {
+        Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+        if (takePictureIntent.resolveActivity(getPackageManager()) != null) {
+            File photoFile = null;
+            try {
+                photoFile = createImageFile();
+            } catch (IOException ex) {
+                Toast.makeText(this, "Error occurred while creating file", Toast.LENGTH_SHORT).show();
+            }
+            if (photoFile != null) {
+                imageUri = FileProvider.getUriForFile(this,
+                        getApplicationContext().getPackageName() + ".fileprovider",
+                        photoFile);
+                takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, imageUri);
+                startActivityForResult(takePictureIntent, REQUEST_IMAGE_CAPTURE);
+            }
+        }
+    }
+
+    private File createImageFile() throws IOException {
+        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(new Date());
+        String imageFileName = "JPEG_" + timeStamp + "_";
+        File storageDir = getExternalFilesDir(Environment.DIRECTORY_PICTURES);
+        File image = File.createTempFile(imageFileName, ".jpg", storageDir);
+        currentPhotoPath = image.getAbsolutePath();
+        return image;
+    }
+
     private void openGallery() {
         Intent intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
         startActivityForResult(intent, PICK_IMAGE_REQUEST);
     }
 
     @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (requestCode == CAMERA_PERMISSION_CODE) {
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                openCamera();
+            } else {
+                Toast.makeText(this, "Camera Permission Denied", Toast.LENGTH_SHORT).show();
+            }
+        }
+    }
+
+    @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == PICK_IMAGE_REQUEST && resultCode == RESULT_OK && data != null && data.getData() != null) {
-            imageUri = data.getData();
-            Toast.makeText(this, "Image Selected", Toast.LENGTH_SHORT).show();
+        if (resultCode == RESULT_OK) {
+            if (requestCode == PICK_IMAGE_REQUEST && data != null && data.getData() != null) {
+                imageUri = data.getData();
+                Toast.makeText(this, "Image Selected", Toast.LENGTH_SHORT).show();
+            } else if (requestCode == REQUEST_IMAGE_CAPTURE) {
+                Toast.makeText(this, "Photo Taken", Toast.LENGTH_SHORT).show();
+            }
         }
     }
 
