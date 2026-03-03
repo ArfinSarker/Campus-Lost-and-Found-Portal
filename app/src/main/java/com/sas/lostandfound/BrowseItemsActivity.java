@@ -31,7 +31,7 @@ public class BrowseItemsActivity extends AppCompatActivity {
         setContentView(R.layout.activity_browse_items);
 
         mDatabase = FirebaseDatabase.getInstance(DATABASE_URL).getReference("LostItems");
-        recyclerView = findViewById(R.id.recyclerViewAllItems);
+        recyclerView = findViewById(R.id.rvItems);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
 
         allItems = new ArrayList<>();
