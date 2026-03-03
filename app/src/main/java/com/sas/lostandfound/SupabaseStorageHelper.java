@@ -39,11 +39,10 @@ public class SupabaseStorageHelper {
                 return;
             }
 
-            // Using a simple way to read bytes for small images. 
-            // For very large images, a more memory-efficient buffer approach is better.
             byte[] data = readAllBytes(inputStream);
             inputStream.close();
 
+            // Correct Supabase Storage API URL for uploading
             String url = SupabaseConfig.SUPABASE_URL + "/storage/v1/object/" + SupabaseConfig.BUCKET_NAME + "/" + folder + "/" + fileName;
 
             RequestBody requestBody = RequestBody.create(data, MediaType.parse("image/jpeg"));
@@ -52,7 +51,6 @@ public class SupabaseStorageHelper {
                     .url(url)
                     .addHeader("apikey", SupabaseConfig.SUPABASE_KEY)
                     .addHeader("Authorization", "Bearer " + SupabaseConfig.SUPABASE_KEY)
-                    .addHeader("Content-Type", "image/jpeg")
                     .post(requestBody)
                     .build();
 
@@ -64,7 +62,8 @@ public class SupabaseStorageHelper {
 
                 @Override
                 public void onResponse(Call call, Response response) throws IOException {
-                    if (response.isSuccessful()) {
+                    if (response.isSuccessful() || response.code() == 409) { // 409 means file already exists
+                        // Construct the public URL for downloading/viewing
                         String publicUrl = SupabaseConfig.SUPABASE_URL + "/storage/v1/object/public/" +
                                 SupabaseConfig.BUCKET_NAME + "/" + folder + "/" + fileName;
                         mainHandler.post(() -> callback.onSuccess(publicUrl));
@@ -72,7 +71,7 @@ public class SupabaseStorageHelper {
                         String errorBody = response.body() != null ? response.body().string() : "Unknown error";
                         mainHandler.post(() -> callback.onFailure(new IOException("Upload failed: " + response.code() + " " + errorBody)));
                     }
-                    response.close();
+                    if (response.body() != null) response.close();
                 }
             });
         } catch (Exception e) {

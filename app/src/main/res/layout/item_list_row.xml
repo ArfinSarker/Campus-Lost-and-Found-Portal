@@ -18,18 +18,31 @@
         android:layout_height="wrap_content"
         android:padding="16dp">
 
-        <TextView
-            android:id="@+id/tvIcon"
-            android:layout_width="48dp"
-            android:layout_height="48dp"
-            android:background="@drawable/edit_text_rounded"
-            android:backgroundTint="#F5F7FA"
-            android:gravity="center"
-            android:text="📂"
-            android:textSize="24sp"
+        <FrameLayout
+            android:id="@+id/flIconContainer"
+            android:layout_width="64dp"
+            android:layout_height="64dp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toTopOf="parent">
+
+            <TextView
+                android:id="@+id/tvIcon"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@drawable/edit_text_rounded"
+                android:backgroundTint="#F5F7FA"
+                android:gravity="center"
+                android:text="📂"
+                android:textSize="24sp" />
+
+            <ImageView
+                android:id="@+id/ivItemImage"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:scaleType="centerCrop"
+                android:visibility="gone" />
+        </FrameLayout>
 
         <TextView
             android:id="@+id/tvItemName"
@@ -44,8 +57,8 @@
             android:textSize="16sp"
             android:textStyle="bold"
             app:layout_constraintEnd_toStartOf="@id/tvTimeAgo"
-            app:layout_constraintStart_toEndOf="@id/tvIcon"
-            app:layout_constraintTop_toTopOf="@id/tvIcon" />
+            app:layout_constraintStart_toEndOf="@id/flIconContainer"
+            app:layout_constraintTop_toTopOf="@id/flIconContainer" />
 
         <TextView
             android:id="@+id/tvItemLocation"

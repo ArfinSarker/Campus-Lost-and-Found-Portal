@@ -3,9 +3,11 @@ package com.sas.lostandfound;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
+import com.bumptech.glide.Glide;
 import java.util.List;
 
 /**
@@ -36,10 +38,23 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ViewHolder> {
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         Item item = items.get(position);
-        holder.tvIcon.setText(item.getImageUrl());
+        
         holder.tvName.setText(item.getName());
         holder.tvLocation.setText(item.getLocation());
         holder.tvTimeAgo.setText(item.getDate());
+
+        if (item.getImageUrl() != null && !item.getImageUrl().isEmpty()) {
+            holder.ivImage.setVisibility(View.VISIBLE);
+            holder.tvEmoji.setVisibility(View.GONE);
+            Glide.with(holder.itemView.getContext())
+                    .load(item.getImageUrl())
+                    .placeholder(R.drawable.ic_package)
+                    .centerCrop()
+                    .into(holder.ivImage);
+        } else {
+            holder.ivImage.setVisibility(View.GONE);
+            holder.tvEmoji.setVisibility(View.VISIBLE);
+        }
 
         holder.itemView.setOnClickListener(v -> listener.onItemClick(item));
     }
@@ -50,11 +65,13 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ViewHolder> {
     }
 
     static class ViewHolder extends RecyclerView.ViewHolder {
-        TextView tvIcon, tvName, tvLocation, tvTimeAgo;
+        TextView tvEmoji, tvName, tvLocation, tvTimeAgo;
+        ImageView ivImage;
 
         ViewHolder(View itemView) {
             super(itemView);
-            tvIcon = itemView.findViewById(R.id.tvIcon);
+            tvEmoji = itemView.findViewById(R.id.tvIcon);
+            ivImage = itemView.findViewById(R.id.ivItemImage);
             tvName = itemView.findViewById(R.id.tvItemName);
             tvLocation = itemView.findViewById(R.id.tvItemLocation);
             tvTimeAgo = itemView.findViewById(R.id.tvTimeAgo);
