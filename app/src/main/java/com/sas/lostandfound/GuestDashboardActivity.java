@@ -19,7 +19,7 @@ import java.util.List;
 public class GuestDashboardActivity extends AppCompatActivity {
 
     private MaterialButton btnReportLost, btnReportFound, btnSignIn;
-    private TextView tvBrowseAll;
+    private TextView tvBrowseAll, tvDeveloperInfo;
     private RecyclerView recyclerView;
     private ItemAdapter adapter;
     private List<Item> itemList;
@@ -37,6 +37,7 @@ public class GuestDashboardActivity extends AppCompatActivity {
         btnReportFound = findViewById(R.id.btnReportFound);
         btnSignIn = findViewById(R.id.btnSignIn);
         tvBrowseAll = findViewById(R.id.tvBrowseAll);
+        tvDeveloperInfo = findViewById(R.id.tvDeveloperInfo);
         recyclerView = findViewById(R.id.recyclerViewRecent);
 
         // Check if already logged in - if so, go to CampusDashboard
@@ -77,6 +78,10 @@ public class GuestDashboardActivity extends AppCompatActivity {
 
         tvBrowseAll.setOnClickListener(v -> {
             startActivity(new Intent(GuestDashboardActivity.this, UserLoginActivity.class));
+        });
+
+        tvDeveloperInfo.setOnClickListener(v -> {
+            startActivity(new Intent(GuestDashboardActivity.this, DeveloperInfoActivity.class));
         });
     }
 

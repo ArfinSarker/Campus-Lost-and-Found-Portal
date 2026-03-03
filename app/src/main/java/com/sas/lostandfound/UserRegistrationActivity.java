@@ -1,39 +1,29 @@
 package com.sas.lostandfound;
 
-import android.app.AlertDialog;
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Color;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
-import android.text.SpannableString;
-import android.text.Spanned;
-import android.text.TextPaint;
 import android.text.TextUtils;
-import android.text.method.LinkMovementMethod;
-import android.text.style.ClickableSpan;
-import android.util.Log;
-import android.view.MotionEvent;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.google.android.material.button.MaterialButton;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.storage.FirebaseStorage;
@@ -41,49 +31,40 @@ import com.google.firebase.storage.StorageReference;
 
 public class UserRegistrationActivity extends AppCompatActivity {
 
-    private static final String TAG = "UserRegistration";
-    private EditText etFullName, etUniversityId, etEmail, etPhone, etDepartment, etBatch, etPassword, etConfirmPassword;
+    private EditText etFullName, etUniversityId, etEmail, etPhone,
+            etDepartment, etBatch, etPassword, etConfirmPassword;
     private AutoCompleteTextView actvLevelTerm;
-    private Button btnCreateAccount;
-    private TextView tvLogin;
-    private ImageButton btnBack;
+    private MaterialButton btnCreateAccount;
+    private ProgressBar progressBar;
     private ImageView ivProfilePicture;
     private FloatingActionButton fabAddPhoto;
+    private ImageButton btnBack;
+    private TextView tvLogin;
 
-    private static final int REQUEST_IMAGE_PICK = 2;
-    private Uri profileImageUri = null;
+    private static final int REQUEST_IMAGE_PICK = 101;
+    private Uri profileImageUri;
 
-    // Firebase instances
     private FirebaseAuth mAuth;
     private DatabaseReference mDatabase;
     private StorageReference mStorageRef;
+    
+    private static final String DATABASE_URL = "https://campus-lost-and-found-portal-default-rtdb.asia-southeast1.firebasedatabase.app";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_user_registration);
 
-        // Initialize Firebase
-        try {
-            mAuth = FirebaseAuth.getInstance();
-            mDatabase = FirebaseDatabase.getInstance().getReference();
-            mStorageRef = FirebaseStorage.getInstance().getReference("profile_pictures");
-        } catch (Exception e) {
-            Log.e(TAG, "Firebase initialization error", e);
-            Toast.makeText(this, "Firebase error: " + e.getMessage(), Toast.LENGTH_LONG).show();
-        }
+        mAuth = FirebaseAuth.getInstance();
+        mDatabase = FirebaseDatabase.getInstance(DATABASE_URL).getReference();
+        mStorageRef = FirebaseStorage.getInstance().getReference("profile_pictures");
 
         initializeViews();
-        setupLevelTermDropdown();
-        setupClickableLogin();
+        setupDropdowns();
         setupListeners();
     }
 
     private void initializeViews() {
-        btnBack = findViewById(R.id.btnBack);
-        ivProfilePicture = findViewById(R.id.ivProfilePicture);
-        fabAddPhoto = findViewById(R.id.fabAddPhoto);
-
         etUniversityId = findViewById(R.id.etUniversityId);
         etFullName = findViewById(R.id.etFullName);
         etEmail = findViewById(R.id.etEmail);
@@ -93,119 +74,81 @@ public class UserRegistrationActivity extends AppCompatActivity {
         actvLevelTerm = findViewById(R.id.actvLevelTerm);
         etPassword = findViewById(R.id.etPassword);
         etConfirmPassword = findViewById(R.id.etConfirmPassword);
-
         btnCreateAccount = findViewById(R.id.btnCreateAccount);
+        progressBar = findViewById(R.id.progressBar);
+        ivProfilePicture = findViewById(R.id.ivProfilePicture);
+        fabAddPhoto = findViewById(R.id.fabAddPhoto);
+        btnBack = findViewById(R.id.btnBack);
         tvLogin = findViewById(R.id.tvLogin);
     }
 
-    private void setupLevelTermDropdown() {
-        String[] options = {
+    private void setupDropdowns() {
+        // Level Term options
+        String[] levelTermOptions = {
                 "Level 1 Term I", "Level 1 Term II",
                 "Level 2 Term I", "Level 2 Term II",
                 "Level 3 Term I", "Level 3 Term II",
                 "Level 4 Term I", "Level 4 Term II"
         };
-        ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, options);
-        actvLevelTerm.setAdapter(adapter);
-    }
-
-    private void setupClickableLogin() {
-        String text = getString(R.string.login_link); 
-        SpannableString ss = new SpannableString(text);
-
-        String loginWord = "Login";
-        int start = text.indexOf(loginWord);
-        if (start == -1) {
-            loginWord = "LOGIN";
-            start = text.indexOf(loginWord);
-        }
+        ArrayAdapter<String> levelTermAdapter = new ArrayAdapter<>(this, android.R.layout.simple_dropdown_item_1line, levelTermOptions);
+        actvLevelTerm.setAdapter(levelTermAdapter);
         
-        if (start != -1) {
-            int end = start + loginWord.length();
-            ClickableSpan clickableSpan = new ClickableSpan() {
-                @Override
-                public void onClick(@NonNull View widget) {
-                    finish();
-                }
-
-                @Override
-                public void updateDrawState(@NonNull TextPaint ds) {
-                    super.updateDrawState(ds);
-                    ds.setUnderlineText(false);
-                }
-            };
-            ss.setSpan(clickableSpan, start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-        }
-
-        tvLogin.setText(ss);
-        tvLogin.setMovementMethod(LinkMovementMethod.getInstance());
-
-        tvLogin.setOnTouchListener((v, event) -> {
-            if (event.getAction() == MotionEvent.ACTION_DOWN) {
-                tvLogin.setTextColor(Color.parseColor("#2196F3"));
-            } else if (event.getAction() == MotionEvent.ACTION_UP || event.getAction() == MotionEvent.ACTION_CANCEL) {
-                tvLogin.setTextColor(Color.parseColor("#757575"));
-                if (event.getAction() == MotionEvent.ACTION_UP) {
-                    v.performClick();
-                }
-            }
-            return false;
-        });
+        // Fix: Explicitly show dropdown on click
+        actvLevelTerm.setOnClickListener(v -> actvLevelTerm.showDropDown());
     }
 
     private void setupListeners() {
-        btnBack.setOnClickListener(v -> onBackPressed());
-        fabAddPhoto.setOnClickListener(v -> showImageSourceDialog());
-        ivProfilePicture.setOnClickListener(v -> showImageSourceDialog());
+        fabAddPhoto.setOnClickListener(v -> openGallery());
+        ivProfilePicture.setOnClickListener(v -> openGallery());
         btnCreateAccount.setOnClickListener(v -> registerUser());
+        
+        if (btnBack != null) {
+            btnBack.setOnClickListener(v -> finish());
+        }
+        
+        if (tvLogin != null) {
+            tvLogin.setOnClickListener(v -> {
+                startActivity(new Intent(this, UserLoginActivity.class));
+                finish();
+            });
+        }
     }
 
-    private boolean isNetworkAvailable() {
-        ConnectivityManager connectivityManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
-        NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
-        return activeNetworkInfo != null && activeNetworkInfo.isConnected();
-    }
-
-    private void showImageSourceDialog() {
-        String[] options = {getString(R.string.choose_gallery), getString(R.string.cancel)};
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle(R.string.select_profile_picture);
-        builder.setItems(options, (dialog, which) -> {
-            if (which == 0) {
-                Intent pickPhotoIntent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
-                startActivityForResult(pickPhotoIntent, REQUEST_IMAGE_PICK);
-            }
-        });
-        builder.show();
+    private void openGallery() {
+        Intent intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+        startActivityForResult(intent, REQUEST_IMAGE_PICK);
     }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (resultCode == RESULT_OK && requestCode == REQUEST_IMAGE_PICK && data != null && data.getData() != null) {
+        if (requestCode == REQUEST_IMAGE_PICK && resultCode == RESULT_OK && data != null && data.getData() != null) {
             profileImageUri = data.getData();
             ivProfilePicture.setImageURI(profileImageUri);
         }
     }
 
+    private boolean isNetworkAvailable() {
+        ConnectivityManager cm = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo ni = cm.getActiveNetworkInfo();
+        return ni != null && ni.isConnected();
+    }
+
+    private void showLoading(boolean isLoading) {
+        btnCreateAccount.setEnabled(!isLoading);
+        progressBar.setVisibility(isLoading ? View.VISIBLE : View.GONE);
+        btnCreateAccount.setText(isLoading ? "" : "Create Account");
+    }
+
     private void registerUser() {
         if (!isNetworkAvailable()) {
-            Toast.makeText(this, "No internet connection. Please check your network.", Toast.LENGTH_LONG).show();
-            return;
-        }
-
-        if (mAuth == null) {
-            Toast.makeText(this, "Firebase initialization failed.", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "No internet connection.", Toast.LENGTH_LONG).show();
             return;
         }
 
         String universityId = etUniversityId.getText().toString().trim();
         String fullName = etFullName.getText().toString().trim();
         String email = etEmail.getText().toString().trim();
-        String phone = etPhone.getText().toString().trim();
-        String department = etDepartment.getText().toString().trim();
-        String batch = etBatch.getText().toString().trim();
-        String levelTerm = actvLevelTerm.getText().toString().trim();
         String password = etPassword.getText().toString().trim();
         String confirmPassword = etConfirmPassword.getText().toString().trim();
 
@@ -221,10 +164,6 @@ public class UserRegistrationActivity extends AppCompatActivity {
             etEmail.setError("Valid email required");
             return;
         }
-        if (TextUtils.isEmpty(phone)) {
-            etPhone.setError("Required");
-            return;
-        }
         if (password.length() < 6) {
             etPassword.setError("Minimum 6 characters");
             return;
@@ -234,66 +173,74 @@ public class UserRegistrationActivity extends AppCompatActivity {
             return;
         }
 
-        btnCreateAccount.setEnabled(false);
-        Toast.makeText(this, "Creating account...", Toast.LENGTH_SHORT).show();
+        showLoading(true);
 
         mAuth.createUserWithEmailAndPassword(email, password)
-                .addOnCompleteListener(this, task -> {
-                    if (task.isSuccessful()) {
-                        FirebaseUser user = mAuth.getCurrentUser();
-                        if (user != null) {
-                            String userId = user.getUid();
-                            if (profileImageUri != null) {
-                                uploadProfileImage(userId, universityId, fullName, email, phone, department, batch, levelTerm);
-                            } else {
-                                saveUserToDatabase(userId, null, universityId, fullName, email, phone, department, batch, levelTerm);
-                            }
+                .addOnCompleteListener(task -> {
+                    if (!task.isSuccessful()) {
+                        showLoading(false);
+                        String errorMsg = task.getException() != null ? task.getException().getMessage() : "Auth failed";
+                        Toast.makeText(this, "Registration failed: " + errorMsg, Toast.LENGTH_LONG).show();
+                        return;
+                    }
+
+                    if (mAuth.getCurrentUser() != null) {
+                        String userId = mAuth.getCurrentUser().getUid();
+                        if (profileImageUri != null) {
+                            uploadImage(userId, universityId, fullName, email);
+                        } else {
+                            saveUser(userId, null, universityId, fullName, email);
                         }
-                    } else {
-                        btnCreateAccount.setEnabled(true);
-                        String errorMsg = "Registration failed";
-                        if (task.getException() != null) {
-                            errorMsg = task.getException().getMessage();
-                            Log.e(TAG, "Auth Error: " + errorMsg);
-                            if (errorMsg.contains("network error")) {
-                                errorMsg = "Network error. Please check your connection to Firebase.";
-                            }
-                        }
-                        Toast.makeText(UserRegistrationActivity.this, errorMsg, Toast.LENGTH_LONG).show();
                     }
                 });
     }
 
-    private void uploadProfileImage(String userId, String universityId, String fullName, String email,
-                                    String phone, String department, String batch, String levelTerm) {
+    private void uploadImage(String userId, String universityId, String fullName, String email) {
         StorageReference fileRef = mStorageRef.child(userId + ".jpg");
         fileRef.putFile(profileImageUri)
-                .addOnSuccessListener(taskSnapshot -> fileRef.getDownloadUrl().addOnSuccessListener(uri -> {
-                    saveUserToDatabase(userId, uri.toString(), universityId, fullName, email, phone, department, batch, levelTerm);
-                }))
-                .addOnFailureListener(e -> {
-                    Log.e(TAG, "Image upload failed: " + e.getMessage());
-                    saveUserToDatabase(userId, null, universityId, fullName, email, phone, department, batch, levelTerm);
-                });
+                .addOnSuccessListener(taskSnapshot ->
+                        fileRef.getDownloadUrl().addOnSuccessListener(uri ->
+                                        saveUser(userId, uri.toString(), universityId, fullName, email)))
+                .addOnFailureListener(e -> saveUser(userId, null, universityId, fullName, email));
     }
 
-    private void saveUserToDatabase(String userId, String imageUrl, String universityId, String fullName,
-                                    String email, String phone, String department, String batch, String levelTerm) {
-        User newUser = new User(userId, fullName, universityId, email, phone, department, batch, levelTerm, imageUrl);
-        
-        mDatabase.child("Users").child(userId).setValue(newUser)
+    private void saveUser(String userId, String imageUrl, String universityId, String fullName, String email) {
+        String phone = etPhone.getText().toString().trim();
+        String department = etDepartment.getText().toString().trim();
+        String batch = etBatch.getText().toString().trim();
+        String levelTerm = actvLevelTerm.getText().toString().trim();
+
+        // Using the 11-parameter constructor
+        User user = new User(
+                userId,
+                fullName,
+                universityId,
+                email,
+                phone,
+                department,
+                batch,
+                levelTerm,
+                "Not Specified", // Section is now set later in Profile
+                imageUrl,
+                "Not Specified" // Gender
+        );
+
+        // Debug log point
+        android.util.Log.d("FIREBASE_DEBUG", "Saving user with ID: " + userId);
+
+        mDatabase.child("Users").child(userId)
+                .setValue(user)
                 .addOnCompleteListener(task -> {
+                    showLoading(false);
                     if (task.isSuccessful()) {
-                        Toast.makeText(UserRegistrationActivity.this, "Registration successful!", Toast.LENGTH_SHORT).show();
-                        Intent intent = new Intent(UserRegistrationActivity.this, CampusDashboardActivity.class);
-                        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                        startActivity(intent);
+                        Toast.makeText(this, "Registration successful.", Toast.LENGTH_LONG).show();
+                        startActivity(new Intent(this, UserLoginActivity.class)
+                                .setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK));
                         finish();
                     } else {
-                        btnCreateAccount.setEnabled(true);
-                        String errorMsg = "Database error: " + (task.getException() != null ? task.getException().getMessage() : "unknown");
-                        Log.e(TAG, errorMsg);
-                        Toast.makeText(UserRegistrationActivity.this, errorMsg, Toast.LENGTH_LONG).show();
+                        String errorMsg = task.getException() != null ? task.getException().getMessage() : "Unknown database error";
+                        android.util.Log.e("FIREBASE_ERROR", "Error: " + errorMsg);
+                        Toast.makeText(this, "Database error: " + errorMsg, Toast.LENGTH_LONG).show();
                     }
                 });
     }

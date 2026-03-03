@@ -1,20 +1,23 @@
 package com.sas.lostandfound;
 
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.LinearGradient;
 import android.graphics.Shader;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.text.SpannableString;
 import android.text.Spanned;
 import android.text.TextPaint;
 import android.text.method.LinkMovementMethod;
 import android.text.style.ClickableSpan;
-import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -35,12 +38,15 @@ public class UserLoginActivity extends AppCompatActivity {
 
     private TextInputEditText etUniversityId, etPassword;
     private MaterialButton btnSignIn;
+    private ProgressBar progressBar;
     private TextView tvForgotPassword, tvRegister, tvAdminLogin;
     private LinearLayout llAdminLogin;
     private ImageView ivAdminIcon;
 
     private FirebaseAuth mAuth;
     private DatabaseReference mDatabase;
+    
+    private static final String DATABASE_URL = "https://campus-lost-and-found-portal-default-rtdb.asia-southeast1.firebasedatabase.app";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -48,11 +54,12 @@ public class UserLoginActivity extends AppCompatActivity {
         setContentView(R.layout.activity_user_login);
 
         mAuth = FirebaseAuth.getInstance();
-        mDatabase = FirebaseDatabase.getInstance().getReference();
+        mDatabase = FirebaseDatabase.getInstance(DATABASE_URL).getReference();
 
-        etUniversityId = findViewById(R.id.etEmail); // Using existing ID but mapping to University ID
+        etUniversityId = findViewById(R.id.etEmail); 
         etPassword = findViewById(R.id.etPassword);
         btnSignIn = findViewById(R.id.btnSignIn);
+        progressBar = findViewById(R.id.progressBar);
         tvForgotPassword = findViewById(R.id.tvForgotPassword);
         tvRegister = findViewById(R.id.tvRegister);
         tvAdminLogin = findViewById(R.id.tvAdminLogin);
@@ -64,39 +71,56 @@ public class UserLoginActivity extends AppCompatActivity {
         btnSignIn.setOnClickListener(v -> loginWithUniversityId());
 
         tvForgotPassword.setOnClickListener(v ->
-                Toast.makeText(UserLoginActivity.this, "Forgot password clicked", Toast.LENGTH_SHORT).show()
+                Toast.makeText(UserLoginActivity.this, "Reset link will be sent to your registered email.", Toast.LENGTH_SHORT).show()
         );
 
-        llAdminLogin.setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-                if (event.getAction() == MotionEvent.ACTION_DOWN) {
-                    applyGradient(tvAdminLogin);
-                    ivAdminIcon.setColorFilter(Color.parseColor("#2196F3"));
-                } else if (event.getAction() == MotionEvent.ACTION_UP || event.getAction() == MotionEvent.ACTION_CANCEL) {
-                    removeGradient(tvAdminLogin);
-                    ivAdminIcon.setColorFilter(Color.parseColor("#757575"));
-                    if (event.getAction() == MotionEvent.ACTION_UP) {
-                        v.performClick();
-                        startActivity(new Intent(UserLoginActivity.this, AdminLoginActivity.class));
-                    }
-                }
-                return true;
+        llAdminLogin.setOnClickListener(v -> {
+            startActivity(new Intent(UserLoginActivity.this, AdminLoginActivity.class));
+        });
+
+        llAdminLogin.setOnTouchListener((v, event) -> {
+            if (event.getAction() == MotionEvent.ACTION_DOWN) {
+                applyGradient(tvAdminLogin);
+                ivAdminIcon.setColorFilter(Color.parseColor("#2196F3"));
+            } else if (event.getAction() == MotionEvent.ACTION_UP || event.getAction() == MotionEvent.ACTION_CANCEL) {
+                removeGradient(tvAdminLogin);
+                ivAdminIcon.setColorFilter(Color.parseColor("#757575"));
             }
+            return false;
         });
     }
 
-    private void loginWithUniversityId() {
-        String universityId = etUniversityId.getText().toString().trim();
-        String password = etPassword.getText().toString().trim();
+    private boolean isNetworkAvailable() {
+        ConnectivityManager cm = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo ni = cm.getActiveNetworkInfo();
+        return ni != null && ni.isConnected();
+    }
 
-        if (universityId.isEmpty() || password.isEmpty()) {
-            Toast.makeText(this, "Please fill all fields", Toast.LENGTH_SHORT).show();
+    private void showLoading(boolean isLoading) {
+        btnSignIn.setEnabled(!isLoading);
+        progressBar.setVisibility(isLoading ? View.VISIBLE : View.GONE);
+        btnSignIn.setText(isLoading ? "" : getString(R.string.sign_in));
+    }
+
+    private void loginWithUniversityId() {
+        if (!isNetworkAvailable()) {
+            Toast.makeText(this, "No internet connection.", Toast.LENGTH_LONG).show();
             return;
         }
 
-        btnSignIn.setEnabled(false);
-        Toast.makeText(this, "Verifying ID...", Toast.LENGTH_SHORT).show();
+        String universityId = etUniversityId.getText().toString().trim();
+        String password = etPassword.getText().toString().trim();
+
+        if (universityId.isEmpty()) {
+            etUniversityId.setError("Required");
+            return;
+        }
+        if (password.isEmpty()) {
+            etPassword.setError("Required");
+            return;
+        }
+
+        showLoading(true);
 
         // Query database to find email associated with this University ID
         Query query = mDatabase.child("Users").orderByChild("universityId").equalTo(universityId);
@@ -112,14 +136,14 @@ public class UserLoginActivity extends AppCompatActivity {
                         }
                     }
                 }
-                btnSignIn.setEnabled(true);
+                showLoading(false);
                 Toast.makeText(UserLoginActivity.this, "University ID not found", Toast.LENGTH_SHORT).show();
             }
 
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
-                btnSignIn.setEnabled(true);
-                Toast.makeText(UserLoginActivity.this, "Database error", Toast.LENGTH_SHORT).show();
+                showLoading(false);
+                Toast.makeText(UserLoginActivity.this, "Database error: " + error.getMessage(), Toast.LENGTH_SHORT).show();
             }
         });
     }
@@ -127,7 +151,6 @@ public class UserLoginActivity extends AppCompatActivity {
     private void performFirebaseLogin(String email, String password) {
         mAuth.signInWithEmailAndPassword(email, password)
                 .addOnCompleteListener(this, task -> {
-                    btnSignIn.setEnabled(true);
                     if (task.isSuccessful()) {
                         Toast.makeText(UserLoginActivity.this, "Login successful", Toast.LENGTH_SHORT).show();
                         Intent intent = new Intent(UserLoginActivity.this, CampusDashboardActivity.class);
@@ -135,23 +158,20 @@ public class UserLoginActivity extends AppCompatActivity {
                         startActivity(intent);
                         finish();
                     } else {
-                        Toast.makeText(UserLoginActivity.this,
-                                "Login failed: " + (task.getException() != null ? task.getException().getMessage() : "Wrong password"),
-                                Toast.LENGTH_SHORT).show();
+                        showLoading(false);
+                        String errorMsg = task.getException() != null ? task.getException().getMessage() : "Invalid credentials";
+                        Toast.makeText(UserLoginActivity.this, "Login failed: " + errorMsg, Toast.LENGTH_SHORT).show();
                     }
                 });
     }
 
     private void setupClickableRegister() {
         String text = getString(R.string.register_link);
-        SpannableString ss = new SpannableString(text);
+        SpannableString ss = new SpannableString(android.text.Html.fromHtml(text));
 
+        String rawText = ss.toString();
         String registerWord = "Register";
-        int start = text.indexOf(registerWord);
-        if (start == -1) {
-            registerWord = "REGISTER";
-            start = text.indexOf(registerWord);
-        }
+        int start = rawText.indexOf(registerWord);
         
         if (start != -1) {
             int end = start + registerWord.length();
@@ -165,6 +185,8 @@ public class UserLoginActivity extends AppCompatActivity {
                 public void updateDrawState(@NonNull TextPaint ds) {
                     super.updateDrawState(ds);
                     ds.setUnderlineText(false);
+                    ds.setColor(Color.parseColor("#2196F3"));
+                    ds.setFakeBoldText(true);
                 }
             };
             ss.setSpan(clickableSpan, start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
@@ -172,18 +194,6 @@ public class UserLoginActivity extends AppCompatActivity {
 
         tvRegister.setText(ss);
         tvRegister.setMovementMethod(LinkMovementMethod.getInstance());
-
-        tvRegister.setOnTouchListener((v, event) -> {
-            if (event.getAction() == MotionEvent.ACTION_DOWN) {
-                tvRegister.setTextColor(Color.parseColor("#2196F3"));
-            } else if (event.getAction() == MotionEvent.ACTION_UP || event.getAction() == MotionEvent.ACTION_CANCEL) {
-                tvRegister.setTextColor(Color.parseColor("#757575"));
-                if (event.getAction() == MotionEvent.ACTION_UP) {
-                    v.performClick();
-                }
-            }
-            return false;
-        });
     }
 
     private void applyGradient(TextView textView) {

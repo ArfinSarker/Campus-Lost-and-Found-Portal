@@ -23,13 +23,14 @@ public class BrowseItemsActivity extends AppCompatActivity {
     private ItemAdapter adapter;
     private List<Item> allItems;
     private DatabaseReference mDatabase;
+    private static final String DATABASE_URL = "https://campus-lost-and-found-portal-default-rtdb.asia-southeast1.firebasedatabase.app";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_browse_items);
 
-        mDatabase = FirebaseDatabase.getInstance().getReference("LostItems");
+        mDatabase = FirebaseDatabase.getInstance(DATABASE_URL).getReference("LostItems");
         recyclerView = findViewById(R.id.recyclerViewAllItems);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
 

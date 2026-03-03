@@ -2,6 +2,9 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.sas.lostandfound">
 
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+
     <application
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
@@ -24,6 +27,7 @@
         <!-- Main dashboards -->
         <activity android:name=".GuestDashboardActivity" />
         <activity android:name=".CampusDashboardActivity" />
+        <activity android:name=".DashboardActivity" />
 
         <!-- Profile -->
         <activity android:name=".UserProfileActivity" />
@@ -40,6 +44,8 @@
 
         <!-- Report Activities -->
         <activity android:name=".CampusReportLostActivity" />
+
+        <activity android:name=".DeveloperInfoActivity" />
 
     </application>
 

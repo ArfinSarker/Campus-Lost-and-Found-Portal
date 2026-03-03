@@ -34,7 +34,7 @@ public class CampusDashboardActivity extends AppCompatActivity {
     private RecentItemsAdapter adapter;
     private List<Item> itemList;
     
-    private TextView tvWelcome, tvActiveItems;
+    private TextView tvWelcome, tvActiveItems, tvDeveloperInfo;
     private MaterialButton btnReportLost, btnReportFound;
     private MaterialCardView cvProfile;
     private ImageView ivUserProfile;
@@ -42,6 +42,7 @@ public class CampusDashboardActivity extends AppCompatActivity {
 
     private FirebaseAuth mAuth;
     private DatabaseReference mDatabase;
+    private static final String DATABASE_URL = "https://campus-lost-and-found-portal-default-rtdb.asia-southeast1.firebasedatabase.app";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -49,7 +50,7 @@ public class CampusDashboardActivity extends AppCompatActivity {
         setContentView(R.layout.activity_campus_dashboard);
 
         mAuth = FirebaseAuth.getInstance();
-        mDatabase = FirebaseDatabase.getInstance().getReference();
+        mDatabase = FirebaseDatabase.getInstance(DATABASE_URL).getReference();
 
         initializeViews();
         setupRecyclerView();
@@ -68,12 +69,20 @@ public class CampusDashboardActivity extends AppCompatActivity {
 
         btnReportLost.setOnClickListener(v -> startActivity(new Intent(this, CampusReportLostActivity.class)));
         btnReportFound.setOnClickListener(v -> Toast.makeText(this, "Report Found coming soon", Toast.LENGTH_SHORT).show());
+
+        if (tvDeveloperInfo != null) {
+            tvDeveloperInfo.setOnClickListener(v -> {
+                Intent intent = new Intent(CampusDashboardActivity.this, DeveloperInfoActivity.class);
+                startActivity(intent);
+            });
+        }
     }
 
     private void initializeViews() {
         rvRecentItems = findViewById(R.id.rvRecentItems);
         tvWelcome = findViewById(R.id.tvWelcome);
         tvActiveItems = findViewById(R.id.tvActiveItems);
+        tvDeveloperInfo = findViewById(R.id.tvDeveloperInfo);
         btnReportLost = findViewById(R.id.btnReportLost);
         btnReportFound = findViewById(R.id.btnReportFound);
         cvProfile = findViewById(R.id.cvProfile);

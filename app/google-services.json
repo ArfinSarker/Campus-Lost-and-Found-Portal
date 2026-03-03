@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "207058759801",
+    "firebase_url": "https://campus-lost-and-found-portal-default-rtdb.asia-southeast1.firebasedatabase.app",
+    "project_id": "campus-lost-and-found-portal",
+    "storage_bucket": "campus-lost-and-found-portal.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:207058759801:android:7fed94ad324b09146aa4a8",
+        "android_client_info": {
+          "package_name": "com.sas.lostandfound"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "207058759801-921oq3rl6five9bcc86n2vq856notncg.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD8yb6ES6bopObPQ-W_4LiscXEduk-3TyM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "207058759801-921oq3rl6five9bcc86n2vq856notncg.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

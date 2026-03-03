@@ -99,7 +99,7 @@
     <string name="admin_sign_in">Secure Sign In</string>
 
     <!-- Footer strings -->
-    <string name="footer_row1">Centralized student platform • © 2026 Lost&amp;Found</string>
+    <string name="footer_row1">Centralized student platform\n© 2026 Lost&amp;Found</string>
     <string name="footer_row2">support@baust.edu.bd</string>
     <string name="footer_row3">Privacy Policy   •   Terms &amp; Conditions</string>
     <string name="footer_row4">Developer Information</string>
@@ -116,4 +116,36 @@
     <string name="login_first">Please login first</string>
     <string name="opening_item">Opening %s</string>
     <string name="already_signed_in">You are already signed in</string>
+
+    <!-- Profile Strings -->
+    <string name="change_photo">Change Photo</string>
+    <string name="hint_gender">Gender</string>
+    <string name="update_profile">Update Profile</string>
+    <string name="label_information">Information</string>
+    <string name="label_not_changeable">Not Changeable</string>
+    <string name="label_contact">Contact</string>
+    <string name="label_change_password">Change Password</string>
+    <string name="hint_new_password">New Password</string>
+
+    <!-- Developer Info Strings -->
+    <string name="dev_name">Md. Shamsul Arfin Sarker</string>
+    <string name="dev_subtitle">Android Developer | Student</string>
+    <string name="dev_about_title">About Me</string>
+    <string name="dev_about_desc">Passionate Android developer with a strong focus on creating clean, efficient, and user-centric mobile applications. Currently pursuing my degree in Computer Science and Engineering, I enjoy solving complex problems and staying updated with the latest mobile technologies. I am dedicated to building high-quality apps that provide great user experiences.</string>
+    <string name="dev_skills_title">Technical Skills</string>
+    <string name="dev_skill_java">Java</string>
+    <string name="dev_skill_kotlin">Kotlin</string>
+    <string name="dev_skill_xml">XML</string>
+    <string name="dev_skill_firebase">Firebase</string>
+    <string name="dev_skill_sqlite">SQLite</string>
+    <string name="dev_skill_git">Git &amp; GitHub</string>
+    <string name="dev_edu_title">Education</string>
+    <string name="dev_edu_degree">BSc Engineering in Computer Science and Engineering (CSE)</string>
+    <string name="dev_edu_uni">Bangladesh Army University of Science and Technology (BAUST), Saidpur</string>
+    <string name="dev_edu_batch">Batch: 18</string>
+    <string name="dev_contact_title">Contact Information</string>
+    <string name="dev_email">m.shamsularfinsarkernayan@gmail.com</string>
+    <string name="dev_phone">+8801819966626</string>
+    <string name="dev_github">https://github.com/ArfinSarker</string>
+    <string name="dev_linkedin">https://bd.linkedin.com/in/arfinsarkar</string>
 </resources>

@@ -12,6 +12,7 @@ import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.checkbox.MaterialCheckBox;
@@ -35,6 +36,7 @@ public class CampusReportLostActivity extends AppCompatActivity {
     private MaterialCheckBox cbConfirm;
     private MaterialButton btnSubmit;
     private com.google.android.material.card.MaterialCardView uploadCard;
+    private Toolbar toolbar;
 
     private static final int PICK_IMAGE_REQUEST = 1;
     private Uri imageUri;
@@ -42,6 +44,7 @@ public class CampusReportLostActivity extends AppCompatActivity {
     private FirebaseAuth mAuth;
     private DatabaseReference mDatabase;
     private StorageReference mStorageRef;
+    private static final String DATABASE_URL = "https://campus-lost-and-found-portal-default-rtdb.asia-southeast1.firebasedatabase.app";
 
     private String userName = "";
     private String userEmail = "";
@@ -52,10 +55,11 @@ public class CampusReportLostActivity extends AppCompatActivity {
         setContentView(R.layout.activity_campus_report_lost);
 
         mAuth = FirebaseAuth.getInstance();
-        mDatabase = FirebaseDatabase.getInstance().getReference();
+        mDatabase = FirebaseDatabase.getInstance(DATABASE_URL).getReference();
         mStorageRef = FirebaseStorage.getInstance().getReference("LostImages");
 
         initializeViews();
+        setupToolbar();
         setupCategoryDropdown();
         setupDatePicker();
         fetchCurrentUserData();
@@ -72,7 +76,18 @@ public class CampusReportLostActivity extends AppCompatActivity {
         etDescription = findViewById(R.id.etDescription);
         cbConfirm = findViewById(R.id.cbConfirm);
         btnSubmit = findViewById(R.id.btnSubmitReport);
-        uploadCard = findViewById(R.id.uploadCard); 
+        uploadCard = findViewById(R.id.uploadCard);
+        toolbar = findViewById(R.id.toolbar);
+    }
+
+    private void setupToolbar() {
+        if (toolbar != null) {
+            setSupportActionBar(toolbar);
+            if (getSupportActionBar() != null) {
+                getSupportActionBar().setDisplayShowTitleEnabled(false);
+            }
+            toolbar.setNavigationOnClickListener(v -> onBackPressed());
+        }
     }
 
     private void fetchCurrentUserData() {
