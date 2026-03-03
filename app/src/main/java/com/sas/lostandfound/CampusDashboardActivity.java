@@ -12,6 +12,7 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -239,17 +240,44 @@ public class CampusDashboardActivity extends AppCompatActivity {
             
             if ("lost".equals(item.getStatus())) {
                 holder.statusIndicator.setBackgroundColor(0xFFE53935);
+                holder.tvBadge.setText("Lost");
+                holder.cardBadge.setCardBackgroundColor(0xFFFEE2E2);
             } else {
                 holder.statusIndicator.setBackgroundColor(0xFF2E7D32);
+                holder.tvBadge.setText("Found");
+                holder.cardBadge.setCardBackgroundColor(0xFFDCFCE7);
             }
 
+            // Fix: Clear tint and set ScaleType properly for uploaded images
             if (item.getImageUrl() != null && !item.getImageUrl().isEmpty()) {
+                holder.ivIcon.setImageTintList(null);
+                holder.ivIcon.setScaleType(ImageView.ScaleType.CENTER_CROP);
                 Glide.with(holder.itemView.getContext())
                         .load(item.getImageUrl())
                         .placeholder(R.drawable.ic_package)
                         .centerCrop()
                         .into(holder.ivIcon);
+            } else {
+                holder.ivIcon.setImageResource(R.drawable.ic_package);
+                holder.ivIcon.setScaleType(ImageView.ScaleType.CENTER_INSIDE);
+                holder.ivIcon.setImageTintList(android.content.res.ColorStateList.valueOf(
+                        ContextCompat.getColor(holder.itemView.getContext(), R.color.textSecondary)));
             }
+
+            holder.itemView.setOnClickListener(v -> {
+                Intent intent = new Intent(v.getContext(), ItemDetailActivity.class);
+                intent.putExtra("itemId", item.getId());
+                intent.putExtra("itemName", item.getName());
+                intent.putExtra("itemDescription", item.getDescription());
+                intent.putExtra("itemLocation", item.getLocation());
+                intent.putExtra("itemDate", item.getDate());
+                intent.putExtra("itemStatus", item.getStatus());
+                intent.putExtra("itemCategory", item.getCategory());
+                intent.putExtra("itemImageUrl", item.getImageUrl());
+                intent.putExtra("userName", item.getUserName());
+                intent.putExtra("userDepartment", item.getUserDepartment());
+                v.getContext().startActivity(intent);
+            });
         }
 
         @Override
@@ -258,9 +286,10 @@ public class CampusDashboardActivity extends AppCompatActivity {
         }
 
         class ViewHolder extends RecyclerView.ViewHolder {
-            TextView tvTitle, tvLocation, tvTime;
+            TextView tvTitle, tvLocation, tvTime, tvBadge;
             ImageView ivIcon;
             View statusIndicator;
+            MaterialCardView cardBadge;
 
             public ViewHolder(@NonNull View itemView) {
                 super(itemView);
@@ -269,6 +298,8 @@ public class CampusDashboardActivity extends AppCompatActivity {
                 tvTime = itemView.findViewById(R.id.tvItemTime);
                 ivIcon = itemView.findViewById(R.id.ivItemIcon);
                 statusIndicator = itemView.findViewById(R.id.viewStatusIndicator);
+                tvBadge = itemView.findViewById(R.id.tvBadge);
+                cardBadge = itemView.findViewById(R.id.cardBadge);
             }
         }
     }

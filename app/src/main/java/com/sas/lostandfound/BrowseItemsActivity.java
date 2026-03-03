@@ -30,7 +30,7 @@ public class BrowseItemsActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_browse_items);
 
-        mDatabase = FirebaseDatabase.getInstance(DATABASE_URL).getReference("LostItems");
+        mDatabase = FirebaseDatabase.getInstance(DATABASE_URL).getReference();
         recyclerView = findViewById(R.id.rvItems);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
 
@@ -48,12 +48,28 @@ public class BrowseItemsActivity extends AppCompatActivity {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 allItems.clear();
-                for (DataSnapshot dataSnapshot : snapshot.getChildren()) {
+                
+                // Load Lost Items
+                DataSnapshot lostSnapshot = snapshot.child("LostItems");
+                for (DataSnapshot dataSnapshot : lostSnapshot.getChildren()) {
                     Item item = dataSnapshot.getValue(Item.class);
                     if (item != null) {
                         allItems.add(item);
                     }
                 }
+                
+                // Load Found Items
+                DataSnapshot foundSnapshot = snapshot.child("FoundItems");
+                for (DataSnapshot dataSnapshot : foundSnapshot.getChildren()) {
+                    Item item = dataSnapshot.getValue(Item.class);
+                    if (item != null) {
+                        allItems.add(item);
+                    }
+                }
+                
+                // Sort by timestamp if available
+                allItems.sort((o1, o2) -> Long.compare(o2.getTimestamp(), o1.getTimestamp()));
+
                 adapter.notifyDataSetChanged();
             }
 
