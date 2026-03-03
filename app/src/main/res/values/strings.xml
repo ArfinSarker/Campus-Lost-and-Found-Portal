@@ -29,38 +29,55 @@
 
     <!-- Report Form Strings -->
     <string name="report_lost_title">Report a lost item</string>
-    <string name="label_item_name">Item Name *</string>
-    <string name="hint_item_name">e.g. Blue Backpack</string>
-    <string name="label_category">Category</string>
+    <string name="report_found_title">Report a found item</string>
+    <string name="label_item_name">Item Title *</string>
+    <string name="hint_item_name">e.g. Black Wallet, HP Laptop</string>
+    <string name="label_category">Category *</string>
     <string name="hint_category">Select Category</string>
-    <string name="label_date_lost">Date lost</string>
+    <string name="label_date_lost">Date Lost *</string>
+    <string name="label_date_found">Date Found *</string>
     <string name="hint_date">Select Date</string>
-    <string name="label_location_lost">Location lost</string>
-    <string name="hint_location">Location</string>
-    <string name="label_description">Description</string>
-    <string name="hint_description">Provide details about the item...</string>
-    <string name="label_upload_image">Upload image</string>
-    <string name="tap_to_upload">Tap to upload image</string>
-    <string name="confirm_accuracy">I confirm that the information provided is accurate.</string>
+    <string name="label_time">Time (Optional)</string>
+    <string name="hint_time">Select Time</string>
+    <string name="label_location">Location *</string>
+    <string name="hint_location">Select Location</string>
+    <string name="label_location_manual">Other Location</string>
+    <string name="hint_location_manual">Enter location manually</string>
+    <string name="label_location_details">Additional Location Details</string>
+    <string name="hint_location_details">e.g. 2nd floor near CSE Lab</string>
+    <string name="label_description">Description *</string>
+    <string name="hint_description">Brand, Model, Color, Unique marks...</string>
+    <string name="label_upload_image">Upload Images</string>
+    <string name="tap_to_upload">Tap to upload images</string>
+
+    <!-- Ownership & Verification -->
+    <string name="label_proof_ownership">Proof of Ownership (Optional)</string>
+    <string name="hint_proof_description">Receipt / ID proof / Serial number details</string>
+    <string name="label_confidential_detail">Confidential Identification Detail</string>
+    <string name="hint_confidential_detail">e.g. What is inside the wallet? (Hidden field)</string>
+    <string name="label_found_handling">Current Item Status *</string>
+    <string name="label_authority_name">Authority Name (If submitted)</string>
+    <string name="label_office_room">Office Room Number</string>
+    <string name="label_hidden_question">Hidden Identification Question *</string>
+    <string name="hint_hidden_question">e.g. What is written inside the notebook?</string>
+    <string name="label_verification_method">Verification Method</string>
+
+    <!-- Contact Info -->
+    <string name="label_preferred_contact">Preferred Contact Method</string>
+    <string name="contact_phone">Phone</string>
+    <string name="contact_email">Email</string>
+    <string name="contact_chat">In-app Chat</string>
+
+    <string name="confirm_accuracy_lost">I confirm that the above information is accurate and true.</string>
+    <string name="confirm_accuracy_found">I confirm that the information provided is true and the item was found within university premises.</string>
     <string name="btn_submit_report">Submit Report</string>
-    <string name="success_report_submitted">Lost item report submitted successfully!</string>
+    <string name="success_report_submitted">Report submitted successfully!</string>
 
     <!-- Profile Dropdown -->
     <string name="user_role_student">Student</string>
     <string name="user_role_staff">Staff</string>
     <string name="menu_settings">Settings</string>
     <string name="btn_log_out">Log Out</string>
-
-    <!-- Placeholder strings for sample items -->
-    <string name="sample_macbook">MacBook Pro</string>
-    <string name="sample_macbook_location">Library, 2nd floor</string>
-    <string name="sample_macbook_time">2h ago</string>
-    <string name="sample_found">Found Wallet</string>
-    <string name="sample_found_location">Cafeteria</string>
-    <string name="sample_found_time">5h ago</string>
-    <string name="sample_airpods">AirPods Pro</string>
-    <string name="sample_airpods_location">Building A, Room 301</string>
-    <string name="sample_airpods_time">1d ago</string>
 
     <!-- Login / Registration strings -->
     <string name="login_subtitle">Recover what you\'ve lost</string>
@@ -109,6 +126,11 @@
     <string name="terms_conditions">Terms &amp; Conditions</string>
     <string name="developer_info">Developer Information</string>
 
+    <!-- Status Badge Strings -->
+    <string name="status_lost">Lost</string>
+    <string name="status_found">Found</string>
+    <string name="image_ready">Image Ready</string>
+
     <!-- New strings for HomeActivity -->
     <string name="lost_part">Lost&amp;</string>
     <string name="found_part">Found</string>
@@ -148,4 +170,15 @@
     <string name="dev_phone">+8801819966626</string>
     <string name="dev_github">https://github.com/ArfinSarker</string>
     <string name="dev_linkedin">https://bd.linkedin.com/in/arfinsarkar</string>
+
+    <!-- Sample Data Strings -->
+    <string name="sample_macbook">MacBook Pro 14</string>
+    <string name="sample_macbook_location">Library, 2nd floor</string>
+    <string name="sample_macbook_time">2h ago</string>
+    <string name="sample_found">Found: Black Wallet</string>
+    <string name="sample_found_location">Cafeteria</string>
+    <string name="sample_found_time">5h ago</string>
+    <string name="sample_airpods">AirPods Pro</string>
+    <string name="sample_airpods_location">Academic Building</string>
+    <string name="sample_airpods_time">1d ago</string>
 </resources>

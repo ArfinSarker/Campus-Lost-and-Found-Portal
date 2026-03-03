@@ -17,6 +17,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.card.MaterialCardView;
+import com.google.android.material.tabs.TabLayout;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
@@ -39,6 +40,7 @@ public class CampusDashboardActivity extends AppCompatActivity {
     private MaterialCardView cvProfile;
     private ImageView ivUserProfile;
     private ImageButton btnLogout;
+    private TabLayout tabLayout;
 
     private FirebaseAuth mAuth;
     private DatabaseReference mDatabase;
@@ -54,6 +56,7 @@ public class CampusDashboardActivity extends AppCompatActivity {
 
         initializeViews();
         setupRecyclerView();
+        setupTabLayout();
         fetchUserData();
         fetchRecentItems();
 
@@ -68,7 +71,7 @@ public class CampusDashboardActivity extends AppCompatActivity {
         });
 
         btnReportLost.setOnClickListener(v -> startActivity(new Intent(this, CampusReportLostActivity.class)));
-        btnReportFound.setOnClickListener(v -> Toast.makeText(this, "Report Found coming soon", Toast.LENGTH_SHORT).show());
+        btnReportFound.setOnClickListener(v -> startActivity(new Intent(this, CampusReportFoundActivity.class)));
 
         if (tvDeveloperInfo != null) {
             tvDeveloperInfo.setOnClickListener(v -> {
@@ -88,6 +91,40 @@ public class CampusDashboardActivity extends AppCompatActivity {
         cvProfile = findViewById(R.id.cvProfile);
         ivUserProfile = findViewById(R.id.ivUserProfile);
         btnLogout = findViewById(R.id.btnLogout);
+        tabLayout = findViewById(R.id.tabLayout);
+    }
+
+    private void setupTabLayout() {
+        if (tabLayout != null) {
+            tabLayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
+                @Override
+                public void onTabSelected(TabLayout.Tab tab) {
+                    String tabText = tab.getText() != null ? tab.getText().toString() : "";
+                    switch (tabText) {
+                        case "Home":
+                            // Already on Home
+                            break;
+                        case "Browse Items":
+                            startActivity(new Intent(CampusDashboardActivity.this, BrowseItemsActivity.class));
+                            break;
+                        case "Report Lost":
+                            startActivity(new Intent(CampusDashboardActivity.this, CampusReportLostActivity.class));
+                            break;
+                        case "Report Found":
+                            startActivity(new Intent(CampusDashboardActivity.this, CampusReportFoundActivity.class));
+                            break;
+                    }
+                }
+
+                @Override
+                public void onTabUnselected(TabLayout.Tab tab) {}
+
+                @Override
+                public void onTabReselected(TabLayout.Tab tab) {
+                    onTabSelected(tab);
+                }
+            });
+        }
     }
 
     private void setupRecyclerView() {
@@ -107,9 +144,6 @@ public class CampusDashboardActivity extends AppCompatActivity {
                     if (snapshot.exists()) {
                         String name = snapshot.child("name").getValue(String.class);
                         tvWelcome.setText("Welcome back, " + name + "! 👋");
-                        
-                        // In a real app, you'd use Glide/Picasso to load the imageUrl
-                        // String imageUrl = snapshot.child("profileImageUrl").getValue(String.class);
                     }
                 }
 
@@ -131,22 +165,46 @@ public class CampusDashboardActivity extends AppCompatActivity {
     }
 
     private void fetchRecentItems() {
-        mDatabase.child("LostItems").limitToLast(10).addValueEventListener(new ValueEventListener() {
+        // Fetch both lost and found items for the recent list
+        mDatabase.child("LostItems").limitToLast(5).addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
-                itemList.clear();
-                for (DataSnapshot data : snapshot.getChildren()) {
-                    Item item = data.getValue(Item.class);
-                    if (item != null) {
-                        itemList.add(0, item);
-                    }
-                }
-                adapter.notifyDataSetChanged();
+                updateItemList(snapshot);
             }
-
             @Override
             public void onCancelled(@NonNull DatabaseError error) {}
         });
+
+        mDatabase.child("FoundItems").limitToLast(5).addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                updateItemList(snapshot);
+            }
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {}
+        });
+    }
+
+    private synchronized void updateItemList(DataSnapshot snapshot) {
+        for (DataSnapshot data : snapshot.getChildren()) {
+            Item item = data.getValue(Item.class);
+            if (item != null) {
+                boolean exists = false;
+                for (int i = 0; i < itemList.size(); i++) {
+                    if (itemList.get(i).getId().equals(item.getId())) {
+                        itemList.set(i, item);
+                        exists = true;
+                        break;
+                    }
+                }
+                if (!exists) {
+                    itemList.add(0, item);
+                }
+            }
+        }
+        // Sort by timestamp if available
+        itemList.sort((o1, o2) -> Long.compare(o2.getTimestamp(), o1.getTimestamp()));
+        adapter.notifyDataSetChanged();
     }
 
     private class RecentItemsAdapter extends RecyclerView.Adapter<RecentItemsAdapter.ViewHolder> {
@@ -169,6 +227,13 @@ public class CampusDashboardActivity extends AppCompatActivity {
             holder.tvTitle.setText(item.getName());
             holder.tvLocation.setText(item.getLocation());
             holder.tvTime.setText(item.getDate());
+            
+            // Color code based on status
+            if ("lost".equals(item.getStatus())) {
+                holder.statusIndicator.setBackgroundColor(0xFFE53935); // Red
+            } else {
+                holder.statusIndicator.setBackgroundColor(0xFF2E7D32); // Green
+            }
         }
 
         @Override
@@ -179,6 +244,7 @@ public class CampusDashboardActivity extends AppCompatActivity {
         class ViewHolder extends RecyclerView.ViewHolder {
             TextView tvTitle, tvLocation, tvTime;
             ImageView ivIcon;
+            View statusIndicator;
 
             public ViewHolder(@NonNull View itemView) {
                 super(itemView);
@@ -186,6 +252,7 @@ public class CampusDashboardActivity extends AppCompatActivity {
                 tvLocation = itemView.findViewById(R.id.tvItemLocation);
                 tvTime = itemView.findViewById(R.id.tvItemTime);
                 ivIcon = itemView.findViewById(R.id.ivItemIcon);
+                statusIndicator = itemView.findViewById(R.id.viewStatusIndicator); // Ensure this exists in layout
             }
         }
     }

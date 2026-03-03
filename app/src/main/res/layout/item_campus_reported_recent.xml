@@ -15,27 +15,45 @@
         android:orientation="vertical"
         android:padding="16dp">
 
-        <!-- Badge -->
-        <com.google.android.material.card.MaterialCardView
-            android:id="@+id/cardBadge"
-            android:layout_width="wrap_content"
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            app:cardBackgroundColor="#FEE2E2"
-            app:cardCornerRadius="12dp"
-            app:cardElevation="0dp"
-            app:strokeWidth="0dp">
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
 
-            <TextView
-                android:id="@+id/tvBadge"
+            <!-- Badge -->
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/cardBadge"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:paddingHorizontal="12dp"
-                android:paddingVertical="4dp"
-                android:text="Lost"
-                android:textColor="@color/statusLost"
-                android:textSize="12sp"
-                android:textStyle="bold" />
-        </com.google.android.material.card.MaterialCardView>
+                app:cardBackgroundColor="#FEE2E2"
+                app:cardCornerRadius="12dp"
+                app:cardElevation="0dp"
+                app:strokeWidth="0dp">
+
+                <TextView
+                    android:id="@+id/tvBadge"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:paddingHorizontal="12dp"
+                    android:paddingVertical="4dp"
+                    android:text="Lost"
+                    android:textColor="@color/statusLost"
+                    android:textSize="12sp"
+                    android:textStyle="bold" />
+            </com.google.android.material.card.MaterialCardView>
+
+            <View
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:layout_weight="1" />
+
+            <View
+                android:id="@+id/viewStatusIndicator"
+                android:layout_width="12dp"
+                android:layout_height="12dp"
+                android:background="@drawable/ic_check_circle" />
+        </LinearLayout>
 
         <!-- Icon Box -->
         <com.google.android.material.card.MaterialCardView
@@ -49,9 +67,9 @@
 
             <ImageView
                 android:id="@+id/ivItemIcon"
-                android:layout_width="48dp"
-                android:layout_height="48dp"
-                android:layout_gravity="center"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:scaleType="centerInside"
                 android:src="@drawable/ic_package"
                 app:tint="@color/textSecondary" />
         </com.google.android.material.card.MaterialCardView>
