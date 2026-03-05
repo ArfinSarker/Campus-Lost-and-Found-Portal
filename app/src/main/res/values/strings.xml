@@ -96,7 +96,8 @@
     <string name="hint_department">Department</string>
     <string name="hint_phone">Phone Number</string>
     <string name="hint_confirm_password">Confirm Password</string>
-    <string name="lost_and_found_policy">I agree to the Campus Lost&amp;Found policy and verification.</string>
+    <string name="lost_and_found_policy">I agree to the Lost &amp; Found policy and verification.</string>
+    <string name="lost_and_found_policy_clickable">Lost &amp; Found policy</string>
     <string name="create_account">Create Account</string>
     <string name="login_link">Already have an account? <b>Login</b></string>
 
@@ -123,12 +124,12 @@
     <string name="tab_home">Home</string>
     <string name="tab_browse">Browse</string>
     <string name="tab_report">Report</string>
-    <string name="welcome_back_default">Welcome back! 👋</string>
+    <string name="welcome_back_default">Welcome back!</string>
     <string name="active_items_default">You have 0 active items</string>
     <string name="need_help">Need Help?</string>
     <string name="help_description">Contact security office for urgent matters.</string>
     <string name="contact_support">Contact Support</string>
-    <string name="developer_info_short">Developer Info</string>
+    <string name="developer_info_short">Developer Information</string>
 
     <!-- Item Detail Strings -->
     <string name="label_description_detail">Description</string>
@@ -272,6 +273,82 @@
     <string name="dev_phone">+8801819966626</string>
     <string name="dev_github">https://github.com/ArfinSarker</string>
     <string name="dev_linkedin">https://bd.linkedin.com/in/arfinsarkar</string>
+
+    <!-- Lost & Found Policy Page Strings -->
+    <string name="policy_title">Lost&amp;Found Policy</string>
+    <string name="policy_effective_date">Effective Date: October 26, 2026</string>
+
+    <string name="policy_sec1_title">Introduction</string>
+    <string name="policy_sec1_desc">Welcome to the Campus Lost&amp;Found Portal\nWe are committed to protecting your privacy and ensuring the security of your personal information. This Privacy Policy explains how we collect, use, disclose, and safeguard your information when you use our mobile application.\n\nPlease read this policy carefully. By accessing or using the app, you agree to the data practices described in this policy.</string>
+
+    <string name="policy_sec2_title">Information We Collect</string>
+    <string name="policy_sec2_desc">We collect several types of information to provide and improve our services.</string>
+
+    <string name="policy_sec2_sub1_title">Personal Information</string>
+    <string name="policy_sec2_sub1_desc">When you register an account, we may collect:\n• Full Name\n• University ID\n• Email Address\n• Phone Number\n• Department\n• Batch\n• Level / Term\n• Section\n• Gender\n• Profile Picture\n\nThis information helps us create and manage your user account.</string>
+
+    <string name="policy_sec2_sub2_title">Lost&amp;Found Item Information</string>
+    <string name="policy_sec2_sub2_desc">When reporting a lost or found item, we may collect:\n• Item Name\n• Item Category\n• Item Description\n• Lost/Found Location\n• Date and Time\n• Uploaded Item Images\n\nThis information helps other users identify and recover lost items.</string>
+
+    <string name="policy_sec2_sub3_title">Proof of Ownership &amp; Verification Data</string>
+    <string name="policy_sec2_sub3_desc">For lost items, users may provide:\n• Proof of ownership (images or descriptions)\n• Confidential identification details\n\nFor found items, users may provide:\n• Handling status\n• Authority contact details\n• Hidden verification questions\n\nThese measures help ensure the rightful owner receives the item.</string>
+
+    <string name="policy_sec2_sub4_title">Automatically Collected Information</string>
+    <string name="policy_sec2_sub4_desc">Some technical data may be collected automatically, including:\n• Device Type\n• Operating System\n• Unique Device Identifiers\n• IP Address\n• App Usage Statistics\n\nThis information helps us improve performance and fix issues.</string>
+
+    <string name="policy_sec2_sub5_title">Communication Data</string>
+    <string name="policy_sec2_sub5_desc">If you contact us through the app or email, we may keep records of the communication for support purposes.</string>
+
+    <string name="policy_sec3_title">How We Use Your Information</string>
+    <string name="policy_sec3_desc">We use the collected information to:\n• Provide, operate, and maintain the application\n• Create and manage user accounts\n• Allow users to report lost or found items\n• Help connect users for item recovery\n• Verify identities and prevent fraudulent activity\n• Send important updates or notifications\n• Improve app features and user experience\n• Analyze usage trends\n• Comply with legal requirements</string>
+
+    <string name="policy_sec4_title">Sharing and Disclosure of Information</string>
+    <string name="policy_sec4_desc">We may share information in the following situations:</string>
+
+    <string name="policy_sec4_sub1_title">With Other Users</string>
+    <string name="policy_sec4_sub1_desc">When you report a lost or found item, some information (such as item details and location) may be visible to other registered users to help identify and return items.\n\nSensitive information may be partially hidden until verification.</string>
+
+    <string name="policy_sec4_sub2_title">With Service Providers</string>
+    <string name="policy_sec4_sub2_desc">We may use third-party services to operate the app:\n\nFirebase (Google)\nUsed for: Authentication, Realtime Database, Secure data storage\n\nSupabase\nUsed for: Image storage (profile images and item photos)\n\nThese services process only the data necessary to operate the app.</string>
+
+    <string name="policy_sec4_sub3_title">Legal Requirements</string>
+    <string name="policy_sec4_sub3_desc">We may disclose information if required by law, regulation, or legal request to protect the rights, safety, or property of users.</string>
+
+    <string name="policy_sec4_sub4_title">Business Transfers</string>
+    <string name="policy_sec4_sub4_desc">If the app undergoes a merger, acquisition, or asset sale, user information may be transferred as part of the transaction.</string>
+
+    <string name="policy_sec5_title">Data Security</string>
+    <string name="policy_sec5_desc">We implement reasonable security measures to protect your data, including:\n• Secure database systems\n• Encrypted data transmission (HTTPS)\n• Access control mechanisms\n\nHowever, no system is completely secure. While we strive to protect your information, absolute security cannot be guaranteed.</string>
+
+    <string name="policy_sec6_title">Your Rights and Choices</string>
+    <string name="policy_sec6_desc">You have several rights regarding your personal data.</string>
+
+    <string name="policy_sec6_sub1_title">Access and Update</string>
+    <string name="policy_sec6_sub1_desc">You may view and update your profile information within the app at any time.</string>
+
+    <string name="policy_sec6_sub2_title">Delete Your Account</string>
+    <string name="policy_sec6_sub2_desc">You may request account deletion by contacting us.\n\nCertain records may be retained if required for legal or administrative purposes.</string>
+
+    <string name="policy_sec6_sub3_title">Communication Preferences</string>
+    <string name="policy_sec6_sub3_desc">You can opt out of non-essential communications such as promotional emails.</string>
+
+    <string name="policy_sec6_sub4_title">Withdraw Consent</string>
+    <string name="policy_sec6_sub4_desc">You may withdraw consent for data processing where applicable.</string>
+
+    <string name="policy_sec7_title">Children\'s Privacy</string>
+    <string name="policy_sec7_desc">This application is designed for university students, faculty, and staff.\n\nWe do not knowingly collect data from children under 13 years old. If such information is discovered, it will be removed immediately.</string>
+
+    <string name="policy_sec8_title">Changes to This Privacy Policy</string>
+    <string name="policy_sec8_desc">We may update this Privacy Policy periodically.\n\nWhen changes occur:\n• The Effective Date will be updated\n• The revised policy will be posted inside the app\n\nContinued use of the app indicates acceptance of the updated policy.</string>
+
+    <string name="policy_sec9_title">Contact Us</string>
+    <string name="policy_sec9_desc">If you have questions or concerns about this Privacy Policy, please contact us:</string>
+    <string name="policy_email_full">Email: m.shamsulsrfinsarkernayan@gmail.com</string>
+    <string name="policy_phone_full">Phone: +8801819966626</string>
+    <string name="policy_address_full">Address: Saidpur</string>
+    <string name="policy_email_address">m.shamsularfinsarkernayan@gmail.com</string>
+    <string name="policy_phone_number">+8801819966626</string>
+    <string name="policy_address_query">Saidpur</string>
 
     <!-- Sample Data Strings -->
     <string name="sample_macbook">MacBook Pro 14</string>
