@@ -5,13 +5,20 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Color;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
+import android.text.SpannableString;
+import android.text.Spanned;
+import android.text.TextPaint;
 import android.text.TextUtils;
+import android.text.method.LinkMovementMethod;
+import android.text.style.ClickableSpan;
+import android.text.style.ForegroundColorSpan;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
@@ -79,6 +86,7 @@ public class UserRegistrationActivity extends AppCompatActivity {
         initializeViews();
         setupDropdowns();
         setupListeners();
+        setupPolicyText();
     }
 
     private void initializeViews() {
@@ -138,6 +146,38 @@ public class UserRegistrationActivity extends AppCompatActivity {
                 finish();
             });
         }
+    }
+
+    private void setupPolicyText() {
+        String fullText = getString(R.string.lost_and_found_policy);
+        String clickablePart = getString(R.string.lost_and_found_policy_clickable);
+        
+        SpannableString ss = new SpannableString(fullText);
+        
+        int startIndex = fullText.indexOf(clickablePart);
+        int endIndex = startIndex + clickablePart.length();
+        
+        if (startIndex != -1) {
+            ClickableSpan clickableSpan = new ClickableSpan() {
+                @Override
+                public void onClick(@NonNull View widget) {
+                    startActivity(new Intent(UserRegistrationActivity.this, LostAndFoundPolicyActivity.class));
+                }
+
+                @Override
+                public void updateDrawState(@NonNull TextPaint ds) {
+                    super.updateDrawState(ds);
+                    ds.setUnderlineText(false);
+                }
+            };
+            
+            ss.setSpan(clickableSpan, startIndex, endIndex, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+            ss.setSpan(new ForegroundColorSpan(ContextCompat.getColor(this, R.color.primaryColor)), 
+                    startIndex, endIndex, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+        }
+        
+        cbPolicy.setText(ss);
+        cbPolicy.setMovementMethod(LinkMovementMethod.getInstance());
     }
 
     private void showImageSourceDialog() {

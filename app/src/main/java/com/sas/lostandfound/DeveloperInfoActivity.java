@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.ImageButton;
 import android.widget.LinearLayout;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -11,11 +12,17 @@ import androidx.appcompat.app.AppCompatActivity;
 public class DeveloperInfoActivity extends AppCompatActivity {
 
     private LinearLayout llEmail, llPhone, llGithub, llLinkedin;
+    private ImageButton btnBack;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_developer_info);
+
+        btnBack = findViewById(R.id.btnBack);
+        if (btnBack != null) {
+            btnBack.setOnClickListener(v -> onBackPressed());
+        }
 
         llEmail = findViewById(R.id.llEmail);
         llPhone = findViewById(R.id.llPhone);
