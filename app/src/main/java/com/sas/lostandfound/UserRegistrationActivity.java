@@ -15,6 +15,7 @@ import android.text.TextUtils;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
+import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -53,6 +54,7 @@ public class UserRegistrationActivity extends AppCompatActivity {
     private FloatingActionButton fabAddPhoto;
     private ImageButton btnBack;
     private TextView tvLogin;
+    private CheckBox cbPolicy;
 
     private static final int REQUEST_IMAGE_PICK = 101;
     private static final int REQUEST_IMAGE_CAPTURE = 102;
@@ -95,6 +97,7 @@ public class UserRegistrationActivity extends AppCompatActivity {
         fabAddPhoto = findViewById(R.id.fabAddPhoto);
         btnBack = findViewById(R.id.btnBack);
         tvLogin = findViewById(R.id.tvLogin);
+        cbPolicy = findViewById(R.id.cbPolicy);
     }
 
     private void setupDropdowns() {
@@ -112,7 +115,18 @@ public class UserRegistrationActivity extends AppCompatActivity {
     private void setupListeners() {
         fabAddPhoto.setOnClickListener(v -> showImageSourceDialog());
         ivProfilePicture.setOnClickListener(v -> showImageSourceDialog());
-        btnCreateAccount.setOnClickListener(v -> registerUser());
+        
+        cbPolicy.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            btnCreateAccount.setEnabled(isChecked);
+        });
+
+        btnCreateAccount.setOnClickListener(v -> {
+            if (cbPolicy.isChecked()) {
+                registerUser();
+            } else {
+                Toast.makeText(this, "Please agree to the policy first.", Toast.LENGTH_SHORT).show();
+            }
+        });
         
         if (btnBack != null) {
             btnBack.setOnClickListener(v -> finish());
@@ -190,7 +204,7 @@ public class UserRegistrationActivity extends AppCompatActivity {
     }
 
     private void showLoading(boolean isLoading) {
-        btnCreateAccount.setEnabled(!isLoading);
+        btnCreateAccount.setEnabled(!isLoading && cbPolicy.isChecked());
         progressBar.setVisibility(isLoading ? View.VISIBLE : View.GONE);
         btnCreateAccount.setText(isLoading ? "" : "Create Account");
     }

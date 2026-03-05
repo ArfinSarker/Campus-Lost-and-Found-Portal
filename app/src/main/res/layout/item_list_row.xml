@@ -10,7 +10,7 @@
     android:focusable="true"
     app:cardCornerRadius="12dp"
     app:cardElevation="2dp"
-    app:strokeColor="#E0E0E0"
+    app:strokeColor="@color/dividerColor"
     app:strokeWidth="1dp">
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -31,9 +31,9 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:background="@drawable/edit_text_rounded"
-                android:backgroundTint="#F5F7FA"
+                android:backgroundTint="@color/lightGrey"
                 android:gravity="center"
-                android:text="📂"
+                android:text="@string/item_image_description"
                 android:textSize="24sp" />
 
             <ImageView
@@ -41,7 +41,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:scaleType="centerCrop"
-                android:visibility="gone" />
+                android:visibility="gone"
+                android:contentDescription="@string/item_image_description" />
         </FrameLayout>
 
         <TextView

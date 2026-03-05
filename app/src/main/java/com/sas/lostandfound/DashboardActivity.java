@@ -7,7 +7,7 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.recyclerview.widget.GridLayoutManager;
+import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.button.MaterialButton;
@@ -58,12 +58,14 @@ public class DashboardActivity extends AppCompatActivity {
 
         itemList = new ArrayList<>();
         adapter = new ItemAdapter(itemList, item -> {
+            // Redirect to Login Screen when an item is clicked
             startActivity(new Intent(DashboardActivity.this, UserLoginActivity.class));
         });
         
-        // Use GridLayoutManager as specified in XML
-        recyclerView.setLayoutManager(new GridLayoutManager(this, 2));
+        // Use LinearLayoutManager for a vertical scrollable list
+        recyclerView.setLayoutManager(new LinearLayoutManager(this));
         recyclerView.setAdapter(adapter);
+        recyclerView.setNestedScrollingEnabled(false);
 
         loadRecentItems();
 
@@ -81,6 +83,7 @@ public class DashboardActivity extends AppCompatActivity {
         });
 
         tvBrowseAll.setOnClickListener(v -> {
+            // Redirect to Login Screen to see all items in detail
             startActivity(new Intent(DashboardActivity.this, UserLoginActivity.class));
         });
 
@@ -92,40 +95,41 @@ public class DashboardActivity extends AppCompatActivity {
     }
 
     private void loadRecentItems() {
-        mDatabase.addValueEventListener(new ValueEventListener() {
+        ValueEventListener itemListener = new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
-                itemList.clear();
-                
-                // Load limited number of items for "Recent" section
-                List<Item> tempItems = new ArrayList<>();
-                
-                DataSnapshot lostSnapshot = snapshot.child("LostItems");
-                for (DataSnapshot dataSnapshot : lostSnapshot.getChildren()) {
-                    Item item = dataSnapshot.getValue(Item.class);
-                    if (item != null) tempItems.add(item);
+                if (snapshot.exists()) {
+                    for (DataSnapshot data : snapshot.getChildren()) {
+                        Item item = data.getValue(Item.class);
+                        if (item != null) {
+                            updateOrAddItem(item);
+                        }
+                    }
+                    // Sort items by timestamp (most recent first)
+                    itemList.sort((o1, o2) -> Long.compare(o2.getTimestamp(), o1.getTimestamp()));
+                    adapter.notifyDataSetChanged();
                 }
-                
-                DataSnapshot foundSnapshot = snapshot.child("FoundItems");
-                for (DataSnapshot dataSnapshot : foundSnapshot.getChildren()) {
-                    Item item = dataSnapshot.getValue(Item.class);
-                    if (item != null) tempItems.add(item);
-                }
-                
-                // Sort by timestamp
-                tempItems.sort((o1, o2) -> Long.compare(o2.getTimestamp(), o1.getTimestamp()));
-                
-                // Add top 6 to display
-                for (int i = 0; i < Math.min(tempItems.size(), 6); i++) {
-                    itemList.add(tempItems.get(i));
-                }
-                
-                adapter.notifyDataSetChanged();
             }
 
             @Override
-            public void onCancelled(@NonNull DatabaseError error) {}
-        });
+            public void onCancelled(@NonNull DatabaseError error) {
+                // Log error if needed
+            }
+        };
+
+        // Listen to both LostItems and FoundItems specifically
+        mDatabase.child("LostItems").addValueEventListener(itemListener);
+        mDatabase.child("FoundItems").addValueEventListener(itemListener);
+    }
+
+    private synchronized void updateOrAddItem(Item item) {
+        for (int i = 0; i < itemList.size(); i++) {
+            if (itemList.get(i).getId().equals(item.getId())) {
+                itemList.set(i, item);
+                return;
+            }
+        }
+        itemList.add(item);
     }
 
     @Override

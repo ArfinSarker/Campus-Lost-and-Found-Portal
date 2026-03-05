@@ -20,7 +20,7 @@
         android:layout_marginStart="24dp"
         android:layout_marginTop="48dp"
         android:fontFamily="sans-serif-medium"
-        android:text="Privacy Policy"
+        android:text="@string/modal_title_default"
         android:textColor="@color/white"
         android:textSize="22sp"
         android:textStyle="bold"
@@ -43,7 +43,8 @@
         app:iconPadding="0dp"
         app:iconTint="@color/white"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent"
+        android:contentDescription="@string/back" />
 
     <!-- Content Card -->
     <androidx.core.widget.NestedScrollView
@@ -72,7 +73,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:lineSpacingExtra="4dp"
-                    android:text="Your content goes here. This scrollable modal follows the premium university portal feel with rounded corners and soft shadows."
+                    android:text="@string/modal_text_1"
                     android:textColor="@color/textPrimary"
                     android:textSize="15sp" />
 
@@ -84,7 +85,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:lineSpacingExtra="4dp"
-                    android:text="Designed with a clean SaaS dashboard look, ensuring consistency across all screens."
+                    android:text="@string/modal_text_2"
                     android:textColor="@color/textSecondary"
                     android:textSize="14sp" />
 

@@ -30,7 +30,8 @@
                 android:layout_height="match_parent"
                 android:padding="10dp"
                 android:src="@drawable/ic_layers"
-                app:tint="@color/white" />
+                app:tint="@color/white"
+                android:contentDescription="@null" />
         </com.google.android.material.card.MaterialCardView>
 
         <TextView
@@ -38,7 +39,7 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
             android:fontFamily="sans-serif-medium"
-            android:text="My Items"
+            android:text="@string/my_items"
             android:textColor="@color/textPrimary"
             android:textSize="22sp"
             android:textStyle="bold" />

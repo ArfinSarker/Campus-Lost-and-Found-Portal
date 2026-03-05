@@ -57,6 +57,9 @@
         <!-- Account Registration -->
         <activity android:name=".UserRegistrationActivity" />
 
+        <!-- Item Details -->
+        <activity android:name=".ItemDetailActivity" />
+
         <!-- Item Browsing -->
         <activity android:name=".BrowseItemsActivity" />
 

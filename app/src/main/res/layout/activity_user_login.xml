@@ -1,77 +1,124 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@android:color/white">
+    android:background="@color/backgroundColor"
+    android:fitsSystemWindows="true">
 
-    <ScrollView
+    <com.google.android.material.appbar.AppBarLayout
+        android:id="@+id/appBarLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/backgroundColor"
+        app:elevation="0dp"
+        app:liftOnScroll="false">
+
+        <com.google.android.material.appbar.MaterialToolbar
+            android:id="@+id/toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            android:background="@color/backgroundColor"
+            app:navigationIcon="@drawable/ic_back_arrow"
+            app:navigationIconTint="@color/textPrimary" />
+    </com.google.android.material.appbar.AppBarLayout>
+
+    <androidx.core.widget.NestedScrollView
+        android:id="@+id/nestedScrollView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:fillViewport="true">
+        android:fillViewport="true"
+        android:background="@color/backgroundColor"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:gravity="center"
+            android:gravity="center_horizontal"
             android:orientation="vertical"
-            android:padding="32dp">
+            android:paddingStart="24dp"
+            android:paddingEnd="24dp"
+            android:paddingTop="0dp"
+            android:paddingBottom="24dp">
 
+            <!-- 1. Logo at the top -->
             <ImageView
                 android:id="@+id/ivLogo"
-                android:layout_width="100dp"
-                android:layout_height="100dp"
-                android:layout_marginBottom="16dp"
+                android:layout_width="120dp"
+                android:layout_height="120dp"
+                android:layout_marginTop="-25dp"
                 android:src="@drawable/logo"
-                android:contentDescription="@string/app_name" />
+                tools:ignore="ContentDescription" />
 
-            <TextView
+            <!-- 2. Lost&Found text directly below -->
+            <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/app_name"
-                android:textColor="@color/vibrantBlue"
-                android:textSize="28sp"
-                android:textStyle="bold" />
+                android:layout_marginTop="4dp"
+                android:orientation="horizontal">
 
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="sans-serif-black"
+                    android:text="@string/status_lost"
+                    android:textColor="@color/primaryColor"
+                    android:textSize="22sp" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="sans-serif-black"
+                    android:text="@string/found_part"
+                    android:textColor="@color/black"
+                    android:textSize="22sp" />
+            </LinearLayout>
+
+            <!-- 3. Welcome Back text (centered) -->
             <TextView
+                style="@style/TextAppearance.App.Headline"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="32dp"
-                android:text="@string/login_subtitle"
-                android:textAlignment="center"
-                android:textColor="@color/textSecondary"
-                android:textSize="14sp" />
+                android:layout_marginTop="12dp"
+                android:gravity="center"
+                android:text="@string/login_welcome_back" />
+
+            <!-- 4. Subtitle text (centered) -->
+            <TextView
+                style="@style/TextAppearance.App.Body"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:layout_marginBottom="12dp"
+                android:gravity="center"
+                android:text="@string/login_subtitle_new"
+                android:textColor="@color/textSecondary" />
 
             <com.google.android.material.textfield.TextInputLayout
-                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="16dp"
-                android:hint="@string/hint_university_id"
-                app:boxCornerRadiusBottomEnd="8dp"
-                app:boxCornerRadiusBottomStart="8dp"
-                app:boxCornerRadiusTopEnd="8dp"
-                app:boxCornerRadiusTopStart="8dp"
+                android:layout_marginBottom="12dp"
+                android:hint="@string/hint_id_email"
+                app:shapeAppearanceOverlay="@style/ShapeAppearance.App.SmallComponent"
                 app:startIconDrawable="@drawable/ic_admin_id">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/etEmail"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:inputType="text" />
+                    android:inputType="textEmailAddress" />
             </com.google.android.material.textfield.TextInputLayout>
 
             <com.google.android.material.textfield.TextInputLayout
-                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="8dp"
+                android:layout_marginBottom="4dp"
                 android:hint="@string/hint_password"
-                app:boxCornerRadiusBottomEnd="8dp"
-                app:boxCornerRadiusBottomStart="8dp"
-                app:boxCornerRadiusTopEnd="8dp"
-                app:boxCornerRadiusTopStart="8dp"
                 app:passwordToggleEnabled="true"
+                app:shapeAppearanceOverlay="@style/ShapeAppearance.App.SmallComponent"
                 app:startIconDrawable="@android:drawable/ic_lock_idle_lock">
 
                 <com.google.android.material.textfield.TextInputEditText
@@ -83,56 +130,46 @@
 
             <TextView
                 android:id="@+id/tvForgotPassword"
+                style="@style/TextAppearance.App.Small"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="end"
-                android:layout_marginBottom="24dp"
+                android:layout_marginTop="4dp"
+                android:layout_marginBottom="16dp"
                 android:padding="8dp"
                 android:text="@string/forgot_password"
-                android:textColor="@color/vibrantBlue"
+                android:textColor="@color/primaryColor"
                 android:textStyle="bold" />
 
-            <FrameLayout
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnSignIn"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="24dp">
+                android:text="@string/sign_in" />
 
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/btnSignIn"
-                    android:layout_width="match_parent"
-                    android:layout_height="56dp"
-                    android:text="@string/sign_in"
-                    android:textAllCaps="false"
-                    android:textSize="16sp"
-                    android:backgroundTint="@color/vibrantBlue"
-                    app:cornerRadius="8dp" />
-
-                <ProgressBar
-                    android:id="@+id/progressBar"
-                    android:layout_width="24dp"
-                    android:layout_height="24dp"
-                    android:layout_gravity="center"
-                    android:indeterminateTint="@android:color/white"
-                    android:visibility="gone" />
-            </FrameLayout>
+            <ProgressBar
+                android:id="@+id/progressBar"
+                android:layout_width="32dp"
+                android:layout_height="32dp"
+                android:layout_marginTop="12dp"
+                android:visibility="gone" />
 
             <TextView
                 android:id="@+id/tvRegister"
+                style="@style/TextAppearance.App.Body"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:padding="8dp"
+                android:layout_marginTop="16dp"
+                android:padding="2dp"
                 android:text="@string/register_link"
                 android:textColor="@color/textSecondary" />
 
-            <!-- Horizontal Line -->
             <View
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
-                android:layout_marginTop="24dp"
-                android:layout_marginBottom="24dp"
-                android:background="#DDDDDD" />
+                android:layout_marginVertical="24dp"
+                android:background="@color/dividerColor" />
 
-            <!-- Admin Login Option -->
             <LinearLayout
                 android:id="@+id/llAdminLogin"
                 android:layout_width="wrap_content"
@@ -140,9 +177,9 @@
                 android:gravity="center"
                 android:orientation="horizontal"
                 android:padding="12dp"
+                android:background="?attr/selectableItemBackground"
                 android:clickable="true"
-                android:focusable="true"
-                android:background="?attr/selectableItemBackground">
+                android:focusable="true">
 
                 <ImageView
                     android:id="@+id/ivAdminIcon"
@@ -150,17 +187,18 @@
                     android:layout_height="20dp"
                     android:layout_marginEnd="8dp"
                     android:src="@drawable/ic_shield"
-                    app:tint="#757575" />
+                    app:tint="@color/textSecondary" />
 
                 <TextView
                     android:id="@+id/tvAdminLogin"
+                    style="@style/TextAppearance.App.Body"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="@string/admin_login"
-                    android:textColor="#757575"
-                    android:textSize="16sp" />
+                    android:text="@string/admin_portal"
+                    android:textColor="@color/textSecondary"
+                    android:textStyle="bold" />
             </LinearLayout>
 
         </LinearLayout>
-    </ScrollView>
-</androidx.constraintlayout.widget.ConstraintLayout>
+    </androidx.core.widget.NestedScrollView>
+</androidx.coordinatorlayout.widget.CoordinatorLayout>
