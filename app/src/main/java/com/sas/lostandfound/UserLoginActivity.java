@@ -23,7 +23,11 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
+import androidx.core.widget.NestedScrollView;
 
+import com.google.android.material.appbar.AppBarLayout;
+import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.firebase.auth.FirebaseAuth;
@@ -42,6 +46,9 @@ public class UserLoginActivity extends AppCompatActivity {
     private TextView tvForgotPassword, tvRegister, tvAdminLogin;
     private LinearLayout llAdminLogin;
     private ImageView ivAdminIcon;
+    private MaterialToolbar toolbar;
+    private AppBarLayout appBarLayout;
+    private NestedScrollView nestedScrollView;
 
     private FirebaseAuth mAuth;
     private DatabaseReference mDatabase;
@@ -56,16 +63,9 @@ public class UserLoginActivity extends AppCompatActivity {
         mAuth = FirebaseAuth.getInstance();
         mDatabase = FirebaseDatabase.getInstance(DATABASE_URL).getReference();
 
-        etUniversityId = findViewById(R.id.etEmail); 
-        etPassword = findViewById(R.id.etPassword);
-        btnSignIn = findViewById(R.id.btnSignIn);
-        progressBar = findViewById(R.id.progressBar);
-        tvForgotPassword = findViewById(R.id.tvForgotPassword);
-        tvRegister = findViewById(R.id.tvRegister);
-        tvAdminLogin = findViewById(R.id.tvAdminLogin);
-        llAdminLogin = findViewById(R.id.llAdminLogin);
-        ivAdminIcon = findViewById(R.id.ivAdminIcon);
-
+        initializeViews();
+        setupToolbar();
+        setupScrollListener();
         setupClickableRegister();
 
         btnSignIn.setOnClickListener(v -> loginWithUniversityId());
@@ -88,6 +88,68 @@ public class UserLoginActivity extends AppCompatActivity {
             }
             return false;
         });
+    }
+
+    private void initializeViews() {
+        etUniversityId = findViewById(R.id.etEmail); 
+        etPassword = findViewById(R.id.etPassword);
+        btnSignIn = findViewById(R.id.btnSignIn);
+        progressBar = findViewById(R.id.progressBar);
+        tvForgotPassword = findViewById(R.id.tvForgotPassword);
+        tvRegister = findViewById(R.id.tvRegister);
+        tvAdminLogin = findViewById(R.id.tvAdminLogin);
+        llAdminLogin = findViewById(R.id.llAdminLogin);
+        ivAdminIcon = findViewById(R.id.ivAdminIcon);
+        toolbar = findViewById(R.id.toolbar);
+        appBarLayout = findViewById(R.id.appBarLayout);
+        nestedScrollView = findViewById(R.id.nestedScrollView);
+    }
+
+    private void setupToolbar() {
+        if (toolbar != null) {
+            setSupportActionBar(toolbar);
+            if (getSupportActionBar() != null) {
+                getSupportActionBar().setDisplayShowTitleEnabled(false);
+            }
+            toolbar.setNavigationOnClickListener(v -> {
+                Intent intent = new Intent(UserLoginActivity.this, DashboardActivity.class);
+                intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+                startActivity(intent);
+                finish();
+            });
+        }
+    }
+
+    private void setupScrollListener() {
+        if (nestedScrollView != null && appBarLayout != null) {
+            // Initial state
+            updateStatusBarColor(false);
+
+            nestedScrollView.setOnScrollChangeListener((NestedScrollView.OnScrollChangeListener) (v, scrollX, scrollY, oldScrollX, oldScrollY) -> {
+                if (scrollY > 0) {
+                    updateStatusBarColor(true);
+                } else {
+                    updateStatusBarColor(false);
+                }
+            });
+        }
+    }
+
+    private void updateStatusBarColor(boolean isScrolled) {
+        if (isScrolled) {
+            getWindow().setStatusBarColor(ContextCompat.getColor(this, R.color.primaryDarkColor));
+            appBarLayout.setBackgroundColor(ContextCompat.getColor(this, R.color.primaryColor));
+            toolbar.setBackgroundColor(ContextCompat.getColor(this, R.color.primaryColor));
+            toolbar.setNavigationIconTint(Color.WHITE);
+            getWindow().getDecorView().setSystemUiVisibility(0); // White icons
+        } else {
+            getWindow().setStatusBarColor(Color.WHITE);
+            appBarLayout.setBackgroundColor(Color.WHITE);
+            toolbar.setBackgroundColor(Color.WHITE);
+            toolbar.setNavigationIconTint(ContextCompat.getColor(this, R.color.textPrimary));
+            // Dark icons for white status bar
+            getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR);
+        }
     }
 
     private boolean isNetworkAvailable() {

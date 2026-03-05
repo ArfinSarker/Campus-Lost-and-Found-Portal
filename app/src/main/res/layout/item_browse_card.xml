@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    style="@style/Widget.App.Card"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_marginBottom="12dp"
-    app:cardCornerRadius="16dp"
-    app:cardElevation="4dp"
-    app:cardBackgroundColor="@color/white">
+    android:layout_marginHorizontal="4dp"
+    android:layout_marginVertical="8dp">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -14,19 +14,13 @@
         android:orientation="horizontal"
         android:padding="12dp">
 
-        <com.google.android.material.card.MaterialCardView
+        <com.google.android.material.imageview.ShapeableImageView
+            android:id="@+id/ivItemImage"
             android:layout_width="80dp"
             android:layout_height="80dp"
-            app:cardCornerRadius="12dp"
-            app:cardElevation="0dp">
-
-            <ImageView
-                android:id="@+id/ivItemImage"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:scaleType="centerCrop"
-                android:src="@drawable/ic_package" />
-        </com.google.android.material.card.MaterialCardView>
+            android:scaleType="centerCrop"
+            android:src="@drawable/ic_package"
+            app:shapeAppearanceOverlay="@style/ShapeAppearance.App.MediumComponent" />
 
         <LinearLayout
             android:layout_width="0dp"
@@ -41,29 +35,28 @@
 
                 <TextView
                     android:id="@+id/tvItemTitle"
+                    style="@style/TextAppearance.App.SectionTitle"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_alignParentStart="true"
                     android:layout_toStartOf="@+id/tvItemType"
                     android:ellipsize="end"
                     android:maxLines="1"
-                    android:text="Black Wallet"
-                    android:textColor="@color/browse_text_primary"
-                    android:textSize="16sp"
-                    android:textStyle="bold" />
+                    tools:text="Black Wallet" />
 
                 <TextView
                     android:id="@+id/tvItemType"
+                    style="@style/TextAppearance.App.Small"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_alignParentEnd="true"
                     android:background="@drawable/bg_status_badge_lost"
                     android:paddingHorizontal="8dp"
                     android:paddingVertical="2dp"
-                    android:text="LOST"
-                    android:textColor="@color/lost_text"
-                    android:textSize="10sp"
-                    android:textStyle="bold" />
+                    android:textAllCaps="true"
+                    android:textStyle="bold"
+                    tools:text="LOST"
+                    tools:textColor="@color/statusLost" />
             </RelativeLayout>
 
             <LinearLayout
@@ -77,16 +70,16 @@
                     android:layout_width="14dp"
                     android:layout_height="14dp"
                     android:src="@drawable/ic_map_pin"
-                    app:tint="@color/browse_text_secondary" />
+                    app:tint="@color/textSecondary"
+                    android:contentDescription="@null" />
 
                 <TextView
                     android:id="@+id/tvItemLocation"
+                    style="@style/TextAppearance.App.Small"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="4dp"
-                    android:text="Found near Library"
-                    android:textColor="@color/browse_text_secondary"
-                    android:textSize="12sp" />
+                    tools:text="Found near Library" />
             </LinearLayout>
 
             <LinearLayout
@@ -100,30 +93,31 @@
                     android:layout_width="14dp"
                     android:layout_height="14dp"
                     android:src="@drawable/ic_calendar"
-                    app:tint="@color/textHint" />
+                    app:tint="@color/textHint"
+                    android:contentDescription="@null" />
 
                 <TextView
                     android:id="@+id/tvItemDate"
+                    style="@style/TextAppearance.App.Small"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="4dp"
-                    android:text="2 March 2026"
-                    android:textColor="@color/textHint"
-                    android:textSize="11sp" />
+                    android:textSize="11sp"
+                    tools:text="2 March 2026" />
             </LinearLayout>
 
             <TextView
                 android:id="@+id/btnViewDetails"
+                style="@style/TextAppearance.App.Small"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="4dp"
                 android:background="?attr/selectableItemBackground"
                 android:clickable="true"
                 android:focusable="true"
-                android:fontFamily="sans-serif-medium"
-                android:text="View Details"
-                android:textColor="@color/browse_primary"
-                android:textSize="12sp" />
+                android:text="@string/btn_view_details"
+                android:textColor="@color/primaryColor"
+                android:textStyle="bold" />
 
         </LinearLayout>
     </LinearLayout>

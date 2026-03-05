@@ -1,11 +1,12 @@
 <resources>
     <string name="app_name">Lost &amp; Found</string>
+    <string name="app_name_no_space">Lost&amp;Found</string>
     <string name="campus_verified">CAMPUS VERIFIED • STUDENTS AND STAFF ONLY</string>
     <string name="lost_something">Lost Something?</string>
     <string name="we_help">We’ll Help You Find It</string>
     <string name="description">A centralized platform for students to report and recover lost items within the university campus.</string>
-    <string name="report_lost">Report Lost</string>
-    <string name="report_found">Report Found</string>
+    <string name="report_lost">Report\nLost</string>
+    <string name="report_found">Report\nFound</string>
     <string name="recent_title">Recently Reported</string>
     <string name="browse_all">View All</string>
     <string name="item_image_description">Item icon</string>
@@ -95,8 +96,107 @@
     <string name="hint_department">Department</string>
     <string name="hint_phone">Phone Number</string>
     <string name="hint_confirm_password">Confirm Password</string>
+    <string name="lost_and_found_policy">I agree to the Campus Lost&amp;Found policy and verification.</string>
     <string name="create_account">Create Account</string>
     <string name="login_link">Already have an account? <b>Login</b></string>
+
+    <string name="login_welcome_back">Welcome Back</string>
+    <string name="login_subtitle_new">Sign in to continue to the Lost and Found Portal.</string>
+    <string name="hint_id_email">University ID / Email</string>
+    <string name="admin_portal">Admin Portal</string>
+    <string name="back">Back</string>
+    <string name="add_photo">Add Photo</string>
+
+    <string name="admin_access_heading">ADMIN ACCESS</string>
+    <string name="back_to_student">← Back to Student Login</string>
+
+    <string name="dashboard_headline">Lost something? Found something?</string>
+    <string name="dashboard_description">Join our campus community to help each other recover lost belongings quickly and safely.</string>
+    <string name="report_lost_btn">Report Lost</string>
+    <string name="report_found_btn">Report Found</string>
+    <string name="recent_reports_title">Recent Reports</string>
+    <string name="view_all_link">View all</string>
+    <string name="made_for_students">Made for Students by Students</string>
+
+    <string name="dashboard_title">Dashboard</string>
+    <string name="logout">Logout</string>
+    <string name="tab_home">Home</string>
+    <string name="tab_browse">Browse</string>
+    <string name="tab_report">Report</string>
+    <string name="welcome_back_default">Welcome back! 👋</string>
+    <string name="active_items_default">You have 0 active items</string>
+    <string name="need_help">Need Help?</string>
+    <string name="help_description">Contact security office for urgent matters.</string>
+    <string name="contact_support">Contact Support</string>
+    <string name="developer_info_short">Developer Info</string>
+
+    <!-- Item Detail Strings -->
+    <string name="label_description_detail">Description</string>
+    <string name="label_location_detail">Location</string>
+    <string name="label_date_time_detail">Date &amp; Time</string>
+    <string name="label_reported_by">Reported By</string>
+    <string name="btn_contact">Contact</string>
+    <string name="btn_found_this">I Found This Item</string>
+
+    <!-- Report Lost Strings -->
+    <string name="title_report_lost">Report Lost Item</string>
+    <string name="label_basic_info">Basic Information</string>
+    <string name="label_item_name_simple">Item Name</string>
+    <string name="label_description_simple">Description</string>
+    <string name="label_upload_img_simple">Upload Image</string>
+    <string name="tap_upload_photo">Tap to upload photo</string>
+    <string name="label_loss_details">Loss Details</string>
+    <string name="label_date">Date</string>
+    <string name="label_time_simple">Time</string>
+    <string name="label_ownership_verify">Ownership Verification</string>
+    <string name="label_proof_desc">Proof of Ownership (Description)</string>
+    <string name="helper_proof">Describe specific marks, unique ID, or content only the owner knows</string>
+    <string name="helper_confidential">Information to be kept confidential (e.g., IMEI number, specific document ID)</string>
+    <string name="label_contact_info">Contact Information</string>
+    <string name="label_your_name">Your Name</string>
+    <string name="label_contact_phone">Contact Phone</string>
+    <string name="label_preferred_contact_simple">Preferred Contact</string>
+    <string name="confirm_accuracy">I confirm that the information provided is accurate.</string>
+
+    <!-- Report Found Strings -->
+    <string name="title_report_found">Report Found Item</string>
+    <string name="label_found_details">Found Details</string>
+    <string name="label_handling_status">Handling Status</string>
+    <string name="hint_handling_status">Current Item Status</string>
+    <string name="hint_authority_name">Authority/Person Name</string>
+    <string name="hint_office_room">Office/Room Number</string>
+    <string name="label_verify_security">Verification &amp; Security</string>
+    <string name="hint_security_question">Security Question for Owner</string>
+    <string name="helper_security_question">A question only the owner could answer (e.g., Lock screen wallpaper)</string>
+    <string name="label_verify_method_simple">Verification Method</string>
+
+    <!-- Profile Strings -->
+    <string name="title_my_profile">My Profile</string>
+    <string name="label_old_password">Old Password</string>
+    <string name="btn_save_changes">Save Changes</string>
+    <string name="label_section">Section</string>
+    <string name="label_level_term">Level &amp; Term</string>
+    <string name="label_information_profile">Information</string>
+    <string name="label_contact_profile">Contact</string>
+    <string name="label_change_password_profile">Change Password</string>
+
+    <!-- Modal Strings -->
+    <string name="modal_title_default">Privacy Policy</string>
+    <string name="modal_text_1">Your content goes here. This scrollable modal follows the premium university portal feel with rounded corners and soft shadows.</string>
+    <string name="modal_text_2">Designed with a clean SaaS dashboard look, ensuring consistency across all screens.</string>
+
+    <!-- Stat Card Strings -->
+    <string name="stat_default_value">0</string>
+    <string name="stat_default_label">Items</string>
+
+    <!-- Browse Items Strings -->
+    <string name="title_browse_items">Browse Items</string>
+    <string name="hint_search_items">Search lost or found items...</string>
+    <string name="chip_all">All</string>
+    <string name="chip_lost">Lost</string>
+    <string name="chip_found">Found</string>
+    <string name="no_items_found">No items found</string>
+    <string name="adjust_search_filters">Try adjusting your search or filters</string>
 
     <!-- New hints for registration -->
     <string name="hint_session">Session (e.g., Winter 2026)</string>
@@ -127,7 +227,7 @@
     <string name="developer_info">Developer Information</string>
 
     <!-- Status Badge Strings -->
-    <string name="status_lost">Lost</string>
+    <string name="status_lost">Lost&amp;</string>
     <string name="status_found">Found</string>
     <string name="image_ready">Image Ready</string>
 
@@ -161,6 +261,8 @@
     <string name="dev_skill_firebase">Firebase</string>
     <string name="dev_skill_sqlite">SQLite</string>
     <string name="dev_skill_git">Git &amp; GitHub</string>
+    <string name="dev_skill_github">GitHub</string>
+    <string name="dev_skill_linkedin">LinkedIn</string>
     <string name="dev_edu_title">Education</string>
     <string name="dev_edu_degree">BSc Engineering in Computer Science and Engineering (CSE)</string>
     <string name="dev_edu_uni">Bangladesh Army University of Science and Technology (BAUST), Saidpur</string>

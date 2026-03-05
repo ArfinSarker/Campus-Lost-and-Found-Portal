@@ -107,13 +107,12 @@ public class CampusDashboardActivity extends AppCompatActivity {
                             // Already on Home
                             break;
                         case "Browse Items":
+                        case "Browse":
                             startActivity(new Intent(CampusDashboardActivity.this, BrowseItemsActivity.class));
                             break;
-                        case "Report Lost":
+                        case "Report":
+                            // Usually reports are separate buttons, but if tab says Report, go to one
                             startActivity(new Intent(CampusDashboardActivity.this, CampusReportLostActivity.class));
-                            break;
-                        case "Report Found":
-                            startActivity(new Intent(CampusDashboardActivity.this, CampusReportFoundActivity.class));
                             break;
                     }
                 }
@@ -177,44 +176,35 @@ public class CampusDashboardActivity extends AppCompatActivity {
     }
 
     private void fetchRecentItems() {
-        mDatabase.child("LostItems").limitToLast(5).addValueEventListener(new ValueEventListener() {
+        ValueEventListener itemListener = new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
-                updateItemList(snapshot);
-            }
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {}
-        });
-
-        mDatabase.child("FoundItems").limitToLast(5).addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                updateItemList(snapshot);
-            }
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {}
-        });
-    }
-
-    private synchronized void updateItemList(DataSnapshot snapshot) {
-        for (DataSnapshot data : snapshot.getChildren()) {
-            Item item = data.getValue(Item.class);
-            if (item != null) {
-                boolean exists = false;
-                for (int i = 0; i < itemList.size(); i++) {
-                    if (itemList.get(i).getId().equals(item.getId())) {
-                        itemList.set(i, item);
-                        exists = true;
-                        break;
+                for (DataSnapshot data : snapshot.getChildren()) {
+                    Item item = data.getValue(Item.class);
+                    if (item != null) {
+                        updateOrAddItem(item);
                     }
                 }
-                if (!exists) {
-                    itemList.add(0, item);
-                }
+                itemList.sort((o1, o2) -> Long.compare(o2.getTimestamp(), o1.getTimestamp()));
+                adapter.notifyDataSetChanged();
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {}
+        };
+
+        mDatabase.child("LostItems").limitToLast(10).addValueEventListener(itemListener);
+        mDatabase.child("FoundItems").limitToLast(10).addValueEventListener(itemListener);
+    }
+
+    private synchronized void updateOrAddItem(Item item) {
+        for (int i = 0; i < itemList.size(); i++) {
+            if (itemList.get(i).getId().equals(item.getId())) {
+                itemList.set(i, item);
+                return;
             }
         }
-        itemList.sort((o1, o2) -> Long.compare(o2.getTimestamp(), o1.getTimestamp()));
-        adapter.notifyDataSetChanged();
+        itemList.add(item);
     }
 
     private class RecentItemsAdapter extends RecyclerView.Adapter<RecentItemsAdapter.ViewHolder> {
@@ -248,7 +238,6 @@ public class CampusDashboardActivity extends AppCompatActivity {
                 holder.cardBadge.setCardBackgroundColor(0xFFDCFCE7);
             }
 
-            // Fix: Clear tint and set ScaleType properly for uploaded images
             if (item.getImageUrl() != null && !item.getImageUrl().isEmpty()) {
                 holder.ivIcon.setImageTintList(null);
                 holder.ivIcon.setScaleType(ImageView.ScaleType.CENTER_CROP);
@@ -271,11 +260,13 @@ public class CampusDashboardActivity extends AppCompatActivity {
                 intent.putExtra("itemDescription", item.getDescription());
                 intent.putExtra("itemLocation", item.getLocation());
                 intent.putExtra("itemDate", item.getDate());
+                intent.putExtra("itemTime", item.getTime());
                 intent.putExtra("itemStatus", item.getStatus());
                 intent.putExtra("itemCategory", item.getCategory());
                 intent.putExtra("itemImageUrl", item.getImageUrl());
                 intent.putExtra("userName", item.getUserName());
                 intent.putExtra("userDepartment", item.getUserDepartment());
+                intent.putExtra("userPhone", item.getUserPhone());
                 v.getContext().startActivity(intent);
             });
         }

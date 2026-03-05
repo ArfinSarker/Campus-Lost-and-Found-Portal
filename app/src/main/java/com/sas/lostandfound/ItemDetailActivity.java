@@ -1,5 +1,7 @@
 package com.sas.lostandfound;
 
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.ImageView;
@@ -35,13 +37,20 @@ public class ItemDetailActivity extends AppCompatActivity {
         String itemDescription = getIntent().getStringExtra("itemDescription");
         String itemLocation = getIntent().getStringExtra("itemLocation");
         String itemDate = getIntent().getStringExtra("itemDate");
+        String itemTime = getIntent().getStringExtra("itemTime");
         String itemStatus = getIntent().getStringExtra("itemStatus");
         String itemCategory = getIntent().getStringExtra("itemCategory");
         String itemImageUrl = getIntent().getStringExtra("itemImageUrl");
         String userName = getIntent().getStringExtra("userName");
         String userDept = getIntent().getStringExtra("userDepartment");
+        String userPhone = getIntent().getStringExtra("userPhone");
 
-        displayItemDetails(itemName, itemDescription, itemLocation, itemDate, itemStatus, itemCategory, itemImageUrl, userName, userDept);
+        String fullDateTime = itemDate;
+        if (itemTime != null && !itemTime.isEmpty()) {
+            fullDateTime += " - " + itemTime;
+        }
+
+        displayItemDetails(itemName, itemDescription, itemLocation, fullDateTime, itemStatus, itemCategory, itemImageUrl, userName, userDept, userPhone);
     }
 
     private void initializeViews() {
@@ -70,11 +79,11 @@ public class ItemDetailActivity extends AppCompatActivity {
         toolbar.setNavigationOnClickListener(v -> onBackPressed());
     }
 
-    private void displayItemDetails(String name, String desc, String loc, String date, String status, String category, String imageUrl, String uName, String uDept) {
+    private void displayItemDetails(String name, String desc, String loc, String dateTime, String status, String category, String imageUrl, String uName, String uDept, String uPhone) {
         tvItemName.setText(name);
-        tvDescription.setText(desc != null ? desc : "No description provided.");
+        tvDescription.setText(desc != null && !desc.isEmpty() ? desc : "No description provided.");
         tvLocation.setText(loc);
-        tvDateTime.setText(date);
+        tvDateTime.setText(dateTime);
         tvCategory.setText(category);
         tvReporterName.setText(uName != null ? uName : "Anonymous");
         tvReporterDept.setText(uDept != null ? uDept : "Department not specified");
@@ -99,7 +108,16 @@ public class ItemDetailActivity extends AppCompatActivity {
                     .into(ivItemImage);
         }
 
-        btnContact.setOnClickListener(v -> Toast.makeText(this, "Contacting reporter...", Toast.LENGTH_SHORT).show());
+        btnContact.setOnClickListener(v -> {
+            if (uPhone != null && !uPhone.isEmpty()) {
+                Intent intent = new Intent(Intent.ACTION_DIAL);
+                intent.setData(Uri.parse("tel:" + uPhone));
+                startActivity(intent);
+            } else {
+                Toast.makeText(this, "Contact number not available.", Toast.LENGTH_SHORT).show();
+            }
+        });
+
         btnClaim.setOnClickListener(v -> Toast.makeText(this, "Claim request sent!", Toast.LENGTH_SHORT).show());
     }
 }

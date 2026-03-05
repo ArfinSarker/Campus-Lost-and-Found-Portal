@@ -3,7 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@android:color/white">
+    android:background="@color/white">
 
     <ScrollView
         android:layout_width="0dp"
@@ -28,10 +28,10 @@
                 android:layout_marginStart="-12dp"
                 android:layout_marginTop="-15dp"
                 android:background="?attr/selectableItemBackgroundBorderless"
-                android:contentDescription="Back"
+                android:contentDescription="@string/back"
                 android:scaleType="centerInside"
                 android:src="@drawable/ic_back_arrow"
-                app:tint="@android:color/black" />
+                app:tint="@color/black" />
 
             <!-- Main Heading -->
             <TextView
@@ -41,7 +41,7 @@
                 android:layout_marginTop="12dp"
                 android:gravity="center"
                 android:lineSpacingExtra="2dp"
-                android:text="Create Your Account"
+                android:text="@string/register_title"
                 android:textColor="@color/vibrantBlue"
                 android:textSize="28sp"
                 android:textStyle="bold" />
@@ -58,7 +58,7 @@
                     android:id="@+id/ivProfilePicture"
                     android:layout_width="100dp"
                     android:layout_height="100dp"
-                    android:background="#F5F5F5"
+                    android:background="@color/lightGrey"
                     android:padding="2dp"
                     android:scaleType="centerCrop"
                     android:src="@drawable/ic_user"
@@ -72,11 +72,11 @@
                     android:layout_height="wrap_content"
                     android:layout_gravity="bottom|end"
                     android:backgroundTint="@color/vibrantBlue"
-                    android:contentDescription="Add Photo"
+                    android:contentDescription="@string/add_photo"
                     android:src="@android:drawable/ic_menu_camera"
                     app:fabCustomSize="32dp"
                     app:maxImageSize="18dp"
-                    app:tint="@android:color/white" />
+                    app:tint="@color/white" />
             </FrameLayout>
 
             <!-- University ID -->
@@ -245,7 +245,7 @@
                 style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="24dp"
+                android:layout_marginBottom="16dp"
                 android:hint="@string/hint_confirm_password"
                 app:boxCornerRadiusBottomEnd="8dp"
                 app:boxCornerRadiusBottomStart="8dp"
@@ -261,6 +261,17 @@
                     android:inputType="textPassword" />
             </com.google.android.material.textfield.TextInputLayout>
 
+            <!-- Policy Agreement Checkbox -->
+            <com.google.android.material.checkbox.MaterialCheckBox
+                android:id="@+id/cbPolicy"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="24dp"
+                android:layout_gravity="center"
+                android:text="@string/lost_and_found_policy"
+                android:textColor="@color/textSecondary"
+                android:textSize="14sp" />
+
             <FrameLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -274,6 +285,7 @@
                     android:text="@string/create_account"
                     android:textAllCaps="false"
                     android:textSize="16sp"
+                    android:enabled="false"
                     app:cornerRadius="8dp" />
 
                 <ProgressBar
@@ -281,7 +293,7 @@
                     android:layout_width="24dp"
                     android:layout_height="24dp"
                     android:layout_gravity="center"
-                    android:indeterminateTint="@android:color/white"
+                    android:indeterminateTint="@color/white"
                     android:visibility="gone" />
             </FrameLayout>
 

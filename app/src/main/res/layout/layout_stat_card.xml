@@ -18,7 +18,7 @@
             android:id="@+id/tvStatNumber"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="0"
+            android:text="@string/stat_default_value"
             android:textColor="@color/primaryColor"
             android:textSize="24sp"
             android:textStyle="bold" />
@@ -28,7 +28,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="4dp"
-            android:text="Items"
+            android:text="@string/stat_default_label"
             android:textColor="@color/textSecondary"
             android:textSize="12sp" />
 

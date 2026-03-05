@@ -1,284 +1,192 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:fillViewport="true"
-    android:background="@color/light_gray_background"
-    android:padding="0dp">
+    android:background="@color/backgroundColor"
+    android:fitsSystemWindows="true">
 
-    <LinearLayout
+    <com.google.android.material.appbar.AppBarLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical">
+        android:background="@color/primaryColor"
+        android:fitsSystemWindows="true"
+        app:elevation="0dp">
 
-        <!-- Header Card – Using MaterialCardView for consistent Material Design -->
-        <com.google.android.material.card.MaterialCardView
+        <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="20dp"
-            app:cardCornerRadius="0dp"
-            app:cardElevation="4dp"
-            app:cardBackgroundColor="@android:color/white">
+            android:layout_height="65dp"
+            android:paddingHorizontal="16dp">
 
-            <androidx.constraintlayout.widget.ConstraintLayout
-                android:layout_width="match_parent"
+            <com.google.android.material.imageview.ShapeableImageView
+                android:id="@+id/ivLogo"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:src="@drawable/logo"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:shapeAppearanceOverlay="@style/ShapeAppearance.App.Circle" />
+
+            <LinearLayout
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:padding="12dp">
+                android:orientation="horizontal"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent">
 
-                <ImageView
-                    android:id="@+id/ivLogo"
-                    android:layout_width="56dp"
-                    android:layout_height="56dp"
-                    android:src="@drawable/logo"
-                    android:contentDescription="@string/item_image_description"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent"
-                    app:layout_constraintBottom_toBottomOf="parent" />
-
-                <LinearLayout
-                    android:id="@+id/llTitle"
+                <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintTop_toTopOf="parent"
-                    app:layout_constraintBottom_toBottomOf="parent">
+                    android:fontFamily="sans-serif-black"
+                    android:text="@string/lost_part"
+                    android:textColor="@color/white"
+                    android:textSize="20sp" />
 
-                    <TextView
-                        android:id="@+id/tvLostPart"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="@string/lost_part"
-                        android:textSize="25sp"
-                        android:textStyle="bold"
-                        android:textColor="@color/vibrantBlue"
-                        android:fontFamily="sans-serif-medium"/>
-
-                    <TextView
-                        android:id="@+id/tvFoundPart"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="@string/found_part"
-                        android:textSize="25sp"
-                        android:textStyle="bold"
-                        android:textColor="@android:color/black"
-                        android:fontFamily="sans-serif-medium"/>
-                </LinearLayout>
-
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/btnSignIn"
+                <TextView
                     android:layout_width="wrap_content"
-                    android:layout_height="43dp"
-                    android:text="@string/sign_in"
-                    android:textAllCaps="false"
-                    android:textColor="@android:color/white"
-                    android:textSize="10sp"
-                    android:textStyle="bold"
-                    android:minWidth="0dp"
-                    app:cornerRadius="24dp"
-                    android:backgroundTint="@color/vibrantBlue"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintTop_toTopOf="parent"
-                    app:layout_constraintBottom_toBottomOf="parent" />
+                    android:layout_height="wrap_content"
+                    android:fontFamily="sans-serif-black"
+                    android:text="@string/found_part"
+                    android:textColor="@color/cyan"
+                    android:textSize="20sp" />
+            </LinearLayout>
 
-            </androidx.constraintlayout.widget.ConstraintLayout>
-        </com.google.android.material.card.MaterialCardView>
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnSignIn"
+                style="@style/Widget.Material3.Button"
+                android:layout_width="wrap_content"
+                android:layout_height="40dp"
+                android:paddingHorizontal="16dp"
+                android:text="@string/sign_in"
+                android:textColor="@color/primaryDarkColor"
+                android:textSize="13sp"
+                android:textStyle="bold"
+                android:insetTop="0dp"
+                android:insetBottom="0dp"
+                app:backgroundTint="@color/white"
+                app:cornerRadius="20dp"
+                app:elevation="0dp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
 
-        <!-- Main Content -->
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </com.google.android.material.appbar.AppBarLayout>
+
+    <androidx.core.widget.NestedScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior">
+
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:paddingHorizontal="16dp"
-            android:paddingBottom="40dp">
-
-            <!-- Headline & Description – Improved typography and spacing -->
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/lost_something_heading"
-                android:textSize="28sp"
-                android:textStyle="bold"
-                android:textColor="@color/text_primary"
-                android:layout_marginBottom="8dp"
-                android:fontFamily="sans-serif-medium"/>
+            android:padding="16dp">
 
             <TextView
-                android:layout_width="wrap_content"
+                style="@style/TextAppearance.App.Headline"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="@string/description"
-                android:textSize="16sp"
-                android:textColor="@color/text_secondary"
-                android:layout_marginBottom="24dp"
-                android:fontFamily="sans-serif"/>
+                android:layout_marginTop="8dp"
+                android:text="@string/dashboard_headline" />
 
-            <!-- Action Buttons – Enhanced proportions and alignment -->
+            <TextView
+                style="@style/TextAppearance.App.Body"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:text="@string/dashboard_description"
+                android:textColor="@color/textSecondary" />
+
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:layout_marginBottom="32dp"
-                android:weightSum="2">
+                android:layout_marginTop="24dp"
+                android:orientation="horizontal">
 
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/btnReportLost"
                     android:layout_width="0dp"
-                    android:layout_height="58dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="12dp"
                     android:layout_weight="1"
-                    android:layout_marginEnd="8dp"
-                    android:text="@string/report_lost"
-                    android:textColor="@android:color/white"
-                    android:textSize="16sp"
-                    app:cornerRadius="26dp"
-                    android:backgroundTint="@color/vibrantBlue"
-                    android:padding="0dp"
-                    android:insetTop="0dp"
-                    android:insetBottom="0dp" />
+                    android:text="@string/report_lost_btn" />
 
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/btnReportFound"
-                    style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                    style="@style/Widget.App.Button.Secondary"
                     android:layout_width="0dp"
-                    android:layout_height="58dp"
-                    android:layout_weight="1"
+                    android:layout_height="wrap_content"
                     android:layout_marginStart="8dp"
-                    android:text="@string/report_found"
-                    android:textColor="@color/vibrantBlue"
-                    android:textSize="16sp"
-                    app:cornerRadius="26dp"
-                    app:strokeColor="@color/vibrantBlue"
-                    app:strokeWidth="1.5dp"
-                    android:padding="0dp"
-                    android:insetTop="0dp"
-                    android:insetBottom="0dp" />
+                    android:layout_weight="1"
+                    android:text="@string/report_found_btn" />
             </LinearLayout>
 
-            <!-- Recent Items Section – With header and "View all" link in a single row -->
             <RelativeLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="16dp">
+                android:layout_marginTop="32dp">
 
                 <TextView
-                    android:id="@+id/tvRecentTitle"
+                    style="@style/TextAppearance.App.SectionTitle"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="@string/recent_title"
-                    android:textSize="20sp"
-                    android:textStyle="bold"
-                    android:textColor="@color/text_primary"
-                    android:fontFamily="sans-serif-medium"
-                    android:layout_alignParentStart="true"/>
+                    android:text="@string/recent_reports_title" />
 
                 <TextView
                     android:id="@+id/tvBrowseAll"
+                    style="@style/TextAppearance.App.Small"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="@string/browse_all"
-                    android:textColor="@color/vibrantBlue"
-                    android:textSize="16sp"
-                    android:textStyle="bold"
-                    android:paddingVertical="4dp"
+                    android:layout_alignParentEnd="true"
+                    android:layout_centerVertical="true"
                     android:background="?selectableItemBackground"
                     android:clickable="true"
                     android:focusable="true"
-                    android:layout_alignParentEnd="true"
-                    android:layout_centerVertical="true"/>
+                    android:text="@string/view_all_link"
+                    android:textColor="@color/primaryColor"
+                    android:textStyle="bold" />
             </RelativeLayout>
 
-            <!-- RecyclerView – Using GridLayoutManager for a modern card grid -->
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/recyclerViewRecent"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
                 android:nestedScrollingEnabled="false"
-                app:layoutManager="androidx.recyclerview.widget.GridLayoutManager"
-                app:spanCount="2"
-                android:layout_marginBottom="24dp" />
+                android:overScrollMode="never"
+                tools:listitem="@layout/item_list_row" />
 
-            <!-- Subtle divider -->
             <View
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
-                android:background="@color/dividerColor"
-                android:layout_marginVertical="24dp" />
-
-            <!-- Footer – Refined with better spacing and interactive links -->
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="@string/footer_row1"
-                android:textSize="14sp"
-                android:textColor="@color/text_secondary"
-                android:gravity="center"
-                android:fontFamily="sans-serif"/>
+                android:layout_marginVertical="32dp"
+                android:background="@color/dividerColor" />
 
             <TextView
+                style="@style/TextAppearance.App.Small"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="@string/footer_row2"
-                android:textSize="14sp"
-                android:textColor="@color/text_secondary"
                 android:gravity="center"
-                android:layout_marginBottom="16dp"
-                android:fontFamily="sans-serif"/>
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:gravity="center"
-                android:layout_marginBottom="16dp">
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/privacy_policy"
-                    android:textSize="14sp"
-                    android:textStyle="bold"
-                    android:textColor="@color/vibrantBlue"
-                    android:paddingHorizontal="12dp"
-                    android:paddingVertical="6dp"
-                    android:background="?selectableItemBackground"
-                    android:clickable="true"
-                    android:focusable="true"/>
-
-                <View
-                    android:layout_width="1dp"
-                    android:layout_height="20dp"
-                    android:background="@color/dividerColor"/>
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/terms_conditions"
-                    android:textSize="14sp"
-                    android:textStyle="bold"
-                    android:textColor="@color/vibrantBlue"
-                    android:paddingHorizontal="12dp"
-                    android:paddingVertical="6dp"
-                    android:background="?selectableItemBackground"
-                    android:clickable="true"
-                    android:focusable="true"/>
-            </LinearLayout>
+                android:text="@string/made_for_students" />
 
             <TextView
                 android:id="@+id/tvDeveloperInfo"
+                style="@style/TextAppearance.App.Small"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="@string/developer_info"
-                android:textSize="14sp"
-                android:textStyle="bold"
-                android:textColor="@color/vibrantBlue"
-                android:gravity="center"
+                android:layout_marginTop="8dp"
                 android:layout_marginBottom="32dp"
-                android:background="?selectableItemBackground"
-                android:clickable="true"
-                android:focusable="true"
-                android:paddingVertical="8dp"/>
+                android:gravity="center"
+                android:text="@string/developer_info"
+                android:textColor="@color/primaryColor"
+                android:textStyle="bold" />
 
         </LinearLayout>
-    </LinearLayout>
-</androidx.core.widget.NestedScrollView>
+    </androidx.core.widget.NestedScrollView>
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

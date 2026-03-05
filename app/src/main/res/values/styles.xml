@@ -1,46 +1,14 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
-    <!-- Base application theme -->
-    <style name="AppTheme" parent="Theme.MaterialComponents.Light.NoActionBar">
-        <!-- Primary brand colors -->
-        <item name="colorPrimary">@color/darkBlue</item>
-        <item name="colorPrimaryDark">@color/darkBlue</item>
-        <item name="colorAccent">@color/vibrantBlue</item>
-
-        <!-- Background colors -->
-        <item name="android:windowBackground">@color/white</item>
-        <item name="android:colorBackground">@color/white</item>
-
-        <!-- Text colors -->
-        <item name="android:textColorPrimary">@color/black</item>
-        <item name="android:textColorSecondary">@color/gray</item>
-        <item name="android:textColorHint">@color/gray</item>
-
-        <!-- Button style -->
-        <item name="materialButtonStyle">@style/Widget.MaterialComponents.Button</item>
-
-        <!-- EditText style -->
-        <item name="editTextStyle">@style/CustomEditText</item>
+    <!-- Component and Helper Styles -->
+    <style name="Widget.App.EditText" parent="Widget.Material3.TextInputEditText.OutlinedBox">
+        <item name="android:padding">12dp</item>
     </style>
 
-    <style name="RoundedButton" parent="">
-        <item name="cornerFamily">rounded</item>
-        <item name="cornerSize">24dp</item>
-    </style>
-
-    <!-- Custom EditText style with underline color -->
-    <style name="CustomEditText" parent="Widget.AppCompat.EditText">
-        <item name="colorControlNormal">@color/gray</item>
-        <item name="colorControlActivated">@color/vibrantBlue</item>
-        <item name="colorControlHighlight">@color/vibrantBlue</item>
-    </style>
-
-    <!-- Splash screen theme (fullscreen, no action bar) -->
-    <style name="SplashTheme" parent="Theme.MaterialComponents.Light.NoActionBar">
-        <item name="android:windowBackground">@color/white</item>
-        <item name="colorPrimary">@color/darkBlue</item>
-        <item name="colorPrimaryDark">@color/darkBlue</item>
-        <item name="colorAccent">@color/vibrantBlue</item>
-        <item name="android:windowFullscreen">true</item>
+    <!-- Splash screen theme - Updated to follow design rules (no fullscreen) -->
+    <style name="SplashTheme" parent="Theme.Material3.DayNight.NoActionBar">
+        <item name="android:windowBackground">@color/primaryDarkColor</item>
+        <item name="android:statusBarColor">@color/primaryDarkColor</item>
+        <item name="android:windowLightStatusBar">false</item>
     </style>
 
     <style name="CircleImageView" parent="">

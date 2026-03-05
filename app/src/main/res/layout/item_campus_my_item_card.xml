@@ -23,7 +23,7 @@
                 android:id="@+id/cardTypeBadge"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                app:cardBackgroundColor="#FEE2E2"
+                app:cardBackgroundColor="@color/light_red_bg"
                 app:cardCornerRadius="8dp"
                 app:cardElevation="0dp"
                 app:strokeWidth="0dp">
@@ -34,7 +34,7 @@
                     android:layout_height="wrap_content"
                     android:paddingHorizontal="8dp"
                     android:paddingVertical="2dp"
-                    android:text="Lost"
+                    android:text="@string/status_lost"
                     android:textColor="@color/statusLost"
                     android:textSize="11sp"
                     android:textStyle="bold" />
@@ -57,7 +57,7 @@
                     android:layout_height="wrap_content"
                     android:paddingHorizontal="8dp"
                     android:paddingVertical="2dp"
-                    android:text="Active"
+                    android:text="@string/status_active"
                     android:textColor="@color/primaryColor"
                     android:textSize="11sp"
                     android:textStyle="bold" />
@@ -69,7 +69,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="12dp"
-            android:text="Black Wallet"
+            android:text="@string/sample_found"
             android:textColor="@color/textPrimary"
             android:textSize="18sp"
             android:textStyle="bold" />
@@ -91,14 +91,15 @@
                     android:layout_width="14dp"
                     android:layout_height="14dp"
                     android:src="@drawable/ic_building"
-                    app:tint="@color/textSecondary" />
+                    app:tint="@color/textSecondary"
+                    android:contentDescription="@null" />
 
                 <TextView
                     android:id="@+id/tvMyItemLocation"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="6dp"
-                    android:text="Main Cafeteria"
+                    android:text="@string/sample_found_location"
                     android:textColor="@color/textSecondary"
                     android:textSize="13sp" />
             </LinearLayout>
@@ -114,14 +115,15 @@
                     android:layout_width="14dp"
                     android:layout_height="14dp"
                     android:src="@drawable/ic_calendar"
-                    app:tint="@color/textSecondary" />
+                    app:tint="@color/textSecondary"
+                    android:contentDescription="@null" />
 
                 <TextView
                     android:id="@+id/tvMyItemDate"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="6dp"
-                    android:text="Oct 24, 2023"
+                    android:text="@string/sample_found_time"
                     android:textColor="@color/textSecondary"
                     android:textSize="13sp" />
             </LinearLayout>
@@ -140,7 +142,7 @@
                 android:layout_marginEnd="6dp"
                 android:layout_weight="1"
                 android:backgroundTint="@color/primaryColor"
-                android:text="View Details"
+                android:text="@string/btn_view_details"
                 android:textAllCaps="false"
                 android:textColor="@color/white"
                 android:textSize="13sp"
@@ -154,7 +156,7 @@
                 android:layout_height="44dp"
                 android:layout_marginStart="6dp"
                 android:layout_weight="1"
-                android:text="Edit"
+                android:text="@string/btn_edit"
                 android:textAllCaps="false"
                 android:textColor="@color/textSecondary"
                 android:textSize="13sp"

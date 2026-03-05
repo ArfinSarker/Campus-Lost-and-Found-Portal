@@ -16,7 +16,7 @@
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
             app:navigationIcon="@drawable/ic_back_arrow"
-            app:title="My Profile"
+            app:title="@string/title_my_profile"
             app:titleTextColor="@color/textPrimary" />
     </com.google.android.material.appbar.AppBarLayout>
 
@@ -60,7 +60,8 @@
                     android:src="@drawable/ic_edit"
                     app:fabCustomSize="36dp"
                     app:maxImageSize="18dp"
-                    app:tint="@color/white" />
+                    app:tint="@color/white"
+                    android:contentDescription="@string/change_photo" />
             </FrameLayout>
 
             <!-- Information Section -->
@@ -68,7 +69,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="12dp"
-                android:text="Information"
+                android:text="@string/label_information_profile"
                 android:textAppearance="?attr/textAppearanceSubtitle1"
                 android:textColor="@color/primaryColor"
                 android:textStyle="bold" />
@@ -93,8 +94,8 @@
                         android:layout_height="wrap_content"
                         android:layout_marginBottom="16dp"
                         android:enabled="false"
-                        android:hint="Full Name"
-                        app:helperText="Not Changeable"
+                        android:hint="@string/hint_full_name"
+                        app:helperText="@string/label_not_changeable"
                         app:startIconDrawable="@drawable/ic_user">
 
                         <com.google.android.material.textfield.TextInputEditText
@@ -111,8 +112,8 @@
                         android:layout_height="wrap_content"
                         android:layout_marginBottom="16dp"
                         android:enabled="false"
-                        android:hint="University ID"
-                        app:helperText="Not Changeable"
+                        android:hint="@string/hint_university_id"
+                        app:helperText="@string/label_not_changeable"
                         app:startIconDrawable="@drawable/ic_admin_id">
 
                         <com.google.android.material.textfield.TextInputEditText
@@ -129,7 +130,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginBottom="16dp"
-                        android:hint="Gender"
+                        android:hint="@string/hint_gender"
                         app:endIconDrawable="@drawable/ic_edit"
                         app:endIconMode="custom"
                         app:startIconDrawable="@drawable/ic_users">
@@ -149,7 +150,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginBottom="16dp"
-                        android:hint="Batch"
+                        android:hint="@string/hint_batch"
                         app:endIconDrawable="@drawable/ic_edit"
                         app:endIconMode="custom"
                         app:startIconDrawable="@drawable/ic_users">
@@ -169,7 +170,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginBottom="16dp"
-                        android:hint="Level &amp; Term"
+                        android:hint="@string/label_level_term"
                         app:endIconDrawable="@drawable/ic_edit"
                         app:endIconMode="custom"
                         app:startIconDrawable="@drawable/ic_layers">
@@ -189,7 +190,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginBottom="16dp"
-                        android:hint="Department"
+                        android:hint="@string/hint_department"
                         app:endIconDrawable="@drawable/ic_edit"
                         app:endIconMode="custom"
                         app:startIconDrawable="@drawable/ic_building">
@@ -208,7 +209,7 @@
                         style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:hint="Section"
+                        android:hint="@string/label_section"
                         app:endIconDrawable="@drawable/ic_edit"
                         app:endIconMode="custom"
                         app:startIconDrawable="@drawable/ic_list">
@@ -228,7 +229,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="12dp"
-                android:text="Contact"
+                android:text="@string/label_contact_profile"
                 android:textAppearance="?attr/textAppearanceSubtitle1"
                 android:textColor="@color/primaryColor"
                 android:textStyle="bold" />
@@ -252,7 +253,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginBottom="16dp"
-                        android:hint="Email Address"
+                        android:hint="@string/hint_email"
                         app:endIconDrawable="@drawable/ic_edit"
                         app:endIconMode="custom"
                         app:startIconDrawable="@drawable/ic_envelope">
@@ -270,7 +271,7 @@
                         style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:hint="Phone Number"
+                        android:hint="@string/hint_phone"
                         app:endIconDrawable="@drawable/ic_edit"
                         app:endIconMode="custom"
                         app:startIconDrawable="@drawable/ic_phone">
@@ -290,7 +291,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="12dp"
-                android:text="Change Password"
+                android:text="@string/label_change_password_profile"
                 android:textAppearance="?attr/textAppearanceSubtitle1"
                 android:textColor="@color/primaryColor"
                 android:textStyle="bold" />
@@ -314,7 +315,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginBottom="16dp"
-                        android:hint="Old Password"
+                        android:hint="@string/label_old_password"
                         app:passwordToggleEnabled="true"
                         app:startIconDrawable="@drawable/ic_lock">
 
@@ -330,7 +331,7 @@
                         style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:hint="New Password"
+                        android:hint="@string/hint_new_password"
                         app:passwordToggleEnabled="true"
                         app:startIconDrawable="@drawable/ic_lock">
 
@@ -350,7 +351,7 @@
                 android:layout_height="56dp"
                 android:layout_marginTop="8dp"
                 android:layout_marginBottom="32dp"
-                android:text="Save Changes"
+                android:text="@string/btn_save_changes"
                 android:visibility="gone"
                 app:cornerRadius="8dp"
                 app:icon="@drawable/ic_check"
