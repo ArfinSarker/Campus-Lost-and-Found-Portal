@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
+import android.graphics.Rect;
 import android.graphics.Typeface;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
@@ -23,6 +24,7 @@ import android.text.style.ClickableSpan;
 import android.text.style.ForegroundColorSpan;
 import android.text.style.StyleSpan;
 import android.view.View;
+import android.view.ViewTreeObserver;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.CheckBox;
@@ -73,6 +75,8 @@ public class UserRegistrationActivity extends AppCompatActivity {
     private ImageButton btnBack;
     private TextView tvLogin;
     private CheckBox cbPolicy;
+    private View keyboardSpacer;
+    private View registrationRoot;
 
     private static final int REQUEST_IMAGE_PICK = 101;
     private static final int REQUEST_IMAGE_CAPTURE = 102;
@@ -99,9 +103,12 @@ public class UserRegistrationActivity extends AppCompatActivity {
         setupListeners();
         setupPolicyText();
         setupLoginLink();
+        setupKeyboardListener();
     }
 
     private void initializeViews() {
+        registrationRoot = findViewById(R.id.registrationRoot);
+        keyboardSpacer = findViewById(R.id.keyboardSpacer);
         etUniversityId = findViewById(R.id.etUniversityId);
         etFullName = findViewById(R.id.etFullName);
         etEmail = findViewById(R.id.etEmail);
@@ -127,6 +134,34 @@ public class UserRegistrationActivity extends AppCompatActivity {
         cbPolicy = findViewById(R.id.cbPolicy);
         etPassword = findViewById(R.id.etPassword);
         etConfirmPassword = findViewById(R.id.etConfirmPassword);
+    }
+
+    private void setupKeyboardListener() {
+        if (registrationRoot == null || keyboardSpacer == null) return;
+
+        registrationRoot.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+            @Override
+            public void onGlobalLayout() {
+                Rect r = new Rect();
+                registrationRoot.getWindowVisibleDisplayFrame(r);
+                int screenHeight = registrationRoot.getRootView().getHeight();
+                int keypadHeight = screenHeight - r.bottom;
+
+                // If keypad height is more than 15% of screen height, it's likely the keyboard is up
+                if (keypadHeight > screenHeight * 0.15) {
+                    if (keyboardSpacer.getVisibility() != View.VISIBLE) {
+                        keyboardSpacer.setVisibility(View.VISIBLE);
+                        // Setting a minimum height for the spacer when keyboard is on
+                        keyboardSpacer.getLayoutParams().height = (int) (200 * getResources().getDisplayMetrics().density);
+                        keyboardSpacer.requestLayout();
+                    }
+                } else {
+                    if (keyboardSpacer.getVisibility() != View.GONE) {
+                        keyboardSpacer.setVisibility(View.GONE);
+                    }
+                }
+            }
+        });
     }
 
     private void setupDropdowns() {
