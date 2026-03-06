@@ -55,7 +55,13 @@ public class CampusMyItemsActivity extends AppCompatActivity {
         tvHeaderTitle = findViewById(R.id.tvHeaderTitle);
         btnBack = findViewById(R.id.btnBack);
 
-        btnBack.setOnClickListener(v -> finish());
+        btnBack.setOnClickListener(v -> {
+            Intent intent = new Intent(this, CampusDashboardActivity.class);
+            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+            intent.putExtra("openDrawer", true);
+            startActivity(intent);
+            finish();
+        });
 
         setupTitle();
         
@@ -70,13 +76,13 @@ public class CampusMyItemsActivity extends AppCompatActivity {
     private void setupTitle() {
         switch (filterType) {
             case "reported":
-                tvHeaderTitle.setText("Reported Items");
+                tvHeaderTitle.setText("My Found Reports");
                 break;
             case "find":
-                tvHeaderTitle.setText("Find Items");
+                tvHeaderTitle.setText("My Lost Reports");
                 break;
             case "return":
-                tvHeaderTitle.setText("Returned Items");
+                tvHeaderTitle.setText("My Returned Items");
                 break;
         }
     }
@@ -110,11 +116,11 @@ public class CampusMyItemsActivity extends AppCompatActivity {
     private boolean shouldInclude(Item item) {
         switch (filterType) {
             case "reported":
-                return true;
+                return "found".equals(item.getStatus());
             case "find":
                 return "lost".equals(item.getStatus());
             case "return":
-                return "Returned".equals(item.getAdminStatus());
+                return "found".equals(item.getStatus()) && "Returned".equals(item.getAdminStatus());
             default:
                 return true;
         }

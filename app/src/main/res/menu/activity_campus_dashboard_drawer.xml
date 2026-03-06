@@ -10,16 +10,16 @@
             android:title="My Profile" />
         <item
             android:id="@+id/nav_reported_items"
-            android:icon="@drawable/ic_list"
-            android:title="Reported Items" />
+            android:icon="@drawable/ic_found_search"
+            android:title="@string/my_found_reports" />
         <item
             android:id="@+id/nav_find_items"
-            android:icon="@drawable/ic_search"
-            android:title="Find Items" />
+            android:icon="@drawable/ic_lost_times"
+            android:title="@string/my_lost_reports" />
         <item
             android:id="@+id/nav_return_items"
-            android:icon="@drawable/ic_check"
-            android:title="Return Items" />
+            android:icon="@drawable/ic_check_circle"
+            android:title="@string/my_returned_items" />
     </group>
 
     <item android:title="Other">
