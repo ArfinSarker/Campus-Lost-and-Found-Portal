@@ -8,14 +8,18 @@
 
     <!-- Background and Surface -->
     <color name="backgroundColor">#FFFFFF</color>
+    <color name="backgroundDark">#0F0F0F</color>
     <color name="surfaceColor">#FFFFFF</color>
+    <color name="surfaceDark">#1C1C1E</color>
     <color name="windowBackground">#FFFFFF</color>
     <color name="chatBackground">#F7F9FC</color>
     <color name="inputBackground">#F1F3F5</color>
 
     <!-- Text Colors -->
     <color name="textPrimary">#111111</color>
+    <color name="textPrimaryDark">#FFFFFF</color>
     <color name="textSecondary">#6B7280</color>
+    <color name="textSecondaryDark">#A1A1AA</color>
     <color name="textHint">#9CA3AF</color>
     <color name="linkText">#2AABEE</color>
     <color name="textFoundHeader">#8B949E</color>

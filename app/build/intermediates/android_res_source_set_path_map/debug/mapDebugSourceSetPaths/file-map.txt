@@ -1,0 +1,8 @@
+com.sas.lostandfound.app-pngs-0 E:\CampusLostandFound\app\build\generated\res\pngs\debug
+com.sas.lostandfound.app-res-1 E:\CampusLostandFound\app\build\generated\res\processDebugGoogleServices
+com.sas.lostandfound.app-updated_navigation_xml-2 E:\CampusLostandFound\app\build\generated\updated_navigation_xml\debug
+com.sas.lostandfound.app-packageDebugResources-3 E:\CampusLostandFound\app\build\intermediates\incremental\debug\packageDebugResources\merged.dir
+com.sas.lostandfound.app-packageDebugResources-4 E:\CampusLostandFound\app\build\intermediates\incremental\debug\packageDebugResources\stripped.dir
+com.sas.lostandfound.app-debug-5 E:\CampusLostandFound\app\build\intermediates\merged_res\debug\mergeDebugResources
+com.sas.lostandfound.app-debug-6 E:\CampusLostandFound\app\src\debug\res
+com.sas.lostandfound.app-main-7 E:\CampusLostandFound\app\src\main\res

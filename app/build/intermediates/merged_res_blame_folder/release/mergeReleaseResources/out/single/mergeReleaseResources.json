@@ -1,0 +1,378 @@
+[
+    {
+        "merged": "com.sas.lostandfound.app-release-51:/drawable_ic_lost_times.xml.flat",
+        "source": "com.sas.lostandfound.app-main-52:/drawable/ic_lost_times.xml"
+    },
+    {
+        "merged": "com.sas.lostandfound.app-release-51:/layout_item_list_row.xml.flat",
+        "source": "com.sas.lostandfound.app-main-52:/layout/item_list_row.xml"
+    },
+    {
+        "merged": "com.sas.lostandfound.app-release-51:/drawable_bg_bottom_gradient.xml.flat",
+        "source": "com.sas.lostandfound.app-main-52:/drawable/bg_bottom_gradient.xml"
+    },
+    {
+        "merged": "com.sas.lostandfound.app-release-51:/drawable_ic_phone.xml.flat",
+        "source": "com.sas.lostandfound.app-main-52:/drawable/ic_phone.xml"
+    },
+    {
+        "merged": "com.sas.lostandfound.app-release-51:/drawable_ic_edit.xml.flat",
+        "source": "com.sas.lostandfound.app-main-52:/drawable/ic_edit.xml"
+    },
+    {
+        "merged": "com.sas.lostandfound.app-release-51:/xml_data_extraction_rules.xml.flat",
+        "source": "com.sas.lostandfound.app-main-52:/xml/data_extraction_rules.xml"
+    },
+    {
+        "merged": "com.sas.lostandfound.app-release-51:/drawable_ic_user.xml.flat",
+        "source": "com.sas.lostandfound.app-main-52:/drawable/ic_user.xml"
+    },
+    {
+        "merged": "com.sas.lostandfound.app-release-51:/drawable_ic_found_search.xml.flat",
+        "source": "com.sas.lostandfound.app-main-52:/drawable/ic_found_search.xml"
+    },
+    {
+        "merged": "com.sas.lostandfound.app-release-51:/drawable_bg_button_secondary_outline.xml.flat",
+        "source": "com.sas.lostandfound.app-main-52:/drawable/bg_button_secondary_outline.xml"
+    },
+    {
+        "merged": "com.sas.lostandfound.app-release-51:/drawable_bg_status_badge_lost.xml.flat",
+        "source": "com.sas.lostandfound.app-main-52:/drawable/bg_status_badge_lost.xml"
+    },
+    {
+        "merged": "com.sas.lostandfound.app-release-51:/layout_layout_stat_card.xml.flat",
+        "source": "com.sas.lostandfound.app-main-52:/layout/layout_stat_card.xml"
+    },
+    {
+        "merged": "com.sas.lostandfound.app-release-51:/drawable_ic_admin_id.xml.flat",
+        "source": "com.sas.lostandfound.app-main-52:/drawable/ic_admin_id.xml"
+    },
+    {
+        "merged": "com.sas.lostandfound.app-release-51:/mipmap-xxxhdpi_ic_launcher.webp.flat",
+        "source": "com.sas.lostandfound.app-main-52:/mipmap-xxxhdpi/ic_launcher.webp"
+    },
+    {
+        "merged": "com.sas.lostandfound.app-release-51:/drawable_edit_text_bg.xml.flat",
+        "source": "com.sas.lostandfound.app-main-52:/drawable/edit_text_bg.xml"
+    },
+    {
+        "merged": "com.sas.lostandfound.app-release-51:/drawable_ic_launcher_background.xml.flat",
+        "source": "com.sas.lostandfound.app-main-52:/drawable/ic_launcher_background.xml"
+    },
+    {
+        "merged": "com.sas.lostandfound.app-release-51:/menu_activity_campus_dashboard_drawer.xml.flat",
+        "source": "com.sas.lostandfound.app-main-52:/menu/activity_campus_dashboard_drawer.xml"
+    },
+    {
+        "merged": "com.sas.lostandfound.app-release-51:/drawable_ic_back_arrow.xml.flat",
+        "source": "com.sas.lostandfound.app-main-52:/drawable/ic_back_arrow.xml"
+    },
+    {
+        "merged": "com.sas.lostandfound.app-release-51:/mipmap-xxhdpi_ic_launcher_round.webp.flat",
+        "source": "com.sas.lostandfound.app-main-52:/mipmap-xxhdpi/ic_launcher_round.webp"
+    },
+    {
+        "merged": "com.sas.lostandfound.app-release-51:/mipmap-xxhdpi_ic_launcher_foreground.webp.flat",
+        "source": "com.sas.lostandfound.app-main-52:/mipmap-xxhdpi/ic_launcher_foreground.webp"
+    },
+    {
+        "merged": "com.sas.lostandfound.app-release-51:/drawable_ic_users.xml.flat",
+        "source": "com.sas.lostandfound.app-main-52:/drawable/ic_users.xml"
+    },
+    {
+        "merged": "com.sas.lostandfound.app-release-51:/drawable_ic_list.xml.flat",
+        "source": "com.sas.lostandfound.app-main-52:/drawable/ic_list.xml"
+    },
+    {
+        "merged": "com.sas.lostandfound.app-release-51:/layout_activity_admin_login.xml.flat",
+        "source": "com.sas.lostandfound.app-main-52:/layout/activity_admin_login.xml"
+    },
+    {
+        "merged": "com.sas.lostandfound.app-release-51:/mipmap-mdpi_ic_launcher_round.webp.flat",
+        "source": "com.sas.lostandfound.app-main-52:/mipmap-mdpi/ic_launcher_round.webp"
+    },
+    {
+        "merged": "com.sas.lostandfound.app-release-51:/layout_nav_header_main.xml.flat",
+        "source": "com.sas.lostandfound.app-main-52:/layout/nav_header_main.xml"
+    },
+    {
+        "merged": "com.sas.lostandfound.app-release-51:/layout_item_campus_reported_recent.xml.flat",
+        "source": "com.sas.lostandfound.app-main-52:/layout/item_campus_reported_recent.xml"
+    },
+    {
+        "merged": "com.sas.lostandfound.app-release-51:/drawable_ic_pen.xml.flat",
+        "source": "com.sas.lostandfound.app-main-52:/drawable/ic_pen.xml"
+    },
+    {
+        "merged": "com.sas.lostandfound.app-release-51:/layout_item_campus_my_item_card.xml.flat",
+        "source": "com.sas.lostandfound.app-main-52:/layout/item_campus_my_item_card.xml"
+    },
+    {
+        "merged": "com.sas.lostandfound.app-release-51:/layout_activity_lost_and_found_policy.xml.flat",
+        "source": "com.sas.lostandfound.app-main-52:/layout/activity_lost_and_found_policy.xml"
+    },
+    {
+        "merged": "com.sas.lostandfound.app-release-51:/drawable_ic_lock.xml.flat",
+        "source": "com.sas.lostandfound.app-main-52:/drawable/ic_lock.xml"
+    },
+    {
+        "merged": "com.sas.lostandfound.app-release-51:/drawable_text_overlay_background.xml.flat",
+        "source": "com.sas.lostandfound.app-main-52:/drawable/text_overlay_background.xml"
+    },
+    {
+        "merged": "com.sas.lostandfound.app-release-51:/mipmap-xxhdpi_ic_launcher.webp.flat",
+        "source": "com.sas.lostandfound.app-main-52:/mipmap-xxhdpi/ic_launcher.webp"
+    },
+    {
+        "merged": "com.sas.lostandfound.app-release-51:/drawable_ic_inbox.xml.flat",
+        "source": "com.sas.lostandfound.app-main-52:/drawable/ic_inbox.xml"
+    },
+    {
+        "merged": "com.sas.lostandfound.app-release-51:/drawable_ic_layers.xml.flat",
+        "source": "com.sas.lostandfound.app-main-52:/drawable/ic_layers.xml"
+    },
+    {
+        "merged": "com.sas.lostandfound.app-release-51:/drawable_ic_launcher_foreground.xml.flat",
+        "source": "com.sas.lostandfound.app-main-52:/drawable/ic_launcher_foreground.xml"
+    },
+    {
+        "merged": "com.sas.lostandfound.app-release-51:/drawable_bg_button_primary.xml.flat",
+        "source": "com.sas.lostandfound.app-main-52:/drawable/bg_button_primary.xml"
+    },
+    {
+        "merged": "com.sas.lostandfound.app-release-51:/drawable_ic_github.xml.flat",
+        "source": "com.sas.lostandfound.app-main-52:/drawable/ic_github.xml"
+    },
+    {
+        "merged": "com.sas.lostandfound.app-release-51:/drawable_splash_screen_background.png.flat",
+        "source": "com.sas.lostandfound.app-main-52:/drawable/splash_screen_background.png"
+    },
+    {
+        "merged": "com.sas.lostandfound.app-release-51:/drawable_ic_shield.xml.flat",
+        "source": "com.sas.lostandfound.app-main-52:/drawable/ic_shield.xml"
+    },
+    {
+        "merged": "com.sas.lostandfound.app-release-51:/drawable_ic_search.xml.flat",
+        "source": "com.sas.lostandfound.app-main-52:/drawable/ic_search.xml"
+    },
+    {
+        "merged": "com.sas.lostandfound.app-release-51:/layout_activity_developer_info.xml.flat",
+        "source": "com.sas.lostandfound.app-main-52:/layout/activity_developer_info.xml"
+    },
+    {
+        "merged": "com.sas.lostandfound.app-release-51:/drawable_ic_clock.xml.flat",
+        "source": "com.sas.lostandfound.app-main-52:/drawable/ic_clock.xml"
+    },
+    {
+        "merged": "com.sas.lostandfound.app-release-51:/drawable_logo.png.flat",
+        "source": "com.sas.lostandfound.app-main-52:/drawable/logo.png"
+    },
+    {
+        "merged": "com.sas.lostandfound.app-release-51:/drawable_ic_assignment_return.xml.flat",
+        "source": "com.sas.lostandfound.app-main-52:/drawable/ic_assignment_return.xml"
+    },
+    {
+        "merged": "com.sas.lostandfound.app-release-51:/drawable_ic_package.xml.flat",
+        "source": "com.sas.lostandfound.app-main-52:/drawable/ic_package.xml"
+    },
+    {
+        "merged": "com.sas.lostandfound.app-release-51:/layout_activity_dashboard.xml.flat",
+        "source": "com.sas.lostandfound.app-main-52:/layout/activity_dashboard.xml"
+    },
+    {
+        "merged": "com.sas.lostandfound.app-release-51:/mipmap-xhdpi_ic_launcher.webp.flat",
+        "source": "com.sas.lostandfound.app-main-52:/mipmap-xhdpi/ic_launcher.webp"
+    },
+    {
+        "merged": "com.sas.lostandfound.app-release-51:/layout_activity_user_login.xml.flat",
+        "source": "com.sas.lostandfound.app-main-52:/layout/activity_user_login.xml"
+    },
+    {
+        "merged": "com.sas.lostandfound.app-release-51:/layout_activity_campus_report_found.xml.flat",
+        "source": "com.sas.lostandfound.app-main-52:/layout/activity_campus_report_found.xml"
+    },
+    {
+        "merged": "com.sas.lostandfound.app-release-51:/mipmap-hdpi_ic_launcher_foreground.webp.flat",
+        "source": "com.sas.lostandfound.app-main-52:/mipmap-hdpi/ic_launcher_foreground.webp"
+    },
+    {
+        "merged": "com.sas.lostandfound.app-release-51:/drawable_ic_envelope.xml.flat",
+        "source": "com.sas.lostandfound.app-main-52:/drawable/ic_envelope.xml"
+    },
+    {
+        "merged": "com.sas.lostandfound.app-release-51:/mipmap-xxxhdpi_ic_launcher_foreground.webp.flat",
+        "source": "com.sas.lostandfound.app-main-52:/mipmap-xxxhdpi/ic_launcher_foreground.webp"
+    },
+    {
+        "merged": "com.sas.lostandfound.app-release-51:/layout_activity_all_reported_items.xml.flat",
+        "source": "com.sas.lostandfound.app-main-52:/layout/activity_all_reported_items.xml"
+    },
+    {
+        "merged": "com.sas.lostandfound.app-release-51:/mipmap-hdpi_ic_launcher.webp.flat",
+        "source": "com.sas.lostandfound.app-main-52:/mipmap-hdpi/ic_launcher.webp"
+    },
+    {
+        "merged": "com.sas.lostandfound.app-release-51:/layout_activity_campus_my_items.xml.flat",
+        "source": "com.sas.lostandfound.app-main-52:/layout/activity_campus_my_items.xml"
+    },
+    {
+        "merged": "com.sas.lostandfound.app-release-51:/drawable_ic_building.xml.flat",
+        "source": "com.sas.lostandfound.app-main-52:/drawable/ic_building.xml"
+    },
+    {
+        "merged": "com.sas.lostandfound.app-release-51:/drawable_edit_text_rounded.xml.flat",
+        "source": "com.sas.lostandfound.app-main-52:/drawable/edit_text_rounded.xml"
+    },
+    {
+        "merged": "com.sas.lostandfound.app-release-51:/layout_activity_splash.xml.flat",
+        "source": "com.sas.lostandfound.app-main-52:/layout/activity_splash.xml"
+    },
+    {
+        "merged": "com.sas.lostandfound.app-release-51:/drawable_ic_logo_white.xml.flat",
+        "source": "com.sas.lostandfound.app-main-52:/drawable/ic_logo_white.xml"
+    },
+    {
+        "merged": "com.sas.lostandfound.app-release-51:/drawable_ic_linkedin.xml.flat",
+        "source": "com.sas.lostandfound.app-main-52:/drawable/ic_linkedin.xml"
+    },
+    {
+        "merged": "com.sas.lostandfound.app-release-51:/xml_backup_rules.xml.flat",
+        "source": "com.sas.lostandfound.app-main-52:/xml/backup_rules.xml"
+    },
+    {
+        "merged": "com.sas.lostandfound.app-release-51:/layout_activity_campus_dashboard.xml.flat",
+        "source": "com.sas.lostandfound.app-main-52:/layout/activity_campus_dashboard.xml"
+    },
+    {
+        "merged": "com.sas.lostandfound.app-release-51:/mipmap-xhdpi_ic_launcher_foreground.webp.flat",
+        "source": "com.sas.lostandfound.app-main-52:/mipmap-xhdpi/ic_launcher_foreground.webp"
+    },
+    {
+        "merged": "com.sas.lostandfound.app-release-51:/drawable_splash_background.xml.flat",
+        "source": "com.sas.lostandfound.app-main-52:/drawable/splash_background.xml"
+    },
+    {
+        "merged": "com.sas.lostandfound.app-release-51:/drawable_ic_menu.xml.flat",
+        "source": "com.sas.lostandfound.app-main-52:/drawable/ic_menu.xml"
+    },
+    {
+        "merged": "com.sas.lostandfound.app-release-51:/layout_item_browse_card.xml.flat",
+        "source": "com.sas.lostandfound.app-main-52:/layout/item_browse_card.xml"
+    },
+    {
+        "merged": "com.sas.lostandfound.app-release-51:/layout_activity_item_detail.xml.flat",
+        "source": "com.sas.lostandfound.app-main-52:/layout/activity_item_detail.xml"
+    },
+    {
+        "merged": "com.sas.lostandfound.app-release-51:/layout_activity_user_profile.xml.flat",
+        "source": "com.sas.lostandfound.app-main-52:/layout/activity_user_profile.xml"
+    },
+    {
+        "merged": "com.sas.lostandfound.app-release-51:/drawable_ic_graduation_cap.xml.flat",
+        "source": "com.sas.lostandfound.app-main-52:/drawable/ic_graduation_cap.xml"
+    },
+    {
+        "merged": "com.sas.lostandfound.app-release-51:/drawable_ic_logout.xml.flat",
+        "source": "com.sas.lostandfound.app-main-52:/drawable/ic_logout.xml"
+    },
+    {
+        "merged": "com.sas.lostandfound.app-release-51:/mipmap-hdpi_ic_launcher_round.webp.flat",
+        "source": "com.sas.lostandfound.app-main-52:/mipmap-hdpi/ic_launcher_round.webp"
+    },
+    {
+        "merged": "com.sas.lostandfound.app-release-51:/drawable_ic_check.xml.flat",
+        "source": "com.sas.lostandfound.app-main-52:/drawable/ic_check.xml"
+    },
+    {
+        "merged": "com.sas.lostandfound.app-release-51:/drawable_bg_card_top_rounded.xml.flat",
+        "source": "com.sas.lostandfound.app-main-52:/drawable/bg_card_top_rounded.xml"
+    },
+    {
+        "merged": "com.sas.lostandfound.app-release-51:/drawable_bg_bottom_gradient_overlay.xml.flat",
+        "source": "com.sas.lostandfound.app-main-52:/drawable/bg_bottom_gradient_overlay.xml"
+    },
+    {
+        "merged": "com.sas.lostandfound.app-release-51:/layout_layout_campus_profile_dropdown.xml.flat",
+        "source": "com.sas.lostandfound.app-main-52:/layout/layout_campus_profile_dropdown.xml"
+    },
+    {
+        "merged": "com.sas.lostandfound.app-release-51:/drawable_bg_primary_gradient.xml.flat",
+        "source": "com.sas.lostandfound.app-main-52:/drawable/bg_primary_gradient.xml"
+    },
+    {
+        "merged": "com.sas.lostandfound.app-release-51:/layout_activity_campus_report_lost.xml.flat",
+        "source": "com.sas.lostandfound.app-main-52:/layout/activity_campus_report_lost.xml"
+    },
+    {
+        "merged": "com.sas.lostandfound.app-release-51:/drawable_ic_calendar.xml.flat",
+        "source": "com.sas.lostandfound.app-main-52:/drawable/ic_calendar.xml"
+    },
+    {
+        "merged": "com.sas.lostandfound.app-release-51:/drawable_bg_status_badge_found.xml.flat",
+        "source": "com.sas.lostandfound.app-main-52:/drawable/bg_status_badge_found.xml"
+    },
+    {
+        "merged": "com.sas.lostandfound.app-release-51:/mipmap-anydpi-v26_ic_launcher.xml.flat",
+        "source": "com.sas.lostandfound.app-main-52:/mipmap-anydpi-v26/ic_launcher.xml"
+    },
+    {
+        "merged": "com.sas.lostandfound.app-release-51:/mipmap-xhdpi_ic_launcher_round.webp.flat",
+        "source": "com.sas.lostandfound.app-main-52:/mipmap-xhdpi/ic_launcher_round.webp"
+    },
+    {
+        "merged": "com.sas.lostandfound.app-release-51:/mipmap-anydpi-v26_ic_launcher_round.xml.flat",
+        "source": "com.sas.lostandfound.app-main-52:/mipmap-anydpi-v26/ic_launcher_round.xml"
+    },
+    {
+        "merged": "com.sas.lostandfound.app-release-51:/drawable_admin_gradient_bg.xml.flat",
+        "source": "com.sas.lostandfound.app-main-52:/drawable/admin_gradient_bg.xml"
+    },
+    {
+        "merged": "com.sas.lostandfound.app-release-51:/drawable_ic_filter_list.xml.flat",
+        "source": "com.sas.lostandfound.app-main-52:/drawable/ic_filter_list.xml"
+    },
+    {
+        "merged": "com.sas.lostandfound.app-release-51:/xml_file_paths.xml.flat",
+        "source": "com.sas.lostandfound.app-main-52:/xml/file_paths.xml"
+    },
+    {
+        "merged": "com.sas.lostandfound.app-release-51:/layout_activity_user_registration.xml.flat",
+        "source": "com.sas.lostandfound.app-main-52:/layout/activity_user_registration.xml"
+    },
+    {
+        "merged": "com.sas.lostandfound.app-release-51:/drawable_ic_check_circle.xml.flat",
+        "source": "com.sas.lostandfound.app-main-52:/drawable/ic_check_circle.xml"
+    },
+    {
+        "merged": "com.sas.lostandfound.app-release-51:/mipmap-mdpi_ic_launcher.webp.flat",
+        "source": "com.sas.lostandfound.app-main-52:/mipmap-mdpi/ic_launcher.webp"
+    },
+    {
+        "merged": "com.sas.lostandfound.app-release-51:/layout_dropdown_item.xml.flat",
+        "source": "com.sas.lostandfound.app-main-52:/layout/dropdown_item.xml"
+    },
+    {
+        "merged": "com.sas.lostandfound.app-release-51:/drawable_developer_profile_picture.jpg.flat",
+        "source": "com.sas.lostandfound.app-main-52:/drawable/developer_profile_picture.jpg"
+    },
+    {
+        "merged": "com.sas.lostandfound.app-release-51:/drawable_ic_fact_check.xml.flat",
+        "source": "com.sas.lostandfound.app-main-52:/drawable/ic_fact_check.xml"
+    },
+    {
+        "merged": "com.sas.lostandfound.app-release-51:/drawable_ic_map_pin.xml.flat",
+        "source": "com.sas.lostandfound.app-main-52:/drawable/ic_map_pin.xml"
+    },
+    {
+        "merged": "com.sas.lostandfound.app-release-51:/mipmap-xxxhdpi_ic_launcher_round.webp.flat",
+        "source": "com.sas.lostandfound.app-main-52:/mipmap-xxxhdpi/ic_launcher_round.webp"
+    },
+    {
+        "merged": "com.sas.lostandfound.app-release-51:/mipmap-mdpi_ic_launcher_foreground.webp.flat",
+        "source": "com.sas.lostandfound.app-main-52:/mipmap-mdpi/ic_launcher_foreground.webp"
+    },
+    {
+        "merged": "com.sas.lostandfound.app-release-51:/layout_activity_browse_items.xml.flat",
+        "source": "com.sas.lostandfound.app-main-52:/layout/activity_browse_items.xml"
+    }
+]

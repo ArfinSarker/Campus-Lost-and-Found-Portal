@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<incidents format="6" by="lint 9.1.0" type="incidents">
+
+    <incident
+        id="MissingDefaultResource"
+        severity="fatal"
+        message="The color &quot;backgroundDark&quot; in values-night has no declaration in the base `values` folder; this can lead to crashes when the resource is queried in a configuration that does not match this qualifier">
+        <fix-replace
+            description="Remove resource override"
+            replacement=""
+            priority="0">
+            <range
+                file="${:app*release*MAIN*sourceProvider*0*resDir*0}/values-night/colors.xml"
+                startOffset="104"
+                endOffset="148"/>
+        </fix-replace>
+        <location
+            file="${:app*release*MAIN*sourceProvider*0*resDir*0}/values-night/colors.xml"
+            line="4"
+            column="12"
+            startOffset="111"
+            endLine="4"
+            endColumn="33"
+            endOffset="132"/>
+    </incident>
+
+    <incident
+        id="MissingDefaultResource"
+        severity="fatal"
+        message="The color &quot;surfaceDark&quot; in values-night has no declaration in the base `values` folder; this can lead to crashes when the resource is queried in a configuration that does not match this qualifier">
+        <fix-replace
+            description="Remove resource override"
+            replacement=""
+            priority="0">
+            <range
+                file="${:app*release*MAIN*sourceProvider*0*resDir*0}/values-night/colors.xml"
+                startOffset="154"
+                endOffset="195"/>
+        </fix-replace>
+        <location
+            file="${:app*release*MAIN*sourceProvider*0*resDir*0}/values-night/colors.xml"
+            line="5"
+            column="12"
+            startOffset="161"
+            endLine="5"
+            endColumn="30"
+            endOffset="179"/>
+    </incident>
+
+    <incident
+        id="MissingDefaultResource"
+        severity="fatal"
+        message="The color &quot;textPrimaryDark&quot; in values-night has no declaration in the base `values` folder; this can lead to crashes when the resource is queried in a configuration that does not match this qualifier">
+        <fix-replace
+            description="Remove resource override"
+            replacement=""
+            priority="0">
+            <range
+                file="${:app*release*MAIN*sourceProvider*0*resDir*0}/values-night/colors.xml"
+                startOffset="239"
+                endOffset="284"/>
+        </fix-replace>
+        <location
+            file="${:app*release*MAIN*sourceProvider*0*resDir*0}/values-night/colors.xml"
+            line="8"
+            column="12"
+            startOffset="246"
+            endLine="8"
+            endColumn="34"
+            endOffset="268"/>
+    </incident>
+
+    <incident
+        id="MissingDefaultResource"
+        severity="fatal"
+        message="The color &quot;textSecondaryDark&quot; in values-night has no declaration in the base `values` folder; this can lead to crashes when the resource is queried in a configuration that does not match this qualifier">
+        <fix-replace
+            description="Remove resource override"
+            replacement=""
+            priority="0">
+            <range
+                file="${:app*release*MAIN*sourceProvider*0*resDir*0}/values-night/colors.xml"
+                startOffset="290"
+                endOffset="337"/>
+        </fix-replace>
+        <location
+            file="${:app*release*MAIN*sourceProvider*0*resDir*0}/values-night/colors.xml"
+            line="9"
+            column="12"
+            startOffset="297"
+            endLine="9"
+            endColumn="36"
+            endOffset="321"/>
+    </incident>
+
+</incidents>

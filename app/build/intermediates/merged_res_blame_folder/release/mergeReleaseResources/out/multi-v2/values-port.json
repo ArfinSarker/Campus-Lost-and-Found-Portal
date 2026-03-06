@@ -1,0 +1,19 @@
+{
+    "logs": [
+        {
+            "outputFile": "com.sas.lostandfound.app-mergeReleaseResources-49:/values-port/values-port.xml",
+            "map": [
+                {
+                    "source": "C:\\Users\\HP\\.gradle\\caches\\9.3.1\\transforms\\2ee4d8d670649567d46c526d9710b50c\\workspace\\transformed\\appcompat-1.7.1\\res\\values-port\\values-port.xml",
+                    "from": {
+                        "startLines": "2",
+                        "startColumns": "4",
+                        "startOffsets": "55",
+                        "endColumns": "55",
+                        "endOffsets": "106"
+                    }
+                }
+            ]
+        }
+    ]
+}

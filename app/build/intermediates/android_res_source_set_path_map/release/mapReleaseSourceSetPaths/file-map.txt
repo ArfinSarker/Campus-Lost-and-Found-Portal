@@ -1,0 +1,8 @@
+com.sas.lostandfound.app-pngs-0 E:\CampusLostandFound\app\build\generated\res\pngs\release
+com.sas.lostandfound.app-res-1 E:\CampusLostandFound\app\build\generated\res\processReleaseGoogleServices
+com.sas.lostandfound.app-updated_navigation_xml-2 E:\CampusLostandFound\app\build\generated\updated_navigation_xml\release
+com.sas.lostandfound.app-packageReleaseResources-3 E:\CampusLostandFound\app\build\intermediates\incremental\release\packageReleaseResources\merged.dir
+com.sas.lostandfound.app-packageReleaseResources-4 E:\CampusLostandFound\app\build\intermediates\incremental\release\packageReleaseResources\stripped.dir
+com.sas.lostandfound.app-release-5 E:\CampusLostandFound\app\build\intermediates\merged_res\release\mergeReleaseResources
+com.sas.lostandfound.app-main-6 E:\CampusLostandFound\app\src\main\res
+com.sas.lostandfound.app-release-7 E:\CampusLostandFound\app\src\release\res
