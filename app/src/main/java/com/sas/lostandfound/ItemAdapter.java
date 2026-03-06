@@ -17,6 +17,7 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ViewHolder> {
 
     private List<Item> items;
     private OnItemClickListener listener;
+    private int layoutId = R.layout.item_list_row;
 
     public interface OnItemClickListener {
         void onItemClick(Item item);
@@ -27,11 +28,17 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ViewHolder> {
         this.listener = listener;
     }
 
+    public ItemAdapter(List<Item> items, int layoutId, OnItemClickListener listener) {
+        this.items = items;
+        this.layoutId = layoutId;
+        this.listener = listener;
+    }
+
     @NonNull
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.item_list_row, parent, false);
+                .inflate(layoutId, parent, false);
         return new ViewHolder(view);
     }
 
@@ -54,6 +61,7 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ViewHolder> {
         } else {
             holder.ivImage.setVisibility(View.GONE);
             holder.tvEmoji.setVisibility(View.VISIBLE);
+            holder.tvEmoji.setText("📦"); // Default icon
         }
 
         holder.itemView.setOnClickListener(v -> listener.onItemClick(item));

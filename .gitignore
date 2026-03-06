@@ -14,6 +14,20 @@
 .cxx
 local.properties
 
-# Secrets
+# Secrets and Sensitive Files
 release-keystore.jks
 google-services.json
+*.jks
+*.keystore
+*.p12
+*.pem
+google-services.json
+local.properties
+.idea/
+.gradle/
+build/
+captures/
+.externalNativeBuild/
+.cxx/
+*.iml
+.DS_Store

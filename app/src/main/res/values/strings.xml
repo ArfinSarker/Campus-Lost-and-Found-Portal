@@ -20,6 +20,9 @@
     <string name="recently_reported_items">Recently reported items</string>
     <string name="browse_all_arrow">Browse all →</string>
     <string name="contact_us">Contact Us</string>
+    <string name="view_more">View More</string>
+    <string name="login_to_view_more">Login to view more</string>
+    <string name="login_to_view_details">Login first to view details</string>
 
     <!-- My Items Strings -->
     <string name="my_items">My Items</string>

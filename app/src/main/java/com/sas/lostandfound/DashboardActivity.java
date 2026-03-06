@@ -4,10 +4,11 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.button.MaterialButton;
@@ -23,8 +24,8 @@ import java.util.List;
 
 public class DashboardActivity extends AppCompatActivity {
 
-    private MaterialButton btnReportLost, btnReportFound, btnSignIn;
-    private TextView tvBrowseAll, tvDeveloperInfo;
+    private MaterialButton btnReportLost, btnReportFound, btnSignIn, btnViewMore;
+    private TextView tvDeveloperInfo;
     private RecyclerView recyclerView;
     private ItemAdapter adapter;
     private List<Item> itemList;
@@ -52,18 +53,21 @@ public class DashboardActivity extends AppCompatActivity {
         btnReportLost = findViewById(R.id.btnReportLost);
         btnReportFound = findViewById(R.id.btnReportFound);
         btnSignIn = findViewById(R.id.btnSignIn);
-        tvBrowseAll = findViewById(R.id.tvBrowseAll);
+        btnViewMore = findViewById(R.id.btnViewMore);
         tvDeveloperInfo = findViewById(R.id.tvDeveloperInfo);
         recyclerView = findViewById(R.id.recyclerViewRecent);
 
         itemList = new ArrayList<>();
-        adapter = new ItemAdapter(itemList, item -> {
+        // Use a specific card layout for the dashboard items
+        adapter = new ItemAdapter(itemList, R.layout.item_dashboard_card, item -> {
+            // Show toast message using application context to ensure it persists during transition
+            Toast.makeText(getApplicationContext(), R.string.login_to_view_details, Toast.LENGTH_SHORT).show();
             // Redirect to Login Screen when an item is clicked
             startActivity(new Intent(DashboardActivity.this, UserLoginActivity.class));
         });
         
-        // Use LinearLayoutManager for a vertical scrollable list
-        recyclerView.setLayoutManager(new LinearLayoutManager(this));
+        // Use GridLayoutManager for uniform card sizes in a grid
+        recyclerView.setLayoutManager(new GridLayoutManager(this, 2));
         recyclerView.setAdapter(adapter);
         recyclerView.setNestedScrollingEnabled(false);
 
@@ -82,8 +86,8 @@ public class DashboardActivity extends AppCompatActivity {
             startActivity(new Intent(DashboardActivity.this, UserLoginActivity.class));
         });
 
-        tvBrowseAll.setOnClickListener(v -> {
-            // Redirect to Login Screen to see all items in detail
+        btnViewMore.setOnClickListener(v -> {
+            Toast.makeText(getApplicationContext(), R.string.login_to_view_more, Toast.LENGTH_SHORT).show();
             startActivity(new Intent(DashboardActivity.this, UserLoginActivity.class));
         });
 
@@ -107,6 +111,12 @@ public class DashboardActivity extends AppCompatActivity {
                     }
                     // Sort items by timestamp (most recent first)
                     itemList.sort((o1, o2) -> Long.compare(o2.getTimestamp(), o1.getTimestamp()));
+                    
+                    // Keep only the 6 most recent items
+                    if (itemList.size() > 6) {
+                        itemList.subList(6, itemList.size()).clear();
+                    }
+
                     adapter.notifyDataSetChanged();
                 }
             }

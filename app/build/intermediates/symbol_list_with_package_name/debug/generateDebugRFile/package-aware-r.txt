@@ -266,6 +266,7 @@ id tvUserName
 id tvUserRole
 id tvWelcome
 id uploadCard
+id viewStatus
 id viewStatusIndicator
 layout activity_admin_login
 layout activity_all_reported_items
@@ -286,6 +287,7 @@ layout dropdown_item
 layout item_browse_card
 layout item_campus_my_item_card
 layout item_campus_reported_recent
+layout item_dashboard_card
 layout item_list_row
 layout layout_campus_profile_dropdown
 layout layout_stat_card
@@ -465,6 +467,8 @@ string login_first
 string login_link
 string login_subtitle
 string login_subtitle_new
+string login_to_view_details
+string login_to_view_more
 string login_welcome_back
 string logout
 string lost_and_found_policy
@@ -590,6 +594,7 @@ string update_profile
 string user_role_staff
 string user_role_student
 string view_all_link
+string view_more
 string we_help
 string welcome_back
 string welcome_back_default

@@ -217,6 +217,8 @@
     <string name="login_link">Already have an account? <b>Login</b></string>
     <string name="login_subtitle">Recover what you\'ve lost</string>
     <string name="login_subtitle_new">Sign in as a Student or Staff member to continue.</string>
+    <string name="login_to_view_details">Login first to view details</string>
+    <string name="login_to_view_more">Login to view more</string>
     <string name="login_welcome_back">Welcome Back</string>
     <string name="logout">Logout</string>
     <string name="lost_and_found_policy">I agree to the Lost &amp; Found policy and verification.</string>
@@ -342,6 +344,7 @@
     <string name="user_role_staff">Staff</string>
     <string name="user_role_student">Student</string>
     <string name="view_all_link">View all</string>
+    <string name="view_more">View More</string>
     <string name="we_help">We’ll Help You Find It</string>
     <string name="welcome_back">Welcome back, %1$s! 👋</string>
     <string name="welcome_back_default">Welcome back!</string>
