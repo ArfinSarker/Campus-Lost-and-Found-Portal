@@ -13,12 +13,15 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
+import androidx.core.view.GravityCompat;
+import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.card.MaterialCardView;
+import com.google.android.material.navigation.NavigationView;
 import com.google.android.material.tabs.TabLayout;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -39,10 +42,13 @@ public class CampusDashboardActivity extends AppCompatActivity {
     
     private TextView tvWelcome, tvActiveItems, tvDeveloperInfo;
     private MaterialButton btnReportLost, btnReportFound;
-    private MaterialCardView cvProfile;
-    private ImageView ivUserProfile;
-    private ImageButton btnLogout;
+    private ImageButton btnMenu, btnLogout;
     private TabLayout tabLayout;
+    private DrawerLayout drawerLayout;
+    private NavigationView navigationView;
+    
+    private ImageView ivNavHeaderProfile;
+    private TextView tvNavHeaderName;
 
     private FirebaseAuth mAuth;
     private DatabaseReference mDatabase;
@@ -59,10 +65,11 @@ public class CampusDashboardActivity extends AppCompatActivity {
         initializeViews();
         setupRecyclerView();
         setupTabLayout();
+        setupNavigationView();
         fetchUserData();
         fetchRecentItems();
 
-        cvProfile.setOnClickListener(v -> startActivity(new Intent(this, UserProfileActivity.class)));
+        btnMenu.setOnClickListener(v -> drawerLayout.openDrawer(GravityCompat.START));
         
         btnLogout.setOnClickListener(v -> {
             mAuth.signOut();
@@ -90,10 +97,40 @@ public class CampusDashboardActivity extends AppCompatActivity {
         tvDeveloperInfo = findViewById(R.id.tvDeveloperInfo);
         btnReportLost = findViewById(R.id.btnReportLost);
         btnReportFound = findViewById(R.id.btnReportFound);
-        cvProfile = findViewById(R.id.cvProfile);
-        ivUserProfile = findViewById(R.id.ivUserProfile);
+        btnMenu = findViewById(R.id.btnMenu);
         btnLogout = findViewById(R.id.btnLogout);
         tabLayout = findViewById(R.id.tabLayout);
+        drawerLayout = findViewById(R.id.drawer_layout);
+        navigationView = findViewById(R.id.nav_view);
+
+        View headerView = navigationView.getHeaderView(0);
+        ivNavHeaderProfile = headerView.findViewById(R.id.nav_header_imageView);
+        tvNavHeaderName = headerView.findViewById(R.id.nav_header_name);
+    }
+
+    private void setupNavigationView() {
+        navigationView.setNavigationItemSelectedListener(item -> {
+            int id = item.getItemId();
+            if (id == R.id.nav_profile) {
+                startActivity(new Intent(this, UserProfileActivity.class));
+            } else if (id == R.id.nav_reported_items) {
+                Intent intent = new Intent(this, CampusMyItemsActivity.class);
+                intent.putExtra("filterType", "reported");
+                startActivity(intent);
+            } else if (id == R.id.nav_find_items) {
+                Intent intent = new Intent(this, CampusMyItemsActivity.class);
+                intent.putExtra("filterType", "find");
+                startActivity(intent);
+            } else if (id == R.id.nav_return_items) {
+                Intent intent = new Intent(this, CampusMyItemsActivity.class);
+                intent.putExtra("filterType", "return");
+                startActivity(intent);
+            } else if (id == R.id.nav_logout) {
+                btnLogout.performClick();
+            }
+            drawerLayout.closeDrawer(GravityCompat.START);
+            return true;
+        });
     }
 
     private void setupTabLayout() {
@@ -104,14 +141,12 @@ public class CampusDashboardActivity extends AppCompatActivity {
                     String tabText = tab.getText() != null ? tab.getText().toString() : "";
                     switch (tabText) {
                         case "Home":
-                            // Already on Home
                             break;
                         case "Browse Items":
                         case "Browse":
                             startActivity(new Intent(CampusDashboardActivity.this, BrowseItemsActivity.class));
                             break;
                         case "Report":
-                            // Usually reports are separate buttons, but if tab says Report, go to one
                             startActivity(new Intent(CampusDashboardActivity.this, CampusReportLostActivity.class));
                             break;
                     }
@@ -147,13 +182,14 @@ public class CampusDashboardActivity extends AppCompatActivity {
                         String profileImageUrl = snapshot.child("profileImageUrl").getValue(String.class);
                         
                         tvWelcome.setText("Welcome back, " + name + "! 👋");
+                        tvNavHeaderName.setText(name);
                         
                         if (profileImageUrl != null && !profileImageUrl.isEmpty() && !isFinishing()) {
                             Glide.with(CampusDashboardActivity.this)
                                     .load(profileImageUrl)
                                     .placeholder(R.drawable.ic_user)
                                     .circleCrop()
-                                    .into(ivUserProfile);
+                                    .into(ivNavHeaderProfile);
                         }
                     }
                 }
