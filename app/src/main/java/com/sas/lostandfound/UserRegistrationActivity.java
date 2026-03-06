@@ -409,22 +409,22 @@ public class UserRegistrationActivity extends AppCompatActivity {
                             SupabaseStorageHelper.uploadImage(this, profileImageUri, "profiles", fileName, new SupabaseStorageHelper.UploadCallback() {
                                 @Override
                                 public void onSuccess(String publicUrl) {
-                                    saveUser(userId, publicUrl, universityId, fullName, email, userType);
+                                    saveUser(userId, publicUrl, universityId, fullName, email, password, userType);
                                 }
 
                                 @Override
                                 public void onFailure(Exception e) {
-                                    saveUser(userId, null, universityId, fullName, email, userType);
+                                    saveUser(userId, null, universityId, fullName, email, password, userType);
                                 }
                             });
                         } else {
-                            saveUser(userId, null, universityId, fullName, email, userType);
+                            saveUser(userId, null, universityId, fullName, email, password, userType);
                         }
                     }
                 });
     }
 
-    private void saveUser(String userId, String imageUrl, String universityId, String fullName, String email, String userType) {
+    private void saveUser(String userId, String imageUrl, String universityId, String fullName, String email, String password, String userType) {
         String phone = etPhone.getText().toString().trim();
         
         User user;
@@ -432,10 +432,10 @@ public class UserRegistrationActivity extends AppCompatActivity {
             String department = etDepartment.getText().toString().trim();
             String batch = etBatch.getText().toString().trim();
             String levelTerm = actvLevelTerm.getText().toString().trim();
-            user = new User(userId, fullName, universityId, email, phone, department, batch, levelTerm, "Not Specified", imageUrl, "Not Specified");
+            user = new User(userId, fullName, universityId, email, password, phone, department, batch, levelTerm, "Not Specified", imageUrl, "Not Specified");
         } else {
             String designation = etDesignation.getText().toString().trim();
-            user = new User(userId, fullName, universityId, email, phone, designation, imageUrl, "Not Specified", "Staff");
+            user = new User(userId, fullName, universityId, email, password, phone, designation, imageUrl, "Not Specified", "Staff");
         }
 
         mDatabase.child("Users").child(userId)

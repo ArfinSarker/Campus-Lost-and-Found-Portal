@@ -8,6 +8,7 @@ public class User {
     private String name;
     private String universityId;
     private String email;
+    private String password; // Added to store the current password in the database
     private String phone;
     private String department;
     private String batch;
@@ -26,12 +27,13 @@ public class User {
     }
 
     // Constructor for Student
-    public User(String userId, String name, String universityId, String email, String phone,
+    public User(String userId, String name, String universityId, String email, String password, String phone,
                 String department, String batch, String levelTerm, String section, String profileImageUrl, String gender) {
         this.userId = userId;
         this.name = name;
         this.universityId = universityId;
         this.email = email;
+        this.password = password;
         this.phone = phone;
         this.department = department;
         this.batch = batch;
@@ -47,13 +49,14 @@ public class User {
         }
     }
 
-    // Constructor for Staff (can be used for both or overloaded)
-    public User(String userId, String name, String universityId, String email, String phone,
+    // Constructor for Staff
+    public User(String userId, String name, String universityId, String email, String password, String phone,
                 String designation, String profileImageUrl, String gender, String userType) {
         this.userId = userId;
         this.name = name;
         this.universityId = universityId;
         this.email = email;
+        this.password = password;
         this.phone = phone;
         this.designation = designation;
         this.profileImageUrl = profileImageUrl;
@@ -67,13 +70,14 @@ public class User {
     }
 
     // Full constructor
-    public User(String userId, String name, String universityId, String email, String phone,
+    public User(String userId, String name, String universityId, String email, String password, String phone,
                 String department, String batch, String levelTerm, String section, String profileImageUrl,
                 String gender, String userType, String designation) {
         this.userId = userId;
         this.name = name;
         this.universityId = universityId;
         this.email = email;
+        this.password = password;
         this.phone = phone;
         this.department = department;
         this.batch = batch;
@@ -102,6 +106,9 @@ public class User {
 
     public String getEmail() { return email; }
     public void setEmail(String email) { this.email = email; }
+
+    public String getPassword() { return password; }
+    public void setPassword(String password) { this.password = password; }
 
     public String getPhone() { return phone; }
     public void setPhone(String phone) { this.phone = phone; }

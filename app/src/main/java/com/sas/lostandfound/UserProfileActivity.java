@@ -58,8 +58,8 @@ public class UserProfileActivity extends AppCompatActivity {
 
     private ImageView ivProfilePicture;
     private FloatingActionButton fabChangePhoto;
-    private TextInputLayout tilEmail, tilPhone, tilDepartment, tilGender, tilBatch, tilLevelTerm, tilSection, tilOldPassword, tilNewPassword, tilDesignation;
-    private TextInputEditText etEmail, etPhone, etDepartment, etFullName, etUniversityId, etBatch, etOldPassword, etNewPassword, etDesignation;
+    private TextInputLayout tilEmail, tilPhone, tilDepartment, tilGender, tilBatch, tilLevelTerm, tilSection, tilOldPassword, tilNewPassword, tilConfirmPassword, tilDesignation, tilFullName;
+    private TextInputEditText etEmail, etPhone, etDepartment, etFullName, etUniversityId, etBatch, etOldPassword, etNewPassword, etConfirmPassword, etDesignation;
     private AutoCompleteTextView actvGender, actvLevelTerm, actvSection;
     private MaterialButton btnSaveChanges, btnConfirmPasswordChange;
     private ProgressBar progressBar;
@@ -113,6 +113,7 @@ public class UserProfileActivity extends AppCompatActivity {
         btnConfirmPasswordChange.setOnClickListener(v -> {
             String oldPass = etOldPassword.getText().toString().trim();
             String newPass = etNewPassword.getText().toString().trim();
+            String confirmPass = etConfirmPassword.getText().toString().trim();
             
             if (TextUtils.isEmpty(oldPass)) {
                 tilOldPassword.setError("Old password required");
@@ -122,16 +123,32 @@ public class UserProfileActivity extends AppCompatActivity {
                 tilNewPassword.setError("Min 6 characters required");
                 return;
             }
+            if (!newPass.equals(confirmPass)) {
+                tilConfirmPassword.setError("Passwords do not match");
+                return;
+            } else {
+                tilConfirmPassword.setError(null);
+            }
             
             showLoading(true);
             reauthenticateAndChangePassword(oldPass, newPass, () -> {
-                showLoading(false);
-                etOldPassword.setText("");
-                etNewPassword.setText("");
-                tilOldPassword.setError(null);
-                tilNewPassword.setError(null);
-                btnConfirmPasswordChange.setVisibility(View.GONE);
-                Snackbar.make(findViewById(android.R.id.content), "Password updated successfully", Snackbar.LENGTH_LONG).show();
+                // Also update password in Database
+                mDatabase.child("Users").child(currentUserId).child("password").setValue(newPass)
+                        .addOnCompleteListener(dbTask -> {
+                            showLoading(false);
+                            if (dbTask.isSuccessful()) {
+                                etOldPassword.setText("");
+                                etNewPassword.setText("");
+                                etConfirmPassword.setText("");
+                                tilOldPassword.setError(null);
+                                tilNewPassword.setError(null);
+                                tilConfirmPassword.setError(null);
+                                btnConfirmPasswordChange.setVisibility(View.GONE);
+                                Snackbar.make(findViewById(android.R.id.content), "Password updated successfully in Auth and Database", Snackbar.LENGTH_LONG).show();
+                            } else {
+                                Toast.makeText(this, "Database password update failed", Toast.LENGTH_SHORT).show();
+                            }
+                        });
             });
         });
     }
@@ -142,6 +159,7 @@ public class UserProfileActivity extends AppCompatActivity {
         fabChangePhoto = findViewById(R.id.fabChangePhoto);
         progressBar = findViewById(R.id.progressBar);
 
+        tilFullName = findViewById(R.id.tilFullName);
         tilEmail = findViewById(R.id.tilEmail);
         tilPhone = findViewById(R.id.tilPhone);
         tilGender = findViewById(R.id.tilGender);
@@ -151,6 +169,7 @@ public class UserProfileActivity extends AppCompatActivity {
         tilSection = findViewById(R.id.tilSection);
         tilOldPassword = findViewById(R.id.tilOldPassword);
         tilNewPassword = findViewById(R.id.tilNewPassword);
+        tilConfirmPassword = findViewById(R.id.tilConfirmPassword);
         tilDesignation = findViewById(R.id.tilDesignation);
 
         etEmail = findViewById(R.id.etEmail);
@@ -164,6 +183,7 @@ public class UserProfileActivity extends AppCompatActivity {
         actvSection = findViewById(R.id.actvSection);
         etOldPassword = findViewById(R.id.etOldPassword);
         etNewPassword = findViewById(R.id.etNewPassword);
+        etConfirmPassword = findViewById(R.id.etConfirmPassword);
         etDesignation = findViewById(R.id.etDesignation);
 
         btnSaveChanges = findViewById(R.id.btnSaveChanges);
@@ -193,6 +213,7 @@ public class UserProfileActivity extends AppCompatActivity {
     }
 
     private void setupEditableToggles() {
+        setupToggle(tilFullName, etFullName);
         setupToggle(tilEmail, etEmail);
         setupToggle(tilPhone, etPhone);
         setupToggle(tilGender, actvGender);
@@ -231,6 +252,7 @@ public class UserProfileActivity extends AppCompatActivity {
             }
         };
 
+        etFullName.addTextChangedListener(watcher);
         etEmail.addTextChangedListener(watcher);
         etPhone.addTextChangedListener(watcher);
         actvGender.addTextChangedListener(watcher);
@@ -249,11 +271,13 @@ public class UserProfileActivity extends AppCompatActivity {
             public void afterTextChanged(Editable s) {
                 String oldPass = etOldPassword.getText().toString();
                 String newPass = etNewPassword.getText().toString();
-                btnConfirmPasswordChange.setVisibility((!oldPass.isEmpty() && !newPass.isEmpty()) ? View.VISIBLE : View.GONE);
+                String confirmPass = etConfirmPassword.getText().toString();
+                btnConfirmPasswordChange.setVisibility((!oldPass.isEmpty() && !newPass.isEmpty() && !confirmPass.isEmpty()) ? View.VISIBLE : View.GONE);
             }
         };
         etOldPassword.addTextChangedListener(passWatcher);
         etNewPassword.addTextChangedListener(passWatcher);
+        etConfirmPassword.addTextChangedListener(passWatcher);
     }
 
     private void checkForChanges() {
@@ -261,6 +285,7 @@ public class UserProfileActivity extends AppCompatActivity {
 
         boolean changed = false;
         
+        if (!etFullName.getText().toString().equals(originalUser.getName())) changed = true;
         if (!etEmail.getText().toString().equals(originalUser.getEmail())) changed = true;
         if (!etPhone.getText().toString().equals(originalUser.getPhone())) changed = true;
         
@@ -336,15 +361,17 @@ public class UserProfileActivity extends AppCompatActivity {
     }
 
     private void saveAllChanges() {
+        String name = etFullName.getText().toString().trim();
         String email = etEmail.getText().toString().trim();
         String phone = etPhone.getText().toString().trim();
         String gender = actvGender.getText().toString().trim();
 
-        if (!validateInputs(email, phone)) return;
+        if (!validateInputs(name, email, phone)) return;
 
         showLoading(true);
 
         Map<String, Object> updates = new HashMap<>();
+        updates.put("name", name);
         updates.put("email", email);
         updates.put("phone", phone);
         updates.put("gender", gender);
@@ -401,6 +428,7 @@ public class UserProfileActivity extends AppCompatActivity {
     }
 
     private void resetUIState() {
+        etFullName.setEnabled(false);
         etEmail.setEnabled(false);
         etPhone.setEnabled(false);
         actvGender.setEnabled(false);
@@ -411,12 +439,18 @@ public class UserProfileActivity extends AppCompatActivity {
         etDesignation.setEnabled(false);
         etOldPassword.setText("");
         etNewPassword.setText("");
+        etConfirmPassword.setText("");
         profileImageUris.clear();
         btnSaveChanges.setVisibility(View.GONE);
     }
 
-    private boolean validateInputs(String email, String phone) {
+    private boolean validateInputs(String name, String email, String phone) {
         boolean valid = true;
+        if (TextUtils.isEmpty(name)) {
+            tilFullName.setError("Name required");
+            valid = false;
+        } else tilFullName.setError(null);
+
         if (!Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
             tilEmail.setError("Invalid email");
             valid = false;
@@ -441,7 +475,7 @@ public class UserProfileActivity extends AppCompatActivity {
                             onComplete.run();
                         } else {
                             showLoading(false);
-                            Toast.makeText(this, "Password update failed", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(this, "Password update failed in Auth: " + updateTask.getException().getMessage(), Toast.LENGTH_SHORT).show();
                         }
                     });
                 } else {
