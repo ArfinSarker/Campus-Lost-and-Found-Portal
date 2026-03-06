@@ -16,6 +16,7 @@ import android.util.Patterns;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.Toast;
@@ -63,7 +64,7 @@ public class UserProfileActivity extends AppCompatActivity {
     private AutoCompleteTextView actvGender, actvLevelTerm, actvSection;
     private MaterialButton btnSaveChanges, btnConfirmPasswordChange;
     private ProgressBar progressBar;
-    private Toolbar toolbar;
+    private ImageButton btnBack;
 
     private FirebaseAuth mAuth;
     private DatabaseReference mDatabase;
@@ -102,7 +103,14 @@ public class UserProfileActivity extends AppCompatActivity {
         setupDropdowns();
         loadUserData();
 
-        toolbar.setNavigationOnClickListener(v -> onBackPressed());
+        btnBack.setOnClickListener(v -> {
+            Intent intent = new Intent(this, CampusDashboardActivity.class);
+            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+            intent.putExtra("openDrawer", true);
+            startActivity(intent);
+            finish();
+        });
+        
         fabChangePhoto.setOnClickListener(v -> showImageSourceDialog());
 
         setupEditableToggles();
@@ -154,7 +162,7 @@ public class UserProfileActivity extends AppCompatActivity {
     }
 
     private void initializeViews() {
-        toolbar = findViewById(R.id.toolbar);
+        btnBack = findViewById(R.id.btnBack);
         ivProfilePicture = findViewById(R.id.ivProfilePicture);
         fabChangePhoto = findViewById(R.id.fabChangePhoto);
         progressBar = findViewById(R.id.progressBar);
@@ -162,10 +170,10 @@ public class UserProfileActivity extends AppCompatActivity {
         tilFullName = findViewById(R.id.tilFullName);
         tilEmail = findViewById(R.id.tilEmail);
         tilPhone = findViewById(R.id.tilPhone);
+        tilDepartment = findViewById(R.id.tilDepartment);
         tilGender = findViewById(R.id.tilGender);
         tilBatch = findViewById(R.id.tilBatch);
         tilLevelTerm = findViewById(R.id.tilLevelTerm);
-        tilDepartment = findViewById(R.id.tilDepartment);
         tilSection = findViewById(R.id.tilSection);
         tilOldPassword = findViewById(R.id.tilOldPassword);
         tilNewPassword = findViewById(R.id.tilNewPassword);

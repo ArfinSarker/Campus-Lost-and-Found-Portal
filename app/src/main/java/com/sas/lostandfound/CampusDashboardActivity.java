@@ -90,6 +90,15 @@ public class CampusDashboardActivity extends AppCompatActivity {
         }
     }
 
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        setIntent(intent);
+        if (intent.getBooleanExtra("openDrawer", false)) {
+            drawerLayout.openDrawer(GravityCompat.START);
+        }
+    }
+
     private void initializeViews() {
         rvRecentItems = findViewById(R.id.rvRecentItems);
         tvWelcome = findViewById(R.id.tvWelcome);
