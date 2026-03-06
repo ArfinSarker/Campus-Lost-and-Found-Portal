@@ -16,6 +16,8 @@ public class User {
     private String profileImageUrl;
     private List<String> profileImageUrls;
     private String gender;
+    private String userType; // Student or Staff
+    private String designation; // For Staff
     private long registeredAt; // timestamp
 
     // Required empty constructor for Firebase
@@ -23,7 +25,7 @@ public class User {
         this.profileImageUrls = new ArrayList<>();
     }
 
-    // Constructor with all fields
+    // Constructor for Student
     public User(String userId, String name, String universityId, String email, String phone,
                 String department, String batch, String levelTerm, String section, String profileImageUrl, String gender) {
         this.userId = userId;
@@ -37,6 +39,50 @@ public class User {
         this.section = section;
         this.profileImageUrl = profileImageUrl;
         this.gender = gender;
+        this.userType = "Student";
+        this.registeredAt = System.currentTimeMillis();
+        this.profileImageUrls = new ArrayList<>();
+        if (profileImageUrl != null && !profileImageUrl.isEmpty()) {
+            this.profileImageUrls.add(profileImageUrl);
+        }
+    }
+
+    // Constructor for Staff (can be used for both or overloaded)
+    public User(String userId, String name, String universityId, String email, String phone,
+                String designation, String profileImageUrl, String gender, String userType) {
+        this.userId = userId;
+        this.name = name;
+        this.universityId = universityId;
+        this.email = email;
+        this.phone = phone;
+        this.designation = designation;
+        this.profileImageUrl = profileImageUrl;
+        this.gender = gender;
+        this.userType = userType;
+        this.registeredAt = System.currentTimeMillis();
+        this.profileImageUrls = new ArrayList<>();
+        if (profileImageUrl != null && !profileImageUrl.isEmpty()) {
+            this.profileImageUrls.add(profileImageUrl);
+        }
+    }
+
+    // Full constructor
+    public User(String userId, String name, String universityId, String email, String phone,
+                String department, String batch, String levelTerm, String section, String profileImageUrl,
+                String gender, String userType, String designation) {
+        this.userId = userId;
+        this.name = name;
+        this.universityId = universityId;
+        this.email = email;
+        this.phone = phone;
+        this.department = department;
+        this.batch = batch;
+        this.levelTerm = levelTerm;
+        this.section = section;
+        this.profileImageUrl = profileImageUrl;
+        this.gender = gender;
+        this.userType = userType;
+        this.designation = designation;
         this.registeredAt = System.currentTimeMillis();
         this.profileImageUrls = new ArrayList<>();
         if (profileImageUrl != null && !profileImageUrl.isEmpty()) {
@@ -80,6 +126,12 @@ public class User {
 
     public String getGender() { return gender; }
     public void setGender(String gender) { this.gender = gender; }
+
+    public String getUserType() { return userType; }
+    public void setUserType(String userType) { this.userType = userType; }
+
+    public String getDesignation() { return designation; }
+    public void setDesignation(String designation) { this.designation = designation; }
 
     public long getRegisteredAt() { return registeredAt; }
     public void setRegisteredAt(long registeredAt) { this.registeredAt = registeredAt; }

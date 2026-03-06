@@ -96,36 +96,43 @@
                 android:textColor="@color/textSecondary" />
 
             <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/tilUniversityId"
                 style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="12dp"
                 android:hint="@string/hint_id_email"
                 app:shapeAppearanceOverlay="@style/ShapeAppearance.App.SmallComponent"
-                app:startIconDrawable="@drawable/ic_admin_id">
+                app:startIconDrawable="@drawable/ic_admin_id"
+                app:startIconTint="@color/primaryColor">
 
                 <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/etEmail"
+                    android:id="@+id/etUniversityId"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:inputType="textEmailAddress" />
+                    android:inputType="text"
+                    android:textColor="@color/black" />
             </com.google.android.material.textfield.TextInputLayout>
 
             <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/tilPassword"
                 style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="4dp"
                 android:hint="@string/hint_password"
                 app:passwordToggleEnabled="true"
+                app:passwordToggleTint="@color/primaryColor"
                 app:shapeAppearanceOverlay="@style/ShapeAppearance.App.SmallComponent"
-                app:startIconDrawable="@android:drawable/ic_lock_idle_lock">
+                app:startIconDrawable="@drawable/ic_lock"
+                app:startIconTint="@color/primaryColor">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/etPassword"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:inputType="textPassword" />
+                    android:inputType="textPassword"
+                    android:textColor="@color/black" />
             </com.google.android.material.textfield.TextInputLayout>
 
             <TextView

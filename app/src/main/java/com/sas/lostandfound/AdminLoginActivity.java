@@ -42,7 +42,7 @@ public class AdminLoginActivity extends AppCompatActivity {
                     // Demo Admin Login
                     SharedPreferences prefs = getSharedPreferences("MyApp", MODE_PRIVATE);
                     prefs.edit().putBoolean("isAdminLoggedIn", true).apply();
-                    
+
                     Toast.makeText(AdminLoginActivity.this, "Access Granted. Welcome Administrator.", Toast.LENGTH_LONG).show();
                     Intent intent = new Intent(AdminLoginActivity.this, DashboardActivity.class);
                     intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);

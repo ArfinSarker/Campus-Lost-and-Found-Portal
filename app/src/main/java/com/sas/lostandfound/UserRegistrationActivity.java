@@ -6,12 +6,14 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
+import android.graphics.Typeface;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
+import android.text.Html;
 import android.text.SpannableString;
 import android.text.Spanned;
 import android.text.TextPaint;
@@ -19,6 +21,7 @@ import android.text.TextUtils;
 import android.text.method.LinkMovementMethod;
 import android.text.style.ClickableSpan;
 import android.text.style.ForegroundColorSpan;
+import android.text.style.StyleSpan;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
@@ -40,21 +43,29 @@ import androidx.core.content.FileProvider;
 import com.bumptech.glide.Glide;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.android.material.textfield.TextInputLayout;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.Query;
+import com.google.firebase.database.ValueEventListener;
 
 import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.Locale;
 
 public class UserRegistrationActivity extends AppCompatActivity {
 
     private EditText etFullName, etUniversityId, etEmail, etPhone,
-            etDepartment, etBatch, etPassword, etConfirmPassword;
-    private AutoCompleteTextView actvLevelTerm;
+            etDepartment, etBatch, etPassword, etConfirmPassword, etDesignation;
+    private AutoCompleteTextView actvLevelTerm, actvUserType;
+    private TextInputLayout tilBatch, tilDepartment, tilLevelTerm, tilDesignation, tilUserType;
     private MaterialButton btnCreateAccount;
     private ProgressBar progressBar;
     private ImageView ivProfilePicture;
@@ -87,6 +98,7 @@ public class UserRegistrationActivity extends AppCompatActivity {
         setupDropdowns();
         setupListeners();
         setupPolicyText();
+        setupLoginLink();
     }
 
     private void initializeViews() {
@@ -96,9 +108,16 @@ public class UserRegistrationActivity extends AppCompatActivity {
         etPhone = findViewById(R.id.etPhone);
         etDepartment = findViewById(R.id.etDepartment);
         etBatch = findViewById(R.id.etBatch);
+        etDesignation = findViewById(R.id.etDesignation);
         actvLevelTerm = findViewById(R.id.actvLevelTerm);
-        etPassword = findViewById(R.id.etPassword);
-        etConfirmPassword = findViewById(R.id.etConfirmPassword);
+        actvUserType = findViewById(R.id.actvUserType);
+        
+        tilBatch = findViewById(R.id.tilBatch);
+        tilDepartment = findViewById(R.id.tilDepartment);
+        tilLevelTerm = findViewById(R.id.tilLevelTerm);
+        tilDesignation = findViewById(R.id.tilDesignation);
+        tilUserType = findViewById(R.id.tilUserType);
+
         btnCreateAccount = findViewById(R.id.btnCreateAccount);
         progressBar = findViewById(R.id.progressBar);
         ivProfilePicture = findViewById(R.id.ivProfilePicture);
@@ -106,6 +125,8 @@ public class UserRegistrationActivity extends AppCompatActivity {
         btnBack = findViewById(R.id.btnBack);
         tvLogin = findViewById(R.id.tvLogin);
         cbPolicy = findViewById(R.id.cbPolicy);
+        etPassword = findViewById(R.id.etPassword);
+        etConfirmPassword = findViewById(R.id.etConfirmPassword);
     }
 
     private void setupDropdowns() {
@@ -115,9 +136,38 @@ public class UserRegistrationActivity extends AppCompatActivity {
                 "Level 3 Term I", "Level 3 Term II",
                 "Level 4 Term I", "Level 4 Term II"
         };
-        ArrayAdapter<String> levelTermAdapter = new ArrayAdapter<>(this, android.R.layout.simple_dropdown_item_1line, levelTermOptions);
+        ArrayAdapter<String> levelTermAdapter = new ArrayAdapter<>(this, R.layout.dropdown_item, levelTermOptions);
         actvLevelTerm.setAdapter(levelTermAdapter);
         actvLevelTerm.setOnClickListener(v -> actvLevelTerm.showDropDown());
+
+        String[] userTypeOptions = {"Student", "Staff"};
+        ArrayAdapter<String> userTypeAdapter = new ArrayAdapter<>(this, R.layout.dropdown_item, userTypeOptions);
+        actvUserType.setAdapter(userTypeAdapter);
+        actvUserType.setOnClickListener(v -> actvUserType.showDropDown());
+        
+        actvUserType.setOnItemClickListener((parent, view, position, id) -> {
+            String selection = (String) parent.getItemAtPosition(position);
+            updateUIForUserType(selection);
+        });
+        
+        // Default UI
+        updateUIForUserType("Student");
+    }
+
+    private void updateUIForUserType(String userType) {
+        if ("Student".equals(userType)) {
+            tilUserType.setStartIconDrawable(R.drawable.ic_graduation_cap);
+            tilBatch.setVisibility(View.VISIBLE);
+            tilDepartment.setVisibility(View.VISIBLE);
+            tilLevelTerm.setVisibility(View.VISIBLE);
+            tilDesignation.setVisibility(View.GONE);
+        } else {
+            tilUserType.setStartIconDrawable(R.drawable.ic_user);
+            tilBatch.setVisibility(View.GONE);
+            tilDepartment.setVisibility(View.GONE);
+            tilLevelTerm.setVisibility(View.GONE);
+            tilDesignation.setVisibility(View.VISIBLE);
+        }
     }
 
     private void setupListeners() {
@@ -155,9 +205,9 @@ public class UserRegistrationActivity extends AppCompatActivity {
         SpannableString ss = new SpannableString(fullText);
         
         int startIndex = fullText.indexOf(clickablePart);
-        int endIndex = startIndex + clickablePart.length();
-        
         if (startIndex != -1) {
+            int endIndex = startIndex + clickablePart.length();
+            
             ClickableSpan clickableSpan = new ClickableSpan() {
                 @Override
                 public void onClick(@NonNull View widget) {
@@ -174,10 +224,33 @@ public class UserRegistrationActivity extends AppCompatActivity {
             ss.setSpan(clickableSpan, startIndex, endIndex, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
             ss.setSpan(new ForegroundColorSpan(ContextCompat.getColor(this, R.color.primaryColor)), 
                     startIndex, endIndex, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+            ss.setSpan(new StyleSpan(Typeface.BOLD), 
+                    startIndex, endIndex, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
         }
         
         cbPolicy.setText(ss);
         cbPolicy.setMovementMethod(LinkMovementMethod.getInstance());
+    }
+
+    private void setupLoginLink() {
+        if (tvLogin == null) return;
+        
+        Spanned spanned = Html.fromHtml(getString(R.string.login_link), Html.FROM_HTML_MODE_LEGACY);
+        SpannableString ss = new SpannableString(spanned);
+        
+        String fullText = spanned.toString();
+        String loginText = "Login";
+        int startIndex = fullText.indexOf(loginText);
+        
+        if (startIndex != -1) {
+            int endIndex = startIndex + loginText.length();
+            ss.setSpan(new ForegroundColorSpan(ContextCompat.getColor(this, R.color.primaryColor)), 
+                    startIndex, endIndex, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+            ss.setSpan(new StyleSpan(Typeface.BOLD),
+                    startIndex, endIndex, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+        }
+        
+        tvLogin.setText(ss);
     }
 
     private void showImageSourceDialog() {
@@ -260,6 +333,7 @@ public class UserRegistrationActivity extends AppCompatActivity {
         String email = etEmail.getText().toString().trim();
         String password = etPassword.getText().toString().trim();
         String confirmPassword = etConfirmPassword.getText().toString().trim();
+        String userType = actvUserType.getText().toString().trim();
 
         if (TextUtils.isEmpty(universityId)) { etUniversityId.setError("Required"); return; }
         if (TextUtils.isEmpty(fullName)) { etFullName.setError("Required"); return; }
@@ -268,8 +342,57 @@ public class UserRegistrationActivity extends AppCompatActivity {
         if (password.length() < 6) { etPassword.setError("Minimum 6 characters"); return; }
         if (!password.equals(confirmPassword)) { etConfirmPassword.setError("Passwords do not match"); return; }
 
+        if ("Staff".equals(userType)) {
+            if (TextUtils.isEmpty(etDesignation.getText().toString().trim())) {
+                etDesignation.setError("Required"); return;
+            }
+        }
+
         showLoading(true);
 
+        // Check for duplicate University ID in all possible formats (String, Number, etc.)
+        List<Object> idVariations = new ArrayList<>();
+        idVariations.add(universityId);
+        if (universityId.startsWith("0")) idVariations.add(universityId.substring(1));
+        try { idVariations.add(Long.parseLong(universityId)); } catch (NumberFormatException ignored) {}
+
+        checkDuplicatesAndRegister(idVariations, 0, email, password, universityId, fullName, userType);
+    }
+
+    private void checkDuplicatesAndRegister(List<Object> variations, int index, String email, String password, String universityId, String fullName, String userType) {
+        if (index >= variations.size()) {
+            performAuthRegistration(email, password, universityId, fullName, userType);
+            return;
+        }
+
+        Object currentVariation = variations.get(index);
+        DatabaseReference usersRef = mDatabase.child("Users");
+        Query query = usersRef.orderByChild("universityId").equalTo(currentVariation.toString());
+        if (currentVariation instanceof Long) {
+            query = usersRef.orderByChild("universityId").equalTo((Long) currentVariation);
+        }
+
+        query.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                if (snapshot.exists()) {
+                    showLoading(false);
+                    etUniversityId.setError("ID already registered");
+                    Toast.makeText(UserRegistrationActivity.this, "This University ID is already in use.", Toast.LENGTH_LONG).show();
+                } else {
+                    checkDuplicatesAndRegister(variations, index + 1, email, password, universityId, fullName, userType);
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                showLoading(false);
+                Toast.makeText(UserRegistrationActivity.this, "Database error: " + error.getMessage(), Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    private void performAuthRegistration(String email, String password, String universityId, String fullName, String userType) {
         mAuth.createUserWithEmailAndPassword(email, password)
                 .addOnCompleteListener(task -> {
                     if (!task.isSuccessful()) {
@@ -286,28 +409,34 @@ public class UserRegistrationActivity extends AppCompatActivity {
                             SupabaseStorageHelper.uploadImage(this, profileImageUri, "profiles", fileName, new SupabaseStorageHelper.UploadCallback() {
                                 @Override
                                 public void onSuccess(String publicUrl) {
-                                    saveUser(userId, publicUrl, universityId, fullName, email);
+                                    saveUser(userId, publicUrl, universityId, fullName, email, userType);
                                 }
 
                                 @Override
                                 public void onFailure(Exception e) {
-                                    saveUser(userId, null, universityId, fullName, email);
+                                    saveUser(userId, null, universityId, fullName, email, userType);
                                 }
                             });
                         } else {
-                            saveUser(userId, null, universityId, fullName, email);
+                            saveUser(userId, null, universityId, fullName, email, userType);
                         }
                     }
                 });
     }
 
-    private void saveUser(String userId, String imageUrl, String universityId, String fullName, String email) {
+    private void saveUser(String userId, String imageUrl, String universityId, String fullName, String email, String userType) {
         String phone = etPhone.getText().toString().trim();
-        String department = etDepartment.getText().toString().trim();
-        String batch = etBatch.getText().toString().trim();
-        String levelTerm = actvLevelTerm.getText().toString().trim();
-
-        User user = new User(userId, fullName, universityId, email, phone, department, batch, levelTerm, "Not Specified", imageUrl, "Not Specified");
+        
+        User user;
+        if ("Student".equals(userType)) {
+            String department = etDepartment.getText().toString().trim();
+            String batch = etBatch.getText().toString().trim();
+            String levelTerm = actvLevelTerm.getText().toString().trim();
+            user = new User(userId, fullName, universityId, email, phone, department, batch, levelTerm, "Not Specified", imageUrl, "Not Specified");
+        } else {
+            String designation = etDesignation.getText().toString().trim();
+            user = new User(userId, fullName, universityId, email, phone, designation, imageUrl, "Not Specified", "Staff");
+        }
 
         mDatabase.child("Users").child(userId)
                 .setValue(user)
