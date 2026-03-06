@@ -150,10 +150,10 @@ public class CampusReportLostActivity extends AppCompatActivity {
 
     private void setupDropdowns() {
         String[] categories = {"Electronics", "ID Cards", "Bags", "Documents", "Mobile Phone", "Accessories", "Others"};
-        actvCategory.setAdapter(new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, categories));
+        actvCategory.setAdapter(new ArrayAdapter<>(this, R.layout.dropdown_item, categories));
 
         String[] locations = {"Academic Building", "Library", "Cafeteria", "Playground", "Lab Room", "Dormitory", "Other"};
-        actvLocation.setAdapter(new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, locations));
+        actvLocation.setAdapter(new ArrayAdapter<>(this, R.layout.dropdown_item, locations));
         actvLocation.setOnItemClickListener((parent, view, position, id) -> {
             if (locations[position].equals("Other")) {
                 tilManualLocation.setVisibility(View.VISIBLE);
@@ -163,7 +163,7 @@ public class CampusReportLostActivity extends AppCompatActivity {
         });
 
         String[] contactMethods = {"Phone", "Email", "In-app chat"};
-        actvPreferredContact.setAdapter(new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, contactMethods));
+        actvPreferredContact.setAdapter(new ArrayAdapter<>(this, R.layout.dropdown_item, contactMethods));
     }
 
     private void setupPickers() {

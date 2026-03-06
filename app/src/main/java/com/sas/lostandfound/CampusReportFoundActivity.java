@@ -156,17 +156,17 @@ public class CampusReportFoundActivity extends AppCompatActivity {
 
     private void setupDropdowns() {
         String[] categories = {"Electronics", "ID Cards", "Bags", "Documents", "Mobile Phone", "Accessories", "Others"};
-        actvCategory.setAdapter(new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, categories));
+        actvCategory.setAdapter(new ArrayAdapter<>(this, R.layout.dropdown_item, categories));
 
         String[] locations = {"Academic Building", "Library", "Cafeteria", "Playground", "Lab Room", "Dormitory", "Other"};
-        actvLocation.setAdapter(new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, locations));
+        actvLocation.setAdapter(new ArrayAdapter<>(this, R.layout.dropdown_item, locations));
         actvLocation.setOnItemClickListener((parent, view, position, id) -> {
             if (locations[position].equals("Other")) tilManualLocation.setVisibility(View.VISIBLE);
             else tilManualLocation.setVisibility(View.GONE);
         });
 
         String[] handlingStatuses = {"Kept with finder", "Submitted to university authority", "Submitted to department office", "Submitted to security office"};
-        actvHandlingStatus.setAdapter(new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, handlingStatuses));
+        actvHandlingStatus.setAdapter(new ArrayAdapter<>(this, R.layout.dropdown_item, handlingStatuses));
         actvHandlingStatus.setOnItemClickListener((parent, view, position, id) -> {
             if (position > 0) {
                 tilAuthorityName.setVisibility(View.VISIBLE);
@@ -178,10 +178,10 @@ public class CampusReportFoundActivity extends AppCompatActivity {
         });
 
         String[] verificationMethods = {"Admin verification required", "Direct contact allowed"};
-        actvVerificationMethod.setAdapter(new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, verificationMethods));
+        actvVerificationMethod.setAdapter(new ArrayAdapter<>(this, R.layout.dropdown_item, verificationMethods));
 
         String[] contactMethods = {"Phone", "Email", "In-app chat"};
-        actvPreferredContact.setAdapter(new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, contactMethods));
+        actvPreferredContact.setAdapter(new ArrayAdapter<>(this, R.layout.dropdown_item, contactMethods));
     }
 
     private void setupPickers() {

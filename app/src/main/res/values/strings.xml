@@ -4,7 +4,7 @@
     <string name="campus_verified">CAMPUS VERIFIED • STUDENTS AND STAFF ONLY</string>
     <string name="lost_something">Lost Something?</string>
     <string name="we_help">We’ll Help You Find It</string>
-    <string name="description">A centralized platform for students to report and recover lost items within the university campus.</string>
+    <string name="description">A centralized platform for students and staff to report and recover lost items within the university campus.</string>
     <string name="report_lost">Report\nLost</string>
     <string name="report_found">Report\nFound</string>
     <string name="recent_title">Recently Reported</string>
@@ -90,7 +90,7 @@
     <string name="sign_in">Sign In</string>
     <string name="register_link">Don\'t have an account? <b>Register</b></string>
     <string name="register_title">Create Your Account</string>
-    <string name="register_subtitle">Join the network\nHelp others and recover your won item</string>
+    <string name="register_subtitle">Join the network\nHelp others and recover your item</string>
     <string name="hint_full_name">Full Name</string>
     <string name="hint_university_id">University ID</string>
     <string name="hint_department">Department</string>
@@ -102,14 +102,14 @@
     <string name="login_link">Already have an account? <b>Login</b></string>
 
     <string name="login_welcome_back">Welcome Back</string>
-    <string name="login_subtitle_new">Sign in to continue to the Lost and Found Portal.</string>
+    <string name="login_subtitle_new">Sign in as a Student or Staff member to continue.</string>
     <string name="hint_id_email">University ID / Email</string>
     <string name="admin_portal">Admin Portal</string>
     <string name="back">Back</string>
     <string name="add_photo">Add Photo</string>
 
     <string name="admin_access_heading">ADMIN ACCESS</string>
-    <string name="back_to_student">← Back to Student Login</string>
+    <string name="back_to_user">← Back to User Login</string>
 
     <string name="dashboard_headline">Lost something? Found something?</string>
     <string name="dashboard_description">Join our campus community to help each other recover lost belongings quickly and safely.</string>
@@ -117,6 +117,7 @@
     <string name="report_found_btn">Report Found</string>
     <string name="recent_reports_title">Recent Reports</string>
     <string name="view_all_link">View all</string>
+    <string name="made_for_users">Made for the Campus Community</string>
     <string name="made_for_students">Made for Students by Students</string>
 
     <string name="dashboard_title">Dashboard</string>
@@ -217,7 +218,7 @@
     <string name="admin_sign_in">Secure Sign In</string>
 
     <!-- Footer strings -->
-    <string name="footer_row1">Centralized student platform\n© 2026 Lost&amp;Found</string>
+    <string name="footer_row1">Centralized campus platform\n© 2026 Lost&amp;Found</string>
     <string name="footer_row2">support@baust.edu.bd</string>
     <string name="footer_row3">Privacy Policy   •   Terms &amp; Conditions</string>
     <string name="footer_row4">Developer Information</string>
