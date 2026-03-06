@@ -168,6 +168,9 @@
                         android:layout_height="wrap_content"
                         android:layout_alignParentEnd="true"
                         android:layout_centerVertical="true"
+                        android:background="?attr/selectableItemBackground"
+                        android:clickable="true"
+                        android:focusable="true"
                         android:text="@string/browse_all_arrow"
                         android:textColor="@color/primaryColor"
                         android:textStyle="bold" />
@@ -179,9 +182,25 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="12dp"
                     android:clipToPadding="false"
-                    android:orientation="horizontal"
+                    android:nestedScrollingEnabled="false"
                     app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
                     tools:listitem="@layout/item_campus_reported_recent" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnViewLess"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:text="View Less"
+                    android:visibility="gone" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnViewMore"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:text="View More"
+                    android:visibility="gone" />
 
                 <com.google.android.material.card.MaterialCardView
                     style="@style/Widget.App.Card"

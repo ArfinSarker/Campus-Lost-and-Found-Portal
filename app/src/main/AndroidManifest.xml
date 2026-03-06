@@ -72,6 +72,7 @@
 
         <activity android:name=".DeveloperInfoActivity" />
         <activity android:name=".LostAndFoundPolicyActivity" />
+        <activity android:name=".AllReportedItemsActivity" />
 
     </application>
 
