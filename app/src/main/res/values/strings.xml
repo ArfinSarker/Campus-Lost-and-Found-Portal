@@ -212,6 +212,7 @@
     <string name="select_profile_picture">Select Profile Picture</string>
     <string name="choose_gallery">Choose from Gallery</string>
     <string name="take_photo">Take Photo</string>
+    <string name="remove_photo">Remove Photo</string>
     <string name="cancel">Cancel</string>
 
     <!-- Admin Login strings -->
