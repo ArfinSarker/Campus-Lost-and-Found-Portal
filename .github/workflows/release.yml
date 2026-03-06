@@ -9,8 +9,6 @@ jobs:
   build:
     name: Build and Release
     runs-on: ubuntu-latest
-    permissions:
-      contents: write
 
     steps:
       - name: Checkout Repository
@@ -25,21 +23,11 @@ jobs:
 
       - name: Decode Keystore
         run: |
-          if [ -n "${{ secrets.KEYSTORE }}" ]; then
-            echo "${{ secrets.KEYSTORE }}" | base64 --decode > release-keystore.jks
-          else
-            echo "KEYSTORE secret is empty!"
-            exit 1
-          fi
+          echo "${{ secrets.KEYSTORE }}" | base64 --decode > release-keystore.jks
 
       - name: Create google-services.json
         run: |
-          if [ -n "${{ secrets.GOOGLE_SERVICES_JSON }}" ]; then
-            echo '${{ secrets.GOOGLE_SERVICES_JSON }}' > app/google-services.json
-          else
-            echo "GOOGLE_SERVICES_JSON secret is empty!"
-            exit 1
-          fi
+          echo '${{ secrets.GOOGLE_SERVICES_JSON }}' > app/google-services.json
 
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
@@ -68,6 +56,5 @@ jobs:
             app/build/outputs/apk/release/*.apk
             app/build/outputs/bundle/release/*.aab
           generate_release_notes: true
-          fail_on_unresolved_entities: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
