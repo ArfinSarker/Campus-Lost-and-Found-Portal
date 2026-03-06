@@ -38,10 +38,11 @@ public class CampusDashboardActivity extends AppCompatActivity {
 
     private RecyclerView rvRecentItems;
     private RecentItemsAdapter adapter;
-    private List<Item> itemList;
+    private List<Item> fullItemList;
+    private List<Item> displayedItemList;
     
-    private TextView tvWelcome, tvActiveItems, tvDeveloperInfo;
-    private MaterialButton btnReportLost, btnReportFound;
+    private TextView tvWelcome, tvActiveItems, tvDeveloperInfo, tvBrowseAll;
+    private MaterialButton btnReportLost, btnReportFound, btnViewMore, btnViewLess;
     private ImageButton btnMenu, btnLogout;
     private TabLayout tabLayout;
     private DrawerLayout drawerLayout;
@@ -53,6 +54,8 @@ public class CampusDashboardActivity extends AppCompatActivity {
     private FirebaseAuth mAuth;
     private DatabaseReference mDatabase;
     private static final String DATABASE_URL = "https://campus-lost-and-found-portal-default-rtdb.asia-southeast1.firebasedatabase.app";
+
+    private int currentLimit = 5;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -88,6 +91,24 @@ public class CampusDashboardActivity extends AppCompatActivity {
                 startActivity(intent);
             });
         }
+
+        if (tvBrowseAll != null) {
+            tvBrowseAll.setOnClickListener(v -> {
+                startActivity(new Intent(this, AllReportedItemsActivity.class));
+            });
+        }
+
+        btnViewMore.setOnClickListener(v -> {
+            currentLimit += 5;
+            updateDisplayedList();
+        });
+
+        btnViewLess.setOnClickListener(v -> {
+            if (currentLimit > 5) {
+                currentLimit -= 5;
+                updateDisplayedList();
+            }
+        });
     }
 
     @Override
@@ -111,6 +132,9 @@ public class CampusDashboardActivity extends AppCompatActivity {
         tabLayout = findViewById(R.id.tabLayout);
         drawerLayout = findViewById(R.id.drawer_layout);
         navigationView = findViewById(R.id.nav_view);
+        tvBrowseAll = findViewById(R.id.tvBrowseAll);
+        btnViewMore = findViewById(R.id.btnViewMore);
+        btnViewLess = findViewById(R.id.btnViewLess);
 
         View headerView = navigationView.getHeaderView(0);
         ivNavHeaderProfile = headerView.findViewById(R.id.nav_header_imageView);
@@ -173,9 +197,11 @@ public class CampusDashboardActivity extends AppCompatActivity {
     }
 
     private void setupRecyclerView() {
-        itemList = new ArrayList<>();
-        adapter = new RecentItemsAdapter(itemList);
-        rvRecentItems.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
+        fullItemList = new ArrayList<>();
+        displayedItemList = new ArrayList<>();
+        adapter = new RecentItemsAdapter(displayedItemList);
+        rvRecentItems.setLayoutManager(new LinearLayoutManager(this));
+        rvRecentItems.setNestedScrollingEnabled(false);
         rvRecentItems.setAdapter(adapter);
     }
 
@@ -221,35 +247,49 @@ public class CampusDashboardActivity extends AppCompatActivity {
     }
 
     private void fetchRecentItems() {
+        long twentyFourHoursAgo = System.currentTimeMillis() - (24 * 60 * 60 * 1000);
+        
         ValueEventListener itemListener = new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 for (DataSnapshot data : snapshot.getChildren()) {
                     Item item = data.getValue(Item.class);
-                    if (item != null) {
-                        updateOrAddItem(item);
+                    if (item != null && item.getTimestamp() >= twentyFourHoursAgo) {
+                        updateOrAddFullItem(item);
                     }
                 }
-                itemList.sort((o1, o2) -> Long.compare(o2.getTimestamp(), o1.getTimestamp()));
-                adapter.notifyDataSetChanged();
+                fullItemList.sort((o1, o2) -> Long.compare(o2.getTimestamp(), o1.getTimestamp()));
+                updateDisplayedList();
             }
 
             @Override
             public void onCancelled(@NonNull DatabaseError error) {}
         };
 
-        mDatabase.child("LostItems").limitToLast(10).addValueEventListener(itemListener);
-        mDatabase.child("FoundItems").limitToLast(10).addValueEventListener(itemListener);
+        mDatabase.child("LostItems").orderByChild("timestamp").startAt(twentyFourHoursAgo).addValueEventListener(itemListener);
+        mDatabase.child("FoundItems").orderByChild("timestamp").startAt(twentyFourHoursAgo).addValueEventListener(itemListener);
     }
 
-    private synchronized void updateOrAddItem(Item item) {
-        for (int i = 0; i < itemList.size(); i++) {
-            if (itemList.get(i).getId().equals(item.getId())) {
-                itemList.set(i, item);
+    private synchronized void updateOrAddFullItem(Item item) {
+        for (int i = 0; i < fullItemList.size(); i++) {
+            if (fullItemList.get(i).getId().equals(item.getId())) {
+                fullItemList.set(i, item);
                 return;
             }
         }
-        itemList.add(item);
+        fullItemList.add(item);
+    }
+
+    private void updateDisplayedList() {
+        displayedItemList.clear();
+        int end = Math.min(currentLimit, fullItemList.size());
+        for (int i = 0; i < end; i++) {
+            displayedItemList.add(fullItemList.get(i));
+        }
+        adapter.notifyDataSetChanged();
+        
+        btnViewMore.setVisibility(fullItemList.size() > currentLimit ? View.VISIBLE : View.GONE);
+        btnViewLess.setVisibility(currentLimit > 5 ? View.VISIBLE : View.GONE);
     }
 
     private class RecentItemsAdapter extends RecyclerView.Adapter<RecentItemsAdapter.ViewHolder> {
