@@ -84,6 +84,7 @@ public class UserProfileActivity extends AppCompatActivity {
     
     private User originalUser;
     private boolean isDataLoaded = false;
+    private boolean isProfilePictureRemoved = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -107,6 +108,7 @@ public class UserProfileActivity extends AppCompatActivity {
         loadUserData();
         
         fabChangePhoto.setOnClickListener(v -> showImageSourceDialog());
+        ivProfilePicture.setOnClickListener(v -> showImageSourceDialog());
 
         setupEditableToggles();
         setupChangeDetection();
@@ -334,7 +336,15 @@ public class UserProfileActivity extends AppCompatActivity {
             if (!actvSection.getText().toString().equals(originalUser.getSection())) changed = true;
         }
         
-        if (!profileImageUris.isEmpty()) changed = true;
+        boolean imageChanged = false;
+        boolean originalHasImage = originalUser.getProfileImageUrl() != null && !originalUser.getProfileImageUrl().isEmpty();
+        if (isProfilePictureRemoved) {
+            if (originalHasImage) imageChanged = true;
+        } else if (!profileImageUris.isEmpty()) {
+            imageChanged = true;
+        }
+        
+        if (imageChanged) changed = true;
 
         btnSaveChanges.setVisibility(changed ? View.VISIBLE : View.GONE);
     }
@@ -377,8 +387,11 @@ public class UserProfileActivity extends AppCompatActivity {
                                     .placeholder(R.drawable.ic_user)
                                     .circleCrop()
                                     .into(ivProfilePicture);
+                        } else {
+                            ivProfilePicture.setImageResource(R.drawable.ic_user);
                         }
                         
+                        isProfilePictureRemoved = false;
                         isDataLoaded = true;
                     }
                 }
@@ -415,6 +428,10 @@ public class UserProfileActivity extends AppCompatActivity {
             updates.put("levelTerm", actvLevelTerm.getText().toString().trim());
             updates.put("department", etDepartment.getText().toString().trim());
             updates.put("section", actvSection.getText().toString().trim());
+        }
+
+        if (isProfilePictureRemoved && profileImageUris.isEmpty()) {
+            updates.put("profileImageUrl", "");
         }
 
         if (!profileImageUris.isEmpty()) {
@@ -473,6 +490,7 @@ public class UserProfileActivity extends AppCompatActivity {
         etNewPassword.setText("");
         etConfirmPassword.setText("");
         profileImageUris.clear();
+        isProfilePictureRemoved = false;
         btnSaveChanges.setVisibility(View.GONE);
     }
 
@@ -519,17 +537,38 @@ public class UserProfileActivity extends AppCompatActivity {
     }
 
     private void showImageSourceDialog() {
-        String[] options = {getString(R.string.take_photo), getString(R.string.choose_gallery), getString(R.string.cancel)};
+        List<String> options = new ArrayList<>();
+        options.add(getString(R.string.take_photo));
+        options.add(getString(R.string.choose_gallery));
+
+        boolean hasExistingPhoto = originalUser != null && originalUser.getProfileImageUrl() != null && !originalUser.getProfileImageUrl().isEmpty();
+        boolean hasSelectedPhoto = !profileImageUris.isEmpty();
+
+        if ((hasExistingPhoto && !isProfilePictureRemoved) || hasSelectedPhoto) {
+            options.add(getString(R.string.remove_photo));
+        }
+        options.add(getString(R.string.cancel));
+
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle(getString(R.string.select_profile_picture));
-        builder.setItems(options, (dialog, which) -> {
-            if (which == 0) {
+        builder.setItems(options.toArray(new String[0]), (dialog, which) -> {
+            String selectedOption = options.get(which);
+            if (selectedOption.equals(getString(R.string.take_photo))) {
                 checkCameraPermission();
-            } else if (which == 1) {
+            } else if (selectedOption.equals(getString(R.string.choose_gallery))) {
                 openGallery();
+            } else if (selectedOption.equals(getString(R.string.remove_photo))) {
+                removeProfilePicture();
             }
         });
         builder.show();
+    }
+
+    private void removeProfilePicture() {
+        profileImageUris.clear();
+        isProfilePictureRemoved = true;
+        ivProfilePicture.setImageResource(R.drawable.ic_user);
+        checkForChanges();
     }
 
     private void checkCameraPermission() {
@@ -610,6 +649,7 @@ public class UserProfileActivity extends AppCompatActivity {
             }
             
             if (!profileImageUris.isEmpty()) {
+                isProfilePictureRemoved = false;
                 ivProfilePicture.setImageURI(profileImageUris.get(0));
                 checkForChanges();
             }
