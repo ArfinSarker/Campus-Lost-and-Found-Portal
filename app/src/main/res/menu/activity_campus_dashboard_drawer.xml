@@ -18,8 +18,12 @@
             android:title="@string/my_lost_reports" />
         <item
             android:id="@+id/nav_return_items"
-            android:icon="@drawable/ic_check_circle"
+            android:icon="@drawable/ic_assignment_return"
             android:title="@string/my_returned_items" />
+        <item
+            android:id="@+id/nav_claimed_items"
+            android:icon="@drawable/ic_fact_check"
+            android:title="@string/my_claimed_items" />
     </group>
 
     <item android:title="Other">

@@ -100,6 +100,9 @@ public class CampusMyItemsActivity extends AppCompatActivity {
             case "return":
                 tvHeaderTitle.setText("My Returned Items");
                 break;
+            case "claimed":
+                tvHeaderTitle.setText("My Claimed Items");
+                break;
         }
     }
 
@@ -137,6 +140,8 @@ public class CampusMyItemsActivity extends AppCompatActivity {
                 return "lost".equals(item.getStatus());
             case "return":
                 return "found".equals(item.getStatus()) && "Returned".equals(item.getAdminStatus());
+            case "claimed":
+                return "lost".equals(item.getStatus()) && "Claimed".equals(item.getAdminStatus());
             default:
                 return true;
         }
