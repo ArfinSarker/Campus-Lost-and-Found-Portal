@@ -182,13 +182,13 @@ public class CampusDashboardActivity extends AppCompatActivity {
                         String profileImageUrl = snapshot.child("profileImageUrl").getValue(String.class);
                         
                         tvWelcome.setText("Welcome back, " + name + "! 👋");
-                        tvNavHeaderName.setText(name);
+                        if (tvNavHeaderName != null) tvNavHeaderName.setText(name);
                         
                         if (profileImageUrl != null && !profileImageUrl.isEmpty() && !isFinishing()) {
                             Glide.with(CampusDashboardActivity.this)
                                     .load(profileImageUrl)
                                     .placeholder(R.drawable.ic_user)
-                                    .circleCrop()
+                                    .centerCrop()
                                     .into(ivNavHeaderProfile);
                         }
                     }
