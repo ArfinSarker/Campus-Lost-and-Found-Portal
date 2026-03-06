@@ -127,31 +127,12 @@
                     android:text="@string/report_found_btn" />
             </LinearLayout>
 
-            <RelativeLayout
-                android:layout_width="match_parent"
+            <TextView
+                style="@style/TextAppearance.App.SectionTitle"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="32dp">
-
-                <TextView
-                    style="@style/TextAppearance.App.SectionTitle"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/recent_reports_title" />
-
-                <TextView
-                    android:id="@+id/tvBrowseAll"
-                    style="@style/TextAppearance.App.Small"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_alignParentEnd="true"
-                    android:layout_centerVertical="true"
-                    android:background="?selectableItemBackground"
-                    android:clickable="true"
-                    android:focusable="true"
-                    android:text="@string/view_all_link"
-                    android:textColor="@color/primaryColor"
-                    android:textStyle="bold" />
-            </RelativeLayout>
+                android:layout_marginTop="32dp"
+                android:text="@string/recent_reports_title" />
 
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/recyclerViewRecent"
@@ -161,6 +142,13 @@
                 android:nestedScrollingEnabled="false"
                 android:overScrollMode="never"
                 tools:listitem="@layout/item_list_row" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnViewMore"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:text="@string/view_more" />
 
             <View
                 android:layout_width="match_parent"
@@ -185,6 +173,7 @@
                 android:gravity="center"
                 android:text="@string/developer_info"
                 android:textColor="@color/primaryColor"
+                android:textSize="15sp"
                 android:textStyle="bold" />
 
         </LinearLayout>
