@@ -158,10 +158,6 @@ public class CampusDashboardActivity extends AppCompatActivity {
                 Intent intent = new Intent(this, CampusMyItemsActivity.class);
                 intent.putExtra("filterType", "return");
                 startActivity(intent);
-            } else if (id == R.id.nav_claimed_items) {
-                Intent intent = new Intent(this, CampusMyItemsActivity.class);
-                intent.putExtra("filterType", "claimed");
-                startActivity(intent);
             } else if (id == R.id.nav_logout) {
                 btnLogout.performClick();
             }
