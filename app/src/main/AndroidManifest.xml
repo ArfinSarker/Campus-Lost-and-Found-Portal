@@ -49,6 +49,7 @@
 
         <!-- Profile -->
         <activity android:name=".UserProfileActivity" />
+        <activity android:name=".CampusMyItemsActivity" />
 
         <!-- Login and Authentication -->
         <activity android:name=".UserLoginActivity" />
