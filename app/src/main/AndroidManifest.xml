@@ -55,7 +55,9 @@
         <activity android:name=".AdminLoginActivity" />
 
         <!-- Account Registration -->
-        <activity android:name=".UserRegistrationActivity" />
+        <activity
+            android:name=".UserRegistrationActivity"
+            android:windowSoftInputMode="adjustResize" />
 
         <!-- Item Details -->
         <activity android:name=".ItemDetailActivity" />
