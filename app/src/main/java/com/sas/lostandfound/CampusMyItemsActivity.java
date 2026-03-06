@@ -11,6 +11,7 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -34,7 +35,7 @@ public class CampusMyItemsActivity extends AppCompatActivity {
     private List<Item> itemList;
     private String filterType; 
     private TextView tvHeaderTitle;
-    private ImageButton btnBack;
+    private Toolbar toolbar;
 
     private FirebaseAuth mAuth;
     private DatabaseReference mDatabase;
@@ -53,9 +54,14 @@ public class CampusMyItemsActivity extends AppCompatActivity {
 
         rvMyItems = findViewById(R.id.rvMyItems);
         tvHeaderTitle = findViewById(R.id.tvHeaderTitle);
-        btnBack = findViewById(R.id.btnBack);
+        toolbar = findViewById(R.id.toolbar);
 
-        btnBack.setOnClickListener(v -> {
+        setSupportActionBar(toolbar);
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().setDisplayShowTitleEnabled(false);
+        }
+
+        toolbar.setNavigationOnClickListener(v -> {
             Intent intent = new Intent(this, CampusDashboardActivity.class);
             intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
             intent.putExtra("openDrawer", true);

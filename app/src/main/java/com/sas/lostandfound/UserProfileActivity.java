@@ -16,9 +16,9 @@ import android.util.Patterns;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
-import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -64,7 +64,8 @@ public class UserProfileActivity extends AppCompatActivity {
     private AutoCompleteTextView actvGender, actvLevelTerm, actvSection;
     private MaterialButton btnSaveChanges, btnConfirmPasswordChange;
     private ProgressBar progressBar;
-    private ImageButton btnBack;
+    private Toolbar toolbar;
+    private TextView tvHeaderTitle;
 
     private FirebaseAuth mAuth;
     private DatabaseReference mDatabase;
@@ -100,16 +101,9 @@ public class UserProfileActivity extends AppCompatActivity {
         userEmail = user.getEmail();
 
         initializeViews();
+        setupToolbar();
         setupDropdowns();
         loadUserData();
-
-        btnBack.setOnClickListener(v -> {
-            Intent intent = new Intent(this, CampusDashboardActivity.class);
-            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
-            intent.putExtra("openDrawer", true);
-            startActivity(intent);
-            finish();
-        });
         
         fabChangePhoto.setOnClickListener(v -> showImageSourceDialog());
 
@@ -162,7 +156,8 @@ public class UserProfileActivity extends AppCompatActivity {
     }
 
     private void initializeViews() {
-        btnBack = findViewById(R.id.btnBack);
+        toolbar = findViewById(R.id.toolbar);
+        tvHeaderTitle = findViewById(R.id.tvHeaderTitle);
         ivProfilePicture = findViewById(R.id.ivProfilePicture);
         fabChangePhoto = findViewById(R.id.fabChangePhoto);
         progressBar = findViewById(R.id.progressBar);
@@ -196,6 +191,23 @@ public class UserProfileActivity extends AppCompatActivity {
 
         btnSaveChanges = findViewById(R.id.btnSaveChanges);
         btnConfirmPasswordChange = findViewById(R.id.btnConfirmPasswordChange);
+    }
+
+    private void setupToolbar() {
+        if (toolbar != null) {
+            toolbar.setTitle("");
+            setSupportActionBar(toolbar);
+            if (getSupportActionBar() != null) {
+                getSupportActionBar().setDisplayShowTitleEnabled(false);
+            }
+            toolbar.setNavigationOnClickListener(v -> {
+                Intent intent = new Intent(this, CampusDashboardActivity.class);
+                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+                intent.putExtra("openDrawer", true);
+                startActivity(intent);
+                finish();
+            });
+        }
     }
 
     private void setupDropdowns() {
