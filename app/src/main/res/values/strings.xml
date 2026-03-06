@@ -150,7 +150,7 @@
     <string name="label_description_simple">Description</string>
     <string name="label_upload_img_simple">Upload Image</string>
     <string name="tap_upload_photo">Tap to upload photo</string>
-    <string name="label_loss_details">Loss Details</string>
+    <string name="label_lost_details">Lost Details</string>
     <string name="label_date">Date</string>
     <string name="label_time_simple">Time</string>
     <string name="label_ownership_verify">Ownership Verification</string>
@@ -212,6 +212,7 @@
     <string name="select_profile_picture">Select Profile Picture</string>
     <string name="choose_gallery">Choose from Gallery</string>
     <string name="take_photo">Take Photo</string>
+    <string name="remove_photo">Remove Photo</string>
     <string name="cancel">Cancel</string>
 
     <!-- Admin Login strings -->
