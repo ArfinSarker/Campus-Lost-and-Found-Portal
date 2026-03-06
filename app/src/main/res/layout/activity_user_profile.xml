@@ -87,15 +87,16 @@
                     android:orientation="vertical"
                     android:padding="16dp">
 
-                    <!-- Full Name (Not Changeable) -->
+                    <!-- Full Name -->
                     <com.google.android.material.textfield.TextInputLayout
+                        android:id="@+id/tilFullName"
                         style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginBottom="16dp"
-                        android:enabled="false"
                         android:hint="@string/hint_full_name"
-                        app:helperText="@string/label_not_changeable"
+                        app:endIconDrawable="@drawable/ic_edit"
+                        app:endIconMode="custom"
                         app:startIconDrawable="@drawable/ic_user"
                         app:startIconTint="@color/primaryColor">
 
@@ -103,6 +104,7 @@
                             android:id="@+id/etFullName"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
+                            android:enabled="false"
                             android:textColor="@color/black" />
                     </com.google.android.material.textfield.TextInputLayout>
 
@@ -382,6 +384,26 @@
 
                         <com.google.android.material.textfield.TextInputEditText
                             android:id="@+id/etNewPassword"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:inputType="textPassword"
+                            android:textColor="@color/black" />
+                    </com.google.android.material.textfield.TextInputLayout>
+
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:id="@+id/tilConfirmPassword"
+                        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="16dp"
+                        android:hint="@string/hint_confirm_password"
+                        app:passwordToggleEnabled="true"
+                        app:passwordToggleTint="@color/primaryColor"
+                        app:startIconDrawable="@drawable/ic_lock"
+                        app:startIconTint="@color/primaryColor">
+
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/etConfirmPassword"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:inputType="textPassword"
