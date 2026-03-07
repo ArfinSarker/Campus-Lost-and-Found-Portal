@@ -38,6 +38,10 @@
     <color name="found_bg">#E8F5E9</color>
     <color name="lost_bg">#FFEBEE</color>
 
+    <!-- New Badge Colors -->
+    <color name="badge_lost_bg">#A31621</color>
+    <color name="badge_found_bg">#2E7D32</color>
+
     <!-- Admin Portal Colors -->
     <color name="admin_text_light">#F0F0F0</color>
     <color name="admin_hint_light">#E0E0E0</color>

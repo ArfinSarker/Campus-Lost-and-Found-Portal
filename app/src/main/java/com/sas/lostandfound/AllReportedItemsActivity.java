@@ -135,14 +135,15 @@ public class AllReportedItemsActivity extends AppCompatActivity {
             holder.tvTime.setText(item.getDate());
             
             if ("lost".equals(item.getStatus())) {
-                holder.statusIndicator.setBackgroundColor(0xFFE53935);
-                holder.tvBadge.setText("Lost");
-                holder.cardBadge.setCardBackgroundColor(0xFFFEE2E2);
+                holder.statusIndicator.setBackgroundColor(0xFFA31621);
+                holder.tvBadge.setText("LOST");
+                holder.cardBadge.setCardBackgroundColor(ContextCompat.getColor(holder.itemView.getContext(), R.color.badge_lost_bg));
             } else {
                 holder.statusIndicator.setBackgroundColor(0xFF2E7D32);
-                holder.tvBadge.setText("Found");
-                holder.cardBadge.setCardBackgroundColor(0xFFDCFCE7);
+                holder.tvBadge.setText("FOUND");
+                holder.cardBadge.setCardBackgroundColor(ContextCompat.getColor(holder.itemView.getContext(), R.color.badge_found_bg));
             }
+            holder.tvBadge.setTextColor(ContextCompat.getColor(holder.itemView.getContext(), R.color.white));
 
             if (item.getImageUrl() != null && !item.getImageUrl().isEmpty()) {
                 holder.ivIcon.setImageTintList(null);
