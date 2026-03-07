@@ -719,6 +719,8 @@
     <color name="background_material_dark">@color/material_grey_850</color>
     <color name="background_material_light">@color/material_grey_50</color>
     <color name="badgeColor">#FF3B30</color>
+    <color name="badge_found_bg">#2E7D32</color>
+    <color name="badge_lost_bg">#A31621</color>
     <color name="black">#000000</color>
     <color name="bright_foreground_disabled_material_dark">#80ffffff</color>
     <color name="bright_foreground_disabled_material_light">#80000000</color>

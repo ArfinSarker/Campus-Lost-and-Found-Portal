@@ -6,6 +6,8 @@ color admin_text_light
 color backgroundColor
 color backgroundDark
 color badgeColor
+color badge_found_bg
+color badge_lost_bg
 color black
 color chatBackground
 color cyan

@@ -21,19 +21,20 @@
                 android:id="@+id/cardBadge"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                app:cardBackgroundColor="@color/lost_bg"
-                app:cardCornerRadius="6dp"
-                app:cardElevation="0dp">
+                app:cardBackgroundColor="@color/badge_lost_bg"
+                app:cardCornerRadius="8dp"
+                app:cardElevation="0dp"
+                app:strokeWidth="0dp">
 
                 <TextView
                     android:id="@+id/tvBadge"
                     style="@style/TextAppearance.App.Small"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:paddingHorizontal="8dp"
-                    android:paddingVertical="2dp"
+                    android:paddingHorizontal="12dp"
+                    android:paddingVertical="4dp"
                     android:textAllCaps="true"
-                    android:textColor="@color/statusLost"
+                    android:textColor="@color/white"
                     android:textStyle="bold"
                     tools:text="Lost" />
             </com.google.android.material.card.MaterialCardView>

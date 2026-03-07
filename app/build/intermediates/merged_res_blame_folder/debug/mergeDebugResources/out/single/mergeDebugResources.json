@@ -56,12 +56,12 @@
         "source": "C:\\Users\\HP\\.gradle\\daemon\\9.3.1\\com.sas.lostandfound.app-main-53:\\layout\\item_dashboard_card.xml"
     },
     {
-        "merged": "C:\\Users\\HP\\.gradle\\daemon\\9.3.1\\com.sas.lostandfound.app-debug-51:\\drawable_bg_bottom_gradient_overlay.xml.flat",
-        "source": "C:\\Users\\HP\\.gradle\\daemon\\9.3.1\\com.sas.lostandfound.app-main-53:\\drawable\\bg_bottom_gradient_overlay.xml"
-    },
-    {
         "merged": "C:\\Users\\HP\\.gradle\\daemon\\9.3.1\\com.sas.lostandfound.app-debug-51:\\drawable_ic_calendar.xml.flat",
         "source": "C:\\Users\\HP\\.gradle\\daemon\\9.3.1\\com.sas.lostandfound.app-main-53:\\drawable\\ic_calendar.xml"
+    },
+    {
+        "merged": "C:\\Users\\HP\\.gradle\\daemon\\9.3.1\\com.sas.lostandfound.app-debug-51:\\drawable_bg_bottom_gradient_overlay.xml.flat",
+        "source": "C:\\Users\\HP\\.gradle\\daemon\\9.3.1\\com.sas.lostandfound.app-main-53:\\drawable\\bg_bottom_gradient_overlay.xml"
     },
     {
         "merged": "C:\\Users\\HP\\.gradle\\daemon\\9.3.1\\com.sas.lostandfound.app-debug-51:\\mipmap-mdpi_ic_launcher.webp.flat",
@@ -104,6 +104,10 @@
         "source": "C:\\Users\\HP\\.gradle\\daemon\\9.3.1\\com.sas.lostandfound.app-main-53:\\drawable\\bg_button_primary.xml"
     },
     {
+        "merged": "com.sas.lostandfound.app-debug-51:/drawable_bg_status_badge_lost.xml.flat",
+        "source": "com.sas.lostandfound.app-main-53:/drawable/bg_status_badge_lost.xml"
+    },
+    {
         "merged": "C:\\Users\\HP\\.gradle\\daemon\\9.3.1\\com.sas.lostandfound.app-debug-51:\\mipmap-xhdpi_ic_launcher_round.webp.flat",
         "source": "C:\\Users\\HP\\.gradle\\daemon\\9.3.1\\com.sas.lostandfound.app-main-53:\\mipmap-xhdpi\\ic_launcher_round.webp"
     },
@@ -116,12 +120,12 @@
         "source": "C:\\Users\\HP\\.gradle\\daemon\\9.3.1\\com.sas.lostandfound.app-main-53:\\mipmap-hdpi\\ic_launcher_round.webp"
     },
     {
-        "merged": "C:\\Users\\HP\\.gradle\\daemon\\9.3.1\\com.sas.lostandfound.app-debug-51:\\layout_nav_header_main.xml.flat",
-        "source": "C:\\Users\\HP\\.gradle\\daemon\\9.3.1\\com.sas.lostandfound.app-main-53:\\layout\\nav_header_main.xml"
-    },
-    {
         "merged": "C:\\Users\\HP\\.gradle\\daemon\\9.3.1\\com.sas.lostandfound.app-debug-51:\\layout_activity_campus_report_lost.xml.flat",
         "source": "C:\\Users\\HP\\.gradle\\daemon\\9.3.1\\com.sas.lostandfound.app-main-53:\\layout\\activity_campus_report_lost.xml"
+    },
+    {
+        "merged": "C:\\Users\\HP\\.gradle\\daemon\\9.3.1\\com.sas.lostandfound.app-debug-51:\\layout_nav_header_main.xml.flat",
+        "source": "C:\\Users\\HP\\.gradle\\daemon\\9.3.1\\com.sas.lostandfound.app-main-53:\\layout\\nav_header_main.xml"
     },
     {
         "merged": "C:\\Users\\HP\\.gradle\\daemon\\9.3.1\\com.sas.lostandfound.app-debug-51:\\mipmap-xhdpi_ic_launcher_foreground.webp.flat",
@@ -164,12 +168,12 @@
         "source": "C:\\Users\\HP\\.gradle\\daemon\\9.3.1\\com.sas.lostandfound.app-main-53:\\xml\\file_paths.xml"
     },
     {
-        "merged": "C:\\Users\\HP\\.gradle\\daemon\\9.3.1\\com.sas.lostandfound.app-debug-51:\\drawable_splash_screen_background.png.flat",
-        "source": "C:\\Users\\HP\\.gradle\\daemon\\9.3.1\\com.sas.lostandfound.app-main-53:\\drawable\\splash_screen_background.png"
-    },
-    {
         "merged": "C:\\Users\\HP\\.gradle\\daemon\\9.3.1\\com.sas.lostandfound.app-debug-51:\\drawable_ic_github.xml.flat",
         "source": "C:\\Users\\HP\\.gradle\\daemon\\9.3.1\\com.sas.lostandfound.app-main-53:\\drawable\\ic_github.xml"
+    },
+    {
+        "merged": "C:\\Users\\HP\\.gradle\\daemon\\9.3.1\\com.sas.lostandfound.app-debug-51:\\drawable_splash_screen_background.png.flat",
+        "source": "C:\\Users\\HP\\.gradle\\daemon\\9.3.1\\com.sas.lostandfound.app-main-53:\\drawable\\splash_screen_background.png"
     },
     {
         "merged": "C:\\Users\\HP\\.gradle\\daemon\\9.3.1\\com.sas.lostandfound.app-debug-51:\\drawable_ic_user.xml.flat",
@@ -304,10 +308,6 @@
         "source": "C:\\Users\\HP\\.gradle\\daemon\\9.3.1\\com.sas.lostandfound.app-main-53:\\layout\\layout_stat_card.xml"
     },
     {
-        "merged": "com.sas.lostandfound.app-debug-51:/layout_activity_dashboard.xml.flat",
-        "source": "com.sas.lostandfound.app-main-53:/layout/activity_dashboard.xml"
-    },
-    {
         "merged": "C:\\Users\\HP\\.gradle\\daemon\\9.3.1\\com.sas.lostandfound.app-debug-51:\\drawable_bg_status_badge_found.xml.flat",
         "source": "C:\\Users\\HP\\.gradle\\daemon\\9.3.1\\com.sas.lostandfound.app-main-53:\\drawable\\bg_status_badge_found.xml"
     },
@@ -348,6 +348,10 @@
         "source": "C:\\Users\\HP\\.gradle\\daemon\\9.3.1\\com.sas.lostandfound.app-main-53:\\drawable\\ic_search.xml"
     },
     {
+        "merged": "com.sas.lostandfound.app-debug-51:/drawable_bg_status_badge_found.xml.flat",
+        "source": "com.sas.lostandfound.app-main-53:/drawable/bg_status_badge_found.xml"
+    },
+    {
         "merged": "C:\\Users\\HP\\.gradle\\daemon\\9.3.1\\com.sas.lostandfound.app-debug-51:\\drawable_ic_menu.xml.flat",
         "source": "C:\\Users\\HP\\.gradle\\daemon\\9.3.1\\com.sas.lostandfound.app-main-53:\\drawable\\ic_menu.xml"
     },
@@ -378,6 +382,10 @@
     {
         "merged": "C:\\Users\\HP\\.gradle\\daemon\\9.3.1\\com.sas.lostandfound.app-debug-51:\\layout_activity_lost_and_found_policy.xml.flat",
         "source": "C:\\Users\\HP\\.gradle\\daemon\\9.3.1\\com.sas.lostandfound.app-main-53:\\layout\\activity_lost_and_found_policy.xml"
+    },
+    {
+        "merged": "com.sas.lostandfound.app-debug-51:/layout_item_campus_reported_recent.xml.flat",
+        "source": "com.sas.lostandfound.app-main-53:/layout/item_campus_reported_recent.xml"
     },
     {
         "merged": "C:\\Users\\HP\\.gradle\\daemon\\9.3.1\\com.sas.lostandfound.app-debug-51:\\drawable_ic_layers.xml.flat",

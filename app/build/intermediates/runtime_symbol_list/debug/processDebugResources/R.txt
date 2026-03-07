@@ -1528,6 +1528,8 @@ int color background_floating_material_light 0x7f050024
 int color background_material_dark 0x7f050025
 int color background_material_light 0x7f050026
 int color badgeColor 0x7f050027
+int color badge_found_bg 0x7f0503ed
+int color badge_lost_bg 0x7f0503ee
 int color black 0x7f050028
 int color bright_foreground_disabled_material_dark 0x7f050029
 int color bright_foreground_disabled_material_light 0x7f05002a
