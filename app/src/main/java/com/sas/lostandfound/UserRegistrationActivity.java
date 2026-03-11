@@ -438,28 +438,31 @@ public class UserRegistrationActivity extends AppCompatActivity {
                     }
 
                     if (mAuth.getCurrentUser() != null) {
-                        String userId = mAuth.getCurrentUser().getUid();
+                        String authId = mAuth.getCurrentUser().getUid();
+                        // Use universityId as the primary key/userId in database
+                        String dbUserId = universityId; 
+
                         if (profileImageUri != null) {
-                            String fileName = userId + "_" + System.currentTimeMillis() + ".jpg";
+                            String fileName = dbUserId + "_" + System.currentTimeMillis() + ".jpg";
                             SupabaseStorageHelper.uploadImage(this, profileImageUri, "profiles", fileName, new SupabaseStorageHelper.UploadCallback() {
                                 @Override
                                 public void onSuccess(String publicUrl) {
-                                    saveUser(userId, publicUrl, universityId, fullName, email, password, userType);
+                                    saveUser(dbUserId, authId, publicUrl, universityId, fullName, email, password, userType);
                                 }
 
                                 @Override
                                 public void onFailure(Exception e) {
-                                    saveUser(userId, null, universityId, fullName, email, password, userType);
+                                    saveUser(dbUserId, authId, null, universityId, fullName, email, password, userType);
                                 }
                             });
                         } else {
-                            saveUser(userId, null, universityId, fullName, email, password, userType);
+                            saveUser(dbUserId, authId, null, universityId, fullName, email, password, userType);
                         }
                     }
                 });
     }
 
-    private void saveUser(String userId, String imageUrl, String universityId, String fullName, String email, String password, String userType) {
+    private void saveUser(String dbUserId, String authId, String imageUrl, String universityId, String fullName, String email, String password, String userType) {
         String phone = etPhone.getText().toString().trim();
         
         User user;
@@ -467,22 +470,28 @@ public class UserRegistrationActivity extends AppCompatActivity {
             String department = etDepartment.getText().toString().trim();
             String batch = etBatch.getText().toString().trim();
             String levelTerm = actvLevelTerm.getText().toString().trim();
-            user = new User(userId, fullName, universityId, email, password, phone, department, batch, levelTerm, "Not Specified", imageUrl, "Not Specified");
+            user = new User(dbUserId, fullName, universityId, email, password, phone, department, batch, levelTerm, "Not Specified", imageUrl, "Not Specified");
         } else {
             String designation = etDesignation.getText().toString().trim();
-            user = new User(userId, fullName, universityId, email, password, phone, designation, imageUrl, "Not Specified", "Staff");
+            user = new User(dbUserId, fullName, universityId, email, password, phone, designation, imageUrl, "Not Specified", "Staff");
         }
-
-        mDatabase.child("Users").child(userId)
+        
+        // Ensure the auth UID is also stored if needed for security/linking
+        // For now, using universityId as the database key
+        mDatabase.child("Users").child(dbUserId)
                 .setValue(user)
                 .addOnCompleteListener(task -> {
-                    showLoading(false);
                     if (task.isSuccessful()) {
+                        // Create a mapping from Auth UID to University ID for easier lookups
+                        mDatabase.child("UIDToUniversityID").child(authId).setValue(dbUserId);
+                        
+                        showLoading(false);
                         Toast.makeText(this, "Registration successful.", Toast.LENGTH_LONG).show();
                         startActivity(new Intent(this, UserLoginActivity.class)
                                 .setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK));
                         finish();
                     } else {
+                        showLoading(false);
                         Toast.makeText(this, "Database error", Toast.LENGTH_SHORT).show();
                     }
                 });

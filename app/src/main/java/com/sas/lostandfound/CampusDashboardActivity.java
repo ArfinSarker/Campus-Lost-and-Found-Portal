@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -43,7 +44,9 @@ public class CampusDashboardActivity extends AppCompatActivity {
     
     private TextView tvWelcome, tvActiveItems, tvDeveloperInfo, tvBrowseAll;
     private MaterialButton btnReportLost, btnReportFound, btnViewMore, btnViewLess;
-    private ImageButton btnMenu, btnLogout;
+    private ImageButton btnMenu;
+    private FrameLayout btnNotifications;
+    private TextView tvNotificationBadge;
     private TabLayout tabLayout;
     private DrawerLayout drawerLayout;
     private NavigationView navigationView;
@@ -56,6 +59,7 @@ public class CampusDashboardActivity extends AppCompatActivity {
     private static final String DATABASE_URL = "https://campus-lost-and-found-portal-default-rtdb.asia-southeast1.firebasedatabase.app";
 
     private int currentLimit = 5;
+    private String currentUniversityId;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -74,12 +78,8 @@ public class CampusDashboardActivity extends AppCompatActivity {
 
         btnMenu.setOnClickListener(v -> drawerLayout.openDrawer(GravityCompat.START));
         
-        btnLogout.setOnClickListener(v -> {
-            mAuth.signOut();
-            Intent intent = new Intent(this, UserLoginActivity.class);
-            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-            startActivity(intent);
-            finish();
+        btnNotifications.setOnClickListener(v -> {
+            startActivity(new Intent(this, NotificationsActivity.class));
         });
 
         btnReportLost.setOnClickListener(v -> startActivity(new Intent(this, CampusReportLostActivity.class)));
@@ -128,7 +128,8 @@ public class CampusDashboardActivity extends AppCompatActivity {
         btnReportLost = findViewById(R.id.btnReportLost);
         btnReportFound = findViewById(R.id.btnReportFound);
         btnMenu = findViewById(R.id.btnMenu);
-        btnLogout = findViewById(R.id.btnLogout);
+        btnNotifications = findViewById(R.id.btnNotifications);
+        tvNotificationBadge = findViewById(R.id.tvNotificationBadge);
         tabLayout = findViewById(R.id.tabLayout);
         drawerLayout = findViewById(R.id.drawer_layout);
         navigationView = findViewById(R.id.nav_view);
@@ -159,7 +160,11 @@ public class CampusDashboardActivity extends AppCompatActivity {
                 intent.putExtra("filterType", "return");
                 startActivity(intent);
             } else if (id == R.id.nav_logout) {
-                btnLogout.performClick();
+                mAuth.signOut();
+                Intent intent = new Intent(this, UserLoginActivity.class);
+                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                startActivity(intent);
+                finish();
             }
             drawerLayout.closeDrawer(GravityCompat.START);
             return true;
@@ -208,42 +213,85 @@ public class CampusDashboardActivity extends AppCompatActivity {
     private void fetchUserData() {
         FirebaseUser currentUser = mAuth.getCurrentUser();
         if (currentUser != null) {
-            String userId = currentUser.getUid();
-            mDatabase.child("Users").child(userId).addValueEventListener(new ValueEventListener() {
+            String authUid = currentUser.getUid();
+            
+            // First find the University ID mapping
+            mDatabase.child("UIDToUniversityID").child(authUid).addListenerForSingleValueEvent(new ValueEventListener() {
                 @Override
                 public void onDataChange(@NonNull DataSnapshot snapshot) {
                     if (snapshot.exists()) {
-                        String name = snapshot.child("name").getValue(String.class);
-                        String profileImageUrl = snapshot.child("profileImageUrl").getValue(String.class);
-                        
-                        tvWelcome.setText("Welcome back, " + name + "! 👋");
-                        if (tvNavHeaderName != null) tvNavHeaderName.setText(name);
-                        
-                        if (profileImageUrl != null && !profileImageUrl.isEmpty() && !isFinishing()) {
-                            Glide.with(CampusDashboardActivity.this)
-                                    .load(profileImageUrl)
-                                    .placeholder(R.drawable.ic_user)
-                                    .centerCrop()
-                                    .into(ivNavHeaderProfile);
-                        }
+                        currentUniversityId = snapshot.getValue(String.class);
+                        loadProfileAndNotifications(currentUniversityId);
+                    } else {
+                        // Fallback: Use Auth UID if no mapping exists (for old accounts)
+                        currentUniversityId = authUid;
+                        loadProfileAndNotifications(authUid);
                     }
                 }
 
                 @Override
                 public void onCancelled(@NonNull DatabaseError error) {}
             });
-
-            mDatabase.child("UserItems").child(userId).addValueEventListener(new ValueEventListener() {
-                @Override
-                public void onDataChange(@NonNull DataSnapshot snapshot) {
-                    long count = snapshot.getChildrenCount();
-                    tvActiveItems.setText("You have " + count + " active items");
-                }
-
-                @Override
-                public void onCancelled(@NonNull DatabaseError error) {}
-            });
         }
+    }
+
+    private void loadProfileAndNotifications(String userId) {
+        mDatabase.child("Users").child(userId).addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                if (snapshot.exists()) {
+                    String name = snapshot.child("name").getValue(String.class);
+                    String profileImageUrl = snapshot.child("profileImageUrl").getValue(String.class);
+                    
+                    tvWelcome.setText("Welcome back, " + name + "! 👋");
+                    if (tvNavHeaderName != null) tvNavHeaderName.setText(name);
+                    
+                    if (profileImageUrl != null && !profileImageUrl.isEmpty() && !isFinishing()) {
+                        Glide.with(CampusDashboardActivity.this)
+                                .load(profileImageUrl)
+                                .placeholder(R.drawable.ic_user)
+                                .centerCrop()
+                                .into(ivNavHeaderProfile);
+                    }
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {}
+        });
+
+        mDatabase.child("UserItems").child(userId).addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                long count = snapshot.getChildrenCount();
+                tvActiveItems.setText("You have " + count + " active items");
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {}
+        });
+
+        mDatabase.child("Notifications").child(userId).addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                int unreadCount = 0;
+                for (DataSnapshot data : snapshot.getChildren()) {
+                    Boolean read = data.child("read").getValue(Boolean.class);
+                    if (read != null && !read) {
+                        unreadCount++;
+                    }
+                }
+                if (unreadCount > 0) {
+                    tvNotificationBadge.setVisibility(View.VISIBLE);
+                    tvNotificationBadge.setText(String.valueOf(unreadCount));
+                } else {
+                    tvNotificationBadge.setVisibility(View.GONE);
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {}
+        });
     }
 
     private void fetchRecentItems() {
@@ -353,6 +401,7 @@ public class CampusDashboardActivity extends AppCompatActivity {
                 intent.putExtra("userName", item.getUserName());
                 intent.putExtra("userDepartment", item.getUserDepartment());
                 intent.putExtra("userPhone", item.getUserPhone());
+                intent.putExtra("userId", item.getUserId());
                 v.getContext().startActivity(intent);
             });
         }

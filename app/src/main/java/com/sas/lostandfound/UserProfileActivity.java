@@ -61,7 +61,7 @@ public class UserProfileActivity extends AppCompatActivity {
     private ImageView ivProfilePicture;
     private FloatingActionButton fabChangePhoto;
     private TextInputLayout tilEmail, tilPhone, tilDepartment, tilGender, tilBatch, tilLevelTerm, tilSection, tilOldPassword, tilNewPassword, tilConfirmPassword, tilDesignation, tilFullName;
-    private TextInputEditText etEmail, etPhone, etDepartment, etFullName, etUniversityId, etBatch, etOldPassword, etNewPassword, etConfirmPassword, etDesignation;
+    private TextInputEditText etEmail, etPhone, etFullName, etUniversityId, etBatch, etOldPassword, etNewPassword, etConfirmPassword, etDesignation, etDepartment;
     private AutoCompleteTextView actvGender, actvLevelTerm, actvSection;
     private MaterialButton btnSaveChanges, btnConfirmPasswordChange;
     private ProgressBar progressBar;
@@ -79,7 +79,7 @@ public class UserProfileActivity extends AppCompatActivity {
     private final List<Uri> profileImageUris = new ArrayList<>();
     private Uri cameraImageUri;
     private String currentPhotoPath;
-    private String currentUserId;
+    private String currentUniversityId;
     private String userEmail;
     
     private User originalUser;
@@ -99,13 +99,13 @@ public class UserProfileActivity extends AppCompatActivity {
             finish();
             return;
         }
-        currentUserId = user.getUid();
+        
         userEmail = user.getEmail();
 
         initializeViews();
         setupToolbar();
         setupDropdowns();
-        loadUserData();
+        fetchUniversityIdAndLoadData(user.getUid());
         
         fabChangePhoto.setOnClickListener(v -> showImageSourceDialog());
         ivProfilePicture.setOnClickListener(v -> showImageSourceDialog());
@@ -138,7 +138,7 @@ public class UserProfileActivity extends AppCompatActivity {
             showLoading(true);
             reauthenticateAndChangePassword(oldPass, newPass, () -> {
                 // Also update password in Database
-                mDatabase.child("Users").child(currentUserId).child("password").setValue(newPass)
+                mDatabase.child("Users").child(currentUniversityId).child("password").setValue(newPass)
                         .addOnCompleteListener(dbTask -> {
                             showLoading(false);
                             if (dbTask.isSuccessful()) {
@@ -349,9 +349,30 @@ public class UserProfileActivity extends AppCompatActivity {
         btnSaveChanges.setVisibility(changed ? View.VISIBLE : View.GONE);
     }
 
-    private void loadUserData() {
+    private void fetchUniversityIdAndLoadData(String authUid) {
         showLoading(true);
-        mDatabase.child("Users").child(currentUserId).addListenerForSingleValueEvent(new ValueEventListener() {
+        mDatabase.child("UIDToUniversityID").child(authUid).addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                if (snapshot.exists()) {
+                    currentUniversityId = snapshot.getValue(String.class);
+                    loadUserData(currentUniversityId);
+                } else {
+                    // Fallback to authUid for legacy accounts
+                    currentUniversityId = authUid;
+                    loadUserData(authUid);
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                showLoading(false);
+            }
+        });
+    }
+
+    private void loadUserData(String userId) {
+        mDatabase.child("Users").child(userId).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 showLoading(false);
@@ -445,7 +466,7 @@ public class UserProfileActivity extends AppCompatActivity {
         if (profileImageUris.isEmpty()) return;
         
         Uri uri = profileImageUris.get(0);
-        String fileName = currentUserId + "_" + System.currentTimeMillis() + ".jpg";
+        String fileName = currentUniversityId + "_" + System.currentTimeMillis() + ".jpg";
 
         SupabaseStorageHelper.uploadImage(this, uri, "profiles", fileName, new SupabaseStorageHelper.UploadCallback() {
             @Override
@@ -463,13 +484,13 @@ public class UserProfileActivity extends AppCompatActivity {
     }
 
     private void finalizeDatabaseUpdate(Map<String, Object> updates) {
-        mDatabase.child("Users").child(currentUserId).updateChildren(updates)
+        mDatabase.child("Users").child(currentUniversityId).updateChildren(updates)
                 .addOnCompleteListener(task -> {
                     showLoading(false);
                     if (task.isSuccessful()) {
                         resetUIState();
                         Snackbar.make(findViewById(android.R.id.content), "Profile updated successfully", Snackbar.LENGTH_LONG).show();
-                        loadUserData();
+                        loadUserData(currentUniversityId);
                     } else {
                         Toast.makeText(this, "Update failed", Toast.LENGTH_SHORT).show();
                     }

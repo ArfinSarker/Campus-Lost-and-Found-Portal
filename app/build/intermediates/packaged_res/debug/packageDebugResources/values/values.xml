@@ -129,6 +129,7 @@
     <string name="google_app_id" translatable="false">1:207058759801:android:7fed94ad324b09146aa4a8</string>
     <string name="google_crash_reporting_api_key" translatable="false">AIzaSyD8yb6ES6bopObPQ-W_4LiscXEduk-3TyM</string>
     <string name="google_storage_bucket" translatable="false">campus-lost-and-found-portal.firebasestorage.app</string>
+    <string name="header_subtitle_format">%1$s • %2$s</string>
     <string name="help_description">Contact security office for urgent matters.</string>
     <string name="helper_confidential">Information to be kept confidential (e.g., IMEI number, specific document ID)</string>
     <string name="helper_proof">Describe specific marks, unique ID, or content only the owner knows</string>
@@ -339,6 +340,8 @@
     <string name="tap_upload_photo">Tap to upload photo</string>
     <string name="terms_conditions">Terms &amp; Conditions</string>
     <string name="title_browse_items">Browse Items</string>
+    <string name="title_found_item">Found Item</string>
+    <string name="title_lost_item">Lost Item</string>
     <string name="title_my_profile">My Profile</string>
     <string name="title_report_found">Report Found Item</string>
     <string name="title_report_lost">Report Lost Item</string>

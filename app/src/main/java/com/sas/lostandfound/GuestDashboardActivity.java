@@ -47,18 +47,6 @@ public class GuestDashboardActivity extends AppCompatActivity {
             return;
         }
 
-        // Sample data
-        itemList = new ArrayList<>();
-        itemList.add(new Item("1", getString(R.string.sample_macbook),
-                getString(R.string.sample_macbook_location),
-                getString(R.string.sample_macbook_time), "lost", "📂"));
-        itemList.add(new Item("2", getString(R.string.sample_found),
-                getString(R.string.sample_found_location),
-                getString(R.string.sample_found_time), "found", "📂"));
-        itemList.add(new Item("3", getString(R.string.sample_airpods),
-                getString(R.string.sample_airpods_location),
-                getString(R.string.sample_airpods_time), "lost", "📂"));
-
         adapter = new ItemAdapter(itemList, item -> {
             startActivity(new Intent(GuestDashboardActivity.this, UserLoginActivity.class));
         });

@@ -69,7 +69,6 @@
         </activity>
 
         <!-- Main dashboards -->
-        <activity android:name="com.sas.lostandfound.GuestDashboardActivity" />
         <activity android:name="com.sas.lostandfound.CampusDashboardActivity" />
         <activity android:name="com.sas.lostandfound.DashboardActivity" />
 
@@ -98,6 +97,8 @@
         <activity android:name="com.sas.lostandfound.DeveloperInfoActivity" />
         <activity android:name="com.sas.lostandfound.LostAndFoundPolicyActivity" />
         <activity android:name="com.sas.lostandfound.AllReportedItemsActivity" />
+        <activity android:name="com.sas.lostandfound.NotificationsActivity" />
+        <activity android:name="com.sas.lostandfound.ClaimDetailsActivity" />
         <activity
             android:name="com.google.firebase.auth.internal.GenericIdpActivity"
             android:excludeFromRecents="true"
