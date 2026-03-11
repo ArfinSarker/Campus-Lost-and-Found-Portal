@@ -14,6 +14,7 @@ import com.google.android.material.textfield.TextInputEditText;
 /**
  * Interface for system administrators to manage the application.
  */
+
 public class AdminLoginActivity extends AppCompatActivity {
 
     private TextInputEditText etAdminId, etAdminPassword;
