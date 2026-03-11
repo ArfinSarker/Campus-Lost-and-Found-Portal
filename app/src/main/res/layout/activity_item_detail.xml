@@ -12,7 +12,8 @@
         android:layout_width="match_parent"
         android:layout_height="300dp"
         android:background="@color/primaryDarkColor"
-        android:fitsSystemWindows="true">
+        android:fitsSystemWindows="true"
+        app:elevation="0dp">
 
         <com.google.android.material.appbar.CollapsingToolbarLayout
             android:id="@+id/collapsingToolbar"
@@ -20,7 +21,8 @@
             android:layout_height="match_parent"
             app:contentScrim="@color/primaryDarkColor"
             app:layout_scrollFlags="scroll|exitUntilCollapsed"
-            app:titleEnabled="false">
+            app:titleEnabled="false"
+            app:scrimAnimationDuration="200">
 
             <ImageView
                 android:id="@+id/ivItemImage"
@@ -37,7 +39,7 @@
                 android:layout_gravity="bottom"
                 android:background="@drawable/bg_bottom_gradient" />
 
-            <androidx.appcompat.widget.Toolbar
+            <com.google.android.material.appbar.MaterialToolbar
                 android:id="@+id/toolbar"
                 android:layout_width="match_parent"
                 android:layout_height="?attr/actionBarSize"
@@ -50,20 +52,20 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
-                    android:alpha="0">
+                    android:alpha="0"
+                    android:layout_marginStart="8dp">
 
                     <TextView
                         android:id="@+id/tvHeaderTitle"
-                        style="@style/TextAppearance.App.SectionTitle"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:textColor="@color/white"
-                        android:textSize="18sp"
+                        android:textSize="19sp"
+                        android:textStyle="bold"
                         tools:text="Lost Item" />
 
                     <TextView
                         android:id="@+id/tvHeaderSubtitle"
-                        style="@style/TextAppearance.App.Small"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:textColor="#CCFFFFFF"
@@ -71,7 +73,7 @@
                         tools:text="Electronics • Library" />
                 </LinearLayout>
 
-            </androidx.appcompat.widget.Toolbar>
+            </com.google.android.material.appbar.MaterialToolbar>
 
         </com.google.android.material.appbar.CollapsingToolbarLayout>
     </com.google.android.material.appbar.AppBarLayout>
