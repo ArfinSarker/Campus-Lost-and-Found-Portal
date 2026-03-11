@@ -63,22 +63,6 @@ public class Item {
         this.proofOfOwnershipUrls = new ArrayList<>();
     }
 
-    /**
-     * Constructor for sample data or minimal item representation.
-     */
-    public Item(String id, String name, String location, String date, String status, String category) {
-        this.id = id;
-        this.name = name;
-        this.location = location;
-        this.date = date;
-        this.status = status;
-        this.category = category;
-        this.adminStatus = "Pending";
-        this.timestamp = System.currentTimeMillis();
-        this.imageUrls = new ArrayList<>();
-        this.proofOfOwnershipUrls = new ArrayList<>();
-    }
-
     // Getters and Setters
     public String getId() { return id; }
     public void setId(String id) { this.id = id; }

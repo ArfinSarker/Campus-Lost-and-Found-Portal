@@ -146,6 +146,9 @@
     <string name="label_reported_by">Reported By</string>
     <string name="btn_contact">Contact</string>
     <string name="btn_found_this">I Found This Item</string>
+    <string name="title_lost_item">Lost Item</string>
+    <string name="title_found_item">Found Item</string>
+    <string name="header_subtitle_format">%1$s • %2$s</string>
 
     <!-- Report Lost Strings -->
     <string name="title_report_lost">Report Lost Item</string>

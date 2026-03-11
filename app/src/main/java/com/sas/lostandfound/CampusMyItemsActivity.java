@@ -211,6 +211,7 @@ public class CampusMyItemsActivity extends AppCompatActivity {
                 intent.putExtra("userName", item.getUserName());
                 intent.putExtra("userDepartment", item.getUserDepartment());
                 intent.putExtra("userPhone", item.getUserPhone());
+                intent.putExtra("userId", item.getUserId());
                 v.getContext().startActivity(intent);
             });
         }

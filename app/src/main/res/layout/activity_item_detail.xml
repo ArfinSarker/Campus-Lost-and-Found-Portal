@@ -11,7 +11,8 @@
         android:id="@+id/appBarLayout"
         android:layout_width="match_parent"
         android:layout_height="300dp"
-        android:background="@color/primaryDarkColor">
+        android:background="@color/primaryDarkColor"
+        android:fitsSystemWindows="true">
 
         <com.google.android.material.appbar.CollapsingToolbarLayout
             android:id="@+id/collapsingToolbar"
@@ -42,7 +43,35 @@
                 android:layout_height="?attr/actionBarSize"
                 app:layout_collapseMode="pin"
                 app:navigationIcon="@drawable/ic_back_arrow"
-                app:navigationIconTint="@color/white" />
+                app:navigationIconTint="@color/white">
+
+                <LinearLayout
+                    android:id="@+id/headerTitleContainer"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:alpha="0">
+
+                    <TextView
+                        android:id="@+id/tvHeaderTitle"
+                        style="@style/TextAppearance.App.SectionTitle"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textColor="@color/white"
+                        android:textSize="18sp"
+                        tools:text="Lost Item" />
+
+                    <TextView
+                        android:id="@+id/tvHeaderSubtitle"
+                        style="@style/TextAppearance.App.Small"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textColor="#CCFFFFFF"
+                        android:textSize="12sp"
+                        tools:text="Electronics • Library" />
+                </LinearLayout>
+
+            </androidx.appcompat.widget.Toolbar>
 
         </com.google.android.material.appbar.CollapsingToolbarLayout>
     </com.google.android.material.appbar.AppBarLayout>

@@ -43,7 +43,6 @@
         </activity>
 
         <!-- Main dashboards -->
-        <activity android:name=".GuestDashboardActivity" />
         <activity android:name=".CampusDashboardActivity" />
         <activity android:name=".DashboardActivity" />
 
@@ -73,6 +72,8 @@
         <activity android:name=".DeveloperInfoActivity" />
         <activity android:name=".LostAndFoundPolicyActivity" />
         <activity android:name=".AllReportedItemsActivity" />
+        <activity android:name=".NotificationsActivity" />
+        <activity android:name=".ClaimDetailsActivity" />
 
     </application>
 
