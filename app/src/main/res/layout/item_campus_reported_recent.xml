@@ -2,121 +2,146 @@
 <com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    style="@style/Widget.App.Card"
     android:layout_width="match_parent"
-    android:layout_height="360dp"
-    android:layout_margin="8dp">
+    android:layout_height="wrap_content"
+    android:layout_margin="8dp"
+    app:cardCornerRadius="16dp"
+    app:cardElevation="3dp"
+    app:strokeWidth="1dp"
+    app:strokeColor="@color/dividerColor">
 
-    <LinearLayout
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="vertical"
-        android:padding="12dp">
+        android:layout_height="wrap_content">
 
-        <RelativeLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content">
-
-            <com.google.android.material.card.MaterialCardView
-                android:id="@+id/cardBadge"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                app:cardBackgroundColor="@color/badge_lost_bg"
-                app:cardCornerRadius="8dp"
-                app:cardElevation="0dp"
-                app:strokeWidth="0dp">
-
-                <TextView
-                    android:id="@+id/tvBadge"
-                    style="@style/TextAppearance.App.Small"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:paddingHorizontal="12dp"
-                    android:paddingVertical="4dp"
-                    android:textAllCaps="true"
-                    android:textColor="@color/white"
-                    android:textStyle="bold"
-                    tools:text="Lost" />
-            </com.google.android.material.card.MaterialCardView>
-
-            <View
-                android:id="@+id/viewStatusIndicator"
-                android:layout_width="10dp"
-                android:layout_height="10dp"
-                android:layout_alignParentEnd="true"
-                android:layout_centerVertical="true"
-                android:background="@drawable/ic_check_circle"
-                android:visibility="gone" />
-        </RelativeLayout>
-
+        <!-- Image Container with fixed Aspect Ratio for uniformity -->
         <com.google.android.material.imageview.ShapeableImageView
             android:id="@+id/ivItemIcon"
-            android:layout_width="match_parent"
-            android:layout_height="200dp"
-            android:layout_marginTop="12dp"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
             android:scaleType="centerCrop"
             android:src="@drawable/ic_package"
+            android:contentDescription="@string/item_image_description"
+            app:layout_constraintDimensionRatio="H,16:9"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
             app:shapeAppearanceOverlay="@style/ShapeAppearance.App.SmallComponent" />
 
-        <TextView
-            android:id="@+id/tvItemTitle"
-            style="@style/TextAppearance.App.SectionTitle"
-            android:layout_width="match_parent"
+        <!-- Status Badge Overlay -->
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/cardBadge"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="12dp"
-            android:ellipsize="end"
-            android:maxLines="1"
-            android:textSize="18sp"
-            tools:text="MacBook Pro" />
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:gravity="center_vertical"
-            android:orientation="horizontal">
-
-            <ImageView
-                android:layout_width="14dp"
-                android:layout_height="14dp"
-                android:src="@drawable/ic_map_pin"
-                app:tint="@color/textSecondary"
-                android:contentDescription="@null" />
+            android:layout_margin="12dp"
+            app:cardCornerRadius="8dp"
+            app:cardElevation="4dp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:strokeWidth="0dp">
 
             <TextView
-                android:id="@+id/tvItemLocation"
-                style="@style/TextAppearance.App.Small"
+                android:id="@+id/tvBadge"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="6dp"
+                android:paddingHorizontal="10dp"
+                android:paddingVertical="4dp"
+                android:textAllCaps="true"
+                android:textColor="@color/white"
+                android:textSize="11sp"
+                android:textStyle="bold"
+                tools:text="LOST" />
+        </com.google.android.material.card.MaterialCardView>
+
+        <!-- Hidden Status Indicator (preserved functionality) -->
+        <View
+            android:id="@+id/viewStatusIndicator"
+            android:layout_width="1dp"
+            android:layout_height="1dp"
+            android:visibility="gone"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <!-- Info Content Section with balanced padding -->
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="12dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/ivItemIcon">
+
+            <TextView
+                android:id="@+id/tvItemTitle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
                 android:ellipsize="end"
+                android:fontFamily="sans-serif-medium"
                 android:maxLines="1"
-                tools:text="Library, 2nd floor" />
-        </LinearLayout>
+                android:textColor="@color/textPrimary"
+                android:textSize="15sp"
+                tools:text="Black Leather Wallet" />
 
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="4dp"
-            android:gravity="center_vertical"
-            android:orientation="horizontal">
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_marginVertical="8dp"
+                android:background="@color/dividerColor" />
 
-            <ImageView
-                android:layout_width="14dp"
-                android:layout_height="14dp"
-                android:src="@drawable/ic_clock"
-                app:tint="@color/textSecondary"
-                android:contentDescription="@null" />
-
-            <TextView
-                android:id="@+id/tvItemTime"
-                style="@style/TextAppearance.App.Small"
-                android:layout_width="wrap_content"
+            <LinearLayout
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="6dp"
-                tools:text="2h ago" />
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <ImageView
+                    android:layout_width="14dp"
+                    android:layout_height="14dp"
+                    android:src="@drawable/ic_map_pin"
+                    android:contentDescription="@null"
+                    app:tint="@color/textSecondary" />
+
+                <TextView
+                    android:id="@+id/tvItemLocation"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="6dp"
+                    android:layout_weight="1"
+                    android:ellipsize="end"
+                    android:maxLines="1"
+                    android:textColor="@color/textSecondary"
+                    android:textSize="12sp"
+                    tools:text="Academic Building" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <ImageView
+                    android:layout_width="14dp"
+                    android:layout_height="14dp"
+                    android:src="@drawable/ic_clock"
+                    android:contentDescription="@null"
+                    app:tint="@color/textSecondary" />
+
+                <TextView
+                    android:id="@+id/tvItemTime"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="6dp"
+                    android:layout_weight="1"
+                    android:textColor="@color/textSecondary"
+                    android:textSize="12sp"
+                    tools:text="25/10/2026" />
+            </LinearLayout>
         </LinearLayout>
 
-    </LinearLayout>
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
 </com.google.android.material.card.MaterialCardView>
