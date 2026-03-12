@@ -106,7 +106,6 @@ int id actvLocation 0x0
 int id actvPreferredContact 0x0
 int id actvSection 0x0
 int id actvUserType 0x0
-int id actvVerificationMethod 0x0
 int id appBarLayout 0x0
 int id btnAdminSignIn 0x0
 int id btnBack 0x0
@@ -143,7 +142,6 @@ int id etAdminId 0x0
 int id etAdminPassword 0x0
 int id etAuthorityName 0x0
 int id etBatch 0x0
-int id etConfidentialDetail 0x0
 int id etConfirmPassword 0x0
 int id etContactName 0x0
 int id etContactPhone 0x0

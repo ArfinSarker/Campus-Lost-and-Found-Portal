@@ -50,7 +50,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 public class CampusReportLostActivity extends AppCompatActivity {
 
-    private TextInputEditText etItemName, etDateLost, etTimeLost, etManualLocation, etLocationDetails, etDescription, etProofOwnership, etConfidentialDetail, etContactName, etContactPhone;
+    private TextInputEditText etItemName, etDateLost, etTimeLost, etManualLocation, etLocationDetails, etDescription, etProofOwnership, etContactName, etContactPhone;
     private AutoCompleteTextView actvCategory, actvLocation, actvPreferredContact;
     private TextInputLayout tilManualLocation;
     private MaterialCheckBox cbConfirm;
@@ -105,7 +105,6 @@ public class CampusReportLostActivity extends AppCompatActivity {
         etLocationDetails = findViewById(R.id.etLocationDetails);
         
         etProofOwnership = findViewById(R.id.etProofOwnership);
-        etConfidentialDetail = findViewById(R.id.etConfidentialDetail);
         
         etContactName = findViewById(R.id.etContactName);
         etContactPhone = findViewById(R.id.etContactPhone);
@@ -149,10 +148,10 @@ public class CampusReportLostActivity extends AppCompatActivity {
     }
 
     private void setupDropdowns() {
-        String[] categories = {"Electronics", "ID Cards", "Bags", "Documents", "Mobile Phone", "Accessories", "Others"};
+        String[] categories = {"Electronics & Gadgets", "ID Cards", "Wallets & Purses", "Bank/Credit Cards", "Bags", "Study Materials", "Eyewear", "Keys & Access Devices", "Clothing & Accessories", "Others"};
         actvCategory.setAdapter(new ArrayAdapter<>(this, R.layout.dropdown_item, categories));
 
-        String[] locations = {"Academic Building", "Library", "Cafeteria", "Playground", "Lab Room", "Dormitory", "Other"};
+        String[] locations = {"Academic Building", "Civil Building", "Library", "Cafeteria", "Medical Center", "Playground", "Lab Room", "Abbas Uddin Ahmed Hall (AUAH)", "Shaheed Dr. Zikrul Haque Hall", "Bir Protik Taramon Bibi Hall", "Bir Protik Taramon Bibi (New Hall)", "Other"};
         actvLocation.setAdapter(new ArrayAdapter<>(this, R.layout.dropdown_item, locations));
         actvLocation.setOnItemClickListener((parent, view, position, id) -> {
             if (locations[position].equals("Other")) {
@@ -342,7 +341,6 @@ public class CampusReportLostActivity extends AppCompatActivity {
         if (!imageUrls.isEmpty()) {
             item.setImageUrl(imageUrls.get(0));
         }
-        item.setConfidentialIdentificationDetail(etConfidentialDetail.getText().toString().trim());
         item.setPreferredContactMethod(actvPreferredContact.getText().toString().trim());
         item.setUserPhone(etContactPhone.getText().toString().trim());
         

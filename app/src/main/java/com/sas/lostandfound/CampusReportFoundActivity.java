@@ -51,7 +51,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class CampusReportFoundActivity extends AppCompatActivity {
 
     private TextInputEditText etItemName, etDateFound, etTimeFound, etManualLocation, etLocationDetails, etDescription, etAuthorityName, etOfficeRoom, etHiddenQuestion, etContactName, etContactPhone;
-    private AutoCompleteTextView actvCategory, actvLocation, actvHandlingStatus, actvVerificationMethod, actvPreferredContact;
+    private AutoCompleteTextView actvCategory, actvLocation, actvHandlingStatus, actvPreferredContact;
     private TextInputLayout tilManualLocation, tilAuthorityName, tilOfficeRoom;
     private MaterialCheckBox cbConfirm;
     private MaterialButton btnSubmit;
@@ -111,7 +111,6 @@ public class CampusReportFoundActivity extends AppCompatActivity {
         etOfficeRoom = findViewById(R.id.etOfficeRoom);
 
         etHiddenQuestion = findViewById(R.id.etHiddenQuestion);
-        actvVerificationMethod = findViewById(R.id.actvVerificationMethod);
 
         etContactName = findViewById(R.id.etContactName);
         etContactPhone = findViewById(R.id.etContactPhone);
@@ -155,10 +154,10 @@ public class CampusReportFoundActivity extends AppCompatActivity {
     }
 
     private void setupDropdowns() {
-        String[] categories = {"Electronics", "ID Cards", "Bags", "Documents", "Mobile Phone", "Accessories", "Others"};
+        String[] categories = {"Electronics & Gadgets", "ID Cards", "Wallets & Purses", "Bank/Credit Cards", "Bags", "Study Materials", "Eyewear", "Keys & Access Devices", "Clothing & Accessories", "Others"};
         actvCategory.setAdapter(new ArrayAdapter<>(this, R.layout.dropdown_item, categories));
 
-        String[] locations = {"Academic Building", "Library", "Cafeteria", "Playground", "Lab Room", "Dormitory", "Other"};
+        String[] locations = {"Academic Building", "Civil Building", "Library", "Cafeteria", "Medical Center", "Playground", "Lab Room", "Abbas Uddin Ahmed Hall (AUAH)", "Shaheed Dr. Zikrul Haque Hall", "Bir Protik Taramon Bibi Hall", "Bir Protik Taramon Bibi (New Hall)", "Other"};
         actvLocation.setAdapter(new ArrayAdapter<>(this, R.layout.dropdown_item, locations));
         actvLocation.setOnItemClickListener((parent, view, position, id) -> {
             if (locations[position].equals("Other")) tilManualLocation.setVisibility(View.VISIBLE);
@@ -176,9 +175,6 @@ public class CampusReportFoundActivity extends AppCompatActivity {
                 tilOfficeRoom.setVisibility(View.GONE);
             }
         });
-
-        String[] verificationMethods = {"Admin verification required", "Direct contact allowed"};
-        actvVerificationMethod.setAdapter(new ArrayAdapter<>(this, R.layout.dropdown_item, verificationMethods));
 
         String[] contactMethods = {"Phone", "Email", "In-app chat"};
         actvPreferredContact.setAdapter(new ArrayAdapter<>(this, R.layout.dropdown_item, contactMethods));
@@ -365,7 +361,6 @@ public class CampusReportFoundActivity extends AppCompatActivity {
         item.setAuthorityName(etAuthorityName.getText().toString().trim());
         item.setOfficeRoomNumber(etOfficeRoom.getText().toString().trim());
         item.setHiddenIdentificationQuestion(hiddenQuestion);
-        item.setVerificationMethod(actvVerificationMethod.getText().toString().trim());
         item.setPreferredContactMethod(actvPreferredContact.getText().toString().trim());
         item.setUserPhone(etContactPhone.getText().toString().trim());
 

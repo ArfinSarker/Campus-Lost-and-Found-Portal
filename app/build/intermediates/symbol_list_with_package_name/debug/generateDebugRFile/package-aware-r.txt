@@ -107,7 +107,6 @@ id actvLocation
 id actvPreferredContact
 id actvSection
 id actvUserType
-id actvVerificationMethod
 id appBarLayout
 id btnAdminSignIn
 id btnBack
@@ -144,7 +143,6 @@ id etAdminId
 id etAdminPassword
 id etAuthorityName
 id etBatch
-id etConfidentialDetail
 id etConfirmPassword
 id etContactName
 id etContactPhone
