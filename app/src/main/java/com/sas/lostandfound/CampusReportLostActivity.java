@@ -50,7 +50,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 public class CampusReportLostActivity extends AppCompatActivity {
 
-    private TextInputEditText etItemName, etDateLost, etTimeLost, etManualLocation, etLocationDetails, etDescription, etProofOwnership, etConfidentialDetail, etContactName, etContactPhone;
+    private TextInputEditText etItemName, etDateLost, etTimeLost, etManualLocation, etLocationDetails, etDescription, etProofOwnership, etContactName, etContactPhone;
     private AutoCompleteTextView actvCategory, actvLocation, actvPreferredContact;
     private TextInputLayout tilManualLocation;
     private MaterialCheckBox cbConfirm;
@@ -105,7 +105,6 @@ public class CampusReportLostActivity extends AppCompatActivity {
         etLocationDetails = findViewById(R.id.etLocationDetails);
         
         etProofOwnership = findViewById(R.id.etProofOwnership);
-        etConfidentialDetail = findViewById(R.id.etConfidentialDetail);
         
         etContactName = findViewById(R.id.etContactName);
         etContactPhone = findViewById(R.id.etContactPhone);
@@ -342,7 +341,6 @@ public class CampusReportLostActivity extends AppCompatActivity {
         if (!imageUrls.isEmpty()) {
             item.setImageUrl(imageUrls.get(0));
         }
-        item.setConfidentialIdentificationDetail(etConfidentialDetail.getText().toString().trim());
         item.setPreferredContactMethod(actvPreferredContact.getText().toString().trim());
         item.setUserPhone(etContactPhone.getText().toString().trim());
         

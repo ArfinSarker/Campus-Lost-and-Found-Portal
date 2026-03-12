@@ -268,22 +268,6 @@
                     android:minLines="2" />
             </com.google.android.material.textfield.TextInputLayout>
 
-            <com.google.android.material.textfield.TextInputLayout
-                style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
-                android:hint="@string/label_confidential_detail"
-                app:helperText="@string/helper_confidential"
-                app:shapeAppearanceOverlay="@style/ShapeAppearance.App.SmallComponent">
-
-                <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/etConfidentialDetail"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:inputType="text" />
-            </com.google.android.material.textfield.TextInputLayout>
-
             <TextView
                 style="@style/TextAppearance.App.SectionTitle"
                 android:layout_width="wrap_content"
@@ -346,7 +330,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="24dp"
-                android:text="@string/confirm_accuracy" />
+                android:text="@string/confirm_accuracy"
+                android:textColor="@color/textSecondary" />
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnSubmitReport"
