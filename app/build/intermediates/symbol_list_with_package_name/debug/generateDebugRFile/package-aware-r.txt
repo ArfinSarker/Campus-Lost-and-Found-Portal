@@ -118,7 +118,6 @@ id btnContact
 id btnCreateAccount
 id btnEditItem
 id btnEmail
-id btnLogout
 id btnMarkAllRead
 id btnMenu
 id btnNotifications
@@ -194,13 +193,11 @@ id llEmail
 id llEmptyState
 id llGithub
 id llLinkedin
-id llMyItems
 id llNotificationRoot
 id llPhone
 id llPolicyAddress
 id llPolicyEmail
 id llPolicyPhone
-id llSettings
 id nav_claimed_items
 id nav_find_items
 id nav_header_imageView
@@ -284,10 +281,6 @@ id tvStatusBadge
 id tvTimeAgo
 id tvTypeBadge
 id tvUploadStatus
-id tvUserEmail
-id tvUserId
-id tvUserName
-id tvUserRole
 id tvWelcome
 id uploadCard
 id viewStatus
@@ -317,7 +310,6 @@ layout item_campus_reported_recent
 layout item_dashboard_card
 layout item_list_row
 layout item_notification
-layout layout_campus_profile_dropdown
 layout layout_stat_card
 layout nav_header_main
 menu activity_campus_dashboard_drawer

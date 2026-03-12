@@ -117,7 +117,6 @@ int id btnContact 0x0
 int id btnCreateAccount 0x0
 int id btnEditItem 0x0
 int id btnEmail 0x0
-int id btnLogout 0x0
 int id btnMarkAllRead 0x0
 int id btnMenu 0x0
 int id btnNotifications 0x0
@@ -193,13 +192,11 @@ int id llEmail 0x0
 int id llEmptyState 0x0
 int id llGithub 0x0
 int id llLinkedin 0x0
-int id llMyItems 0x0
 int id llNotificationRoot 0x0
 int id llPhone 0x0
 int id llPolicyAddress 0x0
 int id llPolicyEmail 0x0
 int id llPolicyPhone 0x0
-int id llSettings 0x0
 int id nav_claimed_items 0x0
 int id nav_find_items 0x0
 int id nav_header_imageView 0x0
@@ -283,10 +280,6 @@ int id tvStatusBadge 0x0
 int id tvTimeAgo 0x0
 int id tvTypeBadge 0x0
 int id tvUploadStatus 0x0
-int id tvUserEmail 0x0
-int id tvUserId 0x0
-int id tvUserName 0x0
-int id tvUserRole 0x0
 int id tvWelcome 0x0
 int id uploadCard 0x0
 int id viewStatus 0x0
@@ -316,7 +309,6 @@ int layout item_campus_reported_recent 0x0
 int layout item_dashboard_card 0x0
 int layout item_list_row 0x0
 int layout item_notification 0x0
-int layout layout_campus_profile_dropdown 0x0
 int layout layout_stat_card 0x0
 int layout nav_header_main 0x0
 int menu activity_campus_dashboard_drawer 0x0

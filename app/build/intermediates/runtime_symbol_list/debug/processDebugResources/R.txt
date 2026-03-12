@@ -3926,7 +3926,6 @@ int id btnContact 0x7f08007e
 int id btnCreateAccount 0x7f08007f
 int id btnEditItem 0x7f080080
 int id btnEmail 0x7f0802c5
-int id btnLogout 0x7f080081
 int id btnMarkAllRead 0x7f0802d6
 int id btnMenu 0x7f080082
 int id btnNotifications 0x7f0802c6
@@ -4152,13 +4151,11 @@ int id llEmail 0x7f08015a
 int id llEmptyState 0x7f0802c9
 int id llGithub 0x7f08015b
 int id llLinkedin 0x7f08015c
-int id llMyItems 0x7f08015d
 int id llNotificationRoot 0x7f0802ca
 int id llPhone 0x7f08015e
 int id llPolicyAddress 0x7f08015f
 int id llPolicyEmail 0x7f080160
 int id llPolicyPhone 0x7f080161
-int id llSettings 0x7f080162
 int id m3_side_sheet 0x7f080163
 int id marquee 0x7f080164
 int id masked 0x7f080165
@@ -4488,10 +4485,6 @@ int id tvStatusBadge 0x7f08029d
 int id tvTimeAgo 0x7f08029e
 int id tvTypeBadge 0x7f08029f
 int id tvUploadStatus 0x7f0802a0
-int id tvUserEmail 0x7f0802a1
-int id tvUserId 0x7f0802a2
-int id tvUserName 0x7f0802a3
-int id tvUserRole 0x7f0802a4
 int id tvWelcome 0x7f0802a5
 int id unchecked 0x7f0802a6
 int id uniform 0x7f0802a7
@@ -4686,7 +4679,6 @@ int layout item_campus_reported_recent 0x7f0b0042
 int layout item_dashboard_card 0x7f0b0043
 int layout item_list_row 0x7f0b0044
 int layout item_notification 0x7f0b0089
-int layout layout_campus_profile_dropdown 0x7f0b0045
 int layout layout_stat_card 0x7f0b0046
 int layout m3_alert_dialog 0x7f0b0047
 int layout m3_alert_dialog_actions 0x7f0b0048

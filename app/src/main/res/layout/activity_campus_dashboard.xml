@@ -286,9 +286,10 @@
         android:layout_height="match_parent"
         android:layout_gravity="start"
         android:fitsSystemWindows="true"
+        android:background="@color/surfaceColor"
         app:headerLayout="@layout/nav_header_main"
         app:menu="@menu/activity_campus_dashboard_drawer"
         app:itemIconTint="@color/primaryColor"
-        app:itemTextColor="@color/white" />
+        app:itemTextColor="@color/black" />
 
 </androidx.drawerlayout.widget.DrawerLayout>
