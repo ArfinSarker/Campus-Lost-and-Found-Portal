@@ -151,7 +151,7 @@ public class CampusReportLostActivity extends AppCompatActivity {
         String[] categories = {"Electronics & Gadgets", "ID Cards", "Wallets & Purses", "Bank/Credit Cards", "Bags", "Study Materials", "Eyewear", "Keys & Access Devices", "Clothing & Accessories", "Others"};
         actvCategory.setAdapter(new ArrayAdapter<>(this, R.layout.dropdown_item, categories));
 
-        String[] locations = {"Academic Building", "Civil Building", "Library", "Cafeteria", "Medical Center", "Playground", "Lab Room", "Abbas Uddin Ahmed Hall (AUAH)", "Shaheed Dr. Zikrul Haque Hall", "Bir Protik Taramon Bibi Hall", "Bir Protik Taramon Bibi (New Hall)", "Other"};
+        String[] locations = {"Academic Building", "Civil Building", "Library", "Cafeteria", "Medical Center", "Playground", "Abbas Uddin Ahmed Hall (AUAH)", "Shaheed Dr. Zikrul Haque Hall", "Bir Protik Taramon Bibi Hall", "Bir Protik Taramon Bibi (New Hall)", "Other"};
         actvLocation.setAdapter(new ArrayAdapter<>(this, R.layout.dropdown_item, locations));
         actvLocation.setOnItemClickListener((parent, view, position, id) -> {
             if (locations[position].equals("Other")) {
