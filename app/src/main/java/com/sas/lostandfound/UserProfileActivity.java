@@ -12,6 +12,7 @@ import android.provider.MediaStore;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.util.Patterns;
 import android.view.View;
 import android.widget.ArrayAdapter;
@@ -58,6 +59,7 @@ import java.util.Map;
 
 public class UserProfileActivity extends AppCompatActivity {
 
+    private static final String TAG = "UserProfileActivity";
     private ImageView ivProfilePicture;
     private FloatingActionButton fabChangePhoto;
     private TextInputLayout tilEmail, tilPhone, tilDepartment, tilGender, tilBatch, tilLevelTerm, tilSection, tilOldPassword, tilNewPassword, tilConfirmPassword, tilDesignation, tilFullName;
@@ -358,25 +360,67 @@ public class UserProfileActivity extends AppCompatActivity {
                     currentUniversityId = snapshot.getValue(String.class);
                     loadUserData(currentUniversityId);
                 } else {
-                    // Fallback to authUid for legacy accounts
-                    currentUniversityId = authUid;
-                    loadUserData(authUid);
+                    Log.d(TAG, "No mapping found for UID in UserProfile, trying email search");
+                    searchUserByEmail();
                 }
             }
 
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
-                showLoading(false);
+                Log.e(TAG, "Mapping fetch failed in UserProfile: " + error.getMessage());
+                searchUserByEmail();
             }
         });
     }
 
+    private void searchUserByEmail() {
+        FirebaseUser currentUser = mAuth.getCurrentUser();
+        if (currentUser == null) {
+            showLoading(false);
+            return;
+        }
+        
+        String email = currentUser.getEmail();
+        String authUid = currentUser.getUid();
+        
+        if (email != null) {
+            mDatabase.child("Users").orderByChild("email").equalTo(email).addListenerForSingleValueEvent(new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull DataSnapshot snapshot) {
+                    if (snapshot.exists()) {
+                        for (DataSnapshot userSnap : snapshot.getChildren()) {
+                            currentUniversityId = userSnap.getKey();
+                            Log.d(TAG, "User found by email search in UserProfile: " + currentUniversityId);
+                            loadUserData(currentUniversityId);
+                            return;
+                        }
+                    } else {
+                        Log.d(TAG, "No user found with email in UserProfile, falling back to Auth UID");
+                        currentUniversityId = authUid;
+                        loadUserData(authUid);
+                    }
+                }
+                @Override
+                public void onCancelled(@NonNull DatabaseError error) {
+                    Log.e(TAG, "Email search failed in UserProfile: " + error.getMessage());
+                    currentUniversityId = authUid;
+                    loadUserData(authUid);
+                }
+            });
+        } else {
+            currentUniversityId = authUid;
+            loadUserData(authUid);
+        }
+    }
+
     private void loadUserData(String userId) {
+        Log.d(TAG, "Loading user data for ID: " + userId);
         mDatabase.child("Users").child(userId).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 showLoading(false);
                 if (snapshot.exists()) {
+                    Log.d(TAG, "User data received in UserProfile. Name: " + snapshot.child("name").getValue());
                     originalUser = snapshot.getValue(User.class);
                     if (originalUser != null) {
                         isDataLoaded = false;
@@ -415,12 +459,15 @@ public class UserProfileActivity extends AppCompatActivity {
                         isProfilePictureRemoved = false;
                         isDataLoaded = true;
                     }
+                } else {
+                    Log.w(TAG, "User node does not exist for ID: " + userId);
                 }
             }
 
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
                 showLoading(false);
+                Log.e(TAG, "User data fetch failed in UserProfile: " + error.getMessage());
                 Toast.makeText(UserProfileActivity.this, "Failed to load data", Toast.LENGTH_SHORT).show();
             }
         });
