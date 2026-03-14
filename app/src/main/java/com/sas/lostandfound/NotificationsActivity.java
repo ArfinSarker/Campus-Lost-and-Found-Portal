@@ -14,6 +14,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -34,7 +35,7 @@ public class NotificationsActivity extends AppCompatActivity {
     private LinearLayout llEmptyState;
     private ImageButton btnMarkAllRead;
     private DatabaseReference mDatabase;
-    private String currentUserId;
+    private String resolvedUserId;
     private static final String DATABASE_URL = "https://campus-lost-and-found-portal-default-rtdb.asia-southeast1.firebasedatabase.app";
 
     @Override
@@ -55,12 +56,13 @@ public class NotificationsActivity extends AppCompatActivity {
         btnMarkAllRead = findViewById(R.id.btnMarkAllRead);
         
         mDatabase = FirebaseDatabase.getInstance(DATABASE_URL).getReference();
-        currentUserId = FirebaseAuth.getInstance().getUid();
-
+        
         notificationList = new ArrayList<>();
         adapter = new NotificationAdapter(notificationList, notification -> {
             // Mark as read
-            mDatabase.child("Notifications").child(currentUserId).child(notification.getId()).child("read").setValue(true);
+            if (resolvedUserId != null) {
+                mDatabase.child("Notifications").child(resolvedUserId).child(notification.getId()).child("read").setValue(true);
+            }
             
             // Redirect to Claim Details
             Intent intent = new Intent(this, ClaimDetailsActivity.class);
@@ -78,13 +80,38 @@ public class NotificationsActivity extends AppCompatActivity {
 
         btnMarkAllRead.setOnClickListener(v -> markAllAsRead());
 
-        fetchNotifications();
+        resolveUserAndFetchNotifications();
     }
 
-    private void fetchNotifications() {
-        if (currentUserId == null) return;
+    private void resolveUserAndFetchNotifications() {
+        FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
+        if (currentUser == null) return;
 
-        mDatabase.child("Notifications").child(currentUserId).addValueEventListener(new ValueEventListener() {
+        String authUid = currentUser.getUid();
+        // Resolve University ID to match Dashboard behavior
+        mDatabase.child("UIDToUniversityID").child(authUid).addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                if (snapshot.exists()) {
+                    resolvedUserId = snapshot.getValue(String.class);
+                    fetchNotifications(resolvedUserId);
+                } else {
+                    // Fallback to Auth UID if no mapping exists
+                    resolvedUserId = authUid;
+                    fetchNotifications(authUid);
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                resolvedUserId = authUid;
+                fetchNotifications(authUid);
+            }
+        });
+    }
+
+    private void fetchNotifications(String userId) {
+        mDatabase.child("Notifications").child(userId).addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 notificationList.clear();
@@ -112,7 +139,7 @@ public class NotificationsActivity extends AppCompatActivity {
     }
 
     private void markAllAsRead() {
-        if (currentUserId == null || notificationList.isEmpty()) return;
+        if (resolvedUserId == null || notificationList.isEmpty()) return;
 
         Map<String, Object> updates = new HashMap<>();
         for (Notification notification : notificationList) {
@@ -122,7 +149,7 @@ public class NotificationsActivity extends AppCompatActivity {
         }
 
         if (!updates.isEmpty()) {
-            mDatabase.child("Notifications").child(currentUserId).updateChildren(updates)
+            mDatabase.child("Notifications").child(resolvedUserId).updateChildren(updates)
                     .addOnSuccessListener(aVoid -> Toast.makeText(this, "All notifications marked as read", Toast.LENGTH_SHORT).show());
         }
     }

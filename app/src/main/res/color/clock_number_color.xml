@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Number color when selected/active (inside the white circle/hand tip) -->
+    <item android:state_selected="true" android:color="@color/black" />
+    <item android:state_activated="true" android:color="@color/black" />
+    <item android:state_checked="true" android:color="@color/black" />
+    <!-- Default number color on the dark dial -->
+    <item android:color="@color/white" />
+</selector>

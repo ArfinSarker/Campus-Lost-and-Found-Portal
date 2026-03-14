@@ -11,6 +11,7 @@ color badge_found_bg
 color badge_lost_bg
 color black
 color chatBackground
+color clock_number_color
 color cyan
 color darkBlue
 color dev_bg
@@ -190,8 +191,10 @@ id layoutEmptyState
 id llAdminLogin
 id llEmail
 id llEmptyState
+id llFoundSpecifics
 id llGithub
 id llLinkedin
+id llLostSpecifics
 id llNotificationRoot
 id llPhone
 id llPolicyAddress
@@ -253,6 +256,7 @@ id tvDateTime
 id tvDescription
 id tvDeveloperInfo
 id tvForgotPassword
+id tvHandlingStatus
 id tvHeaderSubtitle
 id tvHeaderTitle
 id tvIcon
@@ -270,9 +274,12 @@ id tvMyItemTitle
 id tvNotificationBadge
 id tvNotificationMessage
 id tvNotificationTime
+id tvProofOwnership
 id tvRegister
-id tvReporterDept
+id tvReporterDeptOrDesignation
 id tvReporterName
+id tvReporterType
+id tvSecurityQuestion
 id tvStatLabel
 id tvStatNumber
 id tvStatus
@@ -631,11 +638,16 @@ style TextAppearance.App.Body
 style TextAppearance.App.Headline
 style TextAppearance.App.SectionTitle
 style TextAppearance.App.Small
+style TextAppearance.App.TimePicker.LabelBold
+style TextAppearance.App.TimePicker.Title
+style ThemeOverlay.App.DatePicker
+style ThemeOverlay.App.TimePicker
 style Theme.CampusLostAndFound
 style Widget.App.Button
 style Widget.App.Button.Secondary
 style Widget.App.Card
 style Widget.App.EditText
+style Widget.App.MaterialTimePicker
 xml backup_rules
 xml data_extraction_rules
 xml file_paths

@@ -3,7 +3,6 @@ package com.sas.lostandfound;
 import android.Manifest;
 import android.app.AlertDialog;
 import android.app.DatePickerDialog;
-import android.app.TimePickerDialog;
 import android.content.ClipData;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -29,8 +28,11 @@ import androidx.core.content.FileProvider;
 
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.checkbox.MaterialCheckBox;
+import com.google.android.material.datepicker.MaterialDatePicker;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
+import com.google.android.material.timepicker.MaterialTimePicker;
+import com.google.android.material.timepicker.TimeFormat;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -73,6 +75,7 @@ public class CampusReportLostActivity extends AppCompatActivity {
     private static final String DATABASE_URL = "https://campus-lost-and-found-portal-default-rtdb.asia-southeast1.firebasedatabase.app";
 
     private User currentUser;
+    private String currentUniversityId;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -87,7 +90,7 @@ public class CampusReportLostActivity extends AppCompatActivity {
         setupDropdowns();
         setupPickers();
         fetchCurrentUserData();
-        
+
         uploadCard.setOnClickListener(v -> showImageSourceDialog());
         btnSubmit.setOnClickListener(v -> validateAndSubmit());
     }
@@ -96,20 +99,20 @@ public class CampusReportLostActivity extends AppCompatActivity {
         etItemName = findViewById(R.id.etItemName);
         actvCategory = findViewById(R.id.actvCategory);
         etDescription = findViewById(R.id.etDescription);
-        
+
         etDateLost = findViewById(R.id.etDateLost);
         etTimeLost = findViewById(R.id.etTimeLost);
         actvLocation = findViewById(R.id.actvLocation);
         tilManualLocation = findViewById(R.id.tilManualLocation);
         etManualLocation = findViewById(R.id.etManualLocation);
         etLocationDetails = findViewById(R.id.etLocationDetails);
-        
+
         etProofOwnership = findViewById(R.id.etProofOwnership);
-        
+
         etContactName = findViewById(R.id.etContactName);
         etContactPhone = findViewById(R.id.etContactPhone);
         actvPreferredContact = findViewById(R.id.actvPreferredContact);
-        
+
         cbConfirm = findViewById(R.id.cbConfirm);
         btnSubmit = findViewById(R.id.btnSubmitReport);
         uploadCard = findViewById(R.id.uploadCard);
@@ -130,20 +133,34 @@ public class CampusReportLostActivity extends AppCompatActivity {
 
     private void fetchCurrentUserData() {
         if (mAuth.getCurrentUser() == null) return;
-        String userId = mAuth.getCurrentUser().getUid();
-        mDatabase.child("Users").child(userId).addListenerForSingleValueEvent(new ValueEventListener() {
+        String authUid = mAuth.getCurrentUser().getUid();
+
+        mDatabase.child("UIDToUniversityID").child(authUid).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
-            public void onDataChange(DataSnapshot snapshot) {
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
                 if (snapshot.exists()) {
-                    currentUser = snapshot.getValue(User.class);
-                    if (currentUser != null) {
-                        etContactName.setText(currentUser.getName());
-                        etContactPhone.setText(currentUser.getPhone());
-                    }
+                    currentUniversityId = snapshot.getValue(String.class);
+                    mDatabase.child("Users").child(currentUniversityId).addListenerForSingleValueEvent(new ValueEventListener() {
+                        @Override
+                        public void onDataChange(@NonNull DataSnapshot userSnapshot) {
+                            if (userSnapshot.exists()) {
+                                currentUser = userSnapshot.getValue(User.class);
+                                if (currentUser != null) {
+                                    etContactName.setText(currentUser.getName());
+                                    etContactPhone.setText(currentUser.getPhone());
+                                }
+                            }
+                        }
+                        @Override
+                        public void onCancelled(@NonNull DatabaseError error) {}
+                    });
+                } else {
+                    currentUniversityId = authUid;
                 }
             }
+
             @Override
-            public void onCancelled(DatabaseError error) {}
+            public void onCancelled(@NonNull DatabaseError error) {}
         });
     }
 
@@ -179,12 +196,23 @@ public class CampusReportLostActivity extends AppCompatActivity {
 
         etTimeLost.setOnClickListener(v -> {
             Calendar calendar = Calendar.getInstance();
-            TimePickerDialog timePickerDialog = new TimePickerDialog(this,
-                    (view, hourOfDay, minute) -> {
-                        String selectedTime = String.format(Locale.getDefault(), "%02d:%02d", hourOfDay, minute);
-                        etTimeLost.setText(selectedTime);
-                    }, calendar.get(Calendar.HOUR_OF_DAY), calendar.get(Calendar.MINUTE), false);
-            timePickerDialog.show();
+            MaterialTimePicker picker = new MaterialTimePicker.Builder()
+                    .setTimeFormat(TimeFormat.CLOCK_12H)
+                    .setHour(calendar.get(Calendar.HOUR_OF_DAY))
+                    .setMinute(calendar.get(Calendar.MINUTE))
+                    .setTitleText("Select Time")
+                    .setTheme(R.style.ThemeOverlay_App_TimePicker)
+                    .build();
+
+            picker.addOnPositiveButtonClickListener(v1 -> {
+                Calendar time = Calendar.getInstance();
+                time.set(Calendar.HOUR_OF_DAY, picker.getHour());
+                time.set(Calendar.MINUTE, picker.getMinute());
+                SimpleDateFormat sdf = new SimpleDateFormat("hh:mm a", Locale.getDefault());
+                etTimeLost.setText(sdf.format(time.getTime()));
+            });
+
+            picker.show(getSupportFragmentManager(), "TIME_PICKER");
         });
     }
 
@@ -257,7 +285,7 @@ public class CampusReportLostActivity extends AppCompatActivity {
                     selectedImageUris.add(cameraImageUri);
                 }
             }
-            
+
             if (!selectedImageUris.isEmpty()) {
                 ivUploadedImage.setImageResource(R.drawable.ic_check_circle);
                 ivUploadedImage.setColorFilter(ContextCompat.getColor(this, R.color.primaryColor));
@@ -294,21 +322,20 @@ public class CampusReportLostActivity extends AppCompatActivity {
     private void submitReport(String name, String category, String description, String date, String location) {
         btnSubmit.setEnabled(false);
         Toast.makeText(this, "Uploading images and submitting report...", Toast.LENGTH_SHORT).show();
-        
+
         DatabaseReference lostRef = mDatabase.child("LostItems");
         String itemId = lostRef.push().getKey();
-        String currentUserId = mAuth.getUid();
 
-        if (itemId == null || currentUserId == null) {
+        if (itemId == null || currentUniversityId == null) {
             btnSubmit.setEnabled(true);
-            Toast.makeText(this, "Error: Could not generate ID", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "Error: Could not generate ID or User not resolved", Toast.LENGTH_SHORT).show();
             return;
         }
 
         if (!selectedImageUris.isEmpty()) {
             List<String> imageUrlStrings = new ArrayList<>();
             AtomicInteger remaining = new AtomicInteger(selectedImageUris.size());
-            
+
             for (int i = 0; i < selectedImageUris.size(); i++) {
                 String fileName = itemId + "_" + i + "_" + System.currentTimeMillis() + ".jpg";
                 SupabaseStorageHelper.uploadImage(this, selectedImageUris.get(i), "lost_items", fileName, new SupabaseStorageHelper.UploadCallback() {
@@ -316,20 +343,20 @@ public class CampusReportLostActivity extends AppCompatActivity {
                     public void onSuccess(String publicUrl) {
                         imageUrlStrings.add(publicUrl);
                         if (remaining.decrementAndGet() == 0) {
-                            saveToDatabase(itemId, name, category, description, date, location, imageUrlStrings, currentUserId);
+                            saveToDatabase(itemId, name, category, description, date, location, imageUrlStrings, currentUniversityId);
                         }
                     }
 
                     @Override
                     public void onFailure(Exception e) {
                         if (remaining.decrementAndGet() == 0) {
-                            saveToDatabase(itemId, name, category, description, date, location, imageUrlStrings, currentUserId);
+                            saveToDatabase(itemId, name, category, description, date, location, imageUrlStrings, currentUniversityId);
                         }
                     }
                 });
             }
         } else {
-            saveToDatabase(itemId, name, category, description, date, location, new ArrayList<>(), currentUserId);
+            saveToDatabase(itemId, name, category, description, date, location, new ArrayList<>(), currentUniversityId);
         }
     }
 
@@ -337,13 +364,14 @@ public class CampusReportLostActivity extends AppCompatActivity {
         Item item = new Item(itemId, name, category, description, location, date, "lost", userId);
         item.setTime(etTimeLost.getText().toString().trim());
         item.setAdditionalLocationDetails(etLocationDetails.getText().toString().trim());
+        item.setProofOfOwnershipDetail(etProofOwnership.getText().toString().trim());
         item.setImageUrls(imageUrls);
         if (!imageUrls.isEmpty()) {
             item.setImageUrl(imageUrls.get(0));
         }
         item.setPreferredContactMethod(actvPreferredContact.getText().toString().trim());
         item.setUserPhone(etContactPhone.getText().toString().trim());
-        
+
         if (currentUser != null) {
             item.setUserName(currentUser.getName());
             item.setUserEmail(currentUser.getEmail());

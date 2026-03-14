@@ -365,6 +365,10 @@
         <item name="colorOnSecondary">@color/white</item>
 
         
+        <item name="colorSecondaryContainer">@color/primaryLightColor</item>
+        <item name="colorOnSecondaryContainer">@color/primaryColor</item>
+
+        
         <item name="android:windowBackground">@color/backgroundColor</item>
         <item name="colorSurface">@color/surfaceColor</item>
         <item name="colorOnSurface">@color/textPrimary</item>
@@ -386,6 +390,12 @@
         
         <item name="shapeAppearanceSmallComponent">@style/ShapeAppearance.App.SmallComponent</item>
         <item name="shapeAppearanceMediumComponent">@style/ShapeAppearance.App.MediumComponent</item>
+
+        
+        <item name="materialTimePickerTheme">@style/ThemeOverlay.App.TimePicker</item>
+
+        
+        <item name="materialCalendarTheme">@style/ThemeOverlay.App.DatePicker</item>
     </style>
     <style name="CircleImageView" parent="">
         <item name="cornerFamily">rounded</item>
@@ -427,6 +437,70 @@
         <item name="android:textSize">12sp</item>
         <item name="android:textColor">@color/textSecondary</item>
     </style>
+    <style name="TextAppearance.App.TimePicker.LabelBold" parent="TextAppearance.Material3.LabelLarge">
+        <item name="android:textStyle">bold</item>
+        <item name="android:textColor">@color/clock_number_color</item>
+    </style>
+    <style name="TextAppearance.App.TimePicker.Title" parent="TextAppearance.Material3.TitleMedium">
+        <item name="android:textColor">@color/white</item>
+    </style>
+    <style name="ThemeOverlay.App.DatePicker" parent="ThemeOverlay.Material3.MaterialCalendar">
+        
+        <item name="colorPrimary">@color/primaryColor</item>
+        <item name="colorOnPrimary">@color/white</item>
+
+        
+        <item name="colorSurface">#323238</item>
+        <item name="colorContainer">#323238</item>
+
+        
+        <item name="colorOnSurface">@color/white</item>
+        <item name="colorOnSurfaceVariant">@color/white</item>
+
+        
+        <item name="colorSecondary">@color/primaryColor</item>
+    </style>
+    <style name="ThemeOverlay.App.TimePicker" parent="ThemeOverlay.Material3.MaterialTimePicker">
+        
+        <item name="colorSurface">#323238</item>
+        <item name="colorContainer">#323238</item>
+
+        
+        <item name="colorOnSurface">@color/white</item>
+        <item name="textAppearanceTitleMedium">@style/TextAppearance.App.TimePicker.Title</item>
+
+        
+        
+        <item name="colorPrimaryContainer">@color/white</item>
+        <item name="colorOnPrimaryContainer">@color/primaryColor</item>
+
+        
+        <item name="colorSurfaceVariant">#323238</item>
+        <item name="colorOnSurfaceVariant">@color/white</item>
+
+        
+        <item name="colorOutline">@color/primaryColor</item>
+
+        
+        
+        <item name="colorTertiaryContainer">@color/white</item>
+        <item name="colorOnTertiaryContainer">@color/primaryColor</item>
+        
+        <item name="colorSecondaryContainer">@color/transparent</item>
+        <item name="colorOnSecondaryContainer">@color/white</item>
+        
+        <item name="colorOutlineVariant">@color/primaryColor</item>
+
+        
+        <item name="colorPrimary">@color/primaryColor</item>
+        
+        <item name="colorOnPrimary">@color/black</item>
+
+        
+        <item name="textAppearanceLabelLarge">@style/TextAppearance.App.TimePicker.LabelBold</item>
+
+        <item name="materialTimePickerStyle">@style/Widget.App.MaterialTimePicker</item>
+    </style>
     <style name="Widget.App.Button" parent="Widget.Material3.Button">
         <item name="android:insetTop">0dp</item>
         <item name="android:insetBottom">0dp</item>
@@ -451,5 +525,11 @@
     </style>
     <style name="Widget.App.EditText" parent="Widget.Material3.TextInputEditText.OutlinedBox">
         <item name="android:padding">12dp</item>
+    </style>
+    <style name="Widget.App.MaterialTimePicker" parent="Widget.Material3.MaterialTimePicker">
+        
+        <item name="clockFaceBackgroundColor">#323238</item>
+        
+        <item name="clockNumberTextColor">@color/clock_number_color</item>
     </style>
 </resources>
