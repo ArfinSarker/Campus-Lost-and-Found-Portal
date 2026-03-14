@@ -11,6 +11,10 @@
         <item name="colorSecondary">@color/accentColor</item>
         <item name="colorOnSecondary">@color/white</item>
 
+        <!-- Navigation Drawer Selected Item Background -->
+        <item name="colorSecondaryContainer">@color/primaryLightColor</item>
+        <item name="colorOnSecondaryContainer">@color/primaryColor</item>
+
         <!-- Background and surface -->
         <item name="android:windowBackground">@color/backgroundColor</item>
         <item name="colorSurface">@color/surfaceColor</item>
@@ -33,6 +37,89 @@
         <!-- Shape appearance -->
         <item name="shapeAppearanceSmallComponent">@style/ShapeAppearance.App.SmallComponent</item>
         <item name="shapeAppearanceMediumComponent">@style/ShapeAppearance.App.MediumComponent</item>
+
+        <!-- Use materialTimePickerTheme for styling the MaterialTimePicker -->
+        <item name="materialTimePickerTheme">@style/ThemeOverlay.App.TimePicker</item>
+
+        <!-- Use materialCalendarTheme for styling the MaterialDatePicker -->
+        <item name="materialCalendarTheme">@style/ThemeOverlay.App.DatePicker</item>
+    </style>
+
+    <!-- Theme Overlay for TimePicker to achieve the requested look -->
+    <style name="ThemeOverlay.App.TimePicker" parent="ThemeOverlay.Material3.MaterialTimePicker">
+        <!-- Main dialog and Header background (Dark as per screenshot) -->
+        <item name="colorSurface">#323238</item>
+        <item name="colorContainer">#323238</item>
+
+        <!-- "Select Time" title text color (White) -->
+        <item name="colorOnSurface">@color/white</item>
+        <item name="textAppearanceTitleMedium">@style/TextAppearance.App.TimePicker.Title</item>
+
+        <!-- Hour and Minute Display (Header Chips) -->
+        <!-- Selected Chip (e.g. "07") - White background, Primary color text -->
+        <item name="colorPrimaryContainer">@color/white</item>
+        <item name="colorOnPrimaryContainer">@color/primaryColor</item>
+
+        <!-- Unselected Chip (e.g. "16") - Dark background, White text -->
+        <item name="colorSurfaceVariant">#323238</item>
+        <item name="colorOnSurfaceVariant">@color/white</item>
+
+        <!-- Border for chips (Primary color) - This adds border around the chips -->
+        <item name="colorOutline">@color/primaryColor</item>
+
+        <!-- AM/PM Toggle -->
+        <!-- Selected background (White) and text (Primary color) -->
+        <item name="colorTertiaryContainer">@color/white</item>
+        <item name="colorOnTertiaryContainer">@color/primaryColor</item>
+        <!-- Unselected background (Transparent) and text (White) -->
+        <item name="colorSecondaryContainer">@color/transparent</item>
+        <item name="colorOnSecondaryContainer">@color/white</item>
+        <!-- Border for AM/PM buttons -->
+        <item name="colorOutlineVariant">@color/primaryColor</item>
+
+        <!-- Analog Clock selector hand and circle -->
+        <item name="colorPrimary">@color/primaryColor</item>
+        <!-- Number inside selector circle -->
+        <item name="colorOnPrimary">@color/black</item>
+
+        <!-- Dial numbers styling -->
+        <item name="textAppearanceLabelLarge">@style/TextAppearance.App.TimePicker.LabelBold</item>
+
+        <item name="materialTimePickerStyle">@style/Widget.App.MaterialTimePicker</item>
+    </style>
+
+    <style name="TextAppearance.App.TimePicker.Title" parent="TextAppearance.Material3.TitleMedium">
+        <item name="android:textColor">@color/white</item>
+    </style>
+
+    <style name="TextAppearance.App.TimePicker.LabelBold" parent="TextAppearance.Material3.LabelLarge">
+        <item name="android:textStyle">bold</item>
+        <item name="android:textColor">@color/clock_number_color</item>
+    </style>
+
+    <style name="Widget.App.MaterialTimePicker" parent="Widget.Material3.MaterialTimePicker">
+        <!-- Dial background (Dark gray) -->
+        <item name="clockFaceBackgroundColor">#323238</item>
+        <!-- Dial numbers color selector -->
+        <item name="clockNumberTextColor">@color/clock_number_color</item>
+    </style>
+
+    <!-- Theme Overlay for DatePicker -->
+    <style name="ThemeOverlay.App.DatePicker" parent="ThemeOverlay.Material3.MaterialCalendar">
+        <!-- Header background and selected date circle -->
+        <item name="colorPrimary">@color/primaryColor</item>
+        <item name="colorOnPrimary">@color/white</item>
+
+        <!-- Background of the calendar section (Dark background) -->
+        <item name="colorSurface">#323238</item>
+        <item name="colorContainer">#323238</item>
+
+        <!-- Text color on the calendar (White) -->
+        <item name="colorOnSurface">@color/white</item>
+        <item name="colorOnSurfaceVariant">@color/white</item>
+
+        <!-- Month/Year selector and navigation arrows -->
+        <item name="colorSecondary">@color/primaryColor</item>
     </style>
 
     <!-- Shape Styles -->
@@ -102,5 +189,4 @@
         <item name="android:textSize">12sp</item>
         <item name="android:textColor">@color/textSecondary</item>
     </style>
-
 </resources>

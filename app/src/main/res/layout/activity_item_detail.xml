@@ -151,6 +151,71 @@
                 android:textColor="@color/textSecondary"
                 tools:text="Space gray MacBook Pro with a stickers on the back. It was in a black leather sleeve." />
 
+            <!-- New Sections for Lost/Found details -->
+            <LinearLayout
+                android:id="@+id/llLostSpecifics"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:visibility="gone">
+
+                <TextView
+                    style="@style/TextAppearance.App.SectionTitle"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="24dp"
+                    android:text="Ownership Verification" />
+
+                <TextView
+                    android:id="@+id/tvProofOwnership"
+                    style="@style/TextAppearance.App.Body"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:textColor="@color/textSecondary"
+                    tools:text="I have the receipt and original box." />
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/llFoundSpecifics"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:visibility="gone">
+
+                <TextView
+                    style="@style/TextAppearance.App.SectionTitle"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="24dp"
+                    android:text="Handling Status" />
+
+                <TextView
+                    android:id="@+id/tvHandlingStatus"
+                    style="@style/TextAppearance.App.Body"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:textColor="@color/textSecondary"
+                    tools:text="Submitted to security office" />
+
+                <TextView
+                    style="@style/TextAppearance.App.SectionTitle"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="24dp"
+                    android:text="Verification &amp; Security" />
+
+                <TextView
+                    android:id="@+id/tvSecurityQuestion"
+                    style="@style/TextAppearance.App.Body"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:textColor="@color/textSecondary"
+                    tools:text="What is the color of the phone case?" />
+            </LinearLayout>
+
             <View
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
@@ -274,7 +339,17 @@
                         tools:text="John Doe" />
 
                     <TextView
-                        android:id="@+id/tvReporterDept"
+                        android:id="@+id/tvReporterType"
+                        style="@style/TextAppearance.App.Small"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textSize="13sp"
+                        android:textStyle="bold"
+                        android:textColor="@color/primaryColor"
+                        tools:text="Student" />
+
+                    <TextView
+                        android:id="@+id/tvReporterDeptOrDesignation"
                         style="@style/TextAppearance.App.Small"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
