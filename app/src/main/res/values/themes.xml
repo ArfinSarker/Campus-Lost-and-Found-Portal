@@ -104,21 +104,23 @@
         <item name="clockNumberTextColor">@color/clock_number_color</item>
     </style>
 
-    <!-- Theme Overlay for DatePicker -->
+    <!-- Refined Theme Overlay for DatePicker for high contrast and brand consistency -->
     <style name="ThemeOverlay.App.DatePicker" parent="ThemeOverlay.Material3.MaterialCalendar">
-        <!-- Header background and selected date circle -->
+        <!-- Header background and selected date circle (Brand Primary) -->
         <item name="colorPrimary">@color/primaryColor</item>
+        <!-- Header text and selected date text (High contrast white) -->
         <item name="colorOnPrimary">@color/white</item>
 
-        <!-- Background of the calendar section (Dark background) -->
-        <item name="colorSurface">#323238</item>
-        <item name="colorContainer">#323238</item>
+        <!-- Main calendar background (White for best readability) -->
+        <item name="colorSurface">@color/white</item>
+        <item name="colorContainer">@color/white</item>
 
-        <!-- Text color on the calendar (White) -->
+        <!-- Date numbers and Day labels (Dark for high contrast) -->
         <item name="colorOnSurface">@color/white</item>
-        <item name="colorOnSurfaceVariant">@color/white</item>
+        <!-- Secondary text like month navigation icons -->
+        <item name="colorOnSurfaceVariant">@color/primaryLightColor</item>
 
-        <!-- Month/Year selector and navigation arrows -->
+        <!-- Controls like "OK" and "CANCEL" -->
         <item name="colorSecondary">@color/primaryColor</item>
     </style>
 
