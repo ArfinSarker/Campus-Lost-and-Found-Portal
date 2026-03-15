@@ -439,6 +439,7 @@ string hint_session
 string hint_time
 string hint_university_id
 string image_ready
+string images_selected_format
 string item_image_description
 string label_authority_name
 string label_basic_info

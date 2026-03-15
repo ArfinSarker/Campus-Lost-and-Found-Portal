@@ -2,8 +2,6 @@ package com.sas.lostandfound;
 
 import android.Manifest;
 import android.app.AlertDialog;
-import android.app.DatePickerDialog;
-import android.content.ClipData;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.Uri;
@@ -28,6 +26,9 @@ import androidx.core.content.FileProvider;
 
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.checkbox.MaterialCheckBox;
+import com.google.android.material.datepicker.CalendarConstraints;
+import com.google.android.material.datepicker.DateValidatorPointBackward;
+import com.google.android.material.datepicker.MaterialDatePicker;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 import com.google.android.material.timepicker.MaterialTimePicker;
@@ -58,22 +59,17 @@ public class CampusReportFoundActivity extends AppCompatActivity {
     private MaterialButton btnSubmit;
     private com.google.android.material.card.MaterialCardView uploadCard;
     private ImageView ivUploadedImage;
-    private TextView tvUploadStatus;
-    private Toolbar toolbar;
+    private TextView tvUploadPlaceholder;
+    private Uri photoUri;
+    private List<Uri> selectedImages = new ArrayList<>();
+    private static final int PICK_IMAGE_MULTIPLE = 1;
+    private static final int CAPTURE_IMAGE = 2;
+    private static final int REQUEST_PERMISSIONS = 100;
 
-    private static final int PICK_IMAGES_REQUEST = 1;
-    private static final int REQUEST_IMAGE_CAPTURE = 2;
-    private static final int CAMERA_PERMISSION_CODE = 100;
-
-    private final List<Uri> imageUris = new ArrayList<>();
-    private Uri cameraImageUri;
-    private String currentPhotoPath;
-
-    private FirebaseAuth mAuth;
     private DatabaseReference mDatabase;
+    private FirebaseAuth mAuth;
     private static final String DATABASE_URL = "https://campus-lost-and-found-portal-default-rtdb.asia-southeast1.firebasedatabase.app";
-
-    private User currentUser;
+    private String currentUniversityId;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -83,97 +79,111 @@ public class CampusReportFoundActivity extends AppCompatActivity {
         mAuth = FirebaseAuth.getInstance();
         mDatabase = FirebaseDatabase.getInstance(DATABASE_URL).getReference();
 
-        initializeViews();
+        initViews();
         setupToolbar();
         setupDropdowns();
         setupPickers();
         fetchCurrentUserData();
 
-        uploadCard.setOnClickListener(v -> showImageSourceDialog());
         btnSubmit.setOnClickListener(v -> validateAndSubmit());
+        uploadCard.setOnClickListener(v -> showImageSourceDialog());
     }
 
-    private void initializeViews() {
+    private void initViews() {
         etItemName = findViewById(R.id.etItemName);
-        actvCategory = findViewById(R.id.actvCategory);
-        etDescription = findViewById(R.id.etDescription);
-
         etDateFound = findViewById(R.id.etDateFound);
         etTimeFound = findViewById(R.id.etTimeFound);
+        actvCategory = findViewById(R.id.actvCategory);
         actvLocation = findViewById(R.id.actvLocation);
-        tilManualLocation = findViewById(R.id.tilManualLocation);
         etManualLocation = findViewById(R.id.etManualLocation);
+        tilManualLocation = findViewById(R.id.tilManualLocation);
         etLocationDetails = findViewById(R.id.etLocationDetails);
-
+        etDescription = findViewById(R.id.etDescription);
         actvHandlingStatus = findViewById(R.id.actvHandlingStatus);
         tilAuthorityName = findViewById(R.id.tilAuthorityName);
         etAuthorityName = findViewById(R.id.etAuthorityName);
         tilOfficeRoom = findViewById(R.id.tilOfficeRoom);
         etOfficeRoom = findViewById(R.id.etOfficeRoom);
-
         etHiddenQuestion = findViewById(R.id.etHiddenQuestion);
-
         etContactName = findViewById(R.id.etContactName);
         etContactPhone = findViewById(R.id.etContactPhone);
         actvPreferredContact = findViewById(R.id.actvPreferredContact);
-
         cbConfirm = findViewById(R.id.cbConfirm);
         btnSubmit = findViewById(R.id.btnSubmitReport);
         uploadCard = findViewById(R.id.uploadCard);
         ivUploadedImage = findViewById(R.id.ivUploadedImage);
-        tvUploadStatus = findViewById(R.id.tvUploadStatus);
-        toolbar = findViewById(R.id.toolbar);
-    }
-
-    private void setupToolbar() {
-        if (toolbar != null) {
-            setSupportActionBar(toolbar);
-            if (getSupportActionBar() != null) {
-                getSupportActionBar().setDisplayShowTitleEnabled(false);
-            }
-            toolbar.setNavigationOnClickListener(v -> onBackPressed());
-        }
+        tvUploadPlaceholder = findViewById(R.id.tvUploadStatus);
     }
 
     private void fetchCurrentUserData() {
         if (mAuth.getCurrentUser() == null) return;
-        String userId = mAuth.getCurrentUser().getUid();
-        mDatabase.child("Users").child(userId).addListenerForSingleValueEvent(new ValueEventListener() {
+        String authUid = mAuth.getCurrentUser().getUid();
+
+        mDatabase.child("UIDToUniversityID").child(authUid).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
-            public void onDataChange(DataSnapshot snapshot) {
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
                 if (snapshot.exists()) {
-                    currentUser = snapshot.getValue(User.class);
-                    if (currentUser != null) {
-                        etContactName.setText(currentUser.getName());
-                        etContactPhone.setText(currentUser.getPhone());
-                    }
+                    currentUniversityId = snapshot.getValue(String.class);
+                    mDatabase.child("Users").child(currentUniversityId).addListenerForSingleValueEvent(new ValueEventListener() {
+                        @Override
+                        public void onDataChange(@NonNull DataSnapshot userSnapshot) {
+                            if (userSnapshot.exists()) {
+                                String name = userSnapshot.child("name").getValue(String.class);
+                                String phone = userSnapshot.child("phone").getValue(String.class);
+                                if (name != null) etContactName.setText(name);
+                                if (phone != null) etContactPhone.setText(phone);
+                            }
+                        }
+                        @Override
+                        public void onCancelled(@NonNull DatabaseError error) {}
+                    });
+                } else {
+                    currentUniversityId = authUid;
                 }
             }
             @Override
-            public void onCancelled(DatabaseError error) {}
+            public void onCancelled(@NonNull DatabaseError error) {}
         });
     }
 
+    private void setupToolbar() {
+        Toolbar toolbar = findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+            getSupportActionBar().setTitle("Report Found Item");
+        }
+        toolbar.setNavigationOnClickListener(v -> onBackPressed());
+    }
+
     private void setupDropdowns() {
-        String[] categories = {"Electronics & Gadgets", "ID Cards", "Wallets & Purses", "Bank/Credit Cards", "Bags", "Study Materials", "Eyewear", "Keys & Access Devices", "Clothing & Accessories", "Others"};
+        String[] categories = {"Electronics", "Documents", "Keys", "Wallets/Bags", "Clothing", "Books", "Other"};
         actvCategory.setAdapter(new ArrayAdapter<>(this, R.layout.dropdown_item, categories));
 
-        String[] locations = {"Academic Building", "Civil Building", "Library", "Cafeteria", "Medical Center", "Playground", "Lab Room", "Abbas Uddin Ahmed Hall (AUAH)", "Shaheed Dr. Zikrul Haque Hall", "Bir Protik Taramon Bibi Hall", "Bir Protik Taramon Bibi (New Hall)", "Other"};
+        String[] locations = {"Admin Building", "Library", "Cafeteria", "Sports Complex", "Block A", "Block B", "Block C", "Parking Lot", "Other"};
         actvLocation.setAdapter(new ArrayAdapter<>(this, R.layout.dropdown_item, locations));
+
         actvLocation.setOnItemClickListener((parent, view, position, id) -> {
-            if (locations[position].equals("Other")) tilManualLocation.setVisibility(View.VISIBLE);
-            else tilManualLocation.setVisibility(View.GONE);
+            if ("Other".equals(locations[position])) {
+                tilManualLocation.setVisibility(View.VISIBLE);
+            } else {
+                tilManualLocation.setVisibility(View.GONE);
+                etManualLocation.setText("");
+            }
         });
 
-        String[] handlingStatuses = {"Kept with finder", "Submitted to university authority", "Submitted to department office", "Submitted to security office"};
+        String[] handlingStatuses = {"Handed over to authorities", "Keeping it with me"};
         actvHandlingStatus.setAdapter(new ArrayAdapter<>(this, R.layout.dropdown_item, handlingStatuses));
+
         actvHandlingStatus.setOnItemClickListener((parent, view, position, id) -> {
-            if (position > 0) {
+            if (position == 0) {
                 tilAuthorityName.setVisibility(View.VISIBLE);
                 tilOfficeRoom.setVisibility(View.VISIBLE);
             } else {
                 tilAuthorityName.setVisibility(View.GONE);
                 tilOfficeRoom.setVisibility(View.GONE);
+                etAuthorityName.setText("");
+                etOfficeRoom.setText("");
             }
         });
 
@@ -183,14 +193,22 @@ public class CampusReportFoundActivity extends AppCompatActivity {
 
     private void setupPickers() {
         etDateFound.setOnClickListener(v -> {
-            Calendar calendar = Calendar.getInstance();
-            DatePickerDialog datePickerDialog = new DatePickerDialog(this,
-                    (view, year, month, dayOfMonth) -> {
-                        String selectedDate = String.format(Locale.getDefault(), "%02d/%02d/%04d", dayOfMonth, month + 1, year);
-                        etDateFound.setText(selectedDate);
-                    }, calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH), calendar.get(Calendar.DAY_OF_MONTH));
-            datePickerDialog.getDatePicker().setMaxDate(System.currentTimeMillis());
-            datePickerDialog.show();
+            CalendarConstraints.Builder constraintsBuilder = new CalendarConstraints.Builder();
+            constraintsBuilder.setValidator(DateValidatorPointBackward.now());
+
+            MaterialDatePicker<Long> datePicker = MaterialDatePicker.Builder.datePicker()
+                    .setTitleText("Select Date")
+                    .setCalendarConstraints(constraintsBuilder.build())
+                    .setSelection(MaterialDatePicker.todayInUtcMilliseconds())
+                    .setTheme(R.style.ThemeOverlay_App_DatePicker)
+                    .build();
+
+            datePicker.addOnPositiveButtonClickListener(selection -> {
+                SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault());
+                etDateFound.setText(sdf.format(new Date(selection)));
+            });
+
+            datePicker.show(getSupportFragmentManager(), "DATE_PICKER");
         });
 
         etTimeFound.setOnClickListener(v -> {
@@ -217,181 +235,179 @@ public class CampusReportFoundActivity extends AppCompatActivity {
 
     private void showImageSourceDialog() {
         String[] options = {getString(R.string.take_photo), getString(R.string.choose_gallery), getString(R.string.cancel)};
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle(getString(R.string.label_upload_image));
-        builder.setItems(options, (dialog, which) -> {
-            if (which == 0) checkCameraPermission();
-            else if (which == 1) openGallery();
-        });
-        builder.show();
+        new AlertDialog.Builder(this)
+                .setTitle(R.string.label_upload_image)
+                .setItems(options, (dialog, which) -> {
+                    if (which == 0) {
+                        checkPermissionAndCamera();
+                    } else if (which == 1) {
+                        checkPermissionAndGallery();
+                    }
+                })
+                .show();
     }
 
-    private void checkCameraPermission() {
+    private void checkPermissionAndCamera() {
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.CAMERA}, CAMERA_PERMISSION_CODE);
-        } else openCamera();
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.CAMERA}, REQUEST_PERMISSIONS);
+        } else {
+            launchCamera();
+        }
     }
 
-    private void openCamera() {
+    private void checkPermissionAndGallery() {
+        Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
+        intent.setType("image/*");
+        intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true);
+        startActivityForResult(Intent.createChooser(intent, "Select Picture"), PICK_IMAGE_MULTIPLE);
+    }
+
+    private void launchCamera() {
         Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
         if (takePictureIntent.resolveActivity(getPackageManager()) != null) {
             File photoFile = null;
-            try { photoFile = createImageFile(); }
-            catch (IOException ex) { Toast.makeText(this, "Error creating file", Toast.LENGTH_SHORT).show(); }
+            try {
+                photoFile = createImageFile();
+            } catch (IOException ex) {
+                Toast.makeText(this, "Error creating file", Toast.LENGTH_SHORT).show();
+            }
             if (photoFile != null) {
-                cameraImageUri = FileProvider.getUriForFile(this, getApplicationContext().getPackageName() + ".fileprovider", photoFile);
-                takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, cameraImageUri);
-                startActivityForResult(takePictureIntent, REQUEST_IMAGE_CAPTURE);
+                photoUri = FileProvider.getUriForFile(this, "com.sas.lostandfound.fileprovider", photoFile);
+                takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoUri);
+                startActivityForResult(takePictureIntent, CAPTURE_IMAGE);
             }
         }
     }
 
     private File createImageFile() throws IOException {
         String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(new Date());
+        String imageFileName = "JPEG_" + timeStamp + "_";
         File storageDir = getExternalFilesDir(Environment.DIRECTORY_PICTURES);
-        File image = File.createTempFile("JPEG_" + timeStamp + "_", ".jpg", storageDir);
-        currentPhotoPath = image.getAbsolutePath();
-        return image;
-    }
-
-    private void openGallery() {
-        Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
-        intent.setType("image/*");
-        intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true);
-        startActivityForResult(Intent.createChooser(intent, "Select Picture"), PICK_IMAGES_REQUEST);
+        return File.createTempFile(imageFileName, ".jpg", storageDir);
     }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (resultCode == RESULT_OK) {
-            if (requestCode == PICK_IMAGES_REQUEST) {
-                imageUris.clear();
-                if (data != null) {
-                    if (data.getClipData() != null) {
-                        ClipData clipData = data.getClipData();
-                        for (int i = 0; i < clipData.getItemCount(); i++) {
-                            imageUris.add(clipData.getItemAt(i).getUri());
-                        }
-                    } else if (data.getData() != null) {
-                        imageUris.add(data.getData());
+            if (requestCode == PICK_IMAGE_MULTIPLE && data != null) {
+                if (data.getClipData() != null) {
+                    int count = data.getClipData().getItemCount();
+                    for (int i = 0; i < count; i++) {
+                        selectedImages.add(data.getClipData().getItemAt(i).getUri());
                     }
+                } else if (data.getData() != null) {
+                    selectedImages.add(data.getData());
                 }
-            } else if (requestCode == REQUEST_IMAGE_CAPTURE) {
-                if (cameraImageUri != null) {
-                    imageUris.add(cameraImageUri);
-                }
+                updateImagePreview();
+            } else if (requestCode == CAPTURE_IMAGE) {
+                selectedImages.add(photoUri);
+                updateImagePreview();
             }
-            
-            if (!imageUris.isEmpty()) {
-                ivUploadedImage.setImageResource(R.drawable.ic_check_circle);
-                ivUploadedImage.setColorFilter(ContextCompat.getColor(this, R.color.statusFound));
-                tvUploadStatus.setText(String.format(Locale.getDefault(), "%d Image(s) Ready", imageUris.size()));
-            }
+        }
+    }
+
+    private void updateImagePreview() {
+        if (!selectedImages.isEmpty()) {
+            ivUploadedImage.setImageURI(selectedImages.get(selectedImages.size() - 1));
+            ivUploadedImage.setVisibility(View.VISIBLE);
+            tvUploadPlaceholder.setText(getString(R.string.images_selected_format, selectedImages.size()));
         }
     }
 
     private void validateAndSubmit() {
-        String name = etItemName.getText().toString().trim();
-        String category = actvCategory.getText().toString().trim();
-        String description = etDescription.getText().toString().trim();
+        String itemName = etItemName.getText().toString().trim();
         String date = etDateFound.getText().toString().trim();
+        String time = etTimeFound.getText().toString().trim();
+        String category = actvCategory.getText().toString().trim();
         String location = actvLocation.getText().toString().trim();
-        String handlingStatus = actvHandlingStatus.getText().toString().trim();
-        String hiddenQuestion = etHiddenQuestion.getText().toString().trim();
-        String phone = etContactPhone.getText().toString().trim();
+        String manualLocation = etManualLocation.getText().toString().trim();
+        String description = etDescription.getText().toString().trim();
+        String contactName = etContactName.getText().toString().trim();
+        String contactPhone = etContactPhone.getText().toString().trim();
+        String preferredContact = actvPreferredContact.getText().toString().trim();
 
-        if (TextUtils.isEmpty(name)) { etItemName.setError("Required"); return; }
-        if (TextUtils.isEmpty(category)) { actvCategory.setError("Required"); return; }
-        if (TextUtils.isEmpty(description)) { etDescription.setError("Required"); return; }
-        if (TextUtils.isEmpty(date)) { etDateFound.setError("Required"); return; }
-        if (TextUtils.isEmpty(location)) { actvLocation.setError("Required"); return; }
-        if (TextUtils.isEmpty(handlingStatus)) { actvHandlingStatus.setError("Required"); return; }
-        if (TextUtils.isEmpty(hiddenQuestion)) { etHiddenQuestion.setError("Required"); return; }
-        if (TextUtils.isEmpty(phone)) { etContactPhone.setError("Required"); return; }
-        if (!cbConfirm.isChecked()) { Toast.makeText(this, "Please confirm accuracy", Toast.LENGTH_SHORT).show(); return; }
-
-        if (location.equals("Other")) {
-            location = etManualLocation.getText().toString().trim();
-            if (TextUtils.isEmpty(location)) { etManualLocation.setError("Required"); return; }
-        }
-
-        submitReport(name, category, description, date, location, handlingStatus, hiddenQuestion);
-    }
-
-    private void submitReport(String name, String category, String description, String date, String location, String handlingStatus, String hiddenQuestion) {
-        btnSubmit.setEnabled(false);
-        Toast.makeText(this, "Submitting report...", Toast.LENGTH_SHORT).show();
-
-        DatabaseReference foundRef = mDatabase.child("FoundItems");
-        String itemId = foundRef.push().getKey();
-        String currentUserId = mAuth.getUid();
-
-        if (itemId == null || currentUserId == null) {
-            btnSubmit.setEnabled(true);
-            Toast.makeText(this, "Error generating ID", Toast.LENGTH_SHORT).show();
+        if (TextUtils.isEmpty(itemName) || TextUtils.isEmpty(date) || TextUtils.isEmpty(category) ||
+                TextUtils.isEmpty(location) || TextUtils.isEmpty(description) ||
+                TextUtils.isEmpty(contactName) || TextUtils.isEmpty(contactPhone)) {
+            Toast.makeText(this, "Please fill all required fields", Toast.LENGTH_SHORT).show();
             return;
         }
 
-        if (!imageUris.isEmpty()) {
-            List<String> imageUrlStrings = new ArrayList<>();
-            AtomicInteger remaining = new AtomicInteger(imageUris.size());
+        if ("Other".equals(location) && TextUtils.isEmpty(manualLocation)) {
+            Toast.makeText(this, "Please specify the location", Toast.LENGTH_SHORT).show();
+            return;
+        }
 
-            for (int i = 0; i < imageUris.size(); i++) {
-                String fileName = itemId + "_" + i + "_" + System.currentTimeMillis() + ".jpg";
-                SupabaseStorageHelper.uploadImage(this, imageUris.get(i), "found_items", fileName, new SupabaseStorageHelper.UploadCallback() {
-                    @Override
-                    public void onSuccess(String publicUrl) {
-                        imageUrlStrings.add(publicUrl);
-                        if (remaining.decrementAndGet() == 0) {
-                            saveToDatabase(itemId, name, category, description, date, location, imageUrlStrings, currentUserId, handlingStatus, hiddenQuestion);
-                        }
-                    }
+        if (!cbConfirm.isChecked()) {
+            Toast.makeText(this, "Please confirm the information is accurate", Toast.LENGTH_SHORT).show();
+            return;
+        }
 
-                    @Override
-                    public void onFailure(Exception e) {
-                        if (remaining.decrementAndGet() == 0) {
-                            saveToDatabase(itemId, name, category, description, date, location, imageUrlStrings, currentUserId, handlingStatus, hiddenQuestion);
-                        }
-                    }
-                });
-            }
+        submitToFirebase(itemName, date, time, category, location, manualLocation, description, contactName, contactPhone, preferredContact);
+    }
+
+    private void submitToFirebase(String itemName, String date, String time, String category,
+                                  String location, String manualLocation, String description,
+                                  String contactName, String contactPhone, String preferredContact) {
+        btnSubmit.setEnabled(false);
+        String reportId = mDatabase.child("FoundItems").push().getKey();
+        
+        if (reportId == null || currentUniversityId == null) {
+            btnSubmit.setEnabled(true);
+            Toast.makeText(this, "Error initializing submission", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        Item report = new Item(reportId, itemName, category, description,
+                "Other".equals(location) ? manualLocation : location,
+                date, "found", currentUniversityId);
+        report.setTime(time);
+        report.setAdditionalLocationDetails(etLocationDetails.getText().toString().trim());
+        report.setItemHandlingStatus(actvHandlingStatus.getText().toString());
+        report.setAuthorityName(etAuthorityName.getText().toString().trim());
+        report.setOfficeRoomNumber(etOfficeRoom.getText().toString().trim());
+        report.setHiddenIdentificationQuestion(etHiddenQuestion.getText().toString().trim());
+        report.setUserName(contactName);
+        report.setUserPhone(contactPhone);
+        report.setPreferredContactMethod(preferredContact);
+
+        if (selectedImages.isEmpty()) {
+            saveReport(reportId, report);
         } else {
-            saveToDatabase(itemId, name, category, description, date, location, new ArrayList<>(), currentUserId, handlingStatus, hiddenQuestion);
+            uploadImagesAndSave(reportId, report);
         }
     }
 
-    private void saveToDatabase(String itemId, String name, String category, String description, String date, String location, List<String> imageUrls, String userId, String handlingStatus, String hiddenQuestion) {
-        Item item = new Item(itemId, name, category, description, location, date, "found", userId);
-        item.setTime(etTimeFound.getText().toString().trim());
-        item.setAdditionalLocationDetails(etLocationDetails.getText().toString().trim());
-        item.setImageUrls(imageUrls);
-        if (!imageUrls.isEmpty()) {
-            item.setImageUrl(imageUrls.get(0));
-        }
-        item.setItemHandlingStatus(handlingStatus);
-        item.setAuthorityName(etAuthorityName.getText().toString().trim());
-        item.setOfficeRoomNumber(etOfficeRoom.getText().toString().trim());
-        item.setHiddenIdentificationQuestion(hiddenQuestion);
-        item.setPreferredContactMethod(actvPreferredContact.getText().toString().trim());
-        item.setUserPhone(etContactPhone.getText().toString().trim());
+    private void uploadImagesAndSave(String reportId, Item report) {
+        List<String> imageUrls = new ArrayList<>();
+        com.google.firebase.storage.StorageReference storageRef = com.google.firebase.storage.FirebaseStorage.getInstance().getReference().child("found_item_images/" + reportId);
 
-        if (currentUser != null) {
-            item.setUserName(currentUser.getName());
-            item.setUserEmail(currentUser.getEmail());
-            item.setUserUniversityId(currentUser.getUniversityId());
-            item.setUserDepartment(currentUser.getDepartment());
+        AtomicInteger uploadedCount = new AtomicInteger(0);
+        for (int i = 0; i < selectedImages.size(); i++) {
+            com.google.firebase.storage.StorageReference fileRef = storageRef.child("image_" + i + ".jpg");
+            fileRef.putFile(selectedImages.get(i)).addOnSuccessListener(taskSnapshot -> {
+                fileRef.getDownloadUrl().addOnSuccessListener(uri -> {
+                    imageUrls.add(uri.toString());
+                    if (uploadedCount.incrementAndGet() == selectedImages.size()) {
+                        report.setImageUrls(imageUrls);
+                        saveReport(reportId, report);
+                    }
+                });
+            });
         }
+    }
 
-        mDatabase.child("FoundItems").child(itemId).setValue(item).addOnCompleteListener(task -> {
-            if (task.isSuccessful()) {
-                mDatabase.child("UserItems").child(userId).child(itemId).setValue(true);
-                Toast.makeText(this, R.string.success_report_submitted, Toast.LENGTH_SHORT).show();
-                finish();
-            } else {
-                btnSubmit.setEnabled(true);
-                Toast.makeText(this, "Database Error: " + (task.getException() != null ? task.getException().getMessage() : "Unknown"), Toast.LENGTH_SHORT).show();
-            }
-        });
+    private void saveReport(String reportId, Item report) {
+        mDatabase.child("FoundItems").child(reportId).setValue(report)
+                .addOnSuccessListener(aVoid -> {
+                    mDatabase.child("UserItems").child(currentUniversityId).child(reportId).setValue(true);
+                    Toast.makeText(this, "Report submitted successfully!", Toast.LENGTH_SHORT).show();
+                    finish();
+                })
+                .addOnFailureListener(e -> {
+                    btnSubmit.setEnabled(true);
+                    Toast.makeText(this, "Failed to submit: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                });
     }
 }

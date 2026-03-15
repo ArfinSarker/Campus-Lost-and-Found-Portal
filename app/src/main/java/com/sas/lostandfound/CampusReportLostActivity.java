@@ -2,7 +2,6 @@ package com.sas.lostandfound;
 
 import android.Manifest;
 import android.app.AlertDialog;
-import android.app.DatePickerDialog;
 import android.content.ClipData;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -28,6 +27,8 @@ import androidx.core.content.FileProvider;
 
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.checkbox.MaterialCheckBox;
+import com.google.android.material.datepicker.CalendarConstraints;
+import com.google.android.material.datepicker.DateValidatorPointBackward;
 import com.google.android.material.datepicker.MaterialDatePicker;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
@@ -74,8 +75,8 @@ public class CampusReportLostActivity extends AppCompatActivity {
     private DatabaseReference mDatabase;
     private static final String DATABASE_URL = "https://campus-lost-and-found-portal-default-rtdb.asia-southeast1.firebasedatabase.app";
 
-    private User currentUser;
     private String currentUniversityId;
+    private User currentUser;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -158,7 +159,6 @@ public class CampusReportLostActivity extends AppCompatActivity {
                     currentUniversityId = authUid;
                 }
             }
-
             @Override
             public void onCancelled(@NonNull DatabaseError error) {}
         });
@@ -184,14 +184,22 @@ public class CampusReportLostActivity extends AppCompatActivity {
 
     private void setupPickers() {
         etDateLost.setOnClickListener(v -> {
-            Calendar calendar = Calendar.getInstance();
-            DatePickerDialog datePickerDialog = new DatePickerDialog(this,
-                    (view, year, month, dayOfMonth) -> {
-                        String selectedDate = String.format(Locale.getDefault(), "%02d/%02d/%04d", dayOfMonth, month + 1, year);
-                        etDateLost.setText(selectedDate);
-                    }, calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH), calendar.get(Calendar.DAY_OF_MONTH));
-            datePickerDialog.getDatePicker().setMaxDate(System.currentTimeMillis());
-            datePickerDialog.show();
+            CalendarConstraints.Builder constraintsBuilder = new CalendarConstraints.Builder();
+            constraintsBuilder.setValidator(DateValidatorPointBackward.now());
+
+            MaterialDatePicker<Long> datePicker = MaterialDatePicker.Builder.datePicker()
+                    .setTitleText("Select Date")
+                    .setCalendarConstraints(constraintsBuilder.build())
+                    .setSelection(MaterialDatePicker.todayInUtcMilliseconds())
+                    .setTheme(R.style.ThemeOverlay_App_DatePicker)
+                    .build();
+
+            datePicker.addOnPositiveButtonClickListener(selection -> {
+                SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault());
+                etDateLost.setText(sdf.format(new Date(selection)));
+            });
+
+            datePicker.show(getSupportFragmentManager(), "DATE_PICKER");
         });
 
         etTimeLost.setOnClickListener(v -> {
@@ -328,7 +336,7 @@ public class CampusReportLostActivity extends AppCompatActivity {
 
         if (itemId == null || currentUniversityId == null) {
             btnSubmit.setEnabled(true);
-            Toast.makeText(this, "Error: Could not generate ID or User not resolved", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "Error initializing submission", Toast.LENGTH_SHORT).show();
             return;
         }
 

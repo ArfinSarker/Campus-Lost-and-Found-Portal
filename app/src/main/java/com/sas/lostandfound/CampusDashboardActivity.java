@@ -62,6 +62,7 @@ public class CampusDashboardActivity extends AppCompatActivity {
 
     private int currentLimit = 5;
     private String currentUniversityId;
+    private ValueEventListener notificationListener;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -216,25 +217,20 @@ public class CampusDashboardActivity extends AppCompatActivity {
         FirebaseUser currentUser = mAuth.getCurrentUser();
         if (currentUser != null) {
             String authUid = currentUser.getUid();
-            Log.d(TAG, "Fetching data for Auth UID: " + authUid);
-
-            // First find the University ID mapping
+            
             mDatabase.child("UIDToUniversityID").child(authUid).addListenerForSingleValueEvent(new ValueEventListener() {
                 @Override
                 public void onDataChange(@NonNull DataSnapshot snapshot) {
                     if (snapshot.exists()) {
                         currentUniversityId = snapshot.getValue(String.class);
-                        Log.d(TAG, "Mapping found: " + currentUniversityId);
                         loadProfileAndNotifications(currentUniversityId);
                     } else {
-                        Log.d(TAG, "No mapping found for UID, trying email search");
                         searchUserByEmail(currentUser);
                     }
                 }
 
                 @Override
                 public void onCancelled(@NonNull DatabaseError error) {
-                    Log.e(TAG, "Mapping fetch failed: " + error.getMessage());
                     searchUserByEmail(currentUser);
                 }
             });
@@ -251,22 +247,17 @@ public class CampusDashboardActivity extends AppCompatActivity {
                     if (snapshot.exists()) {
                         for (DataSnapshot userSnap : snapshot.getChildren()) {
                             currentUniversityId = userSnap.getKey();
-                            Log.d(TAG, "User found by email search: " + currentUniversityId);
-                            // Try to save mapping for next time (might fail if permissions restricted)
-                            mDatabase.child("UIDToUniversityID").child(authUid).setValue(currentUniversityId)
-                                    .addOnFailureListener(e -> Log.w(TAG, "Failed to update mapping: " + e.getMessage()));
+                            mDatabase.child("UIDToUniversityID").child(authUid).setValue(currentUniversityId);
                             loadProfileAndNotifications(currentUniversityId);
                             return;
                         }
                     } else {
-                        Log.d(TAG, "No user found with email, falling back to Auth UID");
                         currentUniversityId = authUid;
                         loadProfileAndNotifications(authUid);
                     }
                 }
                 @Override
                 public void onCancelled(@NonNull DatabaseError error) {
-                    Log.e(TAG, "Email search failed: " + error.getMessage());
                     currentUniversityId = authUid;
                     loadProfileAndNotifications(authUid);
                 }
@@ -278,12 +269,10 @@ public class CampusDashboardActivity extends AppCompatActivity {
     }
 
     private void loadProfileAndNotifications(String userId) {
-        Log.d(TAG, "Loading profile and notifications for: " + userId);
         mDatabase.child("Users").child(userId).addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 if (snapshot.exists()) {
-                    Log.d(TAG, "Profile data received. Name: " + snapshot.child("name").getValue());
                     String name = snapshot.child("name").getValue(String.class);
                     String profileImageUrl = snapshot.child("profileImageUrl").getValue(String.class);
                     
@@ -302,15 +291,11 @@ public class CampusDashboardActivity extends AppCompatActivity {
                         ivNavHeaderProfile.setImageResource(R.drawable.ic_user);
                         ivNavHeaderProfile.setScaleType(ImageView.ScaleType.CENTER_INSIDE);
                     }
-                } else {
-                    Log.w(TAG, "User node does not exist for ID: " + userId);
                 }
             }
 
             @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-                Log.e(TAG, "Profile fetch failed: " + error.getMessage());
-            }
+            public void onCancelled(@NonNull DatabaseError error) {}
         });
 
         mDatabase.child("UserItems").child(userId).addValueEventListener(new ValueEventListener() {
@@ -324,7 +309,12 @@ public class CampusDashboardActivity extends AppCompatActivity {
             public void onCancelled(@NonNull DatabaseError error) {}
         });
 
-        mDatabase.child("Notifications").child(userId).addValueEventListener(new ValueEventListener() {
+        // Setup real-time notification badge
+        if (notificationListener != null) {
+            mDatabase.child("Notifications").child(userId).removeEventListener(notificationListener);
+        }
+        
+        notificationListener = new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 int unreadCount = 0;
@@ -343,10 +333,9 @@ public class CampusDashboardActivity extends AppCompatActivity {
             }
 
             @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-                Log.e(TAG, "Notifications fetch failed: " + error.getMessage());
-            }
-        });
+            public void onCancelled(@NonNull DatabaseError error) {}
+        };
+        mDatabase.child("Notifications").child(userId).addValueEventListener(notificationListener);
     }
 
     private void fetchRecentItems() {
@@ -366,9 +355,7 @@ public class CampusDashboardActivity extends AppCompatActivity {
             }
 
             @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-                Log.e(TAG, "Items fetch failed: " + error.getMessage());
-            }
+            public void onCancelled(@NonNull DatabaseError error) {}
         };
 
         mDatabase.child("LostItems").orderByChild("timestamp").startAt(twentyFourHoursAgo).addValueEventListener(itemListener);
@@ -395,6 +382,14 @@ public class CampusDashboardActivity extends AppCompatActivity {
         
         btnViewMore.setVisibility(fullItemList.size() > currentLimit ? View.VISIBLE : View.GONE);
         btnViewLess.setVisibility(currentLimit > 5 ? View.VISIBLE : View.GONE);
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if (notificationListener != null && currentUniversityId != null) {
+            mDatabase.child("Notifications").child(currentUniversityId).removeEventListener(notificationListener);
+        }
     }
 
     private class RecentItemsAdapter extends RecyclerView.Adapter<RecentItemsAdapter.ViewHolder> {

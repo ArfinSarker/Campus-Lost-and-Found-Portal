@@ -57,6 +57,7 @@
     <string name="hint_description">Brand, Model, Color, Unique marks...</string>
     <string name="label_upload_image">Upload Images</string>
     <string name="tap_to_upload">Tap to upload images</string>
+    <string name="images_selected_format">%1$d images selected</string>
 
     <!-- Ownership & Verification -->
     <string name="label_proof_ownership">Proof of Ownership (Optional)</string>

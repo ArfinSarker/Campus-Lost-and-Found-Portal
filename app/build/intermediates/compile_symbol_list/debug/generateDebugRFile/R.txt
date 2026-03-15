@@ -437,6 +437,7 @@ int string hint_session 0x0
 int string hint_time 0x0
 int string hint_university_id 0x0
 int string image_ready 0x0
+int string images_selected_format 0x0
 int string item_image_description 0x0
 int string label_authority_name 0x0
 int string label_basic_info 0x0

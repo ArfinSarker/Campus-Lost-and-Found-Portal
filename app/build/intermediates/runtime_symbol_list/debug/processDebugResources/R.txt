@@ -4948,6 +4948,7 @@ int string hint_time 0x7f1100bd
 int string hint_university_id 0x7f1100be
 int string icon_content_description 0x7f1100bf
 int string image_ready 0x7f1100c0
+int string images_selected_format 0x7f1101f5
 int string item_image_description 0x7f1100c1
 int string item_view_role_description 0x7f1100c2
 int string label_authority_name 0x7f1100c3

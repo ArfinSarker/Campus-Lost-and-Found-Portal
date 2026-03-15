@@ -165,6 +165,7 @@
     <string name="hint_time">Select Time</string>
     <string name="hint_university_id">University ID</string>
     <string name="image_ready">Image Ready</string>
+    <string name="images_selected_format">%1$d images selected</string>
     <string name="item_image_description">Item icon</string>
     <string name="label_authority_name">Authority Name (If submitted)</string>
     <string name="label_basic_info">Basic Information</string>
@@ -447,15 +448,17 @@
     <style name="ThemeOverlay.App.DatePicker" parent="ThemeOverlay.Material3.MaterialCalendar">
         
         <item name="colorPrimary">@color/primaryColor</item>
+        
         <item name="colorOnPrimary">@color/white</item>
 
         
-        <item name="colorSurface">#323238</item>
-        <item name="colorContainer">#323238</item>
+        <item name="colorSurface">@color/white</item>
+        <item name="colorContainer">@color/white</item>
 
         
         <item name="colorOnSurface">@color/white</item>
-        <item name="colorOnSurfaceVariant">@color/white</item>
+        
+        <item name="colorOnSurfaceVariant">@color/primaryLightColor</item>
 
         
         <item name="colorSecondary">@color/primaryColor</item>
