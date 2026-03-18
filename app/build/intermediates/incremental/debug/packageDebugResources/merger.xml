@@ -8,6 +8,9 @@
     </style><style name="CircleImageView" parent="">
         <item name="cornerFamily">rounded</item>
         <item name="cornerSize">50%</item>
+    </style><style name="CircleAppearanceOverlay">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">50%</item>
     </style></file><file path="E:\CampusLostandFound\app\src\main\res\values\themes.xml" qualifiers=""><style name="AppTheme" parent="Theme.Material3.DayNight.NoActionBar">
         
         <item name="colorPrimary">@color/primaryColor</item>

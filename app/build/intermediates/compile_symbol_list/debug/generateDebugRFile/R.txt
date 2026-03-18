@@ -130,6 +130,7 @@ int id btnLogout 0x0
 int id btnManageItems 0x0
 int id btnManageUsers 0x0
 int id btnMarkAllRead 0x0
+int id btnMarkReturned 0x0
 int id btnMenu 0x0
 int id btnNotifications 0x0
 int id btnReportFound 0x0
@@ -170,8 +171,10 @@ int id etDescription 0x0
 int id etDesignation 0x0
 int id etEmail 0x0
 int id etFullName 0x0
+int id etGender 0x0
 int id etHiddenQuestion 0x0
 int id etItemName 0x0
+int id etLevelTerm 0x0
 int id etLocationDetails 0x0
 int id etManualLocation 0x0
 int id etNewPassword 0x0
@@ -179,8 +182,10 @@ int id etOfficeRoom 0x0
 int id etOldPassword 0x0
 int id etPassword 0x0
 int id etPhone 0x0
+int id etPreferredContact 0x0
 int id etProofOwnership 0x0
 int id etSearch 0x0
+int id etSection 0x0
 int id etTimeFound 0x0
 int id etTimeLost 0x0
 int id etUniversityId 0x0
@@ -191,6 +196,7 @@ int id headerTitleContainer 0x0
 int id hsvCategories 0x0
 int id idleSpacer 0x0
 int id ivAdminLogo 0x0
+int id ivClaimantPhoto 0x0
 int id ivFilter 0x0
 int id ivItemIcon 0x0
 int id ivItemImage 0x0
@@ -202,7 +208,6 @@ int id ivUploadedImage 0x0
 int id ivUserPhoto 0x0
 int id ivUserProfile 0x0
 int id keyboardSpacer 0x0
-int id labelAdditionalDetails 0x0
 int id layoutEmptyState 0x0
 int id llActivitySection 0x0
 int id llChangePasswordSection 0x0
@@ -213,6 +218,7 @@ int id llGithub 0x0
 int id llLinkedin 0x0
 int id llLostSpecifics 0x0
 int id llNotificationRoot 0x0
+int id llOwnershipVerification 0x0
 int id llPhone 0x0
 int id llPolicyAddress 0x0
 int id llPolicyEmail 0x0
@@ -260,18 +266,13 @@ int id tilUniversityId 0x0
 int id tilUserType 0x0
 int id toolbar 0x0
 int id tvActiveItems 0x0
-int id tvAdditionalDetails 0x0
 int id tvAdminTitle 0x0
 int id tvAppName 0x0
 int id tvBackToUser 0x0
 int id tvBadge 0x0
 int id tvBrowseAll 0x0
 int id tvCategory 0x0
-int id tvClaimTitle 0x0
-int id tvClaimantEmail 0x0
-int id tvClaimantName 0x0
-int id tvClaimantPhone 0x0
-int id tvClaimedItemName 0x0
+int id tvClaimantNameHeader 0x0
 int id tvDateTime 0x0
 int id tvDescription 0x0
 int id tvDeveloperInfo 0x0
@@ -282,6 +283,7 @@ int id tvHeaderSubtitle 0x0
 int id tvHeaderTitle 0x0
 int id tvIcon 0x0
 int id tvItemDate 0x0
+int id tvItemDetails 0x0
 int id tvItemLocation 0x0
 int id tvItemName 0x0
 int id tvItemTime 0x0
@@ -296,6 +298,7 @@ int id tvMyItemTitle 0x0
 int id tvNotificationBadge 0x0
 int id tvNotificationMessage 0x0
 int id tvNotificationTime 0x0
+int id tvOwnershipVerification 0x0
 int id tvProofOwnership 0x0
 int id tvRegister 0x0
 int id tvReporterDeptOrDesignation 0x0
@@ -684,6 +687,7 @@ int string we_help 0x0
 int string welcome_back 0x0
 int string welcome_back_default 0x0
 int style AppTheme 0x0
+int style CircleAppearanceOverlay 0x0
 int style CircleImageView 0x0
 int style ShapeAppearance_App_Circle 0x0
 int style ShapeAppearance_App_LargeComponent 0x0

@@ -66,9 +66,11 @@ public class NotificationsActivity extends AppCompatActivity {
             
             // Redirect to Claim Details
             Intent intent = new Intent(this, ClaimDetailsActivity.class);
+            intent.putExtra("senderId", notification.getSenderId());
             intent.putExtra("senderName", notification.getSenderName());
             intent.putExtra("senderPhone", notification.getSenderPhone());
             intent.putExtra("senderEmail", notification.getSenderEmail());
+            intent.putExtra("itemId", notification.getItemId());
             intent.putExtra("itemName", notification.getItemName());
             intent.putExtra("additionalDetails", notification.getAdditionalDetails());
             intent.putExtra("type", notification.getType());

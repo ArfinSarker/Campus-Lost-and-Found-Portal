@@ -40,7 +40,8 @@ public class Item {
 
     // Common
     private String preferredContactMethod;
-    private String adminStatus; // Pending, Matched, Returned, etc.
+    private String adminStatus; // Pending, Matched, Returned, Claimed, etc.
+    private String claimedByUserId; // The user who claimed/received the item
     private long timestamp;
 
     public Item() {
@@ -122,6 +123,8 @@ public class Item {
     public void setPreferredContactMethod(String preferredContactMethod) { this.preferredContactMethod = preferredContactMethod; }
     public String getAdminStatus() { return adminStatus; }
     public void setAdminStatus(String adminStatus) { this.adminStatus = adminStatus; }
+    public String getClaimedByUserId() { return claimedByUserId; }
+    public void setClaimedByUserId(String claimedByUserId) { this.claimedByUserId = claimedByUserId; }
     public long getTimestamp() { return timestamp; }
     public void setTimestamp(long timestamp) { this.timestamp = timestamp; }
 }

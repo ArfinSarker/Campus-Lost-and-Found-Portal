@@ -131,6 +131,7 @@ id btnLogout
 id btnManageItems
 id btnManageUsers
 id btnMarkAllRead
+id btnMarkReturned
 id btnMenu
 id btnNotifications
 id btnReportFound
@@ -171,8 +172,10 @@ id etDescription
 id etDesignation
 id etEmail
 id etFullName
+id etGender
 id etHiddenQuestion
 id etItemName
+id etLevelTerm
 id etLocationDetails
 id etManualLocation
 id etNewPassword
@@ -180,8 +183,10 @@ id etOfficeRoom
 id etOldPassword
 id etPassword
 id etPhone
+id etPreferredContact
 id etProofOwnership
 id etSearch
+id etSection
 id etTimeFound
 id etTimeLost
 id etUniversityId
@@ -192,6 +197,7 @@ id headerTitleContainer
 id hsvCategories
 id idleSpacer
 id ivAdminLogo
+id ivClaimantPhoto
 id ivFilter
 id ivItemIcon
 id ivItemImage
@@ -203,7 +209,6 @@ id ivUploadedImage
 id ivUserPhoto
 id ivUserProfile
 id keyboardSpacer
-id labelAdditionalDetails
 id layoutEmptyState
 id llActivitySection
 id llChangePasswordSection
@@ -214,6 +219,7 @@ id llGithub
 id llLinkedin
 id llLostSpecifics
 id llNotificationRoot
+id llOwnershipVerification
 id llPhone
 id llPolicyAddress
 id llPolicyEmail
@@ -261,18 +267,13 @@ id tilUniversityId
 id tilUserType
 id toolbar
 id tvActiveItems
-id tvAdditionalDetails
 id tvAdminTitle
 id tvAppName
 id tvBackToUser
 id tvBadge
 id tvBrowseAll
 id tvCategory
-id tvClaimTitle
-id tvClaimantEmail
-id tvClaimantName
-id tvClaimantPhone
-id tvClaimedItemName
+id tvClaimantNameHeader
 id tvDateTime
 id tvDescription
 id tvDeveloperInfo
@@ -283,6 +284,7 @@ id tvHeaderSubtitle
 id tvHeaderTitle
 id tvIcon
 id tvItemDate
+id tvItemDetails
 id tvItemLocation
 id tvItemName
 id tvItemTime
@@ -297,6 +299,7 @@ id tvMyItemTitle
 id tvNotificationBadge
 id tvNotificationMessage
 id tvNotificationTime
+id tvOwnershipVerification
 id tvProofOwnership
 id tvRegister
 id tvReporterDeptOrDesignation
@@ -685,6 +688,7 @@ string we_help
 string welcome_back
 string welcome_back_default
 style AppTheme
+style CircleAppearanceOverlay
 style CircleImageView
 style ShapeAppearance_App_Circle
 style ShapeAppearance_App_LargeComponent
