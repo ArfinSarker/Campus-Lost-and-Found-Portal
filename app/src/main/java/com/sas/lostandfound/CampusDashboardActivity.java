@@ -45,7 +45,10 @@ public class CampusDashboardActivity extends AppCompatActivity {
     private List<Item> fullItemList;
     private List<Item> displayedItemList;
     
-    private TextView tvWelcome, tvActiveItems, tvDeveloperInfo, tvBrowseAll;
+    private TextView tvWelcome, tvDeveloperInfo, tvBrowseAll;
+    private TextView tvLostCount, tvLostLabel, tvFoundCount, tvFoundLabel;
+    private View cardLostReports, cardFoundReports;
+    
     private MaterialButton btnReportLost, btnReportFound, btnViewMore, btnViewLess;
     private ImageButton btnMenu;
     private FrameLayout btnNotifications;
@@ -64,6 +67,7 @@ public class CampusDashboardActivity extends AppCompatActivity {
     private int currentLimit = 5;
     private String currentUniversityId;
     private ValueEventListener notificationListener;
+    private ValueEventListener lostReportsListener, foundReportsListener;
 
     // Hardcoded Admin UID
     private static final String ADMIN_UID = "NhwPcU2nOySmd2zHDiLlvsgMBYV2";
@@ -142,7 +146,7 @@ public class CampusDashboardActivity extends AppCompatActivity {
     private void initializeViews() {
         rvRecentItems = findViewById(R.id.rvRecentItems);
         tvWelcome = findViewById(R.id.tvWelcome);
-        tvActiveItems = findViewById(R.id.tvActiveItems);
+
         tvDeveloperInfo = findViewById(R.id.tvDeveloperInfo);
         btnReportLost = findViewById(R.id.btnReportLost);
         btnReportFound = findViewById(R.id.btnReportFound);
@@ -159,6 +163,29 @@ public class CampusDashboardActivity extends AppCompatActivity {
         View headerView = navigationView.getHeaderView(0);
         ivNavHeaderProfile = headerView.findViewById(R.id.nav_header_imageView);
         tvNavHeaderName = headerView.findViewById(R.id.nav_header_name);
+
+        // Setup Stat Cards
+        View viewLost = findViewById(R.id.cardUserLostReports);
+        tvLostCount = viewLost.findViewById(R.id.tvUserLostCount);
+        tvLostLabel = viewLost.findViewById(R.id.tvUserLostLabel);
+        cardLostReports = viewLost;
+
+        View viewFound = findViewById(R.id.cardUserFoundReports);
+        tvFoundCount = viewFound.findViewById(R.id.tvUserFoundCount);
+        tvFoundLabel = viewFound.findViewById(R.id.tvUserFoundLabel);
+        cardFoundReports = viewFound;
+
+        cardLostReports.setOnClickListener(v -> {
+            Intent intent = new Intent(this, CampusMyItemsActivity.class);
+            intent.putExtra("filterType", "find");
+            startActivity(intent);
+        });
+
+        cardFoundReports.setOnClickListener(v -> {
+            Intent intent = new Intent(this, CampusMyItemsActivity.class);
+            intent.putExtra("filterType", "reported");
+            startActivity(intent);
+        });
     }
 
     private void setupNavigationView() {
@@ -169,18 +196,22 @@ public class CampusDashboardActivity extends AppCompatActivity {
             } else if (id == R.id.nav_reported_items) {
                 Intent intent = new Intent(this, CampusMyItemsActivity.class);
                 intent.putExtra("filterType", "reported");
+                intent.putExtra("fromDrawer", true);
                 startActivity(intent);
             } else if (id == R.id.nav_find_items) {
                 Intent intent = new Intent(this, CampusMyItemsActivity.class);
                 intent.putExtra("filterType", "find");
+                intent.putExtra("fromDrawer", true);
                 startActivity(intent);
             } else if (id == R.id.nav_return_items) {
                 Intent intent = new Intent(this, CampusMyItemsActivity.class);
                 intent.putExtra("filterType", "return");
+                intent.putExtra("fromDrawer", true);
                 startActivity(intent);
             } else if (id == R.id.nav_claimed_items) {
                 Intent intent = new Intent(this, CampusMyItemsActivity.class);
                 intent.putExtra("filterType", "claimed");
+                intent.putExtra("fromDrawer", true);
                 startActivity(intent);
             } else if (id == R.id.nav_logout) {
                 mAuth.signOut();
@@ -349,16 +380,8 @@ public class CampusDashboardActivity extends AppCompatActivity {
             public void onCancelled(@NonNull DatabaseError error) {}
         });
 
-        mDatabase.child("UserItems").child(userId).addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                long count = snapshot.getChildrenCount();
-                tvActiveItems.setText("You have " + count + " active items");
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {}
-        });
+        // Setup report counts
+        fetchReportCounts(userId);
 
         // Setup real-time notification badge
         if (notificationListener != null) {
@@ -387,6 +410,32 @@ public class CampusDashboardActivity extends AppCompatActivity {
             public void onCancelled(@NonNull DatabaseError error) {}
         };
         mDatabase.child("Notifications").child(userId).addValueEventListener(notificationListener);
+    }
+
+    private void fetchReportCounts(String userId) {
+        if (lostReportsListener != null) {
+            mDatabase.child("LostItems").removeEventListener(lostReportsListener);
+        }
+        lostReportsListener = new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                if (tvLostCount != null) tvLostCount.setText(String.valueOf(snapshot.getChildrenCount()));
+            }
+            @Override public void onCancelled(@NonNull DatabaseError error) {}
+        };
+        mDatabase.child("LostItems").orderByChild("userId").equalTo(userId).addValueEventListener(lostReportsListener);
+
+        if (foundReportsListener != null) {
+            mDatabase.child("FoundItems").removeEventListener(foundReportsListener);
+        }
+        foundReportsListener = new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                if (tvFoundCount != null) tvFoundCount.setText(String.valueOf(snapshot.getChildrenCount()));
+            }
+            @Override public void onCancelled(@NonNull DatabaseError error) {}
+        };
+        mDatabase.child("FoundItems").orderByChild("userId").equalTo(userId).addValueEventListener(foundReportsListener);
     }
 
     private void fetchRecentItems() {
@@ -440,6 +489,12 @@ public class CampusDashboardActivity extends AppCompatActivity {
         super.onDestroy();
         if (notificationListener != null && currentUniversityId != null) {
             mDatabase.child("Notifications").child(currentUniversityId).removeEventListener(notificationListener);
+        }
+        if (lostReportsListener != null) {
+            mDatabase.child("LostItems").removeEventListener(lostReportsListener);
+        }
+        if (foundReportsListener != null) {
+            mDatabase.child("FoundItems").removeEventListener(foundReportsListener);
         }
     }
 
