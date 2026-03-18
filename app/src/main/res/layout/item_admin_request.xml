@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginBottom="12dp"
+    app:cardCornerRadius="12dp"
+    app:cardElevation="2dp"
+    app:strokeColor="@color/dividerColor"
+    app:strokeWidth="1dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="16dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+
+            <com.google.android.material.imageview.ShapeableImageView
+                android:id="@+id/ivRequestProfile"
+                android:layout_width="56dp"
+                android:layout_height="56dp"
+                android:scaleType="centerCrop"
+                android:src="@drawable/ic_user"
+                app:shapeAppearanceOverlay="@style/ShapeAppearance.App.Circle" />
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:layout_weight="1"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/tvRequestName"
+                    style="@style/TextAppearance.App.SectionTitle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    tools:text="John Doe" />
+
+                <TextView
+                    android:id="@+id/tvRequestDesignation"
+                    style="@style/TextAppearance.App.Small"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textColor="@color/primaryColor"
+                    android:textStyle="bold"
+                    tools:text="Lecturer" />
+
+                <TextView
+                    android:id="@+id/tvRequestId"
+                    style="@style/TextAppearance.App.Small"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    tools:text="ID: 0802410205101019" />
+            </LinearLayout>
+        </LinearLayout>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_marginVertical="12dp"
+            android:background="@color/dividerColor" />
+
+        <TextView
+            android:id="@+id/tvRequestEmail"
+            style="@style/TextAppearance.App.Body"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:drawableStartCompat="@drawable/ic_envelope"
+            android:drawablePadding="8dp"
+            android:gravity="center_vertical"
+            app:drawableTint="@color/primaryColor"
+            tools:text="email@example.com" />
+
+        <TextView
+            android:id="@+id/tvRequestPhone"
+            style="@style/TextAppearance.App.Body"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            app:drawableStartCompat="@drawable/ic_phone"
+            android:drawablePadding="8dp"
+            android:gravity="center_vertical"
+            app:drawableTint="@color/primaryColor"
+            tools:text="+880123456789" />
+
+        <TextView
+            android:id="@+id/tvVerificationCode"
+            style="@style/TextAppearance.App.Body"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:background="@color/badge_found_bg"
+            android:paddingHorizontal="12dp"
+            android:paddingVertical="4dp"
+            android:textStyle="bold"
+            android:textColor="@color/white"
+            tools:text="Code: ADMIN123" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:orientation="horizontal">
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnDeny"
+                style="@style/Widget.Material3.Button.OutlinedButton"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="8dp"
+                android:layout_weight="1"
+                android:text="@string/btn_deny"
+                android:textColor="@color/statusLost"
+                app:strokeColor="@color/statusLost" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnAccept"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:layout_weight="1"
+                android:text="@string/btn_accept"
+                android:backgroundTint="@color/vibrantBlue" />
+        </LinearLayout>
+
+    </LinearLayout>
+</com.google.android.material.card.MaterialCardView>

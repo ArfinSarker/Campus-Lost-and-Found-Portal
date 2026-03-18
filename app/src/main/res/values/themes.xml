@@ -28,7 +28,7 @@
 
         <!-- Navigation bar color -->
         <item name="android:navigationBarColor">@color/white</item>
-        <item name="android:windowLightNavigationBar">true</item>
+        <item name="android:windowLightNavigationBar" tools:targetApi="27">true</item>
 
         <!-- Component Styles -->
         <item name="materialButtonStyle">@style/Widget.App.Button</item>

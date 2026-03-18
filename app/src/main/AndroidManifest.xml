@@ -45,6 +45,9 @@
         <!-- Main dashboards -->
         <activity android:name=".CampusDashboardActivity" />
         <activity android:name=".DashboardActivity" />
+        <activity android:name=".AdminDashboardActivity" />
+        <activity android:name=".AdminRequestsActivity" />
+        <activity android:name=".AllUsersActivity" />
 
         <!-- Profile -->
         <activity android:name=".UserProfileActivity" />

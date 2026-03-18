@@ -24,6 +24,10 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.storage.FirebaseStorage;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class ItemDetailActivity extends AppCompatActivity {
 
@@ -33,7 +37,7 @@ public class ItemDetailActivity extends AppCompatActivity {
     private TextView tvProofOwnership, tvHandlingStatus, tvSecurityQuestion;
     private LinearLayout headerTitleContainer, llLostSpecifics, llFoundSpecifics;
     private MaterialCardView cardBadge;
-    private MaterialButton btnContact, btnClaim;
+    private MaterialButton btnContact, btnClaim, btnDelete;
     private Toolbar toolbar;
     private AppBarLayout appBarLayout;
     
@@ -56,21 +60,23 @@ public class ItemDetailActivity extends AppCompatActivity {
         String itemId = getIntent().getStringExtra("itemId");
         String itemStatus = getIntent().getStringExtra("itemStatus");
         String reporterId = getIntent().getStringExtra("userId");
+        boolean isAdminMode = getIntent().getBooleanExtra("isAdmin", false);
 
-        // First display what we have from Intent
         displayInitialData();
-        
-        // Fetch full details from database to get specific fields (Ownership, Handling, Security, Location)
         fetchItemDetails(itemId, itemStatus);
         
-        // Fetch reporter's profile details
         if (reporterId != null) {
             fetchReporterProfile(reporterId);
         }
         
-        btnClaim.setOnClickListener(v -> handleClaim(itemId, getIntent().getStringExtra("itemName"), itemStatus, reporterId));
-        
-        checkIfAlreadyClaimed(itemId, reporterId);
+        if (isAdminMode) {
+            btnClaim.setVisibility(View.GONE);
+            btnDelete.setVisibility(View.VISIBLE);
+            btnDelete.setOnClickListener(v -> deleteItem(itemId, itemStatus));
+        } else {
+            btnClaim.setOnClickListener(v -> handleClaim(itemId, getIntent().getStringExtra("itemName"), itemStatus, reporterId));
+            checkIfAlreadyClaimed(itemId, reporterId);
+        }
     }
 
     private void initializeViews() {
@@ -95,6 +101,8 @@ public class ItemDetailActivity extends AppCompatActivity {
         cardBadge = findViewById(R.id.cardBadge);
         btnContact = findViewById(R.id.btnContact);
         btnClaim = findViewById(R.id.btnClaim);
+        btnDelete = findViewById(R.id.btnDelete);
+        
         toolbar = findViewById(R.id.toolbar);
         appBarLayout = findViewById(R.id.appBarLayout);
         headerTitleContainer = findViewById(R.id.headerTitleContainer);
@@ -140,7 +148,7 @@ public class ItemDetailActivity extends AppCompatActivity {
         String userDept = getIntent().getStringExtra("userDepartment");
         String userPhone = getIntent().getStringExtra("userPhone");
 
-        String fullDateTime = itemDate;
+        String fullDateTime = itemDate != null ? itemDate : "";
         if (itemTime != null && !itemTime.isEmpty()) {
             fullDateTime += " - " + itemTime;
         }
@@ -149,14 +157,14 @@ public class ItemDetailActivity extends AppCompatActivity {
     }
 
     private void fetchItemDetails(String itemId, String status) {
+        if (itemId == null) return;
         String path = "lost".equalsIgnoreCase(status) ? "LostItems" : "FoundItems";
         mDatabase.child(path).child(itemId).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 Item item = snapshot.getValue(Item.class);
                 if (item != null) {
-                    // Update Location with additional details
-                    StringBuilder locationBuilder = new StringBuilder(item.getLocation());
+                    StringBuilder locationBuilder = new StringBuilder(item.getLocation() != null ? item.getLocation() : "");
                     if (item.getAdditionalLocationDetails() != null && !item.getAdditionalLocationDetails().isEmpty()) {
                         locationBuilder.append("\n").append(item.getAdditionalLocationDetails());
                     }
@@ -171,7 +179,6 @@ public class ItemDetailActivity extends AppCompatActivity {
                         llLostSpecifics.setVisibility(View.GONE);
                         llFoundSpecifics.setVisibility(View.VISIBLE);
                         
-                        // Handling Status with full details (Type, Authority Name, Office Room)
                         StringBuilder handlingBuilder = new StringBuilder();
                         if (item.getItemHandlingStatus() != null && !item.getItemHandlingStatus().isEmpty()) {
                             handlingBuilder.append(item.getItemHandlingStatus());
@@ -193,14 +200,12 @@ public class ItemDetailActivity extends AppCompatActivity {
                     }
                 }
             }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {}
+            @Override public void onCancelled(@NonNull DatabaseError error) {}
         });
     }
 
     private void fetchReporterProfile(String reporterId) {
-        // Resolve University ID first to support old items
+        if (reporterId == null) return;
         mDatabase.child("UIDToUniversityID").child(reporterId).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
@@ -234,6 +239,16 @@ public class ItemDetailActivity extends AppCompatActivity {
                                 } else {
                                     ivUserPhoto.setImageResource(R.drawable.ic_user);
                                 }
+
+                                // If admin, allow clicking profile to see details
+                                ivUserPhoto.setOnClickListener(v -> {
+                                    if (getIntent().getBooleanExtra("isAdmin", false)) {
+                                        Intent intent = new Intent(ItemDetailActivity.this, UserProfileActivity.class);
+                                        intent.putExtra("targetUserId", resolvedId);
+                                        intent.putExtra("isAdminViewing", true);
+                                        startActivity(intent);
+                                    }
+                                });
                             }
                         }
                     }
@@ -247,9 +262,9 @@ public class ItemDetailActivity extends AppCompatActivity {
     private void displayItemDetails(String name, String desc, String loc, String dateTime, String status, String category, String imageUrl, String uName, String uDept, String uPhone) {
         tvItemName.setText(name);
         tvDescription.setText(desc != null && !desc.isEmpty() ? desc : "No description provided.");
-        tvLocation.setText(loc);
-        tvDateTime.setText(dateTime);
-        tvCategory.setText(category);
+        tvLocation.setText(loc != null ? loc : "");
+        tvDateTime.setText(dateTime != null ? dateTime : "");
+        tvCategory.setText(category != null ? category : "");
         tvReporterName.setText(uName != null ? uName : "Anonymous");
         tvReporterDeptOrDesignation.setText(uDept != null ? uDept : "Department not specified");
 
@@ -267,7 +282,7 @@ public class ItemDetailActivity extends AppCompatActivity {
             tvHeaderTitle.setText("Found Item");
         }
         
-        tvHeaderSubtitle.setText(category + " • " + loc);
+        tvHeaderSubtitle.setText((category != null ? category : "") + " • " + (loc != null ? loc : ""));
 
         if (imageUrl != null && !imageUrl.isEmpty()) {
             Glide.with(this)
@@ -275,6 +290,8 @@ public class ItemDetailActivity extends AppCompatActivity {
                     .placeholder(R.drawable.ic_package)
                     .centerCrop()
                     .into(ivItemImage);
+        } else {
+            ivItemImage.setImageResource(R.drawable.ic_package);
         }
 
         btnContact.setOnClickListener(v -> {
@@ -295,48 +312,40 @@ public class ItemDetailActivity extends AppCompatActivity {
             return;
         }
 
-        if (reporterId == null) {
-            Toast.makeText(this, "Error: Reporter not identified", Toast.LENGTH_SHORT).show();
+        if (reporterId == null || itemId == null) {
+            Toast.makeText(this, "Error: Invalid item or reporter", Toast.LENGTH_SHORT).show();
             return;
         }
 
         btnClaim.setEnabled(false);
         btnClaim.setText("Sending...");
 
-        // Start chain of resolutions to ensure University ID is used
         mDatabase.child("UIDToUniversityID").child(authUser.getUid()).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
-            public void onDataChange(@NonNull DataSnapshot senderMappingSnapshot) {
-                final String senderUnivId = senderMappingSnapshot.exists() ? senderMappingSnapshot.getValue(String.class) : authUser.getUid();
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                final String senderId = snapshot.exists() ? snapshot.getValue(String.class) : authUser.getUid();
                 
                 mDatabase.child("UIDToUniversityID").child(reporterId).addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
-                    public void onDataChange(@NonNull DataSnapshot recipientMappingSnapshot) {
-                        final String recipientUnivId = recipientMappingSnapshot.exists() ? recipientMappingSnapshot.getValue(String.class) : reporterId;
+                    public void onDataChange(@NonNull DataSnapshot reporterMapping) {
+                        final String recipientId = reporterMapping.exists() ? reporterMapping.getValue(String.class) : reporterId;
 
-                        if (senderUnivId.equals(recipientUnivId)) {
+                        if (senderId.equals(recipientId)) {
                             Toast.makeText(ItemDetailActivity.this, "You cannot claim your own item", Toast.LENGTH_SHORT).show();
                             resetClaimButton(itemStatus);
                             return;
                         }
 
-                        // Get Sender details for the notification object
-                        mDatabase.child("Users").child(senderUnivId).addListenerForSingleValueEvent(new ValueEventListener() {
+                        mDatabase.child("Users").child(senderId).addListenerForSingleValueEvent(new ValueEventListener() {
                             @Override
-                            public void onDataChange(@NonNull DataSnapshot userSnap) {
-                                if (userSnap.exists()) {
-                                    proceedToCreateNotification(userSnap, recipientUnivId, senderUnivId, itemId, itemName, itemStatus);
+                            public void onDataChange(@NonNull DataSnapshot senderSnap) {
+                                if (senderSnap.exists()) {
+                                    createAndSendNotification(senderSnap, senderId, recipientId, itemId, itemName, itemStatus);
                                 } else {
-                                    // Fallback to check if user is stored under Auth UID
                                     mDatabase.child("Users").child(authUser.getUid()).addListenerForSingleValueEvent(new ValueEventListener() {
                                         @Override
                                         public void onDataChange(@NonNull DataSnapshot authSnap) {
-                                            if (authSnap.exists()) {
-                                                proceedToCreateNotification(authSnap, recipientUnivId, senderUnivId, itemId, itemName, itemStatus);
-                                            } else {
-                                                Toast.makeText(ItemDetailActivity.this, "Could not load your profile details", Toast.LENGTH_SHORT).show();
-                                                resetClaimButton(itemStatus);
-                                            }
+                                            createAndSendNotification(authSnap.exists() ? authSnap : null, senderId, recipientId, itemId, itemName, itemStatus);
                                         }
                                         @Override public void onCancelled(@NonNull DatabaseError error) { resetClaimButton(itemStatus); }
                                     });
@@ -352,49 +361,45 @@ public class ItemDetailActivity extends AppCompatActivity {
         });
     }
 
-    private void proceedToCreateNotification(DataSnapshot senderSnap, String recipientUnivId, String senderUnivId, String itemId, String itemName, String itemStatus) {
-        String senderName = senderSnap.child("name").getValue(String.class);
-        if (senderName == null) senderName = senderSnap.child("fullName").getValue(String.class);
-        String senderPhone = senderSnap.child("phone").getValue(String.class);
-        String senderEmail = senderSnap.child("email").getValue(String.class);
+    private void createAndSendNotification(DataSnapshot senderSnap, String senderId, String recipientId, String itemId, String itemName, String itemStatus) {
+        String senderName = "A user";
+        String senderPhone = "Not provided";
+        String senderEmail = "";
+        
+        if (senderSnap != null) {
+            senderName = senderSnap.child("name").getValue(String.class);
+            if (senderName == null) senderName = senderSnap.child("fullName").getValue(String.class);
+            if (senderName == null) senderName = "A user";
 
-        String notificationId = mDatabase.child("Notifications").child(recipientUnivId).push().getKey();
+            senderPhone = senderSnap.child("phone").getValue(String.class);
+            senderEmail = senderSnap.child("email").getValue(String.class);
+        }
+
+        String notificationId = mDatabase.child("Notifications").child(recipientId).push().getKey();
         if (notificationId == null) {
             resetClaimButton(itemStatus);
             return;
         }
 
-        String message = "lost".equalsIgnoreCase(itemStatus) ? 
-                "Someone has claimed that they found your lost item: " + itemName :
-                "Someone has claimed this item as theirs: " + itemName;
         String type = "lost".equalsIgnoreCase(itemStatus) ? "lost_claim" : "found_claim";
+        String message = "lost".equalsIgnoreCase(itemStatus) ? 
+                "Someone has found your item: " + itemName :
+                "Someone has claimed your item: " + itemName;
 
         Notification notification = new Notification(
-                notificationId,
-                recipientUnivId,
-                senderUnivId,
-                senderName,
-                senderPhone,
-                senderEmail,
-                itemId,
-                itemName,
-                message,
-                System.currentTimeMillis(),
-                type,
-                ""
+                notificationId, recipientId, senderId, senderName, senderPhone, senderEmail,
+                itemId, itemName, message, System.currentTimeMillis(), type, ""
         );
 
-        mDatabase.child("Notifications").child(recipientUnivId).child(notificationId).setValue(notification)
+        mDatabase.child("Notifications").child(recipientId).child(notificationId).setValue(notification)
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {
-                        // Store record of claim
-                        mDatabase.child("ItemClaims").child(itemId).child(senderUnivId).setValue(System.currentTimeMillis());
-                        Toast.makeText(ItemDetailActivity.this, "Claim request sent!", Toast.LENGTH_SHORT).show();
+                        mDatabase.child("ItemClaims").child(itemId).child(senderId).setValue(System.currentTimeMillis());
+                        Toast.makeText(ItemDetailActivity.this, "Request sent successfully!", Toast.LENGTH_SHORT).show();
                         btnClaim.setText("Claim Sent");
                         btnClaim.setEnabled(false);
                     } else {
-                        String error = task.getException() != null ? task.getException().getMessage() : "Unknown error";
-                        Toast.makeText(ItemDetailActivity.this, "Failed to send: " + error, Toast.LENGTH_SHORT).show();
+                        Toast.makeText(ItemDetailActivity.this, "Failed to send request.", Toast.LENGTH_SHORT).show();
                         resetClaimButton(itemStatus);
                     }
                 });
@@ -407,14 +412,13 @@ public class ItemDetailActivity extends AppCompatActivity {
 
     private void checkIfAlreadyClaimed(String itemId, String reporterId) {
         FirebaseUser authUser = mAuth.getCurrentUser();
-        if (authUser == null || itemId == null) return;
+        if (authUser == null || itemId == null || reporterId == null) return;
 
         mDatabase.child("UIDToUniversityID").child(authUser.getUid()).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 final String senderUnivId = snapshot.exists() ? snapshot.getValue(String.class) : authUser.getUid();
                 
-                // Also resolve reporterId to University ID for accurate comparison
                 mDatabase.child("UIDToUniversityID").child(reporterId).addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
                     public void onDataChange(@NonNull DataSnapshot reporterSnap) {
@@ -441,5 +445,62 @@ public class ItemDetailActivity extends AppCompatActivity {
             }
             @Override public void onCancelled(@NonNull DatabaseError error) {}
         });
+    }
+
+    private void deleteItem(String itemId, String status) {
+        String path = "lost".equalsIgnoreCase(status) ? "LostItems" : "FoundItems";
+        
+        mDatabase.child(path).child(itemId).addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                if (snapshot.exists()) {
+                    Item item = snapshot.getValue(Item.class);
+                    if (item != null) {
+                        // 1. Delete images from storage (Supabase or Firebase)
+                        deleteItemImages(item);
+                        
+                        // 2. Delete from node (LostItems/FoundItems)
+                        mDatabase.child(path).child(itemId).removeValue();
+                        
+                        // 3. Delete from UserItems
+                        if (item.getUserId() != null) {
+                            mDatabase.child("UserItems").child(item.getUserId()).child(itemId).removeValue();
+                        }
+                        
+                        // 4. Delete claims and notifications related to this item if needed
+                        // (Optional, but good for database hygiene)
+                        mDatabase.child("ItemClaims").child(itemId).removeValue();
+
+                        Toast.makeText(ItemDetailActivity.this, "Item deleted successfully.", Toast.LENGTH_SHORT).show();
+                        finish();
+                    }
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                Toast.makeText(ItemDetailActivity.this, "Delete failed: " + error.getMessage(), Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    private void deleteItemImages(Item item) {
+        List<String> urls = item.getImageUrls();
+        if (urls == null) urls = new ArrayList<>();
+        if (item.getImageUrl() != null && !urls.contains(item.getImageUrl())) {
+            urls.add(item.getImageUrl());
+        }
+
+        for (String url : urls) {
+            if (url == null || url.isEmpty()) continue;
+            
+            if (url.contains("supabase.co")) {
+                SupabaseStorageHelper.deleteImage(url, null);
+            } else if (url.contains("firebasestorage.googleapis.com")) {
+                try {
+                    FirebaseStorage.getInstance().getReferenceFromUrl(url).delete();
+                } catch (Exception ignored) {}
+            }
+        }
     }
 }

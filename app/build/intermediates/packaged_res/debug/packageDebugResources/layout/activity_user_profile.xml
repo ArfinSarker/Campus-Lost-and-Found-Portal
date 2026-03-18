@@ -343,99 +343,179 @@
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 
-            <!-- Change Password Section -->
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="12dp"
-                android:text="@string/label_change_password_profile"
-                android:textAppearance="?attr/textAppearanceSubtitle1"
-                android:textColor="@color/primaryColor"
-                android:textStyle="bold" />
-
-            <com.google.android.material.card.MaterialCardView
+            <!-- Activity Information Section (Admin Only) -->
+            <LinearLayout
+                android:id="@+id/llActivitySection"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="24dp"
-                app:cardCornerRadius="12dp"
-                app:cardElevation="2dp">
+                android:orientation="vertical"
+                android:visibility="gone">
 
-                <LinearLayout
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="12dp"
+                    android:text="@string/label_activity_info"
+                    android:textAppearance="?attr/textAppearanceSubtitle1"
+                    android:textColor="@color/primaryColor"
+                    android:textStyle="bold" />
+
+                <com.google.android.material.card.MaterialCardView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:padding="16dp">
+                    android:layout_marginBottom="24dp"
+                    app:cardCornerRadius="12dp"
+                    app:cardElevation="2dp">
 
-                    <com.google.android.material.textfield.TextInputLayout
-                        android:id="@+id/tilOldPassword"
-                        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                    <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginBottom="16dp"
-                        android:hint="@string/label_old_password"
-                        app:passwordToggleEnabled="true"
-                        app:passwordToggleTint="@color/primaryColor"
-                        app:startIconDrawable="@drawable/ic_lock"
-                        app:startIconTint="@color/primaryColor">
+                        android:orientation="vertical"
+                        android:padding="16dp">
 
-                        <com.google.android.material.textfield.TextInputEditText
-                            android:id="@+id/etOldPassword"
+                        <TextView
+                            android:id="@+id/tvLostReportsCount"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:inputType="textPassword"
+                            android:layout_marginBottom="8dp"
+                            android:text="@string/label_lost_reports_count"
                             android:textColor="@color/black" />
-                    </com.google.android.material.textfield.TextInputLayout>
 
-                    <com.google.android.material.textfield.TextInputLayout
-                        android:id="@+id/tilNewPassword"
-                        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                        <TextView
+                            android:id="@+id/tvFoundReportsCount"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginBottom="8dp"
+                            android:text="@string/label_found_reports_count"
+                            android:textColor="@color/black" />
+
+                        <TextView
+                            android:id="@+id/tvReturnedItemsCount"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="@string/label_returned_items_count"
+                            android:textColor="@color/black" />
+
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+            </LinearLayout>
+
+            <!-- Change Password Section -->
+            <LinearLayout
+                android:id="@+id/llChangePasswordSection"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="12dp"
+                    android:text="@string/label_change_password_profile"
+                    android:textAppearance="?attr/textAppearanceSubtitle1"
+                    android:textColor="@color/primaryColor"
+                    android:textStyle="bold" />
+
+                <com.google.android.material.card.MaterialCardView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="24dp"
+                    app:cardCornerRadius="12dp"
+                    app:cardElevation="2dp">
+
+                    <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginBottom="16dp"
-                        android:hint="@string/hint_new_password"
-                        app:passwordToggleEnabled="true"
-                        app:passwordToggleTint="@color/primaryColor"
-                        app:startIconDrawable="@drawable/ic_lock"
-                        app:startIconTint="@color/primaryColor">
+                        android:orientation="vertical"
+                        android:padding="16dp">
 
-                        <com.google.android.material.textfield.TextInputEditText
-                            android:id="@+id/etNewPassword"
+                        <com.google.android.material.textfield.TextInputLayout
+                            android:id="@+id/tilOldPassword"
+                            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:inputType="textPassword"
-                            android:textColor="@color/black" />
-                    </com.google.android.material.textfield.TextInputLayout>
+                            android:layout_marginBottom="16dp"
+                            android:hint="@string/label_old_password"
+                            app:passwordToggleEnabled="true"
+                            app:passwordToggleTint="@color/primaryColor"
+                            app:startIconDrawable="@drawable/ic_lock"
+                            app:startIconTint="@color/primaryColor">
 
-                    <com.google.android.material.textfield.TextInputLayout
-                        android:id="@+id/tilConfirmPassword"
-                        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginBottom="16dp"
-                        android:hint="@string/hint_confirm_password"
-                        app:passwordToggleEnabled="true"
-                        app:passwordToggleTint="@color/primaryColor"
-                        app:startIconDrawable="@drawable/ic_lock"
-                        app:startIconTint="@color/primaryColor">
+                            <com.google.android.material.textfield.TextInputEditText
+                                android:id="@+id/etOldPassword"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:inputType="textPassword"
+                                android:textColor="@color/black" />
+                        </com.google.android.material.textfield.TextInputLayout>
 
-                        <com.google.android.material.textfield.TextInputEditText
-                            android:id="@+id/etConfirmPassword"
+                        <com.google.android.material.textfield.TextInputLayout
+                            android:id="@+id/tilNewPassword"
+                            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:inputType="textPassword"
-                            android:textColor="@color/black" />
-                    </com.google.android.material.textfield.TextInputLayout>
+                            android:layout_marginBottom="16dp"
+                            android:hint="@string/hint_new_password"
+                            app:passwordToggleEnabled="true"
+                            app:passwordToggleTint="@color/primaryColor"
+                            app:startIconDrawable="@drawable/ic_lock"
+                            app:startIconTint="@color/primaryColor">
 
-                    <com.google.android.material.button.MaterialButton
-                        android:id="@+id/btnConfirmPasswordChange"
-                        android:layout_width="match_parent"
-                        android:layout_height="56dp"
-                        android:text="Confirm Change"
-                        android:textAllCaps="false"
-                        android:visibility="gone"
-                        app:cornerRadius="8dp" />
-                </LinearLayout>
-            </com.google.android.material.card.MaterialCardView>
+                            <com.google.android.material.textfield.TextInputEditText
+                                android:id="@+id/etNewPassword"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:inputType="textPassword"
+                                android:textColor="@color/black" />
+                        </com.google.android.material.textfield.TextInputLayout>
+
+                        <com.google.android.material.textfield.TextInputLayout
+                            android:id="@+id/tilConfirmPassword"
+                            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginBottom="16dp"
+                            android:hint="@string/hint_confirm_password"
+                            app:passwordToggleEnabled="true"
+                            app:passwordToggleTint="@color/primaryColor"
+                            app:startIconDrawable="@drawable/ic_lock"
+                            app:startIconTint="@color/primaryColor">
+
+                            <com.google.android.material.textfield.TextInputEditText
+                                android:id="@+id/etConfirmPassword"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:inputType="textPassword"
+                                android:textColor="@color/black" />
+                        </com.google.android.material.textfield.TextInputLayout>
+
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/btnConfirmPasswordChange"
+                            android:layout_width="match_parent"
+                            android:layout_height="56dp"
+                            android:text="Confirm Change"
+                            android:textAllCaps="false"
+                            android:visibility="gone"
+                            app:cornerRadius="8dp" />
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+            </LinearLayout>
+
+            <!-- Admin Action Section (Delete User) - Redesigned to match Sign In button -->
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnDeleteUser"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:layout_marginBottom="16dp"
+                android:text="@string/btn_delete_user"
+                android:textColor="@color/white"
+                android:visibility="gone"
+                app:backgroundTint="@color/errorColor"
+                app:cornerRadius="8dp"
+                app:icon="@drawable/ic_delete"
+                app:iconGravity="textStart"
+                app:iconTint="@color/white" />
 
             <!-- Save Changes Button -->
             <com.google.android.material.button.MaterialButton

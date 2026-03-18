@@ -71,6 +71,9 @@
         <!-- Main dashboards -->
         <activity android:name="com.sas.lostandfound.CampusDashboardActivity" />
         <activity android:name="com.sas.lostandfound.DashboardActivity" />
+        <activity android:name="com.sas.lostandfound.AdminDashboardActivity" />
+        <activity android:name="com.sas.lostandfound.AdminRequestsActivity" />
+        <activity android:name="com.sas.lostandfound.AllUsersActivity" />
 
         <!-- Profile -->
         <activity android:name="com.sas.lostandfound.UserProfileActivity" />

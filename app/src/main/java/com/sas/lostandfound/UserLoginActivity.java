@@ -2,22 +2,20 @@ package com.sas.lostandfound;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Color;
-import android.graphics.LinearGradient;
-import android.graphics.Shader;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
+import android.text.Html;
 import android.text.SpannableString;
 import android.text.Spanned;
 import android.text.TextPaint;
 import android.text.method.LinkMovementMethod;
 import android.text.style.ClickableSpan;
-import android.util.Log;
-import android.view.MotionEvent;
 import android.view.View;
-import android.widget.ImageView;
-import android.widget.LinearLayout;
+import android.widget.ArrayAdapter;
+import android.widget.AutoCompleteTextView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -36,22 +34,15 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
-
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
 
 public class UserLoginActivity extends AppCompatActivity {
 
     private TextInputEditText etUniversityId, etPassword;
+    private AutoCompleteTextView actvUserType;
     private MaterialButton btnSignIn;
     private ProgressBar progressBar;
-    private TextView tvForgotPassword, tvRegister, tvAdminLogin;
-    private LinearLayout llAdminLogin;
-    private ImageView ivAdminIcon;
+    private TextView tvForgotPassword, tvRegister;
     private MaterialToolbar toolbar;
     private AppBarLayout appBarLayout;
     private NestedScrollView nestedScrollView;
@@ -60,7 +51,6 @@ public class UserLoginActivity extends AppCompatActivity {
     private DatabaseReference mDatabase;
 
     private static final String DATABASE_URL = "https://campus-lost-and-found-portal-default-rtdb.asia-southeast1.firebasedatabase.app";
-    private static final String TAG = "UserLoginActivity";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -71,6 +61,7 @@ public class UserLoginActivity extends AppCompatActivity {
         mDatabase = FirebaseDatabase.getInstance(DATABASE_URL).getReference();
 
         initializeViews();
+        setupUserTypeDropdown();
         setupToolbar();
         setupScrollListener();
         setupClickableRegister();
@@ -80,36 +71,26 @@ public class UserLoginActivity extends AppCompatActivity {
         tvForgotPassword.setOnClickListener(v ->
                 Toast.makeText(UserLoginActivity.this, "Reset link will be sent to your registered email.", Toast.LENGTH_SHORT).show()
         );
-
-        llAdminLogin.setOnClickListener(v -> {
-            startActivity(new Intent(UserLoginActivity.this, AdminLoginActivity.class));
-        });
-
-        llAdminLogin.setOnTouchListener((v, event) -> {
-            if (event.getAction() == MotionEvent.ACTION_DOWN) {
-                applyGradient(tvAdminLogin);
-                ivAdminIcon.setColorFilter(Color.parseColor("#2196F3"));
-            } else if (event.getAction() == MotionEvent.ACTION_UP || event.getAction() == MotionEvent.ACTION_CANCEL) {
-                removeGradient(tvAdminLogin);
-                ivAdminIcon.setColorFilter(Color.parseColor("#757575"));
-            }
-            return false;
-        });
     }
 
     private void initializeViews() {
+        actvUserType = findViewById(R.id.actvUserType);
         etUniversityId = findViewById(R.id.etUniversityId);
         etPassword = findViewById(R.id.etPassword);
         btnSignIn = findViewById(R.id.btnSignIn);
         progressBar = findViewById(R.id.progressBar);
         tvForgotPassword = findViewById(R.id.tvForgotPassword);
         tvRegister = findViewById(R.id.tvRegister);
-        tvAdminLogin = findViewById(R.id.tvAdminLogin);
-        llAdminLogin = findViewById(R.id.llAdminLogin);
-        ivAdminIcon = findViewById(R.id.ivAdminIcon);
         toolbar = findViewById(R.id.toolbar);
         appBarLayout = findViewById(R.id.appBarLayout);
         nestedScrollView = findViewById(R.id.nestedScrollView);
+    }
+
+    private void setupUserTypeDropdown() {
+        String[] userTypes = {"Student", "Staff", "Admin"};
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(this, R.layout.dropdown_item, userTypes);
+        actvUserType.setAdapter(adapter);
+        actvUserType.setOnClickListener(v -> actvUserType.showDropDown());
     }
 
     private void setupToolbar() {
@@ -174,10 +155,15 @@ public class UserLoginActivity extends AppCompatActivity {
             return;
         }
 
-        String input = etUniversityId.getText().toString().trim();
+        String userType = actvUserType.getText().toString().trim();
+        String id = etUniversityId.getText().toString().trim();
         String password = etPassword.getText().toString().trim();
 
-        if (input.isEmpty()) {
+        if (userType.isEmpty()) {
+            Toast.makeText(this, "Please select User Type", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        if (id.isEmpty()) {
             etUniversityId.setError("Required");
             return;
         }
@@ -188,151 +174,81 @@ public class UserLoginActivity extends AppCompatActivity {
 
         showLoading(true);
 
-        if (android.util.Patterns.EMAIL_ADDRESS.matcher(input).matches()) {
-            performFirebaseLogin(input, password);
-        } else {
-            loginWithUniversityId(input, password);
-        }
+        startLoginFlow(id, password, userType);
     }
 
-    private void loginWithUniversityId(String universityId, String password) {
-        DatabaseReference usersRef = FirebaseDatabase.getInstance(DATABASE_URL).getReference("Users");
-
-        Set<Object> variations = new HashSet<>();
-        variations.add(universityId);
-        variations.add(universityId.toUpperCase());
-        variations.add(universityId.toLowerCase());
-
-        if (universityId.startsWith("0")) {
-            String sub = universityId.substring(1);
-            variations.add(sub);
-            variations.add(sub.toUpperCase());
-            variations.add(sub.toLowerCase());
-        } else {
-            String plusZero = "0" + universityId;
-            variations.add(plusZero);
-            variations.add(plusZero.toUpperCase());
-            variations.add(plusZero.toLowerCase());
-        }
-
-        try {
-            variations.add(Long.parseLong(universityId));
-        } catch (NumberFormatException ignored) {}
-
-        collectResultsAndLogin(usersRef, new ArrayList<>(variations), 0, new ArrayList<>(), password);
-    }
-
-    private void collectResultsAndLogin(DatabaseReference usersRef, List<Object> variations, int index, List<DataSnapshot> results, String password) {
-        if (index >= variations.size()) {
-            processResults(results, password);
-            return;
-        }
-
-        Object currentVariation = variations.get(index);
-        Query query;
-        if (currentVariation instanceof Long) {
-            query = usersRef.orderByChild("universityId").equalTo((Long) currentVariation);
-        } else {
-            query = usersRef.orderByChild("universityId").equalTo(currentVariation.toString());
-        }
-
-        query.addListenerForSingleValueEvent(new ValueEventListener() {
+    private void startLoginFlow(String universityId, String password, String userType) {
+        mDatabase.child("Users").child(universityId).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 if (snapshot.exists()) {
-                    for (DataSnapshot userSnap : snapshot.getChildren()) {
-                        results.add(userSnap);
+                    User user = snapshot.getValue(User.class);
+                    if (user != null) {
+                        if (userType.equalsIgnoreCase(user.getUserType())) {
+                            performFirebaseLogin(user.getEmail(), password, userType, user.isAdmin(), universityId);
+                        } else {
+                            showLoading(false);
+                            Toast.makeText(UserLoginActivity.this, "User Type mismatch. You registered as " + user.getUserType(), Toast.LENGTH_LONG).show();
+                        }
+                    } else {
+                        showLoading(false);
+                        Toast.makeText(UserLoginActivity.this, "Error parsing user data.", Toast.LENGTH_SHORT).show();
                     }
+                } else {
+                    showLoading(false);
+                    // Updated error message to match requirement for deleted users or non-existent accounts
+                    Toast.makeText(UserLoginActivity.this, "No account exists with this University ID. Please register again.", Toast.LENGTH_LONG).show();
                 }
-                collectResultsAndLogin(usersRef, variations, index + 1, results, password);
             }
 
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
                 showLoading(false);
-                Toast.makeText(UserLoginActivity.this, "Database error", Toast.LENGTH_SHORT).show();
+                Toast.makeText(UserLoginActivity.this, "Database error: " + error.getMessage(), Toast.LENGTH_SHORT).show();
             }
         });
     }
 
-    private void processResults(List<DataSnapshot> results, String password) {
-        if (results.isEmpty()) {
-            showLoading(false);
-            Toast.makeText(this, "University ID not found", Toast.LENGTH_SHORT).show();
-            return;
-        }
-
-        String bestEmail = null;
-        for (DataSnapshot snap : results) {
-            String type = snap.child("userType").getValue(String.class);
-            // Check for "Staff" case-insensitively and trim
-            if (type != null && "Staff".equalsIgnoreCase(type.trim())) {
-                String email = snap.child("email").getValue(String.class);
-                if (email != null) {
-                    email = email.trim();
-                    if (!email.isEmpty()) {
-                        bestEmail = email;
-                        break;
-                    }
-                }
-            }
-        }
-
-        // Fallback to first non-empty email if no staff found
-        if (bestEmail == null) {
-            for (DataSnapshot snap : results) {
-                String email = snap.child("email").getValue(String.class);
-                if (email != null) {
-                    email = email.trim();
-                    if (!email.isEmpty()) {
-                        bestEmail = email;
-                        break;
-                    }
-                }
-            }
-        }
-
-        if (bestEmail != null) {
-            Log.d(TAG, "Attempting login with email: " + bestEmail);
-            performFirebaseLogin(bestEmail, password);
-        } else {
-            showLoading(false);
-            Toast.makeText(this, "Email not found for this account", Toast.LENGTH_SHORT).show();
-        }
-    }
-
-    private void performFirebaseLogin(String email, String password) {
-        // Ensure email is trimmed (should be already, but double-check)
-        final String trimmedEmail = email.trim();
-        if (trimmedEmail.isEmpty()) {
-            showLoading(false);
-            Toast.makeText(this, "Invalid email address", Toast.LENGTH_SHORT).show();
-            return;
-        }
-
-        mAuth.signInWithEmailAndPassword(trimmedEmail, password)
+    private void performFirebaseLogin(String email, String password, String userType, boolean isMainAdmin, String dbId) {
+        mAuth.signInWithEmailAndPassword(email, password)
                 .addOnCompleteListener(this, task -> {
                     if (task.isSuccessful()) {
+                        saveLoginState(userType, isMainAdmin, dbId);
                         Toast.makeText(UserLoginActivity.this, "Login successful", Toast.LENGTH_SHORT).show();
-                        Intent intent = new Intent(UserLoginActivity.this, CampusDashboardActivity.class);
-                        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+
+                        Intent intent;
+                        if ("Admin".equalsIgnoreCase(userType)) {
+                            intent = new Intent(this, AdminDashboardActivity.class);
+                        } else {
+                            intent = new Intent(this, CampusDashboardActivity.class);
+                        }
                         startActivity(intent);
                         finish();
                     } else {
                         showLoading(false);
-                        String errorMsg = task.getException() != null ? task.getException().getMessage() : "Invalid credentials";
-                        Toast.makeText(UserLoginActivity.this, "Login failed: " + errorMsg, Toast.LENGTH_SHORT).show();
-                        Log.e(TAG, "Login failed for email: " + trimmedEmail, task.getException());
+                        String error = task.getException() != null ? task.getException().getMessage() : "Authentication failed";
+                        Toast.makeText(UserLoginActivity.this, "Login failed: " + error, Toast.LENGTH_SHORT).show();
                     }
                 });
     }
 
+    private void saveLoginState(String userType, boolean isMainAdmin, String dbId) {
+        SharedPreferences prefs = getSharedPreferences("MyApp", MODE_PRIVATE);
+        prefs.edit()
+                .putString("userType", userType)
+                .putBoolean("isAdminLoggedIn", "Admin".equalsIgnoreCase(userType))
+                .putBoolean("isMainAdmin", "Admin".equalsIgnoreCase(userType))
+                .putString("universityId", dbId)
+                .putString("adminId", dbId)
+                .apply();
+    }
+
     private void setupClickableRegister() {
-        String text = getString(R.string.register_link);
-        SpannableString ss = new SpannableString(android.text.Html.fromHtml(text));
-        String rawText = ss.toString();
+        String fullText = getString(R.string.register_link);
+        Spanned spanned = Html.fromHtml(fullText, Html.FROM_HTML_MODE_LEGACY);
+        SpannableString ss = new SpannableString(spanned);
         String registerWord = "Register";
-        int start = rawText.indexOf(registerWord);
+        int start = spanned.toString().indexOf(registerWord);
 
         if (start != -1) {
             int end = start + registerWord.length();
@@ -353,19 +269,5 @@ public class UserLoginActivity extends AppCompatActivity {
         }
         tvRegister.setText(ss);
         tvRegister.setMovementMethod(LinkMovementMethod.getInstance());
-    }
-
-    private void applyGradient(TextView textView) {
-        Shader shader = new LinearGradient(0, 0, textView.getWidth(), textView.getLineHeight(),
-                new int[]{Color.parseColor("#2196F3"), Color.parseColor("#673AB7")},
-                null, Shader.TileMode.CLAMP);
-        textView.getPaint().setShader(shader);
-        textView.invalidate();
-    }
-
-    private void removeGradient(TextView textView) {
-        textView.getPaint().setShader(null);
-        textView.setTextColor(Color.parseColor("#757575"));
-        textView.invalidate();
     }
 }

@@ -1,6 +1,5 @@
 package com.sas.lostandfound;
 
-import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -66,21 +65,9 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ViewHolder> {
         }
 
         holder.itemView.setOnClickListener(v -> {
-            Intent intent = new Intent(v.getContext(), ItemDetailActivity.class);
-            intent.putExtra("itemId", item.getId());
-            intent.putExtra("itemName", item.getName());
-            intent.putExtra("itemDescription", item.getDescription());
-            intent.putExtra("itemLocation", item.getLocation());
-            intent.putExtra("itemDate", item.getDate());
-            intent.putExtra("itemTime", item.getTime());
-            intent.putExtra("itemStatus", item.getStatus());
-            intent.putExtra("itemCategory", item.getCategory());
-            intent.putExtra("itemImageUrl", item.getImageUrl());
-            intent.putExtra("userName", item.getUserName());
-            intent.putExtra("userDepartment", item.getUserDepartment());
-            intent.putExtra("userPhone", item.getUserPhone());
-            intent.putExtra("userId", item.getUserId());
-            v.getContext().startActivity(intent);
+            if (listener != null) {
+                listener.onItemClick(item);
+            }
         });
     }
 

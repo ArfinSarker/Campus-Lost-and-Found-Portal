@@ -5,6 +5,7 @@
     <color name="primaryDarkColor">#229ED9</color>
     <color name="primaryLightColor">#D1E1FF</color>
     <color name="accentColor">#2AABEE</color>
+    <color name="secondaryColor">#34C759</color>
 
     <!-- Background and Surface -->
     <color name="backgroundColor">#FFFFFF</color>
@@ -28,6 +29,7 @@
     <color name="statusLost">#FF3B30</color>
     <color name="statusFound">#34C759</color>
     <color name="error">#FF3B30</color>
+    <color name="errorColor">#FF3B30</color>
     <color name="success">#34C759</color>
     <color name="badgeColor">#FF3B30</color>
 

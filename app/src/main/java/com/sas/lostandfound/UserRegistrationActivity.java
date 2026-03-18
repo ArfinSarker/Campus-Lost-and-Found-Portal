@@ -65,9 +65,9 @@ import java.util.Locale;
 public class UserRegistrationActivity extends AppCompatActivity {
 
     private EditText etFullName, etUniversityId, etEmail, etPhone,
-            etDepartment, etBatch, etPassword, etConfirmPassword, etDesignation;
+            etDepartment, etBatch, etPassword, etConfirmPassword, etDesignation, etAdminCode;
     private AutoCompleteTextView actvLevelTerm, actvUserType;
-    private TextInputLayout tilBatch, tilDepartment, tilLevelTerm, tilDesignation, tilUserType;
+    private TextInputLayout tilBatch, tilDepartment, tilLevelTerm, tilDesignation, tilUserType, tilAdminCode, tilUniversityId;
     private MaterialButton btnCreateAccount;
     private ProgressBar progressBar;
     private ImageView ivProfilePicture;
@@ -87,7 +87,7 @@ public class UserRegistrationActivity extends AppCompatActivity {
 
     private FirebaseAuth mAuth;
     private DatabaseReference mDatabase;
-    
+
     private static final String DATABASE_URL = "https://campus-lost-and-found-portal-default-rtdb.asia-southeast1.firebasedatabase.app";
 
     @Override
@@ -116,14 +116,17 @@ public class UserRegistrationActivity extends AppCompatActivity {
         etDepartment = findViewById(R.id.etDepartment);
         etBatch = findViewById(R.id.etBatch);
         etDesignation = findViewById(R.id.etDesignation);
+        etAdminCode = findViewById(R.id.etAdminCode);
         actvLevelTerm = findViewById(R.id.actvLevelTerm);
         actvUserType = findViewById(R.id.actvUserType);
-        
+
         tilBatch = findViewById(R.id.tilBatch);
         tilDepartment = findViewById(R.id.tilDepartment);
         tilLevelTerm = findViewById(R.id.tilLevelTerm);
         tilDesignation = findViewById(R.id.tilDesignation);
         tilUserType = findViewById(R.id.tilUserType);
+        tilAdminCode = findViewById(R.id.tilAdminCode);
+        tilUniversityId = findViewById(R.id.tilUniversityId);
 
         btnCreateAccount = findViewById(R.id.btnCreateAccount);
         progressBar = findViewById(R.id.progressBar);
@@ -147,11 +150,9 @@ public class UserRegistrationActivity extends AppCompatActivity {
                 int screenHeight = registrationRoot.getRootView().getHeight();
                 int keypadHeight = screenHeight - r.bottom;
 
-                // If keypad height is more than 15% of screen height, it's likely the keyboard is up
                 if (keypadHeight > screenHeight * 0.15) {
                     if (keyboardSpacer.getVisibility() != View.VISIBLE) {
                         keyboardSpacer.setVisibility(View.VISIBLE);
-                        // Setting a minimum height for the spacer when keyboard is on
                         keyboardSpacer.getLayoutParams().height = (int) (200 * getResources().getDisplayMetrics().density);
                         keyboardSpacer.requestLayout();
                     }
@@ -175,17 +176,16 @@ public class UserRegistrationActivity extends AppCompatActivity {
         actvLevelTerm.setAdapter(levelTermAdapter);
         actvLevelTerm.setOnClickListener(v -> actvLevelTerm.showDropDown());
 
-        String[] userTypeOptions = {"Student", "Staff"};
+        String[] userTypeOptions = {"Student", "Staff", "Admin"};
         ArrayAdapter<String> userTypeAdapter = new ArrayAdapter<>(this, R.layout.dropdown_item, userTypeOptions);
         actvUserType.setAdapter(userTypeAdapter);
         actvUserType.setOnClickListener(v -> actvUserType.showDropDown());
-        
+
         actvUserType.setOnItemClickListener((parent, view, position, id) -> {
             String selection = (String) parent.getItemAtPosition(position);
             updateUIForUserType(selection);
         });
-        
-        // Default UI
+
         updateUIForUserType("Student");
     }
 
@@ -196,19 +196,28 @@ public class UserRegistrationActivity extends AppCompatActivity {
             tilDepartment.setVisibility(View.VISIBLE);
             tilLevelTerm.setVisibility(View.VISIBLE);
             tilDesignation.setVisibility(View.GONE);
-        } else {
+            tilAdminCode.setVisibility(View.GONE);
+        } else if ("Staff".equals(userType)) {
             tilUserType.setStartIconDrawable(R.drawable.ic_user);
             tilBatch.setVisibility(View.GONE);
             tilDepartment.setVisibility(View.GONE);
             tilLevelTerm.setVisibility(View.GONE);
             tilDesignation.setVisibility(View.VISIBLE);
+            tilAdminCode.setVisibility(View.GONE);
+        } else if ("Admin".equals(userType)) {
+            tilUserType.setStartIconDrawable(R.drawable.ic_admin_id);
+            tilBatch.setVisibility(View.GONE);
+            tilDepartment.setVisibility(View.GONE);
+            tilLevelTerm.setVisibility(View.GONE);
+            tilDesignation.setVisibility(View.VISIBLE);
+            tilAdminCode.setVisibility(View.VISIBLE);
         }
     }
 
     private void setupListeners() {
         fabAddPhoto.setOnClickListener(v -> showImageSourceDialog());
         ivProfilePicture.setOnClickListener(v -> showImageSourceDialog());
-        
+
         cbPolicy.setOnCheckedChangeListener((buttonView, isChecked) -> {
             btnCreateAccount.setEnabled(isChecked);
         });
@@ -220,11 +229,11 @@ public class UserRegistrationActivity extends AppCompatActivity {
                 Toast.makeText(this, "Please agree to the policy first.", Toast.LENGTH_SHORT).show();
             }
         });
-        
+
         if (btnBack != null) {
             btnBack.setOnClickListener(v -> finish());
         }
-        
+
         if (tvLogin != null) {
             tvLogin.setOnClickListener(v -> {
                 startActivity(new Intent(this, UserLoginActivity.class));
@@ -236,13 +245,13 @@ public class UserRegistrationActivity extends AppCompatActivity {
     private void setupPolicyText() {
         String fullText = getString(R.string.lost_and_found_policy);
         String clickablePart = getString(R.string.lost_and_found_policy_clickable);
-        
+
         SpannableString ss = new SpannableString(fullText);
-        
+
         int startIndex = fullText.indexOf(clickablePart);
         if (startIndex != -1) {
             int endIndex = startIndex + clickablePart.length();
-            
+
             ClickableSpan clickableSpan = new ClickableSpan() {
                 @Override
                 public void onClick(@NonNull View widget) {
@@ -255,36 +264,36 @@ public class UserRegistrationActivity extends AppCompatActivity {
                     ds.setUnderlineText(false);
                 }
             };
-            
-            ss.setSpan(clickableSpan, startIndex, endIndex, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-            ss.setSpan(new ForegroundColorSpan(ContextCompat.getColor(this, R.color.primaryColor)), 
+
+            ss.setSpan(clickablePart, startIndex, endIndex, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+            ss.setSpan(new ForegroundColorSpan(ContextCompat.getColor(this, R.color.primaryColor)),
                     startIndex, endIndex, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-            ss.setSpan(new StyleSpan(Typeface.BOLD), 
+            ss.setSpan(new StyleSpan(Typeface.BOLD),
                     startIndex, endIndex, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
         }
-        
+
         cbPolicy.setText(ss);
         cbPolicy.setMovementMethod(LinkMovementMethod.getInstance());
     }
 
     private void setupLoginLink() {
         if (tvLogin == null) return;
-        
+
         Spanned spanned = Html.fromHtml(getString(R.string.login_link), Html.FROM_HTML_MODE_LEGACY);
         SpannableString ss = new SpannableString(spanned);
-        
+
         String fullText = spanned.toString();
         String loginText = "Login";
         int startIndex = fullText.indexOf(loginText);
-        
+
         if (startIndex != -1) {
             int endIndex = startIndex + loginText.length();
-            ss.setSpan(new ForegroundColorSpan(ContextCompat.getColor(this, R.color.primaryColor)), 
+            ss.setSpan(new ForegroundColorSpan(ContextCompat.getColor(this, R.color.primaryColor)),
                     startIndex, endIndex, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
             ss.setSpan(new StyleSpan(Typeface.BOLD),
                     startIndex, endIndex, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
         }
-        
+
         tvLogin.setText(ss);
     }
 
@@ -366,14 +375,19 @@ public class UserRegistrationActivity extends AppCompatActivity {
         String universityId = etUniversityId.getText().toString().trim();
         String fullName = etFullName.getText().toString().trim();
         String email = etEmail.getText().toString().trim();
+        String phone = etPhone.getText().toString().trim();
         String password = etPassword.getText().toString().trim();
         String confirmPassword = etConfirmPassword.getText().toString().trim();
         String userType = actvUserType.getText().toString().trim();
 
+        // Clear previous errors
+        tilUniversityId.setError(null);
+
         if (TextUtils.isEmpty(universityId)) { etUniversityId.setError("Required"); return; }
         if (TextUtils.isEmpty(fullName)) { etFullName.setError("Required"); return; }
-        if (TextUtils.isEmpty(email) || !android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
+        if (!TextUtils.isEmpty(email) && !android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
             etEmail.setError("Valid email required"); return; }
+        if (TextUtils.isEmpty(phone)) { etPhone.setError("Required"); return; }
         if (password.length() < 6) { etPassword.setError("Minimum 6 characters"); return; }
         if (!password.equals(confirmPassword)) { etConfirmPassword.setError("Passwords do not match"); return; }
 
@@ -381,41 +395,44 @@ public class UserRegistrationActivity extends AppCompatActivity {
             if (TextUtils.isEmpty(etDesignation.getText().toString().trim())) {
                 etDesignation.setError("Required"); return;
             }
+        } else if ("Admin".equals(userType)) {
+            if (TextUtils.isEmpty(etDesignation.getText().toString().trim())) {
+                etDesignation.setError("Required"); return;
+            }
+            if (TextUtils.isEmpty(etAdminCode.getText().toString().trim())) {
+                etAdminCode.setError("Required"); return;
+            }
         }
 
         showLoading(true);
 
-        // Check for duplicate University ID in all possible formats (String, Number, etc.)
-        List<Object> idVariations = new ArrayList<>();
-        idVariations.add(universityId);
-        if (universityId.startsWith("0")) idVariations.add(universityId.substring(1));
-        try { idVariations.add(Long.parseLong(universityId)); } catch (NumberFormatException ignored) {}
-
-        checkDuplicatesAndRegister(idVariations, 0, email, password, universityId, fullName, userType);
-    }
-
-    private void checkDuplicatesAndRegister(List<Object> variations, int index, String email, String password, String universityId, String fullName, String userType) {
-        if (index >= variations.size()) {
-            performAuthRegistration(email, password, universityId, fullName, userType);
-            return;
-        }
-
-        Object currentVariation = variations.get(index);
-        DatabaseReference usersRef = mDatabase.child("Users");
-        Query query = usersRef.orderByChild("universityId").equalTo(currentVariation.toString());
-        if (currentVariation instanceof Long) {
-            query = usersRef.orderByChild("universityId").equalTo((Long) currentVariation);
-        }
-
-        query.addListenerForSingleValueEvent(new ValueEventListener() {
+        mDatabase.child("Users").child(universityId).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 if (snapshot.exists()) {
                     showLoading(false);
-                    etUniversityId.setError("ID already registered");
-                    Toast.makeText(UserRegistrationActivity.this, "This University ID is already in use.", Toast.LENGTH_LONG).show();
+                    etUniversityId.requestFocus();
+                    tilUniversityId.setError("An account with this University ID already exists. Please log in.");
                 } else {
-                    checkDuplicatesAndRegister(variations, index + 1, email, password, universityId, fullName, userType);
+                    if ("Admin".equals(userType)) {
+                        mDatabase.child("adminRequests").child(universityId).addListenerForSingleValueEvent(new ValueEventListener() {
+                            @Override
+                            public void onDataChange(@NonNull DataSnapshot requestSnapshot) {
+                                if (requestSnapshot.exists()) {
+                                    showLoading(false);
+                                    Toast.makeText(UserRegistrationActivity.this, "A request for this ID is already pending.", Toast.LENGTH_LONG).show();
+                                } else {
+                                    submitAdminRequest(universityId, fullName, email, phone, etDesignation.getText().toString().trim(), etAdminCode.getText().toString().trim(), password);
+                                }
+                            }
+                            @Override public void onCancelled(@NonNull DatabaseError error) {
+                                showLoading(false);
+                                Toast.makeText(UserRegistrationActivity.this, "Database error: " + error.getMessage(), Toast.LENGTH_SHORT).show();
+                            }
+                        });
+                    } else {
+                        performAuthRegistration(email, password, universityId, fullName, userType);
+                    }
                 }
             }
 
@@ -427,7 +444,54 @@ public class UserRegistrationActivity extends AppCompatActivity {
         });
     }
 
+    private void redirectToLogin() {
+        startActivity(new Intent(UserRegistrationActivity.this, UserLoginActivity.class)
+                .setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK));
+        finish();
+    }
+
+    private void submitAdminRequest(String universityId, String fullName, String email, String phone, String designation, String adminCode, String password) {
+        if (profileImageUri != null) {
+            String fileName = universityId + "_req_" + System.currentTimeMillis() + ".jpg";
+            SupabaseStorageHelper.uploadImage(this, profileImageUri, "admin_requests", fileName, new SupabaseStorageHelper.UploadCallback() {
+                @Override
+                public void onSuccess(String publicUrl) {
+                    saveAdminRequest(universityId, fullName, email, phone, designation, adminCode, password, publicUrl);
+                }
+
+                @Override
+                public void onFailure(Exception e) {
+                    saveAdminRequest(universityId, fullName, email, phone, designation, adminCode, password, null);
+                }
+            });
+        } else {
+            saveAdminRequest(universityId, fullName, email, phone, designation, adminCode, password, null);
+        }
+    }
+
+    private void saveAdminRequest(String universityId, String fullName, String email, String phoneNumber, String designation, String verificationCode, String password, String imageUrl) {
+        AdminRequest request = new AdminRequest(universityId, fullName, email, phoneNumber, designation, verificationCode, password, imageUrl);
+
+        mDatabase.child("adminRequests").child(universityId).setValue(request)
+                .addOnCompleteListener(task -> {
+                    showLoading(false);
+                    if (task.isSuccessful()) {
+                        Toast.makeText(this, "Your provided information is being verified. Please try to log in after some time.", Toast.LENGTH_LONG).show();
+                        redirectToLogin();
+                    } else {
+                        String error = task.getException() != null ? task.getException().getMessage() : "Unknown Error";
+                        Toast.makeText(this, "Database Error: " + error, Toast.LENGTH_SHORT).show();
+                    }
+                });
+    }
+
     private void performAuthRegistration(String email, String password, String universityId, String fullName, String userType) {
+        if (TextUtils.isEmpty(email)) {
+            showLoading(false);
+            Toast.makeText(this, "Email is required for Student/Staff registration", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
         mAuth.createUserWithEmailAndPassword(email, password)
                 .addOnCompleteListener(task -> {
                     if (!task.isSuccessful()) {
@@ -439,8 +503,7 @@ public class UserRegistrationActivity extends AppCompatActivity {
 
                     if (mAuth.getCurrentUser() != null) {
                         String authId = mAuth.getCurrentUser().getUid();
-                        // Use universityId as the primary key/userId in database
-                        String dbUserId = universityId; 
+                        String dbUserId = universityId;
 
                         if (profileImageUri != null) {
                             String fileName = dbUserId + "_" + System.currentTimeMillis() + ".jpg";
@@ -462,37 +525,33 @@ public class UserRegistrationActivity extends AppCompatActivity {
                 });
     }
 
-    private void saveUser(String dbUserId, String authId, String imageUrl, String universityId, String fullName, String email, String password, String userType) {
+    private void saveUser(String universityIdKey, String authId, String imageUrl, String universityId, String fullName, String email, String password, String userType) {
         String phone = etPhone.getText().toString().trim();
-        
+
         User user;
         if ("Student".equals(userType)) {
             String department = etDepartment.getText().toString().trim();
             String batch = etBatch.getText().toString().trim();
             String levelTerm = actvLevelTerm.getText().toString().trim();
-            user = new User(dbUserId, fullName, universityId, email, password, phone, department, batch, levelTerm, "Not Specified", imageUrl, "Not Specified");
+            user = new User(universityId, authId, fullName, email, password, phone, department, batch, levelTerm, "Not Specified", imageUrl, "Not Specified");
         } else {
             String designation = etDesignation.getText().toString().trim();
-            user = new User(dbUserId, fullName, universityId, email, password, phone, designation, imageUrl, "Not Specified", "Staff");
+            user = new User(universityId, authId, fullName, email, password, phone, designation, imageUrl, "Not Specified", userType);
         }
-        
-        // Ensure the auth UID is also stored if needed for security/linking
-        // For now, using universityId as the database key
-        mDatabase.child("Users").child(dbUserId)
+
+        mDatabase.child("Users").child(universityIdKey)
                 .setValue(user)
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {
-                        // Create a mapping from Auth UID to University ID for easier lookups
-                        mDatabase.child("UIDToUniversityID").child(authId).setValue(dbUserId);
-                        
+                        mDatabase.child("UIDToUniversityID").child(authId).setValue(universityIdKey);
+
                         showLoading(false);
-                        Toast.makeText(this, "Registration successful.", Toast.LENGTH_LONG).show();
-                        startActivity(new Intent(this, UserLoginActivity.class)
-                                .setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK));
-                        finish();
+                        Toast.makeText(this, "Your account has been successfully registered. Please log in.", Toast.LENGTH_LONG).show();
+                        redirectToLogin();
                     } else {
                         showLoading(false);
-                        Toast.makeText(this, "Database error", Toast.LENGTH_SHORT).show();
+                        String error = task.getException() != null ? task.getException().getMessage() : "Permission denied";
+                        Toast.makeText(this, "Database error: " + error, Toast.LENGTH_SHORT).show();
                     }
                 });
     }

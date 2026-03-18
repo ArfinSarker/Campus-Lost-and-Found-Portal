@@ -32,9 +32,13 @@ public class AllReportedItemsActivity extends AppCompatActivity {
     private RecyclerView rvAllItems;
     private AllItemsAdapter adapter;
     private List<Item> itemList;
+    private List<Item> filteredList;
     private ProgressBar progressBar;
     private Toolbar toolbar;
     private TextView tvHeaderTitle;
+    private String filterStatus; // "lost", "found", "returned" or null
+    private String targetUserId;
+    private String userName;
 
     private DatabaseReference mDatabase;
     private static final String DATABASE_URL = "https://campus-lost-and-found-portal-default-rtdb.asia-southeast1.firebasedatabase.app";
@@ -45,6 +49,9 @@ public class AllReportedItemsActivity extends AppCompatActivity {
         setContentView(R.layout.activity_all_reported_items);
 
         mDatabase = FirebaseDatabase.getInstance(DATABASE_URL).getReference();
+        filterStatus = getIntent().getStringExtra("filterStatus");
+        targetUserId = getIntent().getStringExtra("targetUserId");
+        userName = getIntent().getStringExtra("userName");
 
         initializeViews();
         setupToolbar();
@@ -57,6 +64,18 @@ public class AllReportedItemsActivity extends AppCompatActivity {
         progressBar = findViewById(R.id.progressBar);
         toolbar = findViewById(R.id.toolbar);
         tvHeaderTitle = findViewById(R.id.tvHeaderTitle);
+        
+        String prefix = (userName != null && !userName.isEmpty()) ? userName + "'s " : "All ";
+        
+        if ("lost".equalsIgnoreCase(filterStatus)) {
+            tvHeaderTitle.setText(prefix + "Lost Reports");
+        } else if ("found".equalsIgnoreCase(filterStatus)) {
+            tvHeaderTitle.setText(prefix + "Found Reports");
+        } else if ("returned".equalsIgnoreCase(filterStatus)) {
+            tvHeaderTitle.setText(prefix + "Returned Items");
+        } else {
+            tvHeaderTitle.setText("All Reported Items");
+        }
     }
 
     private void setupToolbar() {
@@ -65,6 +84,7 @@ public class AllReportedItemsActivity extends AppCompatActivity {
             setSupportActionBar(toolbar);
             if (getSupportActionBar() != null) {
                 getSupportActionBar().setDisplayShowTitleEnabled(false);
+                getSupportActionBar().setDisplayHomeAsUpEnabled(true);
             }
             toolbar.setNavigationOnClickListener(v -> onBackPressed());
         }
@@ -72,7 +92,8 @@ public class AllReportedItemsActivity extends AppCompatActivity {
 
     private void setupRecyclerView() {
         itemList = new ArrayList<>();
-        adapter = new AllItemsAdapter(itemList);
+        filteredList = new ArrayList<>();
+        adapter = new AllItemsAdapter(filteredList);
         rvAllItems.setLayoutManager(new LinearLayoutManager(this));
         rvAllItems.setAdapter(adapter);
     }
@@ -82,14 +103,18 @@ public class AllReportedItemsActivity extends AppCompatActivity {
         ValueEventListener itemListener = new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
+                // If it's a specific user's items, we should ideally fetch from UserItems path
+                // But for simplicity and consistency with the existing updateOrAddItem logic,
+                // we'll listen to LostItems and FoundItems nodes.
+                // Note: itemList.clear() here if we want to refresh entirely, 
+                // but updateOrAddItem handles existing items.
                 for (DataSnapshot data : snapshot.getChildren()) {
                     Item item = data.getValue(Item.class);
                     if (item != null) {
                         updateOrAddItem(item);
                     }
                 }
-                itemList.sort((o1, o2) -> Long.compare(o2.getTimestamp(), o1.getTimestamp()));
-                adapter.notifyDataSetChanged();
+                applyFilter();
                 progressBar.setVisibility(View.GONE);
             }
 
@@ -111,6 +136,27 @@ public class AllReportedItemsActivity extends AppCompatActivity {
             }
         }
         itemList.add(item);
+    }
+
+    private void applyFilter() {
+        filteredList.clear();
+        for (Item item : itemList) {
+            boolean matchesUser = (targetUserId == null || item.getUserId().equals(targetUserId));
+            if (!matchesUser) continue;
+
+            if (filterStatus == null) {
+                filteredList.add(item);
+            } else if ("returned".equalsIgnoreCase(filterStatus)) {
+                String status = item.getAdminStatus();
+                if ("Returned".equalsIgnoreCase(status) || "Claimed".equalsIgnoreCase(status)) {
+                    filteredList.add(item);
+                }
+            } else if (item.getStatus().equalsIgnoreCase(filterStatus)) {
+                filteredList.add(item);
+            }
+        }
+        filteredList.sort((o1, o2) -> Long.compare(o2.getTimestamp(), o1.getTimestamp()));
+        adapter.notifyDataSetChanged();
     }
 
     private class AllItemsAdapter extends RecyclerView.Adapter<AllItemsAdapter.ViewHolder> {
@@ -175,6 +221,7 @@ public class AllReportedItemsActivity extends AppCompatActivity {
                 intent.putExtra("userDepartment", item.getUserDepartment());
                 intent.putExtra("userPhone", item.getUserPhone());
                 intent.putExtra("userId", item.getUserId());
+                intent.putExtra("isAdmin", true);
                 v.getContext().startActivity(intent);
             });
         }

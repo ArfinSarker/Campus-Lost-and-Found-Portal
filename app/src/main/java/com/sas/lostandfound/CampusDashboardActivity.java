@@ -1,6 +1,7 @@
 package com.sas.lostandfound;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -64,9 +65,24 @@ public class CampusDashboardActivity extends AppCompatActivity {
     private String currentUniversityId;
     private ValueEventListener notificationListener;
 
+    // Hardcoded Admin UID
+    private static final String ADMIN_UID = "NhwPcU2nOySmd2zHDiLlvsgMBYV2";
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        
+        // Check if admin is logged in and redirect if necessary
+        SharedPreferences prefs = getSharedPreferences("MyApp", MODE_PRIVATE);
+        boolean isAdminLoggedIn = prefs.getBoolean("isAdminLoggedIn", false);
+        String userType = prefs.getString("userType", "");
+        
+        if (isAdminLoggedIn || "Admin".equalsIgnoreCase(userType)) {
+            startActivity(new Intent(this, AdminDashboardActivity.class));
+            finish();
+            return;
+        }
+
         setContentView(R.layout.activity_campus_dashboard);
 
         mAuth = FirebaseAuth.getInstance();
@@ -164,6 +180,7 @@ public class CampusDashboardActivity extends AppCompatActivity {
                 startActivity(intent);
             } else if (id == R.id.nav_logout) {
                 mAuth.signOut();
+                getSharedPreferences("MyApp", MODE_PRIVATE).edit().clear().apply();
                 Intent intent = new Intent(this, UserLoginActivity.class);
                 intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
                 startActivity(intent);
@@ -218,6 +235,11 @@ public class CampusDashboardActivity extends AppCompatActivity {
         if (currentUser != null) {
             String authUid = currentUser.getUid();
             
+            // Promote specific user to Admin if they login
+            if (ADMIN_UID.equals(authUid)) {
+                promoteToAdmin(authUid);
+            }
+
             mDatabase.child("UIDToUniversityID").child(authUid).addListenerForSingleValueEvent(new ValueEventListener() {
                 @Override
                 public void onDataChange(@NonNull DataSnapshot snapshot) {
@@ -237,6 +259,26 @@ public class CampusDashboardActivity extends AppCompatActivity {
         }
     }
 
+    private void promoteToAdmin(String uid) {
+        mDatabase.child("UIDToUniversityID").child(uid).addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                String universityId = snapshot.exists() ? snapshot.getValue(String.class) : null;
+                if (universityId != null) {
+                    mDatabase.child("Users").child(universityId).child("userType").setValue("Admin");
+                    mDatabase.child("Users").child(universityId).child("role").setValue("admin");
+                    mDatabase.child("Users").child(universityId).child("isAdmin").setValue(true);
+                } else {
+                    // If no mapping, create one if possible or use UID as fallback
+                    mDatabase.child("Users").child(uid).child("userType").setValue("Admin");
+                    mDatabase.child("Users").child(uid).child("role").setValue("admin");
+                    mDatabase.child("Users").child(uid).child("isAdmin").setValue(true);
+                }
+            }
+            @Override public void onCancelled(@NonNull DatabaseError error) {}
+        });
+    }
+
     private void searchUserByEmail(FirebaseUser currentUser) {
         String email = currentUser.getEmail();
         String authUid = currentUser.getUid();
@@ -253,19 +295,24 @@ public class CampusDashboardActivity extends AppCompatActivity {
                         }
                     } else {
                         currentUniversityId = authUid;
-                        loadProfileAndNotifications(authUid);
+                        loadUserDataAndMapping(authUid);
                     }
                 }
                 @Override
                 public void onCancelled(@NonNull DatabaseError error) {
                     currentUniversityId = authUid;
-                    loadProfileAndNotifications(authUid);
+                    loadUserDataAndMapping(authUid);
                 }
             });
         } else {
             currentUniversityId = authUid;
-            loadProfileAndNotifications(authUid);
+            loadUserDataAndMapping(authUid);
         }
+    }
+
+    private void loadUserDataAndMapping(String userId) {
+        // Ensure mapping exists for the current session
+        loadProfileAndNotifications(userId);
     }
 
     private void loadProfileAndNotifications(String userId) {
