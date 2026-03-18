@@ -383,8 +383,8 @@ public class ItemDetailActivity extends AppCompatActivity {
 
         String type = "lost".equalsIgnoreCase(itemStatus) ? "lost_claim" : "found_claim";
         String message = "lost".equalsIgnoreCase(itemStatus) ? 
-                "Someone has found your item: " + itemName :
-                "Someone has claimed your item: " + itemName;
+                "A user has found your lost item (" + itemName + "). Click to view details." :
+                "A user has claimed your found item (" + itemName + ") as theirs. Click to view details.";
 
         Notification notification = new Notification(
                 notificationId, recipientId, senderId, senderName, senderPhone, senderEmail,
@@ -394,6 +394,10 @@ public class ItemDetailActivity extends AppCompatActivity {
         mDatabase.child("Notifications").child(recipientId).child(notificationId).setValue(notification)
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {
+                        // Update report status to claimed
+                        String path = "lost".equalsIgnoreCase(itemStatus) ? "LostItems" : "FoundItems";
+                        mDatabase.child(path).child(itemId).child("adminStatus").setValue("Claimed");
+
                         mDatabase.child("ItemClaims").child(itemId).child(senderId).setValue(System.currentTimeMillis());
                         Toast.makeText(ItemDetailActivity.this, "Request sent successfully!", Toast.LENGTH_SHORT).show();
                         btnClaim.setText("Claim Sent");

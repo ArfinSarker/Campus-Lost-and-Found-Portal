@@ -110,13 +110,29 @@ public class CampusMyItemsActivity extends AppCompatActivity {
         if (mAuth.getCurrentUser() == null) return;
         String userId = mAuth.getCurrentUser().getUid();
         
+        // Use University ID if available for consistency
+        mDatabase.child("UIDToUniversityID").child(userId).addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                final String resolvedUserId = snapshot.exists() ? snapshot.getValue(String.class) : userId;
+                loadItems(resolvedUserId);
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                loadItems(userId);
+            }
+        });
+    }
+
+    private void loadItems(String userId) {
         ValueEventListener listener = new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 for (DataSnapshot data : snapshot.getChildren()) {
                     Item item = data.getValue(Item.class);
-                    if (item != null && userId.equals(item.getUserId())) {
-                        if (shouldInclude(item)) {
+                    if (item != null) {
+                        if (shouldInclude(item, userId)) {
                             updateOrAddItem(item);
                         }
                     }
@@ -132,18 +148,23 @@ public class CampusMyItemsActivity extends AppCompatActivity {
         mDatabase.child("FoundItems").addValueEventListener(listener);
     }
 
-    private boolean shouldInclude(Item item) {
+    private boolean shouldInclude(Item item, String userId) {
         switch (filterType) {
             case "reported":
-                return "found".equals(item.getStatus());
+                // All found reports by this user
+                return "found".equals(item.getStatus()) && userId.equals(item.getUserId());
             case "find":
-                return "lost".equals(item.getStatus());
+                // All lost reports by this user
+                return "lost".equals(item.getStatus()) && userId.equals(item.getUserId());
             case "return":
-                return "found".equals(item.getStatus()) && "Returned".equals(item.getAdminStatus());
+                // Found items by this user that were returned (Claimed/Returned status)
+                return "found".equals(item.getStatus()) && userId.equals(item.getUserId()) && 
+                        ("Returned".equalsIgnoreCase(item.getAdminStatus()) || "Claimed".equalsIgnoreCase(item.getAdminStatus()));
             case "claimed":
-                return "lost".equals(item.getStatus()) && "Claimed".equals(item.getAdminStatus());
+                // Items claimed by this user (originally found by someone else)
+                return "found".equals(item.getStatus()) && userId.equals(item.getClaimedByUserId());
             default:
-                return true;
+                return false;
         }
     }
 
@@ -155,6 +176,7 @@ public class CampusMyItemsActivity extends AppCompatActivity {
             }
         }
         itemList.add(item);
+        itemList.sort((o1, o2) -> Long.compare(o2.getTimestamp(), o1.getTimestamp()));
     }
 
     private class MyItemsAdapter extends RecyclerView.Adapter<MyItemsAdapter.ViewHolder> {

@@ -1,6 +1,10 @@
 package com.sas.lostandfound;
 
 import android.graphics.Typeface;
+import android.text.Html;
+import android.text.SpannableString;
+import android.text.style.ForegroundColorSpan;
+import android.text.style.UnderlineSpan;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -10,7 +14,10 @@ import androidx.annotation.NonNull;
 import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
 public class NotificationAdapter extends RecyclerView.Adapter<NotificationAdapter.ViewHolder> {
 
@@ -36,8 +43,21 @@ public class NotificationAdapter extends RecyclerView.Adapter<NotificationAdapte
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         Notification notification = notifications.get(position);
-        holder.tvMessage.setText(notification.getMessage());
-        holder.tvTime.setText(getTimeAgo(notification.getTimestamp()));
+        
+        String fullMsg = notification.getMessage();
+        if (fullMsg != null && fullMsg.contains("Click to view details.")) {
+            int start = fullMsg.indexOf("Click to view details.");
+            int end = start + "Click to view details.".length();
+            SpannableString spannableString = new SpannableString(fullMsg);
+            spannableString.setSpan(new UnderlineSpan(), start, end, 0);
+            spannableString.setSpan(new ForegroundColorSpan(ContextCompat.getColor(holder.itemView.getContext(), R.color.primaryColor)), start, end, 0);
+            holder.tvMessage.setText(spannableString);
+        } else {
+            holder.tvMessage.setText(fullMsg);
+        }
+
+        SimpleDateFormat sdf = new SimpleDateFormat("dd MMM yyyy, hh:mm a", Locale.getDefault());
+        holder.tvTime.setText(sdf.format(new Date(notification.getTimestamp())));
 
         if (notification.isRead()) {
             holder.tvMessage.setTypeface(null, Typeface.NORMAL);
@@ -57,26 +77,6 @@ public class NotificationAdapter extends RecyclerView.Adapter<NotificationAdapte
     @Override
     public int getItemCount() {
         return notifications.size();
-    }
-
-    public static String getTimeAgo(long time) {
-        long now = System.currentTimeMillis();
-        final long diff = now - time;
-        if (diff < 60 * 1000) {
-            return "just now";
-        } else if (diff < 2 * 60 * 1000) {
-            return "1 minute ago";
-        } else if (diff < 50 * 60 * 1000) {
-            return diff / (60 * 1000) + " minutes ago";
-        } else if (diff < 90 * 60 * 1000) {
-            return "an hour ago";
-        } else if (diff < 24 * 60 * 60 * 1000) {
-            return diff / (60 * 60 * 1000) + " hours ago";
-        } else if (diff < 48 * 60 * 60 * 1000) {
-            return "yesterday";
-        } else {
-            return diff / (24 * 60 * 60 * 1000) + " days ago";
-        }
     }
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
