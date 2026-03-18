@@ -19,9 +19,12 @@
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
             app:navigationIcon="@drawable/ic_back_arrow"
-            app:navigationIconTint="@color/white">
+            app:navigationIconTint="@color/white"
+            app:title=""
+            app:titleTextColor="@color/white">
 
             <TextView
+                android:id="@+id/tvHeaderTitle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/report_found_btn"
@@ -51,11 +54,12 @@
                 android:textColor="@color/primaryColor" />
 
             <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/tilItemName"
                 style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
-                android:hint="Item Name"
+                android:hint="Item Name *"
                 app:shapeAppearanceOverlay="@style/ShapeAppearance.App.SmallComponent">
 
                 <com.google.android.material.textfield.TextInputEditText
@@ -66,11 +70,12 @@
             </com.google.android.material.textfield.TextInputLayout>
 
             <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/tilCategory"
                 style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
-                android:hint="Category"
+                android:hint="Category *"
                 app:boxCornerRadiusBottomEnd="8dp"
                 app:boxCornerRadiusBottomStart="8dp"
                 app:boxCornerRadiusTopEnd="8dp"
@@ -85,11 +90,12 @@
             </com.google.android.material.textfield.TextInputLayout>
 
             <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/tilDescription"
                 style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
-                android:hint="Description"
+                android:hint="Description *"
                 app:shapeAppearanceOverlay="@style/ShapeAppearance.App.SmallComponent">
 
                 <com.google.android.material.textfield.TextInputEditText
@@ -159,12 +165,13 @@
                 android:orientation="horizontal">
 
                 <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/tilDate"
                     style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_marginEnd="8dp"
                     android:layout_weight="1"
-                    android:hint="Date"
+                    android:hint="Date *"
                     app:shapeAppearanceOverlay="@style/ShapeAppearance.App.SmallComponent"
                     app:startIconDrawable="@drawable/ic_calendar">
 
@@ -176,6 +183,7 @@
                 </com.google.android.material.textfield.TextInputLayout>
 
                 <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/tilTime"
                     style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
@@ -194,11 +202,12 @@
             </LinearLayout>
 
             <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/tilLocation"
                 style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
-                android:hint="Location"
+                android:hint="Location *"
                 app:boxCornerRadiusBottomEnd="8dp"
                 app:boxCornerRadiusBottomStart="8dp"
                 app:boxCornerRadiusTopEnd="8dp"
@@ -218,7 +227,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
-                android:hint="Enter Location"
+                android:hint="Enter Location *"
                 android:visibility="gone"
                 app:shapeAppearanceOverlay="@style/ShapeAppearance.App.SmallComponent">
 
@@ -229,6 +238,7 @@
             </com.google.android.material.textfield.TextInputLayout>
 
             <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/tilLocationDetails"
                 style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -252,11 +262,12 @@
                 android:textColor="@color/primaryColor" />
 
             <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/tilHandlingStatus"
                 style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
-                android:hint="Current Item Status"
+                android:hint="Current Item Status *"
                 app:boxCornerRadiusBottomEnd="8dp"
                 app:boxCornerRadiusBottomStart="8dp"
                 app:boxCornerRadiusTopEnd="8dp"
@@ -276,7 +287,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
-                android:hint="Authority/Person Name"
+                android:hint="Authority/Person Name *"
                 android:visibility="gone"
                 app:shapeAppearanceOverlay="@style/ShapeAppearance.App.SmallComponent">
 
@@ -311,11 +322,12 @@
                 android:textColor="@color/primaryColor" />
 
             <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/tilHiddenQuestion"
                 style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
-                android:hint="Security Question for Owner"
+                android:hint="Security Question for Owner *"
                 app:helperText="A question only the owner could answer (e.g., Lock screen wallpaper)"
                 app:shapeAppearanceOverlay="@style/ShapeAppearance.App.SmallComponent">
 
@@ -335,11 +347,12 @@
                 android:textColor="@color/primaryColor" />
 
             <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/tilContactName"
                 style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
-                android:hint="Your Name"
+                android:hint="Your Name *"
                 app:shapeAppearanceOverlay="@style/ShapeAppearance.App.SmallComponent">
 
                 <com.google.android.material.textfield.TextInputEditText
@@ -350,11 +363,12 @@
             </com.google.android.material.textfield.TextInputLayout>
 
             <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/tilContactPhone"
                 style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
-                android:hint="Contact Phone"
+                android:hint="Contact Phone *"
                 app:shapeAppearanceOverlay="@style/ShapeAppearance.App.SmallComponent">
 
                 <com.google.android.material.textfield.TextInputEditText
@@ -365,11 +379,12 @@
             </com.google.android.material.textfield.TextInputLayout>
 
             <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/tilPreferredContact"
                 style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
-                android:hint="Preferred Contact"
+                android:hint="Preferred Contact *"
                 app:boxCornerRadiusBottomEnd="8dp"
                 app:boxCornerRadiusBottomStart="8dp"
                 app:boxCornerRadiusTopEnd="8dp"

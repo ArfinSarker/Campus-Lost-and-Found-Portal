@@ -9,7 +9,9 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
+import android.text.Editable;
 import android.text.TextUtils;
+import android.text.TextWatcher;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
@@ -55,7 +57,7 @@ public class CampusReportLostActivity extends AppCompatActivity {
 
     private TextInputEditText etItemName, etDateLost, etTimeLost, etManualLocation, etLocationDetails, etDescription, etProofOwnership, etContactName, etContactPhone;
     private AutoCompleteTextView actvCategory, actvLocation, actvPreferredContact;
-    private TextInputLayout tilManualLocation;
+    private TextInputLayout tilItemName, tilCategory, tilDescription, tilDate, tilTime, tilLocation, tilManualLocation, tilContactName, tilContactPhone, tilPreferredContact;
     private MaterialCheckBox cbConfirm;
     private MaterialButton btnSubmit;
     private com.google.android.material.card.MaterialCardView uploadCard;
@@ -90,6 +92,7 @@ public class CampusReportLostActivity extends AppCompatActivity {
         setupToolbar();
         setupDropdowns();
         setupPickers();
+        setupTextWatchers();
         fetchCurrentUserData();
 
         uploadCard.setOnClickListener(v -> showImageSourceDialog());
@@ -98,12 +101,23 @@ public class CampusReportLostActivity extends AppCompatActivity {
 
     private void initializeViews() {
         etItemName = findViewById(R.id.etItemName);
+        tilItemName = findViewById(R.id.tilItemName);
+        
         actvCategory = findViewById(R.id.actvCategory);
+        tilCategory = findViewById(R.id.tilCategory);
+        
         etDescription = findViewById(R.id.etDescription);
+        tilDescription = findViewById(R.id.tilDescription);
 
         etDateLost = findViewById(R.id.etDateLost);
+        tilDate = findViewById(R.id.tilDate);
+        
         etTimeLost = findViewById(R.id.etTimeLost);
+        tilTime = findViewById(R.id.tilTime);
+        
         actvLocation = findViewById(R.id.actvLocation);
+        tilLocation = findViewById(R.id.tilLocation);
+        
         tilManualLocation = findViewById(R.id.tilManualLocation);
         etManualLocation = findViewById(R.id.etManualLocation);
         etLocationDetails = findViewById(R.id.etLocationDetails);
@@ -111,8 +125,13 @@ public class CampusReportLostActivity extends AppCompatActivity {
         etProofOwnership = findViewById(R.id.etProofOwnership);
 
         etContactName = findViewById(R.id.etContactName);
+        tilContactName = findViewById(R.id.tilContactName);
+        
         etContactPhone = findViewById(R.id.etContactPhone);
+        tilContactPhone = findViewById(R.id.tilContactPhone);
+        
         actvPreferredContact = findViewById(R.id.actvPreferredContact);
+        tilPreferredContact = findViewById(R.id.tilPreferredContact);
 
         cbConfirm = findViewById(R.id.cbConfirm);
         btnSubmit = findViewById(R.id.btnSubmitReport);
@@ -122,11 +141,20 @@ public class CampusReportLostActivity extends AppCompatActivity {
         toolbar = findViewById(R.id.toolbar);
     }
 
+    private void setupTextWatchers() {
+        etItemName.addTextChangedListener(new SimpleTextWatcher(tilItemName));
+        etDescription.addTextChangedListener(new SimpleTextWatcher(tilDescription));
+        etManualLocation.addTextChangedListener(new SimpleTextWatcher(tilManualLocation));
+        etContactName.addTextChangedListener(new SimpleTextWatcher(tilContactName));
+        etContactPhone.addTextChangedListener(new SimpleTextWatcher(tilContactPhone));
+    }
+
     private void setupToolbar() {
         if (toolbar != null) {
             setSupportActionBar(toolbar);
             if (getSupportActionBar() != null) {
                 getSupportActionBar().setDisplayShowTitleEnabled(false);
+                getSupportActionBar().setDisplayHomeAsUpEnabled(true);
             }
             toolbar.setNavigationOnClickListener(v -> onBackPressed());
         }
@@ -167,19 +195,24 @@ public class CampusReportLostActivity extends AppCompatActivity {
     private void setupDropdowns() {
         String[] categories = {"Electronics & Gadgets", "ID Cards", "Wallets & Purses", "Bank/Credit Cards", "Bags", "Study Materials", "Eyewear", "Keys & Access Devices", "Clothing & Accessories", "Others"};
         actvCategory.setAdapter(new ArrayAdapter<>(this, R.layout.dropdown_item, categories));
+        actvCategory.setOnItemClickListener((parent, view, position, id) -> tilCategory.setError(null));
 
         String[] locations = {"Academic Building", "Civil Building", "Library", "Cafeteria", "Medical Center", "Playground", "Abbas Uddin Ahmed Hall (AUAH)", "Shaheed Dr. Zikrul Haque Hall", "Bir Protik Taramon Bibi Hall", "Bir Protik Taramon Bibi (New Hall)", "Other"};
         actvLocation.setAdapter(new ArrayAdapter<>(this, R.layout.dropdown_item, locations));
         actvLocation.setOnItemClickListener((parent, view, position, id) -> {
+            tilLocation.setError(null);
             if (locations[position].equals("Other")) {
                 tilManualLocation.setVisibility(View.VISIBLE);
             } else {
                 tilManualLocation.setVisibility(View.GONE);
+                etManualLocation.setText("");
+                tilManualLocation.setError(null);
             }
         });
 
         String[] contactMethods = {"Phone", "Email", "In-app chat"};
         actvPreferredContact.setAdapter(new ArrayAdapter<>(this, R.layout.dropdown_item, contactMethods));
+        actvPreferredContact.setOnItemClickListener((parent, view, position, id) -> tilPreferredContact.setError(null));
     }
 
     private void setupPickers() {
@@ -197,6 +230,7 @@ public class CampusReportLostActivity extends AppCompatActivity {
             datePicker.addOnPositiveButtonClickListener(selection -> {
                 SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault());
                 etDateLost.setText(sdf.format(new Date(selection)));
+                tilDate.setError(null);
             });
 
             datePicker.show(getSupportFragmentManager(), "DATE_PICKER");
@@ -304,27 +338,51 @@ public class CampusReportLostActivity extends AppCompatActivity {
     }
 
     private void validateAndSubmit() {
+        clearErrors();
+        
         String name = etItemName.getText().toString().trim();
         String category = actvCategory.getText().toString().trim();
         String description = etDescription.getText().toString().trim();
         String date = etDateLost.getText().toString().trim();
         String location = actvLocation.getText().toString().trim();
-        String phone = etContactPhone.getText().toString().trim();
+        String manualLocation = etManualLocation.getText().toString().trim();
+        String contactName = etContactName.getText().toString().trim();
+        String contactPhone = etContactPhone.getText().toString().trim();
+        String preferredContact = actvPreferredContact.getText().toString().trim();
 
-        if (TextUtils.isEmpty(name)) { etItemName.setError("Required"); return; }
-        if (TextUtils.isEmpty(category)) { actvCategory.setError("Required"); return; }
-        if (TextUtils.isEmpty(description)) { etDescription.setError("Required"); return; }
-        if (TextUtils.isEmpty(date)) { etDateLost.setError("Required"); return; }
-        if (TextUtils.isEmpty(location)) { actvLocation.setError("Required"); return; }
-        if (TextUtils.isEmpty(phone)) { etContactPhone.setError("Required"); return; }
-        if (!cbConfirm.isChecked()) { Toast.makeText(this, "Please confirm accuracy", Toast.LENGTH_SHORT).show(); return; }
+        boolean isValid = true;
 
-        if (location.equals("Other")) {
-            location = etManualLocation.getText().toString().trim();
-            if (TextUtils.isEmpty(location)) { etManualLocation.setError("Required"); return; }
+        if (TextUtils.isEmpty(name)) { tilItemName.setError("Item name is required"); isValid = false; }
+        if (TextUtils.isEmpty(category)) { tilCategory.setError("Category is required"); isValid = false; }
+        if (TextUtils.isEmpty(description)) { tilDescription.setError("Description is required"); isValid = false; }
+        if (TextUtils.isEmpty(date)) { tilDate.setError("Date is required"); isValid = false; }
+        if (TextUtils.isEmpty(location)) { tilLocation.setError("Location is required"); isValid = false; }
+        else if (location.equals("Other") && TextUtils.isEmpty(manualLocation)) { tilManualLocation.setError("Please specify location"); isValid = false; }
+        
+        if (TextUtils.isEmpty(contactName)) { tilContactName.setError("Your name is required"); isValid = false; }
+        if (TextUtils.isEmpty(contactPhone)) { tilContactPhone.setError("Contact phone is required"); isValid = false; }
+        if (TextUtils.isEmpty(preferredContact)) { tilPreferredContact.setError("Preferred contact is required"); isValid = false; }
+
+        if (!cbConfirm.isChecked()) {
+            Toast.makeText(this, "Please confirm the information is accurate", Toast.LENGTH_SHORT).show();
+            isValid = false;
         }
 
-        submitReport(name, category, description, date, location);
+        if (isValid) {
+            submitReport(name, category, description, date, "Other".equals(location) ? manualLocation : location);
+        }
+    }
+
+    private void clearErrors() {
+        tilItemName.setError(null);
+        tilCategory.setError(null);
+        tilDescription.setError(null);
+        tilDate.setError(null);
+        tilLocation.setError(null);
+        tilManualLocation.setError(null);
+        tilContactName.setError(null);
+        tilContactPhone.setError(null);
+        tilPreferredContact.setError(null);
     }
 
     private void submitReport(String name, String category, String description, String date, String location) {
@@ -398,5 +456,19 @@ public class CampusReportLostActivity extends AppCompatActivity {
                 Toast.makeText(this, "Database Error: " + error, Toast.LENGTH_SHORT).show();
             }
         });
+    }
+
+    private static class SimpleTextWatcher implements TextWatcher {
+        private final TextInputLayout textInputLayout;
+
+        public SimpleTextWatcher(TextInputLayout textInputLayout) {
+            this.textInputLayout = textInputLayout;
+        }
+
+        @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+        @Override public void onTextChanged(CharSequence s, int start, int before, int count) {
+            textInputLayout.setError(null);
+        }
+        @Override public void afterTextChanged(Editable s) {}
     }
 }
