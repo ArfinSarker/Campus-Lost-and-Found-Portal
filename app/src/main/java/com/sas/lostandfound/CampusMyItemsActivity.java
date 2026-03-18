@@ -37,6 +37,7 @@ public class CampusMyItemsActivity extends AppCompatActivity {
     private String filterType; 
     private TextView tvHeaderTitle;
     private Toolbar toolbar;
+    private boolean fromDrawer = false;
 
     private FirebaseAuth mAuth;
     private DatabaseReference mDatabase;
@@ -49,6 +50,8 @@ public class CampusMyItemsActivity extends AppCompatActivity {
 
         filterType = getIntent().getStringExtra("filterType");
         if (filterType == null) filterType = "reported";
+        
+        fromDrawer = getIntent().getBooleanExtra("fromDrawer", false);
 
         mAuth = FirebaseAuth.getInstance();
         mDatabase = FirebaseDatabase.getInstance(DATABASE_URL).getReference();
@@ -65,7 +68,9 @@ public class CampusMyItemsActivity extends AppCompatActivity {
         View.OnClickListener backClickListener = v -> {
             Intent intent = new Intent(CampusMyItemsActivity.this, CampusDashboardActivity.class);
             intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
-            intent.putExtra("openDrawer", true);
+            if (fromDrawer) {
+                intent.putExtra("openDrawer", true);
+            }
             startActivity(intent);
             finish();
         };
