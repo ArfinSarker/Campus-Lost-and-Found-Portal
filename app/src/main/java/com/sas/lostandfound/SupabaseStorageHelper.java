@@ -31,6 +31,11 @@ public class SupabaseStorageHelper {
         void onFailure(Exception e);
     }
 
+    public interface DeleteCallback {
+        void onSuccess();
+        void onFailure(Exception e);
+    }
+
     public static void uploadImage(Context context, Uri fileUri, String folder, String fileName, UploadCallback callback) {
         try {
             InputStream inputStream = context.getContentResolver().openInputStream(fileUri);
@@ -76,6 +81,56 @@ public class SupabaseStorageHelper {
             });
         } catch (Exception e) {
             callback.onFailure(e);
+        }
+    }
+
+    public static void deleteImage(String publicUrl, DeleteCallback callback) {
+        if (publicUrl == null || publicUrl.isEmpty()) {
+            if (callback != null) callback.onSuccess();
+            return;
+        }
+
+        try {
+            // Extract path from public URL
+            // Expected format: https://.../storage/v1/object/public/bucket/folder/filename
+            String searchString = "/storage/v1/object/public/" + SupabaseConfig.BUCKET_NAME + "/";
+            int index = publicUrl.indexOf(searchString);
+            if (index == -1) {
+                if (callback != null) callback.onFailure(new Exception("Invalid URL format for deletion"));
+                return;
+            }
+
+            String path = publicUrl.substring(index + searchString.length());
+            String url = SupabaseConfig.SUPABASE_URL + "/storage/v1/object/" + SupabaseConfig.BUCKET_NAME + "/" + path;
+
+            Request request = new Request.Builder()
+                    .url(url)
+                    .addHeader("apikey", SupabaseConfig.SUPABASE_KEY)
+                    .addHeader("Authorization", "Bearer " + SupabaseConfig.SUPABASE_KEY)
+                    .delete()
+                    .build();
+
+            client.newCall(request).enqueue(new Callback() {
+                @Override
+                public void onFailure(Call call, IOException e) {
+                    if (callback != null) mainHandler.post(() -> callback.onFailure(e));
+                }
+
+                @Override
+                public void onResponse(Call call, Response response) throws IOException {
+                    if (response.isSuccessful() || response.code() == 404) { // 404 means already gone
+                        if (callback != null) mainHandler.post(callback::onSuccess);
+                    } else {
+                        if (callback != null) {
+                            String errorBody = response.body() != null ? response.body().string() : "Unknown error";
+                            mainHandler.post(() -> callback.onFailure(new IOException("Delete failed: " + response.code() + " " + errorBody)));
+                        }
+                    }
+                    if (response.body() != null) response.close();
+                }
+            });
+        } catch (Exception e) {
+            if (callback != null) callback.onFailure(e);
         }
     }
 

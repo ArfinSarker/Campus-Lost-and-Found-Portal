@@ -1,6 +1,7 @@
 package com.sas.lostandfound;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.TextView;
@@ -42,12 +43,8 @@ public class DashboardActivity extends AppCompatActivity {
         mAuth = FirebaseAuth.getInstance();
         mDatabase = FirebaseDatabase.getInstance(DATABASE_URL).getReference();
 
-        // Check if already logged in - if so, go to CampusDashboard
-        if (mAuth.getCurrentUser() != null) {
-            startActivity(new Intent(this, CampusDashboardActivity.class));
-            finish();
-            return;
-        }
+        // Check if already logged in and redirect accordingly
+        checkSessionAndRedirect();
 
         // Initialize views
         btnReportLost = findViewById(R.id.btnReportLost);
@@ -79,10 +76,12 @@ public class DashboardActivity extends AppCompatActivity {
         });
 
         btnReportLost.setOnClickListener(v -> {
+            Toast.makeText(getApplicationContext(), R.string.login_to_report_lost, Toast.LENGTH_SHORT).show();
             startActivity(new Intent(DashboardActivity.this, UserLoginActivity.class));
         });
 
         btnReportFound.setOnClickListener(v -> {
+            Toast.makeText(getApplicationContext(), R.string.login_to_report_found, Toast.LENGTH_SHORT).show();
             startActivity(new Intent(DashboardActivity.this, UserLoginActivity.class));
         });
 
@@ -95,6 +94,23 @@ public class DashboardActivity extends AppCompatActivity {
             tvDeveloperInfo.setOnClickListener(v -> {
                 startActivity(new Intent(DashboardActivity.this, DeveloperInfoActivity.class));
             });
+        }
+    }
+
+    private void checkSessionAndRedirect() {
+        if (mAuth.getCurrentUser() != null) {
+            SharedPreferences prefs = getSharedPreferences("MyApp", MODE_PRIVATE);
+            boolean isAdminLoggedIn = prefs.getBoolean("isAdminLoggedIn", false);
+            String userType = prefs.getString("userType", "");
+
+            Intent intent;
+            if (isAdminLoggedIn || "Admin".equalsIgnoreCase(userType)) {
+                intent = new Intent(this, AdminDashboardActivity.class);
+            } else {
+                intent = new Intent(this, CampusDashboardActivity.class);
+            }
+            startActivity(intent);
+            finish();
         }
     }
 
@@ -145,9 +161,6 @@ public class DashboardActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        if (mAuth.getCurrentUser() != null) {
-            startActivity(new Intent(this, CampusDashboardActivity.class));
-            finish();
-        }
+        checkSessionAndRedirect();
     }
 }

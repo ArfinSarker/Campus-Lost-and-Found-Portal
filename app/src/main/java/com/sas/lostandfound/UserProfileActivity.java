@@ -12,7 +12,6 @@ import android.provider.MediaStore;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
-import android.util.Log;
 import android.util.Patterns;
 import android.view.View;
 import android.widget.ArrayAdapter;
@@ -59,16 +58,16 @@ import java.util.Map;
 
 public class UserProfileActivity extends AppCompatActivity {
 
-    private static final String TAG = "UserProfileActivity";
     private ImageView ivProfilePicture;
     private FloatingActionButton fabChangePhoto;
     private TextInputLayout tilEmail, tilPhone, tilDepartment, tilGender, tilBatch, tilLevelTerm, tilSection, tilOldPassword, tilNewPassword, tilConfirmPassword, tilDesignation, tilFullName;
     private TextInputEditText etEmail, etPhone, etFullName, etUniversityId, etBatch, etOldPassword, etNewPassword, etConfirmPassword, etDesignation, etDepartment;
     private AutoCompleteTextView actvGender, actvLevelTerm, actvSection;
-    private MaterialButton btnSaveChanges, btnConfirmPasswordChange;
+    private MaterialButton btnSaveChanges, btnConfirmPasswordChange, btnDeleteUser;
     private ProgressBar progressBar;
     private Toolbar toolbar;
-    private TextView tvHeaderTitle;
+    private TextView tvHeaderTitle, tvLostReportsCount, tvFoundReportsCount, tvReturnedItemsCount;
+    private View changePasswordSection, activitySection;
 
     private FirebaseAuth mAuth;
     private DatabaseReference mDatabase;
@@ -87,6 +86,11 @@ public class UserProfileActivity extends AppCompatActivity {
     private User originalUser;
     private boolean isDataLoaded = false;
     private boolean isProfilePictureRemoved = false;
+    private boolean isAdminViewing = false;
+    private String targetUserId;
+
+    // Real-time listeners for Admin Activity counts
+    private ValueEventListener lostListener, foundListener, itemsListener;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -96,27 +100,211 @@ public class UserProfileActivity extends AppCompatActivity {
         mAuth = FirebaseAuth.getInstance();
         mDatabase = FirebaseDatabase.getInstance(DATABASE_URL).getReference();
 
-        FirebaseUser user = mAuth.getCurrentUser();
-        if (user == null) {
-            finish();
-            return;
-        }
-        
-        userEmail = user.getEmail();
+        isAdminViewing = getIntent().getBooleanExtra("isAdminViewing", false);
+        targetUserId = getIntent().getStringExtra("targetUserId");
 
         initializeViews();
         setupToolbar();
         setupDropdowns();
-        fetchUniversityIdAndLoadData(user.getUid());
-        
-        fabChangePhoto.setOnClickListener(v -> showImageSourceDialog());
-        ivProfilePicture.setOnClickListener(v -> showImageSourceDialog());
 
-        setupEditableToggles();
-        setupChangeDetection();
+        if (isAdminViewing && targetUserId != null) {
+            currentUniversityId = targetUserId;
+            loadUserData(targetUserId);
+            setupAdminView();
+            setupRealTimeActivityTracking(targetUserId);
+        } else {
+            FirebaseUser user = mAuth.getCurrentUser();
+            if (user == null) {
+                finish();
+                return;
+            }
+            userEmail = user.getEmail();
+            fetchUniversityIdAndLoadData(user.getUid());
+            
+            fabChangePhoto.setOnClickListener(v -> showImageSourceDialog());
+            ivProfilePicture.setOnClickListener(v -> showImageSourceDialog());
 
-        btnSaveChanges.setOnClickListener(v -> saveAllChanges());
+            setupEditableToggles();
+            setupChangeDetection();
+            btnSaveChanges.setOnClickListener(v -> saveAllChanges());
+            setupPasswordChangeLogic();
+        }
+
+        getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
+            @Override
+            public void handleOnBackPressed() {
+                finish();
+            }
+        });
+    }
+
+    private void setupAdminView() {
+        // Initial title, will be updated in loadUserData
+        tvHeaderTitle.setText("User Profile");
+        fabChangePhoto.setVisibility(View.GONE);
+        if (changePasswordSection != null) changePasswordSection.setVisibility(View.GONE);
+        if (activitySection != null) activitySection.setVisibility(View.VISIBLE);
+        if (btnDeleteUser != null) {
+            btnDeleteUser.setVisibility(View.VISIBLE);
+            btnDeleteUser.setOnClickListener(v -> confirmDeleteUser());
+        }
         
+        // Setup click listeners for activity sections
+        tvLostReportsCount.setOnClickListener(v -> openFilteredItemList("lost"));
+        tvFoundReportsCount.setOnClickListener(v -> openFilteredItemList("found"));
+        tvReturnedItemsCount.setOnClickListener(v -> openFilteredItemList("returned"));
+
+        // Disable editing for Admin viewing mode
+        disableAllFields();
+    }
+
+    private void openFilteredItemList(String status) {
+        Intent intent = new Intent(this, AllReportedItemsActivity.class);
+        intent.putExtra("filterStatus", status);
+        intent.putExtra("targetUserId", targetUserId);
+        intent.putExtra("userName", originalUser != null ? originalUser.getName() : "");
+        startActivity(intent);
+    }
+
+    private void disableAllFields() {
+        etFullName.setEnabled(false);
+        etEmail.setEnabled(false);
+        etPhone.setEnabled(false);
+        actvGender.setEnabled(false);
+        etBatch.setEnabled(false);
+        actvLevelTerm.setEnabled(false);
+        etDepartment.setEnabled(false);
+        actvSection.setEnabled(false);
+        etDesignation.setEnabled(false);
+
+        tilFullName.setEndIconMode(TextInputLayout.END_ICON_NONE);
+        tilEmail.setEndIconMode(TextInputLayout.END_ICON_NONE);
+        tilPhone.setEndIconMode(TextInputLayout.END_ICON_NONE);
+        tilGender.setEndIconMode(TextInputLayout.END_ICON_NONE);
+        tilBatch.setEndIconMode(TextInputLayout.END_ICON_NONE);
+        tilLevelTerm.setEndIconMode(TextInputLayout.END_ICON_NONE);
+        tilDepartment.setEndIconMode(TextInputLayout.END_ICON_NONE);
+        tilSection.setEndIconMode(TextInputLayout.END_ICON_NONE);
+        tilDesignation.setEndIconMode(TextInputLayout.END_ICON_NONE);
+    }
+
+    private void setupRealTimeActivityTracking(String userId) {
+        // 1. Lost Reports Count (Red)
+        lostListener = mDatabase.child("LostItems").orderByChild("userId").equalTo(userId).addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                long count = snapshot.getChildrenCount();
+                tvLostReportsCount.setText("Lost Reports: " + count);
+                tvLostReportsCount.setTextColor(ContextCompat.getColor(UserProfileActivity.this, R.color.errorColor));
+            }
+            @Override public void onCancelled(@NonNull DatabaseError error) {}
+        });
+
+        // 2. Found Reports Count (Green)
+        foundListener = mDatabase.child("FoundItems").orderByChild("userId").equalTo(userId).addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                long count = snapshot.getChildrenCount();
+                tvFoundReportsCount.setText("Found Reports: " + count);
+                tvFoundReportsCount.setTextColor(0xFF2E7D32); // Dark Green
+            }
+            @Override public void onCancelled(@NonNull DatabaseError error) {}
+        });
+
+        // 3. Returned Items Count (Primary Color)
+        itemsListener = mDatabase.child("UserItems").child(userId).addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                final long[] returnedCount = {0};
+                long totalItems = snapshot.getChildrenCount();
+                if (totalItems == 0) {
+                    updateReturnedUI(0);
+                    return;
+                }
+                
+                final int[] checkedItems = {0};
+                for (DataSnapshot itemSnap : snapshot.getChildren()) {
+                    String itemId = itemSnap.getKey();
+                    checkItemStatus(itemId, new StatusCallback() {
+                        @Override
+                        public void onResult(boolean isReturned) {
+                            if (isReturned) returnedCount[0]++;
+                            checkedItems[0]++;
+                            if (checkedItems[0] == totalItems) {
+                                updateReturnedUI(returnedCount[0]);
+                            }
+                        }
+                    });
+                }
+            }
+            @Override public void onCancelled(@NonNull DatabaseError error) {}
+        });
+    }
+
+    private interface StatusCallback {
+        void onResult(boolean isReturned);
+    }
+
+    private void checkItemStatus(String itemId, StatusCallback callback) {
+        mDatabase.child("LostItems").child(itemId).addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot lostSnap) {
+                if (lostSnap.exists()) {
+                    String status = lostSnap.child("adminStatus").getValue(String.class);
+                    callback.onResult("Returned".equalsIgnoreCase(status) || "Claimed".equalsIgnoreCase(status));
+                } else {
+                    mDatabase.child("FoundItems").child(itemId).addListenerForSingleValueEvent(new ValueEventListener() {
+                        @Override
+                        public void onDataChange(@NonNull DataSnapshot foundSnap) {
+                            if (foundSnap.exists()) {
+                                String status = foundSnap.child("adminStatus").getValue(String.class);
+                                callback.onResult("Returned".equalsIgnoreCase(status) || "Claimed".equalsIgnoreCase(status));
+                            } else {
+                                callback.onResult(false);
+                            }
+                        }
+                        @Override public void onCancelled(@NonNull DatabaseError error) { callback.onResult(false); }
+                    });
+                }
+            }
+            @Override public void onCancelled(@NonNull DatabaseError error) { callback.onResult(false); }
+        });
+    }
+
+    private void updateReturnedUI(long count) {
+        tvReturnedItemsCount.setText("Returned Items: " + count);
+        tvReturnedItemsCount.setTextColor(ContextCompat.getColor(this, R.color.primaryColor));
+    }
+
+    private void confirmDeleteUser() {
+        new AlertDialog.Builder(this)
+                .setTitle("Delete User")
+                .setMessage("Are you sure you want to delete this user permanently? This action cannot be undone.")
+                .setPositiveButton("Delete", (dialog, which) -> deleteUserFromDatabase())
+                .setNegativeButton("Cancel", null)
+                .setIcon(android.R.drawable.ic_dialog_alert)
+                .show();
+    }
+
+    private void deleteUserFromDatabase() {
+        showLoading(true);
+        if (originalUser != null && originalUser.getAuthId() != null) {
+            mDatabase.child("UIDToUniversityID").child(originalUser.getAuthId()).removeValue();
+        }
+        
+        mDatabase.child("Users").child(currentUniversityId).removeValue()
+                .addOnCompleteListener(task -> {
+                    showLoading(false);
+                    if (task.isSuccessful()) {
+                        Toast.makeText(this, "User deleted successfully", Toast.LENGTH_LONG).show();
+                        finish();
+                    } else {
+                        Toast.makeText(this, "Failed to delete user", Toast.LENGTH_SHORT).show();
+                    }
+                });
+    }
+
+    private void setupPasswordChangeLogic() {
         btnConfirmPasswordChange.setOnClickListener(v -> {
             String oldPass = etOldPassword.getText().toString().trim();
             String newPass = etNewPassword.getText().toString().trim();
@@ -139,7 +327,6 @@ public class UserProfileActivity extends AppCompatActivity {
             
             showLoading(true);
             reauthenticateAndChangePassword(oldPass, newPass, () -> {
-                // Also update password in Database
                 mDatabase.child("Users").child(currentUniversityId).child("password").setValue(newPass)
                         .addOnCompleteListener(dbTask -> {
                             showLoading(false);
@@ -151,23 +338,12 @@ public class UserProfileActivity extends AppCompatActivity {
                                 tilNewPassword.setError(null);
                                 tilConfirmPassword.setError(null);
                                 btnConfirmPasswordChange.setVisibility(View.GONE);
-                                Snackbar.make(findViewById(android.R.id.content), "Password updated successfully in Auth and Database", Snackbar.LENGTH_LONG).show();
+                                Snackbar.make(findViewById(android.R.id.content), "Password updated successfully", Snackbar.LENGTH_LONG).show();
                             } else {
                                 Toast.makeText(this, "Database password update failed", Toast.LENGTH_SHORT).show();
                             }
                         });
             });
-        });
-
-        getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
-            @Override
-            public void handleOnBackPressed() {
-                Intent intent = new Intent(UserProfileActivity.this, CampusDashboardActivity.class);
-                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
-                intent.putExtra("openDrawer", true);
-                startActivity(intent);
-                finish();
-            }
         });
     }
 
@@ -207,6 +383,13 @@ public class UserProfileActivity extends AppCompatActivity {
 
         btnSaveChanges = findViewById(R.id.btnSaveChanges);
         btnConfirmPasswordChange = findViewById(R.id.btnConfirmPasswordChange);
+        btnDeleteUser = findViewById(R.id.btnDeleteUser);
+        
+        changePasswordSection = findViewById(R.id.llChangePasswordSection);
+        activitySection = findViewById(R.id.llActivitySection);
+        tvLostReportsCount = findViewById(R.id.tvLostReportsCount);
+        tvFoundReportsCount = findViewById(R.id.tvFoundReportsCount);
+        tvReturnedItemsCount = findViewById(R.id.tvReturnedItemsCount);
     }
 
     private void setupToolbar() {
@@ -215,14 +398,9 @@ public class UserProfileActivity extends AppCompatActivity {
             setSupportActionBar(toolbar);
             if (getSupportActionBar() != null) {
                 getSupportActionBar().setDisplayShowTitleEnabled(false);
+                getSupportActionBar().setDisplayHomeAsUpEnabled(true);
             }
-            toolbar.setNavigationOnClickListener(v -> {
-                Intent intent = new Intent(this, CampusDashboardActivity.class);
-                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
-                intent.putExtra("openDrawer", true);
-                startActivity(intent);
-                finish();
-            });
+            toolbar.setNavigationOnClickListener(v -> onBackPressed());
         }
     }
 
@@ -267,7 +445,6 @@ public class UserProfileActivity extends AppCompatActivity {
             field.setEnabled(!isEnabled);
             if (!isEnabled) {
                 field.requestFocus();
-                // If it's a dropdown, show it immediately
                 if (field instanceof AutoCompleteTextView) {
                     ((AutoCompleteTextView) field).showDropDown();
                 }
@@ -317,7 +494,7 @@ public class UserProfileActivity extends AppCompatActivity {
     }
 
     private void checkForChanges() {
-        if (originalUser == null) return;
+        if (originalUser == null || isAdminViewing) return;
 
         boolean changed = false;
         
@@ -360,14 +537,12 @@ public class UserProfileActivity extends AppCompatActivity {
                     currentUniversityId = snapshot.getValue(String.class);
                     loadUserData(currentUniversityId);
                 } else {
-                    Log.d(TAG, "No mapping found for UID in UserProfile, trying email search");
                     searchUserByEmail();
                 }
             }
 
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
-                Log.e(TAG, "Mapping fetch failed in UserProfile: " + error.getMessage());
                 searchUserByEmail();
             }
         });
@@ -390,19 +565,16 @@ public class UserProfileActivity extends AppCompatActivity {
                     if (snapshot.exists()) {
                         for (DataSnapshot userSnap : snapshot.getChildren()) {
                             currentUniversityId = userSnap.getKey();
-                            Log.d(TAG, "User found by email search in UserProfile: " + currentUniversityId);
                             loadUserData(currentUniversityId);
                             return;
                         }
                     } else {
-                        Log.d(TAG, "No user found with email in UserProfile, falling back to Auth UID");
                         currentUniversityId = authUid;
                         loadUserData(authUid);
                     }
                 }
                 @Override
                 public void onCancelled(@NonNull DatabaseError error) {
-                    Log.e(TAG, "Email search failed in UserProfile: " + error.getMessage());
                     currentUniversityId = authUid;
                     loadUserData(authUid);
                 }
@@ -414,26 +586,32 @@ public class UserProfileActivity extends AppCompatActivity {
     }
 
     private void loadUserData(String userId) {
-        Log.d(TAG, "Loading user data for ID: " + userId);
         mDatabase.child("Users").child(userId).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 showLoading(false);
                 if (snapshot.exists()) {
-                    Log.d(TAG, "User data received in UserProfile. Name: " + snapshot.child("name").getValue());
                     originalUser = snapshot.getValue(User.class);
                     if (originalUser != null) {
                         isDataLoaded = false;
-                        etFullName.setText(originalUser.getName());
+                        String name = originalUser.getName();
+                        if (name == null) name = originalUser.getFullName();
+                        
+                        etFullName.setText(name);
+                        
+                        // New Behavior: header should show "[User's Name]'s Profile"
+                        if (isAdminViewing) {
+                            tvHeaderTitle.setText(name + "'s Profile");
+                        }
+
                         etUniversityId.setText(originalUser.getUniversityId());
                         etEmail.setText(originalUser.getEmail());
                         etPhone.setText(originalUser.getPhone());
                         actvGender.setText(originalUser.getGender(), false);
                         
-                        if ("Staff".equals(originalUser.getUserType())) {
+                        if ("Staff".equals(originalUser.getUserType()) || "Admin".equalsIgnoreCase(originalUser.getUserType())) {
                             tilDesignation.setVisibility(View.VISIBLE);
                             etDesignation.setText(originalUser.getDesignation());
-                            
                             tilBatch.setVisibility(View.GONE);
                             tilLevelTerm.setVisibility(View.GONE);
                             tilDepartment.setVisibility(View.GONE);
@@ -444,6 +622,10 @@ public class UserProfileActivity extends AppCompatActivity {
                             actvLevelTerm.setText(originalUser.getLevelTerm(), false);
                             etDepartment.setText(originalUser.getDepartment());
                             actvSection.setText(originalUser.getSection(), false);
+                            tilBatch.setVisibility(View.VISIBLE);
+                            tilLevelTerm.setVisibility(View.VISIBLE);
+                            tilDepartment.setVisibility(View.VISIBLE);
+                            tilSection.setVisibility(View.VISIBLE);
                         }
                         
                         if (originalUser.getProfileImageUrl() != null && !originalUser.getProfileImageUrl().isEmpty()) {
@@ -458,16 +640,15 @@ public class UserProfileActivity extends AppCompatActivity {
                         
                         isProfilePictureRemoved = false;
                         isDataLoaded = true;
+                        
+                        if (isAdminViewing) disableAllFields();
                     }
-                } else {
-                    Log.w(TAG, "User node does not exist for ID: " + userId);
                 }
             }
 
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
                 showLoading(false);
-                Log.e(TAG, "User data fetch failed in UserProfile: " + error.getMessage());
                 Toast.makeText(UserProfileActivity.this, "Failed to load data", Toast.LENGTH_SHORT).show();
             }
         });
@@ -485,11 +666,13 @@ public class UserProfileActivity extends AppCompatActivity {
 
         Map<String, Object> updates = new HashMap<>();
         updates.put("name", name);
+        updates.put("fullName", name);
         updates.put("email", email);
         updates.put("phone", phone);
+        updates.put("phoneNumber", phone);
         updates.put("gender", gender);
 
-        if ("Staff".equals(originalUser.getUserType())) {
+        if ("Staff".equals(originalUser.getUserType()) || "Admin".equalsIgnoreCase(originalUser.getUserType())) {
             updates.put("designation", etDesignation.getText().toString().trim());
         } else {
             updates.put("batch", etBatch.getText().toString().trim());
@@ -525,7 +708,7 @@ public class UserProfileActivity extends AppCompatActivity {
             @Override
             public void onFailure(Exception e) {
                 showLoading(false);
-                Toast.makeText(UserProfileActivity.this, "Supabase Upload Failed: " + e.getMessage(), Toast.LENGTH_LONG).show();
+                Toast.makeText(UserProfileActivity.this, "Upload Failed: " + e.getMessage(), Toast.LENGTH_LONG).show();
             }
         });
     }
@@ -593,7 +776,7 @@ public class UserProfileActivity extends AppCompatActivity {
                             onComplete.run();
                         } else {
                             showLoading(false);
-                            Toast.makeText(this, "Password update failed in Auth: " + updateTask.getException().getMessage(), Toast.LENGTH_SHORT).show();
+                            Toast.makeText(this, "Password update failed: " + updateTask.getException().getMessage(), Toast.LENGTH_SHORT).show();
                         }
                     });
                 } else {
@@ -726,6 +909,15 @@ public class UserProfileActivity extends AppCompatActivity {
 
     private void showLoading(boolean show) {
         progressBar.setVisibility(show ? View.VISIBLE : View.GONE);
-        btnSaveChanges.setEnabled(!show);
+        if (!isAdminViewing) btnSaveChanges.setEnabled(!show);
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        // Remove listeners
+        if (lostListener != null) mDatabase.child("LostItems").removeEventListener(lostListener);
+        if (foundListener != null) mDatabase.child("FoundItems").removeEventListener(foundListener);
+        if (itemsListener != null && targetUserId != null) mDatabase.child("UserItems").child(targetUserId).removeEventListener(itemsListener);
     }
 }

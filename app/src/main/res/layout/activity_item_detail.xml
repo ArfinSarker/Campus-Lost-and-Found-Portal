@@ -371,8 +371,23 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="32dp"
-                android:layout_marginBottom="16dp"
                 android:text="@string/btn_found_this" />
+
+            <!-- Delete Item Button - Redesigned to match Sign In button style -->
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnDelete"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:layout_marginBottom="16dp"
+                android:text="@string/btn_delete_report"
+                android:textColor="@color/white"
+                android:visibility="gone"
+                app:backgroundTint="@color/errorColor"
+                app:cornerRadius="8dp"
+                app:icon="@drawable/ic_delete"
+                app:iconGravity="textStart"
+                app:iconTint="@color/white" />
 
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>
