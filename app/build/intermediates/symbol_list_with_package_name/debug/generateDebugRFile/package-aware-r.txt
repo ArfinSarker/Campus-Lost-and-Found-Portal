@@ -149,6 +149,8 @@ id cardLostItems
 id cardStatusBadge
 id cardTotalUsers
 id cardTypeBadge
+id cardUserFoundReports
+id cardUserLostReports
 id cbConfirm
 id cbPolicy
 id chipAll
@@ -279,7 +281,6 @@ id tilTime
 id tilUniversityId
 id tilUserType
 id toolbar
-id tvActiveItems
 id tvAdminTitle
 id tvAppName
 id tvBackToUser
@@ -336,6 +337,10 @@ id tvTotalLost
 id tvTotalUsers
 id tvTypeBadge
 id tvUploadStatus
+id tvUserFoundCount
+id tvUserFoundLabel
+id tvUserLostCount
+id tvUserLostLabel
 id tvUserName
 id tvUserType
 id tvUserUniversityId

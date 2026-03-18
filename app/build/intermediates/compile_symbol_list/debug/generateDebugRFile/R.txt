@@ -148,6 +148,8 @@ int id cardLostItems 0x0
 int id cardStatusBadge 0x0
 int id cardTotalUsers 0x0
 int id cardTypeBadge 0x0
+int id cardUserFoundReports 0x0
+int id cardUserLostReports 0x0
 int id cbConfirm 0x0
 int id cbPolicy 0x0
 int id chipAll 0x0
@@ -278,7 +280,6 @@ int id tilTime 0x0
 int id tilUniversityId 0x0
 int id tilUserType 0x0
 int id toolbar 0x0
-int id tvActiveItems 0x0
 int id tvAdminTitle 0x0
 int id tvAppName 0x0
 int id tvBackToUser 0x0
@@ -335,6 +336,10 @@ int id tvTotalLost 0x0
 int id tvTotalUsers 0x0
 int id tvTypeBadge 0x0
 int id tvUploadStatus 0x0
+int id tvUserFoundCount 0x0
+int id tvUserFoundLabel 0x0
+int id tvUserLostCount 0x0
+int id tvUserLostLabel 0x0
 int id tvUserName 0x0
 int id tvUserType 0x0
 int id tvUserUniversityId 0x0
