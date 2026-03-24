@@ -1,7 +1,6 @@
 package com.sas.lostandfound;
 
 import android.graphics.Typeface;
-import android.text.Html;
 import android.text.SpannableString;
 import android.text.style.ForegroundColorSpan;
 import android.text.style.UnderlineSpan;

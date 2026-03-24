@@ -72,23 +72,43 @@
                     android:inputType="text" />
             </com.google.android.material.textfield.TextInputLayout>
 
-            <!-- Category Filter Section -->
+            <!-- Category Filter Dropdown -->
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/tilCategoryFilter"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="16dp"
+                android:layout_marginTop="8dp"
+                android:hint="@string/label_category"
+                app:layout_constraintTop_toBottomOf="@id/tilSearch">
+
+                <AutoCompleteTextView
+                    android:id="@+id/actvCategoryFilter"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="none"
+                    android:textColor="@color/black" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <!-- Status Filter Section -->
             <HorizontalScrollView
                 android:id="@+id/hsvCategories"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
+                android:layout_marginTop="12dp"
                 android:clipToPadding="false"
                 android:paddingHorizontal="16dp"
                 android:scrollbars="none"
-                app:layout_constraintTop_toBottomOf="@id/tilSearch">
+                app:layout_constraintTop_toBottomOf="@id/tilCategoryFilter">
 
                 <com.google.android.material.chip.ChipGroup
                     android:id="@+id/chipGroup"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     app:singleLine="true"
-                    app:singleSelection="true">
+                    app:singleSelection="true"
+                    app:selectionRequired="true">
 
                     <com.google.android.material.chip.Chip
                         android:id="@+id/chipAll"
@@ -112,6 +132,13 @@
                         android:layout_height="wrap_content"
                         android:text="@string/chip_found" />
 
+                    <com.google.android.material.chip.Chip
+                        android:id="@+id/chipClaimed"
+                        style="@style/Widget.Material3.Chip.Filter"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/chip_claimed" />
+
                 </com.google.android.material.chip.ChipGroup>
             </HorizontalScrollView>
 
@@ -119,12 +146,12 @@
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/rvItems"
                 android:layout_width="match_parent"
-                android:layout_height="0dp"
+                android:layout_height="wrap_content"
                 android:layout_marginTop="12dp"
                 android:clipToPadding="false"
                 android:paddingHorizontal="16dp"
                 android:paddingBottom="16dp"
-                app:layout_constraintBottom_toBottomOf="parent"
+                android:nestedScrollingEnabled="false"
                 app:layout_constraintTop_toBottomOf="@id/hsvCategories"
                 tools:listitem="@layout/item_browse_card" />
 
@@ -133,10 +160,10 @@
                 android:id="@+id/layoutEmptyState"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_marginTop="64dp"
                 android:gravity="center"
                 android:orientation="vertical"
                 android:visibility="gone"
-                app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintLeft_toLeftOf="parent"
                 app:layout_constraintRight_toRightOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/hsvCategories">

@@ -70,7 +70,7 @@ public class CampusDashboardActivity extends AppCompatActivity {
     private ValueEventListener lostReportsListener, foundReportsListener;
 
     // Hardcoded Admin UID
-    private static final String ADMIN_UID = "NhwPcU2nOySmd2zHDiLlvsgMBYV2";
+    private static final String ADMIN_UID = "1";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -203,14 +203,9 @@ public class CampusDashboardActivity extends AppCompatActivity {
                 intent.putExtra("filterType", "find");
                 intent.putExtra("fromDrawer", true);
                 startActivity(intent);
-            } else if (id == R.id.nav_return_items) {
+            } else if (id == R.id.nav_resolved_items) {
                 Intent intent = new Intent(this, CampusMyItemsActivity.class);
-                intent.putExtra("filterType", "return");
-                intent.putExtra("fromDrawer", true);
-                startActivity(intent);
-            } else if (id == R.id.nav_claimed_items) {
-                Intent intent = new Intent(this, CampusMyItemsActivity.class);
-                intent.putExtra("filterType", "claimed");
+                intent.putExtra("filterType", "resolved");
                 intent.putExtra("fromDrawer", true);
                 startActivity(intent);
             } else if (id == R.id.nav_logout) {
@@ -240,7 +235,7 @@ public class CampusDashboardActivity extends AppCompatActivity {
                             startActivity(new Intent(CampusDashboardActivity.this, BrowseItemsActivity.class));
                             break;
                         case "Report":
-                            startActivity(new Intent(CampusDashboardActivity.this, CampusReportLostActivity.class));
+                            startActivity(new Intent(CampusDashboardActivity.this, ReportToAdminActivity.class));
                             break;
                     }
                 }
@@ -518,6 +513,7 @@ public class CampusDashboardActivity extends AppCompatActivity {
             holder.tvTitle.setText(item.getName());
             holder.tvLocation.setText(item.getLocation());
             holder.tvTime.setText(item.getDate());
+            holder.tvReportId.setText(item.getDisplayId() != null ? item.getDisplayId() : "");
             
             if ("lost".equals(item.getStatus())) {
                 holder.statusIndicator.setBackgroundColor(0xFFA31621);
@@ -570,7 +566,7 @@ public class CampusDashboardActivity extends AppCompatActivity {
         }
 
         class ViewHolder extends RecyclerView.ViewHolder {
-            TextView tvTitle, tvLocation, tvTime, tvBadge;
+            TextView tvTitle, tvLocation, tvTime, tvBadge, tvReportId;
             ImageView ivIcon;
             View statusIndicator;
             MaterialCardView cardBadge;
@@ -584,6 +580,7 @@ public class CampusDashboardActivity extends AppCompatActivity {
                 statusIndicator = itemView.findViewById(R.id.viewStatusIndicator);
                 tvBadge = itemView.findViewById(R.id.tvBadge);
                 cardBadge = itemView.findViewById(R.id.cardBadge);
+                tvReportId = itemView.findViewById(R.id.tvReportId);
             }
         }
     }

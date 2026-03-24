@@ -7,6 +7,8 @@ import java.util.List;
 @IgnoreExtraProperties
 public class Item {
     private String id;
+    private String displayId; // L1, F1, etc.
+    private String reportId; // Same as displayId, for convenience
     private String name;
     private String category;
     private String description;
@@ -16,7 +18,7 @@ public class Item {
     private String additionalLocationDetails;
     private String imageUrl; // Kept for backward compatibility
     private List<String> imageUrls;
-    private String status; // "lost" or "found"
+    private String status; // "lost" or "found" or "resolved"
     private String userId;
     private String userName;
     private String userEmail;
@@ -24,6 +26,14 @@ public class Item {
     private String userUniversityId;
     private String userDepartment;
     
+    // Contact Info (Report-specific, allows overrides during submission)
+    private String contactName;
+    private String contactPhone;
+
+    // Second user details (for resolved items)
+    private String secondUserId;
+    private String secondUserName;
+
     // Lost Item Specific
     private String proofOfOwnershipUrl;
     private List<String> proofOfOwnershipUrls;
@@ -43,6 +53,7 @@ public class Item {
     private String adminStatus; // Pending, Matched, Returned, Claimed, etc.
     private String claimedByUserId; // The user who claimed/received the item
     private long timestamp;
+    private boolean isEdited;
 
     public Item() {
         this.imageUrls = new ArrayList<>();
@@ -62,11 +73,16 @@ public class Item {
         this.timestamp = System.currentTimeMillis();
         this.imageUrls = new ArrayList<>();
         this.proofOfOwnershipUrls = new ArrayList<>();
+        this.isEdited = false;
     }
 
     // Getters and Setters
     public String getId() { return id; }
     public void setId(String id) { this.id = id; }
+    public String getDisplayId() { return displayId; }
+    public void setDisplayId(String displayId) { this.displayId = displayId; this.reportId = displayId; }
+    public String getReportId() { return reportId; }
+    public void setReportId(String reportId) { this.reportId = reportId; this.displayId = reportId; }
     public String getName() { return name; }
     public void setName(String name) { this.name = name; }
     public String getCategory() { return category; }
@@ -99,6 +115,17 @@ public class Item {
     public void setUserUniversityId(String userUniversityId) { this.userUniversityId = userUniversityId; }
     public String getUserDepartment() { return userDepartment; }
     public void setUserDepartment(String userDepartment) { this.userDepartment = userDepartment; }
+    
+    public String getContactName() { return contactName; }
+    public void setContactName(String contactName) { this.contactName = contactName; }
+    public String getContactPhone() { return contactPhone; }
+    public void setContactPhone(String contactPhone) { this.contactPhone = contactPhone; }
+
+    public String getSecondUserId() { return secondUserId; }
+    public void setSecondUserId(String secondUserId) { this.secondUserId = secondUserId; }
+    public String getSecondUserName() { return secondUserName; }
+    public void setSecondUserName(String secondUserName) { this.secondUserName = secondUserName; }
+
     public String getProofOfOwnershipUrl() { return proofOfOwnershipUrl; }
     public void setProofOfOwnershipUrl(String proofOfOwnershipUrl) { this.proofOfOwnershipUrl = proofOfOwnershipUrl; }
     public List<String> getProofOfOwnershipUrls() { return proofOfOwnershipUrls; }
@@ -127,4 +154,6 @@ public class Item {
     public void setClaimedByUserId(String claimedByUserId) { this.claimedByUserId = claimedByUserId; }
     public long getTimestamp() { return timestamp; }
     public void setTimestamp(long timestamp) { this.timestamp = timestamp; }
+    public boolean isEdited() { return isEdited; }
+    public void setEdited(boolean edited) { isEdited = edited; }
 }

@@ -39,6 +39,7 @@ public class AllReportedItemsActivity extends AppCompatActivity {
     private String filterStatus; // "lost", "found", "returned" or null
     private String targetUserId;
     private String userName;
+    private boolean isAdmin = false;
 
     private DatabaseReference mDatabase;
     private static final String DATABASE_URL = "https://campus-lost-and-found-portal-default-rtdb.asia-southeast1.firebasedatabase.app";
@@ -52,6 +53,7 @@ public class AllReportedItemsActivity extends AppCompatActivity {
         filterStatus = getIntent().getStringExtra("filterStatus");
         targetUserId = getIntent().getStringExtra("targetUserId");
         userName = getIntent().getStringExtra("userName");
+        isAdmin = getIntent().getBooleanExtra("isAdmin", false);
 
         initializeViews();
         setupToolbar();
@@ -103,11 +105,6 @@ public class AllReportedItemsActivity extends AppCompatActivity {
         ValueEventListener itemListener = new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
-                // If it's a specific user's items, we should ideally fetch from UserItems path
-                // But for simplicity and consistency with the existing updateOrAddItem logic,
-                // we'll listen to LostItems and FoundItems nodes.
-                // Note: itemList.clear() here if we want to refresh entirely, 
-                // but updateOrAddItem handles existing items.
                 for (DataSnapshot data : snapshot.getChildren()) {
                     Item item = data.getValue(Item.class);
                     if (item != null) {
@@ -221,7 +218,7 @@ public class AllReportedItemsActivity extends AppCompatActivity {
                 intent.putExtra("userDepartment", item.getUserDepartment());
                 intent.putExtra("userPhone", item.getUserPhone());
                 intent.putExtra("userId", item.getUserId());
-                intent.putExtra("isAdmin", true);
+                intent.putExtra("isAdmin", isAdmin);
                 v.getContext().startActivity(intent);
             });
         }

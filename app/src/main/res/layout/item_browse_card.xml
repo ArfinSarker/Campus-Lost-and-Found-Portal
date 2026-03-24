@@ -39,24 +39,47 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_alignParentStart="true"
-                    android:layout_toStartOf="@+id/tvItemType"
+                    android:layout_toStartOf="@+id/tvItemTypeContainer"
                     android:ellipsize="end"
                     android:maxLines="1"
                     tools:text="Black Wallet" />
 
-                <TextView
-                    android:id="@+id/tvItemType"
-                    style="@style/TextAppearance.App.Small"
+                <LinearLayout
+                    android:id="@+id/tvItemTypeContainer"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_alignParentEnd="true"
-                    android:background="@drawable/bg_status_badge_lost"
-                    android:paddingHorizontal="8dp"
-                    android:paddingVertical="2dp"
-                    android:textAllCaps="true"
-                    android:textStyle="bold"
-                    tools:text="LOST"
-                    tools:textColor="@color/statusLost" />
+                    android:orientation="vertical"
+                    android:gravity="end">
+
+                    <TextView
+                        android:id="@+id/tvReportId"
+                        style="@style/TextAppearance.App.Small"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="4dp"
+                        android:background="@drawable/bg_status_badge_found"
+                        android:backgroundTint="@color/primaryDarkColor"
+                        android:paddingHorizontal="8dp"
+                        android:paddingVertical="2dp"
+                        android:textColor="@color/white"
+                        android:textStyle="bold"
+                        tools:text="L1" />
+
+                    <TextView
+                        android:id="@+id/tvItemType"
+                        style="@style/TextAppearance.App.Small"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:background="@drawable/bg_status_badge_lost"
+                        android:paddingHorizontal="8dp"
+                        android:paddingVertical="2dp"
+                        android:textAllCaps="true"
+                        android:textStyle="bold"
+                        tools:text="LOST"
+                        tools:textColor="@color/statusLost" />
+
+                </LinearLayout>
             </RelativeLayout>
 
             <LinearLayout

@@ -41,6 +41,8 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.MutableData;
+import com.google.firebase.database.Transaction;
 import com.google.firebase.database.ValueEventListener;
 
 import java.io.File;
@@ -48,6 +50,7 @@ import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
@@ -79,6 +82,10 @@ public class CampusReportLostActivity extends AppCompatActivity {
 
     private String currentUniversityId;
     private User currentUser;
+    
+    private boolean isEditMode = false;
+    private String editItemId;
+    private Item existingItem;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -88,12 +95,23 @@ public class CampusReportLostActivity extends AppCompatActivity {
         mAuth = FirebaseAuth.getInstance();
         mDatabase = FirebaseDatabase.getInstance(DATABASE_URL).getReference();
 
+        if (mAuth.getCurrentUser() != null) {
+            currentUniversityId = mAuth.getCurrentUser().getUid();
+        }
+
         initializeViews();
         setupToolbar();
         setupDropdowns();
         setupPickers();
         setupTextWatchers();
-        fetchCurrentUserData();
+
+        editItemId = getIntent().getStringExtra("editItemId");
+        if (editItemId != null) {
+            isEditMode = true;
+            loadItemDataForEdit(editItemId);
+        } else {
+            fetchCurrentUserData();
+        }
 
         uploadCard.setOnClickListener(v -> showImageSourceDialog());
         btnSubmit.setOnClickListener(v -> validateAndSubmit());
@@ -139,6 +157,58 @@ public class CampusReportLostActivity extends AppCompatActivity {
         ivUploadedImage = findViewById(R.id.ivUploadedImage);
         tvUploadStatus = findViewById(R.id.tvUploadStatus);
         toolbar = findViewById(R.id.toolbar);
+    }
+
+    private void loadItemDataForEdit(String itemId) {
+        mDatabase.child("LostItems").child(itemId).addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                existingItem = snapshot.getValue(Item.class);
+                if (existingItem != null) {
+                    populateFields(existingItem);
+                }
+            }
+            @Override public void onCancelled(@NonNull DatabaseError error) {}
+        });
+    }
+
+    private void populateFields(Item item) {
+        etItemName.setText(item.getName());
+        actvCategory.setText(item.getCategory(), false);
+        etDescription.setText(item.getDescription());
+        etDateLost.setText(item.getDate());
+        etTimeLost.setText(item.getTime());
+        
+        String location = item.getLocation();
+        String[] predefinedLocations = {"Academic Building", "Civil Building", "Library", "Cafeteria", "Medical Center", "Playground", "Abbas Uddin Ahmed Hall (AUAH)", "Shaheed Dr. Zikrul Haque Hall", "Bir Protik Taramon Bibi Hall", "Bir Protik Taramon Bibi (New Hall)"};
+        boolean isPredefined = false;
+        for (String loc : predefinedLocations) {
+            if (loc.equals(location)) {
+                isPredefined = true;
+                break;
+            }
+        }
+        
+        if (isPredefined) {
+            actvLocation.setText(location, false);
+        } else {
+            actvLocation.setText("Other", false);
+            tilManualLocation.setVisibility(View.VISIBLE);
+            etManualLocation.setText(location);
+        }
+        
+        etLocationDetails.setText(item.getAdditionalLocationDetails());
+        etProofOwnership.setText(item.getProofOfOwnershipDetail());
+        etContactName.setText(item.getUserName());
+        etContactPhone.setText(item.getUserPhone());
+        actvPreferredContact.setText(item.getPreferredContactMethod(), false);
+        
+        currentUniversityId = item.getUserId();
+        btnSubmit.setText("Save Changes");
+        
+        if (item.getImageUrl() != null && !item.getImageUrl().isEmpty()) {
+            tvUploadStatus.setText("Previous images exist. Upload new to replace.");
+        }
     }
 
     private void setupTextWatchers() {
@@ -338,6 +408,11 @@ public class CampusReportLostActivity extends AppCompatActivity {
     }
 
     private void validateAndSubmit() {
+        if (mAuth.getCurrentUser() == null) {
+            Toast.makeText(this, "Please log in again to submit", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
         clearErrors();
         
         String name = etItemName.getText().toString().trim();
@@ -369,7 +444,7 @@ public class CampusReportLostActivity extends AppCompatActivity {
         }
 
         if (isValid) {
-            submitReport(name, category, description, date, "Other".equals(location) ? manualLocation : location);
+            submitReport(name, category, description, date, "Other".equals(location) ? manualLocation : location, contactName, contactPhone, preferredContact);
         }
     }
 
@@ -385,21 +460,22 @@ public class CampusReportLostActivity extends AppCompatActivity {
         tilPreferredContact.setError(null);
     }
 
-    private void submitReport(String name, String category, String description, String date, String location) {
+    private void submitReport(String name, String category, String description, String date, String location, String contactName, String contactPhone, String preferredContact) {
         btnSubmit.setEnabled(false);
-        Toast.makeText(this, "Uploading images and submitting report...", Toast.LENGTH_SHORT).show();
+        btnSubmit.setText("Submitting report, please wait...");
+        Toast.makeText(this, "Submitting report, please wait...", Toast.LENGTH_SHORT).show();
 
-        DatabaseReference lostRef = mDatabase.child("LostItems");
-        String itemId = lostRef.push().getKey();
+        String itemId = isEditMode ? editItemId : mDatabase.child("LostItems").push().getKey();
+        String userId = currentUniversityId != null ? currentUniversityId : (mAuth.getCurrentUser() != null ? mAuth.getCurrentUser().getUid() : null);
 
-        if (itemId == null || currentUniversityId == null) {
-            btnSubmit.setEnabled(true);
-            Toast.makeText(this, "Error initializing submission", Toast.LENGTH_SHORT).show();
+        if (itemId == null || userId == null) {
+            resetButton();
+            Toast.makeText(this, "Failed to initialize submission. Try again.", Toast.LENGTH_SHORT).show();
             return;
         }
 
         if (!selectedImageUris.isEmpty()) {
-            List<String> imageUrlStrings = new ArrayList<>();
+            List<String> imageUrlStrings = Collections.synchronizedList(new ArrayList<>());
             AtomicInteger remaining = new AtomicInteger(selectedImageUris.size());
 
             for (int i = 0; i < selectedImageUris.size(); i++) {
@@ -409,25 +485,89 @@ public class CampusReportLostActivity extends AppCompatActivity {
                     public void onSuccess(String publicUrl) {
                         imageUrlStrings.add(publicUrl);
                         if (remaining.decrementAndGet() == 0) {
-                            saveToDatabase(itemId, name, category, description, date, location, imageUrlStrings, currentUniversityId);
+                            if (isEditMode) {
+                                saveToDatabase(itemId, name, category, description, date, location, contactName, contactPhone, preferredContact, imageUrlStrings, userId, null);
+                            } else {
+                                generateDisplayIdAndSave(itemId, name, category, description, date, location, contactName, contactPhone, preferredContact, imageUrlStrings, userId);
+                            }
                         }
                     }
 
                     @Override
                     public void onFailure(Exception e) {
                         if (remaining.decrementAndGet() == 0) {
-                            saveToDatabase(itemId, name, category, description, date, location, imageUrlStrings, currentUniversityId);
+                            if (isEditMode) {
+                                saveToDatabase(itemId, name, category, description, date, location, contactName, contactPhone, preferredContact, imageUrlStrings, userId, null);
+                            } else {
+                                generateDisplayIdAndSave(itemId, name, category, description, date, location, contactName, contactPhone, preferredContact, imageUrlStrings, userId);
+                            }
                         }
                     }
                 });
             }
         } else {
-            saveToDatabase(itemId, name, category, description, date, location, new ArrayList<>(), currentUniversityId);
+            List<String> images = isEditMode && existingItem != null ? existingItem.getImageUrls() : new ArrayList<>();
+            if (isEditMode) {
+                saveToDatabase(itemId, name, category, description, date, location, contactName, contactPhone, preferredContact, images, userId, null);
+            } else {
+                generateDisplayIdAndSave(itemId, name, category, description, date, location, contactName, contactPhone, preferredContact, images, userId);
+            }
         }
     }
 
-    private void saveToDatabase(String itemId, String name, String category, String description, String date, String location, List<String> imageUrls, String userId) {
-        Item item = new Item(itemId, name, category, description, location, date, "lost", userId);
+    private void generateDisplayIdAndSave(String itemId, String name, String category, String description, String date, String location, String contactName, String contactPhone, String preferredContact, List<String> imageUrls, String userId) {
+        DatabaseReference counterRef = mDatabase.child("Counters").child("LostItemsCount");
+        counterRef.runTransaction(new Transaction.Handler() {
+            @NonNull
+            @Override
+            public Transaction.Result doTransaction(@NonNull MutableData currentData) {
+                Object val = currentData.getValue();
+                long count = 0;
+                if (val instanceof Long) {
+                    count = (Long) val;
+                } else if (val instanceof Integer) {
+                    count = ((Integer) val).longValue();
+                } else if (val != null) {
+                    try { count = Long.parseLong(val.toString()); } catch (Exception e) {}
+                }
+                currentData.setValue(count + 1);
+                return Transaction.success(currentData);
+            }
+
+            @Override
+            public void onComplete(@Nullable DatabaseError error, boolean committed, @Nullable DataSnapshot currentData) {
+                if (committed && currentData != null) {
+                    Object val = currentData.getValue();
+                    long count = 1;
+                    if (val instanceof Long) count = (Long) val;
+                    else if (val instanceof Integer) count = ((Integer) val).longValue();
+                    
+                    String displayId = "L" + count;
+                    saveToDatabase(itemId, name, category, description, date, location, contactName, contactPhone, preferredContact, imageUrls, userId, displayId);
+                } else {
+                    resetButton();
+                    String msg = error != null ? error.getMessage() : "Database busy or connection issue.";
+                    Toast.makeText(CampusReportLostActivity.this, "Failed to generate Report ID: " + msg, Toast.LENGTH_LONG).show();
+                }
+            }
+        });
+    }
+
+    private void saveToDatabase(String itemId, String name, String category, String description, String date, String location, String contactName, String contactPhone, String preferredContact, List<String> imageUrls, String userId, String displayId) {
+        Item item;
+        if (isEditMode && existingItem != null) {
+            item = existingItem;
+            item.setName(name);
+            item.setCategory(category);
+            item.setDescription(description);
+            item.setLocation(location);
+            item.setDate(date);
+            item.setEdited(true);
+        } else {
+            item = new Item(itemId, name, category, description, location, date, "lost", userId);
+            item.setDisplayId(displayId);
+        }
+        
         item.setTime(etTimeLost.getText().toString().trim());
         item.setAdditionalLocationDetails(etLocationDetails.getText().toString().trim());
         item.setProofOfOwnershipDetail(etProofOwnership.getText().toString().trim());
@@ -435,11 +575,11 @@ public class CampusReportLostActivity extends AppCompatActivity {
         if (!imageUrls.isEmpty()) {
             item.setImageUrl(imageUrls.get(0));
         }
-        item.setPreferredContactMethod(actvPreferredContact.getText().toString().trim());
-        item.setUserPhone(etContactPhone.getText().toString().trim());
+        item.setPreferredContactMethod(preferredContact);
+        item.setUserName(contactName);
+        item.setUserPhone(contactPhone);
 
         if (currentUser != null) {
-            item.setUserName(currentUser.getName());
             item.setUserEmail(currentUser.getEmail());
             item.setUserUniversityId(currentUser.getUniversityId());
             item.setUserDepartment(currentUser.getDepartment());
@@ -447,15 +587,24 @@ public class CampusReportLostActivity extends AppCompatActivity {
 
         mDatabase.child("LostItems").child(itemId).setValue(item).addOnCompleteListener(task -> {
             if (task.isSuccessful()) {
-                mDatabase.child("UserItems").child(userId).child(itemId).setValue(true);
-                Toast.makeText(this, R.string.success_report_submitted, Toast.LENGTH_SHORT).show();
+                if (!isEditMode) {
+                    if (mAuth.getCurrentUser() != null) {
+                        mDatabase.child("UserItems").child(mAuth.getCurrentUser().getUid()).child(itemId).setValue(true);
+                    }
+                }
+                Toast.makeText(this, isEditMode ? "Report updated successfully" : getString(R.string.success_report_submitted), Toast.LENGTH_SHORT).show();
                 finish();
             } else {
-                btnSubmit.setEnabled(true);
-                String error = task.getException() != null ? task.getException().getMessage() : "Unknown error";
-                Toast.makeText(this, "Database Error: " + error, Toast.LENGTH_SHORT).show();
+                resetButton();
+                String error = task.getException() != null ? task.getException().getMessage() : "Unknown database error";
+                Toast.makeText(this, "Failed to save report: " + error, Toast.LENGTH_SHORT).show();
             }
         });
+    }
+    
+    private void resetButton() {
+        btnSubmit.setEnabled(true);
+        btnSubmit.setText(isEditMode ? "Save Changes" : "Submit Report");
     }
 
     private static class SimpleTextWatcher implements TextWatcher {

@@ -30,10 +30,9 @@
     <string name="my_items">My Items</string>
     <string name="my_found_reports">My Found Reports</string>
     <string name="my_lost_reports">My Lost Reports</string>
-    <string name="my_returned_items">My Returned Items</string>
-    <string name="my_claimed_items">My Claimed Items</string>
+    <string name="my_resolved_items">My Resolved Items</string>
     <string name="status_active">Active</string>
-    <string name="status_claimed">Claimed</string>
+    <string name="status_resolved">RESOLVED</string>
     <string name="btn_view_details">View Details</string>
     <string name="btn_edit">Edit</string>
 
@@ -153,6 +152,19 @@
     <string name="title_lost_item">Lost Item</string>
     <string name="title_found_item">Found Item</string>
     <string name="header_subtitle_format">%1$s • %2$s</string>
+    <string name="btn_mark_as_claimed">Mark as Claimed</string>
+    <string name="prompt_mark_as_claimed">Enter the University ID of the person who returned the item</string>
+    <string name="status_lost_label">LOST</string>
+    <string name="status_found_label">FOUND</string>
+    <string name="status_returned_label">RESOLVED</string>
+    <string name="status_claimed_label">RESOLVED</string>
+    <string name="btn_submit">Submit</string>
+    <string name="msg_item_claimed_notification">%1$s has marked that they received ‘%2$s’ from you. Click to view details.</string>
+
+    <!-- Return to Owner Strings -->
+    <string name="btn_return_to_owner">Return to Owner</string>
+    <string name="prompt_return_to_owner">Enter the University ID of the actual owner (who lost the item)</string>
+    <string name="msg_item_returned_notification">%1$s has marked that they returned ‘%2$s’ to you. Click to view details.</string>
 
     <!-- Report Lost Strings -->
     <string name="title_report_lost">Report Lost Item</string>
@@ -211,6 +223,8 @@
     <string name="chip_all">All</string>
     <string name="chip_lost">Lost</string>
     <string name="chip_found">Found</string>
+    <string name="chip_claimed">Resolved</string>
+    <string name="category_all">All Categories</string>
     <string name="no_items_found">No items found</string>
     <string name="adjust_search_filters">Try adjusting your search or filters</string>
 
@@ -285,7 +299,7 @@
     <string name="dev_edu_uni">Bangladesh Army University of Science and Technology (BAUST), Saidpur</string>
     <string name="dev_edu_batch">Batch: 18</string>
     <string name="dev_contact_title">Contact Information</string>
-    <string name="dev_email">m.shamsularfinsarkernayan@gmail.com</string>
+    <string name="dev_email">m.shamsulsrfinsarkernayan@gmail.com</string>
     <string name="dev_phone">+8801819966626</string>
     <string name="dev_github">https://github.com/ArfinSarker</string>
     <string name="dev_linkedin">https://bd.linkedin.com/in/arfinsarkar</string>
@@ -328,8 +342,7 @@
     <string name="policy_sec4_sub2_desc">We may use third-party services to operate the app:\n\nFirebase (Google)\nUsed for: Authentication, Realtime Database, Secure data storage\n\nSupabase\nUsed for: Image storage (profile images and item photos)\n\nThese services process only the data necessary to operate the app.</string>
 
     <string name="policy_sec4_sub3_title">Legal Requirements</string>
-    <string name="policy_sec4_sub3_desc">We may disclose information if required by law, regulation, or legal request to protect the rights, safety, or property of users.</string>
-
+    <string name="policy_sec4_sub3_desc">We may disclose your personal information in the good faith belief that such action is necessary to comply with a legal obligation, protect and defend our rights or property, or investigate wrongdoing in connection with the App.</string>
     <string name="policy_sec4_sub4_title">Business Transfers</string>
     <string name="policy_sec4_sub4_desc">If the app undergoes a merger, acquisition, or asset sale, user information may be transferred as part of the transaction.</string>
 
@@ -391,4 +404,38 @@
     <string name="sample_found">Found: Black Wallet</string>
     <string name="sample_found_location">Cafeteria</string>
     <string name="sample_found_time">5h ago</string>
+
+    <!-- Report to Admin Strings -->
+    <string name="title_report_to_admin">Report to Admin</string>
+    <string name="label_report_info">Basic Report Information</string>
+    <string name="label_report_title">Report Title</string>
+    <string name="hint_report_title">e.g. Fake lost item post, App not working</string>
+    <string name="label_report_category">Report Category</string>
+    <string name="label_detailed_info">Detailed Information</string>
+    <string name="label_report_description">Description (Required)</string>
+    <string name="hint_report_description">Explain the issue in detail...</string>
+    <string name="label_related_id">Related Report ID (Optional)</string>
+    <string name="hint_related_id">e.g. L1, F2</string>
+    <string name="label_reporter_info">Reporter Information</string>
+    <string name="label_university_id">University ID</string>
+    <string name="label_supporting_evidence">Supporting Evidence</string>
+    <string name="label_priority_status">Priority &amp; Status</string>
+    <string name="label_priority">Priority</string>
+    <string name="btn_submit_report_admin">Submit Report</string>
+    <string name="submitting_report">Submitting report, please wait…</string>
+    <string name="report_submitted_success">Your report has been submitted to admin</string>
+
+    <!-- Admin Report Dashboard Strings -->
+    <string name="stat_total_reports">Total Reports</string>
+    <string name="stat_pending_reports">Pending Reports</string>
+    <string name="stat_reviewed_reports">Reviewed Reports</string>
+    <string name="stat_resolved_reports">Resolved Reports</string>
+    <string name="hint_search_reports">Search by ID, User or Item ID...</string>
+    <string name="label_admin_note">Admin Note</string>
+    <string name="hint_admin_note">Add an internal note...</string>
+    <string name="btn_delete_report_confirm">Delete Report</string>
+    <string name="msg_report_reviewed">Your report has been reviewed</string>
+    <string name="msg_report_resolved">Your report has been resolved</string>
+    <string name="label_metadata">⏱️ Metadata</string>
+    <string name="label_admin_actions">⚙️ Admin Actions</string>
 </resources>

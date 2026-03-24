@@ -1,0 +1,232 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/backgroundColor"
+    android:fitsSystemWindows="true">
+
+    <com.google.android.material.appbar.AppBarLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/primaryDarkColor"
+        android:fitsSystemWindows="true"
+        app:elevation="0dp">
+
+        <com.google.android.material.appbar.MaterialToolbar
+            android:id="@+id/toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            app:navigationIcon="@drawable/ic_back_arrow"
+            app:navigationIconTint="@color/white">
+
+            <TextView
+                android:id="@+id/tvHeaderId"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Report Details"
+                android:textColor="@color/white"
+                android:textSize="19sp"
+                android:textStyle="bold" />
+
+        </com.google.android.material.appbar.MaterialToolbar>
+    </com.google.android.material.appbar.AppBarLayout>
+
+    <androidx.core.widget.NestedScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="16dp">
+
+            <!-- Reporter Info Section -->
+            <TextView
+                style="@style/TextAppearance.App.SectionTitle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/label_reporter_info"
+                android:textColor="@color/primaryColor" />
+
+            <com.google.android.material.card.MaterialCardView
+                style="@style/Widget.App.Card"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp">
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="12dp">
+                    <TextView android:id="@+id/tvDetailReporterName" style="@style/TextAppearance.App.Body" android:layout_width="wrap_content" android:layout_height="wrap_content" tools:text="Name: John Doe" />
+                    <TextView android:id="@+id/tvDetailUniversityId" style="@style/TextAppearance.App.Body" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="4dp" tools:text="ID: 12345" />
+                    <TextView android:id="@+id/tvDetailReporterPhone" style="@style/TextAppearance.App.Body" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="4dp" tools:text="Phone: 0123456789" />
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- Report Info Section -->
+            <TextView
+                style="@style/TextAppearance.App.SectionTitle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="24dp"
+                android:text="📌 Report Info"
+                android:textColor="@color/primaryColor" />
+
+            <com.google.android.material.card.MaterialCardView
+                style="@style/Widget.App.Card"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp">
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="12dp">
+                    <TextView android:id="@+id/tvDetailTitle" style="@style/TextAppearance.App.SectionTitle" android:layout_width="match_parent" android:layout_height="wrap_content" tools:text="Fake Item Post" />
+                    <TextView android:id="@+id/tvDetailCategory" style="@style/TextAppearance.App.Small" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="4dp" android:textColor="@color/primaryColor" tools:text="Category: Spam" />
+                    <TextView android:id="@+id/tvDetailDescription" style="@style/TextAppearance.App.Body" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="12dp" tools:text="Full description of the report..." />
+                    <TextView android:id="@+id/tvDetailRelatedId" style="@style/TextAppearance.App.Small" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="12dp" android:textStyle="bold" tools:text="Related ID: L1" />
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- Evidence Section -->
+            <TextView
+                style="@style/TextAppearance.App.SectionTitle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="24dp"
+                android:text="@string/label_supporting_evidence"
+                android:textColor="@color/primaryColor" />
+
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/cardEvidence"
+                style="@style/Widget.App.Card"
+                android:layout_width="match_parent"
+                android:layout_height="250dp"
+                android:layout_marginTop="8dp"
+                android:visibility="gone">
+                <ImageView
+                    android:id="@+id/ivDetailEvidence"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:scaleType="centerInside"
+                    android:contentDescription="Evidence screenshot" />
+            </com.google.android.material.card.MaterialCardView>
+            <TextView android:id="@+id/tvNoEvidence" style="@style/TextAppearance.App.Small" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="8dp" android:text="No evidence uploaded" android:visibility="visible" />
+
+            <!-- Metadata Section -->
+            <TextView
+                style="@style/TextAppearance.App.SectionTitle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="24dp"
+                android:text="@string/label_metadata"
+                android:textColor="@color/primaryColor" />
+
+            <com.google.android.material.card.MaterialCardView
+                style="@style/Widget.App.Card"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp">
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="12dp">
+                    <TextView android:id="@+id/tvDetailDate" style="@style/TextAppearance.App.Small" android:layout_width="wrap_content" android:layout_height="wrap_content" tools:text="Submitted: 26 Oct 2026, 10:00 AM" />
+                    <TextView android:id="@+id/tvDetailPriority" style="@style/TextAppearance.App.Small" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="4dp" android:textStyle="bold" tools:text="Priority: High" />
+                    <TextView android:id="@+id/tvDetailStatus" style="@style/TextAppearance.App.Small" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="4dp" android:textStyle="bold" tools:text="Current Status: Pending" />
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- Admin Actions Section -->
+            <TextView
+                style="@style/TextAppearance.App.SectionTitle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="24dp"
+                android:text="@string/label_admin_actions"
+                android:textColor="@color/primaryColor" />
+
+            <com.google.android.material.card.MaterialCardView
+                style="@style/Widget.App.Card"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp">
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="16dp">
+
+                    <TextView style="@style/TextAppearance.App.Small" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Change Status" android:textStyle="bold" />
+                    <com.google.android.material.textfield.TextInputLayout
+                        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        app:boxCornerRadiusBottomEnd="8dp"
+                        app:boxCornerRadiusBottomStart="8dp"
+                        app:boxCornerRadiusTopEnd="8dp"
+                        app:boxCornerRadiusTopStart="8dp">
+                        <AutoCompleteTextView
+                            android:id="@+id/actvUpdateStatus"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:inputType="none" />
+                    </com.google.android.material.textfield.TextInputLayout>
+
+                    <com.google.android.material.textfield.TextInputLayout
+                        style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="16dp"
+                        android:hint="@string/label_admin_note"
+                        app:shapeAppearanceOverlay="@style/ShapeAppearance.App.SmallComponent">
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/etAdminNote"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:minLines="2"
+                            android:gravity="top"
+                            android:inputType="textMultiLine" />
+                    </com.google.android.material.textfield.TextInputLayout>
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="24dp"
+                        android:orientation="horizontal">
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/btnDeleteReport"
+                            style="@style/Widget.Material3.Button.OutlinedButton"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:layout_marginEnd="8dp"
+                            android:text="Delete Report"
+                            android:textColor="@color/statusLost"
+                            app:strokeColor="@color/statusLost" />
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/btnUpdateReport"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:layout_marginStart="8dp"
+                            android:text="Update Report" />
+                    </LinearLayout>
+
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <View android:layout_width="match_parent" android:layout_height="32dp" />
+
+        </LinearLayout>
+    </androidx.core.widget.NestedScrollView>
+
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

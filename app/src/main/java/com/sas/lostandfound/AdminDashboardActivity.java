@@ -21,9 +21,9 @@ import com.google.firebase.database.ValueEventListener;
 
 public class AdminDashboardActivity extends AppCompatActivity {
 
-    private TextView tvTotalLost, tvTotalFound, tvTotalUsers, tvTotalAdminRequests, tvAdminTitle;
-    private MaterialCardView cardLostItems, cardFoundItems, cardTotalUsers, cardAdminRequests;
-    private MaterialButton btnManageItems, btnLogout, btnAdminRequests, btnManageUsers;
+    private TextView tvTotalLost, tvTotalFound, tvTotalUsers, tvTotalAdminRequests, tvTotalAdminReports, tvAdminTitle;
+    private MaterialCardView cardLostItems, cardFoundItems, cardTotalUsers, cardAdminRequests, cardAdminReports;
+    private MaterialButton btnManageItems, btnLogout, btnAdminRequests, btnManageUsers, btnAdminReports;
     private DatabaseReference mDatabase;
     private static final String DATABASE_URL = "https://campus-lost-and-found-portal-default-rtdb.asia-southeast1.firebasedatabase.app";
 
@@ -45,14 +45,17 @@ public class AdminDashboardActivity extends AppCompatActivity {
         tvTotalFound = findViewById(R.id.tvTotalFound);
         tvTotalUsers = findViewById(R.id.tvTotalUsers);
         tvTotalAdminRequests = findViewById(R.id.tvTotalAdminRequests);
+        tvTotalAdminReports = findViewById(R.id.tvTotalAdminReports);
         tvAdminTitle = findViewById(R.id.tvAdminTitle);
         
         cardLostItems = findViewById(R.id.cardLostItems);
         cardFoundItems = findViewById(R.id.cardFoundItems);
         cardTotalUsers = findViewById(R.id.cardTotalUsers);
         cardAdminRequests = findViewById(R.id.cardAdminRequests);
+        cardAdminReports = findViewById(R.id.cardAdminReports);
         
         btnAdminRequests = findViewById(R.id.btnAdminRequests);
+        btnAdminReports = findViewById(R.id.btnAdminReports);
         btnManageItems = findViewById(R.id.btnManageItems);
         btnManageUsers = findViewById(R.id.btnManageUsers);
         btnLogout = findViewById(R.id.btnLogout);
@@ -60,9 +63,6 @@ public class AdminDashboardActivity extends AppCompatActivity {
 
     private void setupAdminDashboard() {
         if (tvAdminTitle != null) tvAdminTitle.setText("Admin Dashboard");
-        // All admins can view admin requests
-        cardAdminRequests.setVisibility(View.VISIBLE);
-        btnAdminRequests.setVisibility(View.VISIBLE);
     }
 
     private void setupClickListeners() {
@@ -88,8 +88,16 @@ public class AdminDashboardActivity extends AppCompatActivity {
             startActivity(new Intent(this, AdminRequestsActivity.class));
         });
 
+        cardAdminReports.setOnClickListener(v -> {
+            startActivity(new Intent(this, AdminReportManagementActivity.class));
+        });
+
         btnAdminRequests.setOnClickListener(v -> {
             startActivity(new Intent(this, AdminRequestsActivity.class));
+        });
+
+        btnAdminReports.setOnClickListener(v -> {
+            startActivity(new Intent(this, AdminReportManagementActivity.class));
         });
 
         btnManageItems.setOnClickListener(v -> {
@@ -141,6 +149,14 @@ public class AdminDashboardActivity extends AppCompatActivity {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 tvTotalAdminRequests.setText(String.valueOf(snapshot.getChildrenCount()));
+            }
+            @Override public void onCancelled(@NonNull DatabaseError error) {}
+        });
+
+        mDatabase.child("AdminReports").addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                tvTotalAdminReports.setText(String.valueOf(snapshot.getChildrenCount()));
             }
             @Override public void onCancelled(@NonNull DatabaseError error) {}
         });

@@ -23,13 +23,14 @@ import com.google.firebase.database.ValueEventListener;
 
 public class ClaimDetailsActivity extends AppCompatActivity {
 
-    private TextView tvNameHeader, tvUniversityId, tvGender, tvBatch, tvLevelTerm, tvDepartment, tvSection, tvPhone, tvEmail, tvPreferredContact;
+    private TextView tvHeaderTitle, tvNameHeader, tvUniversityId, tvGender, tvBatch, tvLevelTerm, tvDepartment, tvSection, tvPhone, tvEmail, tvPreferredContact, tvDesignation;
     private TextView tvItemName, tvCategory, tvDescription, tvItemDetails, tvOwnershipVerification, tvHandlingStatus, tvSecurityQuestion;
-    private ImageView ivClaimantPhoto;
-    private LinearLayout llSection, llOwnershipVerification, llFoundSpecifics;
+    private TextView tvInformationLabel, tvContactLabel, tvItemHeaderLabel;
+    private ImageView ivClaimantPhoto, ivItemImage;
+    private LinearLayout llSection, llBatch, llLevelTerm, llDesignation, llDepartment, llOwnershipVerification, llFoundSpecifics;
     private MaterialButton btnCall, btnEmail, btnMarkReturned;
     private DatabaseReference mDatabase;
-    private String itemId, senderId, itemStatus;
+    private String itemId, senderId, itemStatus, notificationType;
     private ValueEventListener claimantProfileListener;
     private static final String DATABASE_URL = "https://campus-lost-and-found-portal-default-rtdb.asia-southeast1.firebasedatabase.app";
 
@@ -46,7 +47,10 @@ public class ClaimDetailsActivity extends AppCompatActivity {
         String itemName = getIntent().getStringExtra("itemName");
         itemId = getIntent().getStringExtra("itemId");
         senderId = getIntent().getStringExtra("senderId");
-        
+        notificationType = getIntent().getStringExtra("type");
+
+        setupLabels();
+
         if (senderId != null) {
             setupRealtimeClaimantProfile(senderId);
         }
@@ -69,7 +73,7 @@ public class ClaimDetailsActivity extends AppCompatActivity {
             if (!email.isEmpty() && !"Not Specified".equals(email)) {
                 Intent intent = new Intent(Intent.ACTION_SENDTO);
                 intent.setData(Uri.parse("mailto:" + email));
-                intent.putExtra(Intent.EXTRA_SUBJECT, "Regarding your claim for " + itemName);
+                intent.putExtra(Intent.EXTRA_SUBJECT, "Regarding " + itemName);
                 startActivity(Intent.createChooser(intent, "Send Email"));
             }
         });
@@ -78,13 +82,25 @@ public class ClaimDetailsActivity extends AppCompatActivity {
     }
 
     private void initializeViews() {
+        tvHeaderTitle = findViewById(R.id.tvHeaderTitle);
         ivClaimantPhoto = findViewById(R.id.ivClaimantPhoto);
+        ivItemImage = findViewById(R.id.ivItemImage);
         tvNameHeader = findViewById(R.id.tvClaimantNameHeader);
         tvUniversityId = findViewById(R.id.etUniversityId);
         tvGender = findViewById(R.id.etGender);
+        
+        tvDesignation = findViewById(R.id.etDesignation);
+        llDesignation = findViewById(R.id.tilDesignation);
+        
         tvBatch = findViewById(R.id.etBatch);
+        llBatch = findViewById(R.id.tilBatch);
+        
         tvLevelTerm = findViewById(R.id.etLevelTerm);
+        llLevelTerm = findViewById(R.id.tilLevelTerm);
+        
         tvDepartment = findViewById(R.id.etDepartment);
+        llDepartment = findViewById(R.id.tilDepartment);
+
         tvSection = findViewById(R.id.etSection);
         llSection = findViewById(R.id.tilSection);
         
@@ -103,10 +119,37 @@ public class ClaimDetailsActivity extends AppCompatActivity {
         llFoundSpecifics = findViewById(R.id.llFoundSpecifics);
         tvHandlingStatus = findViewById(R.id.tvHandlingStatus);
         tvSecurityQuestion = findViewById(R.id.tvSecurityQuestion);
+
+        // Labels for dynamic text
+        tvInformationLabel = findViewById(R.id.tvInformationLabel);
+        tvContactLabel = findViewById(R.id.tvContactLabel);
+        tvItemHeaderLabel = findViewById(R.id.tvItemHeaderLabel);
         
         btnCall = findViewById(R.id.btnCall);
         btnEmail = findViewById(R.id.btnEmail);
         btnMarkReturned = findViewById(R.id.btnMarkReturned);
+    }
+
+    private void setupLabels() {
+        if ("lost_claimed_confirmed".equals(notificationType)) {
+            tvHeaderTitle.setText("Claim Confirmed");
+            tvInformationLabel.setText("Reporter Information");
+            tvContactLabel.setText("Contact Reporter");
+            tvItemHeaderLabel.setText("Item Details");
+            btnCall.setText("Call Reporter");
+        } else if ("item_returned_confirmed".equals(notificationType)) {
+            tvHeaderTitle.setText("Item Returned");
+            tvInformationLabel.setText("Finder Information");
+            tvContactLabel.setText("Contact Finder");
+            tvItemHeaderLabel.setText("Item Details");
+            btnCall.setText("Call Finder");
+        } else {
+            tvHeaderTitle.setText("Claimer Details");
+            tvInformationLabel.setText("Information");
+            tvContactLabel.setText("Contact");
+            tvItemHeaderLabel.setText("Item Claimed");
+            btnCall.setText("Call Claimant");
+        }
     }
 
     private void setupToolbar() {
@@ -125,8 +168,11 @@ public class ClaimDetailsActivity extends AppCompatActivity {
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 if (snapshot.exists()) {
                     String name = snapshot.child("name").getValue(String.class);
+                    if (name == null) name = snapshot.child("fullName").getValue(String.class);
+                    
                     String univId = snapshot.child("universityId").getValue(String.class);
                     String gender = snapshot.child("gender").getValue(String.class);
+                    String designation = snapshot.child("designation").getValue(String.class);
                     String batch = snapshot.child("batch").getValue(String.class);
                     String levelTerm = snapshot.child("levelTerm").getValue(String.class);
                     String dept = snapshot.child("department").getValue(String.class);
@@ -137,18 +183,14 @@ public class ClaimDetailsActivity extends AppCompatActivity {
                     tvNameHeader.setText(name != null && !name.isEmpty() ? name : "Not Specified");
                     tvUniversityId.setText(univId != null && !univId.isEmpty() ? univId : "Not Specified");
                     tvGender.setText(gender != null && !gender.isEmpty() ? gender : "Not Specified");
-                    tvBatch.setText(batch != null && !batch.isEmpty() ? batch : "Not Specified");
-                    tvLevelTerm.setText(levelTerm != null && !levelTerm.isEmpty() ? levelTerm : "Not Specified");
-                    tvDepartment.setText(dept != null && !dept.isEmpty() ? dept : "Not Specified");
                     tvEmail.setText(email != null && !email.isEmpty() ? email : "Not Specified");
 
-                    if (section != null && !section.isEmpty()) {
-                        tvSection.setText(section);
-                        llSection.setVisibility(View.VISIBLE);
-                    } else {
-                        tvSection.setText("Not Specified");
-                        llSection.setVisibility(View.VISIBLE);
-                    }
+                    // Dynamic Visibility based on field existence in profile
+                    updateFieldVisibility(llDesignation, tvDesignation, designation);
+                    updateFieldVisibility(llBatch, tvBatch, batch);
+                    updateFieldVisibility(llLevelTerm, tvLevelTerm, levelTerm);
+                    updateFieldVisibility(llDepartment, tvDepartment, dept);
+                    updateFieldVisibility(llSection, tvSection, section);
 
                     if (profileImageUrl != null && !profileImageUrl.isEmpty()) {
                         Glide.with(ClaimDetailsActivity.this)
@@ -166,6 +208,15 @@ public class ClaimDetailsActivity extends AppCompatActivity {
             public void onCancelled(@NonNull DatabaseError error) {}
         };
         mDatabase.child("Users").child(claimantId).addValueEventListener(claimantProfileListener);
+    }
+
+    private void updateFieldVisibility(LinearLayout layout, TextView textView, String value) {
+        if (value != null && !value.isEmpty()) {
+            textView.setText(value);
+            layout.setVisibility(View.VISIBLE);
+        } else {
+            layout.setVisibility(View.GONE);
+        }
     }
 
     private void fetchItemDetails(String itemId) {
@@ -210,6 +261,18 @@ public class ClaimDetailsActivity extends AppCompatActivity {
             details += "\nLocation: " + item.getLocation();
             tvItemDetails.setText(details);
 
+            // Handle Item Image
+            String imageUrl = item.getImageUrl();
+            if (imageUrl != null && !imageUrl.isEmpty()) {
+                ivItemImage.setVisibility(View.VISIBLE);
+                Glide.with(this)
+                        .load(imageUrl)
+                        .placeholder(R.drawable.ic_package)
+                        .into(ivItemImage);
+            } else {
+                ivItemImage.setImageResource(R.drawable.ic_package);
+            }
+
             if ("lost".equals(itemStatus)) {
                 llOwnershipVerification.setVisibility(View.VISIBLE);
                 llFoundSpecifics.setVisibility(View.GONE);
@@ -218,9 +281,9 @@ public class ClaimDetailsActivity extends AppCompatActivity {
                 if ("Claimed".equalsIgnoreCase(item.getAdminStatus()) || "Returned".equalsIgnoreCase(item.getAdminStatus())) {
                     btnMarkReturned.setEnabled(false);
                     btnMarkReturned.setText("Item Already Recovered");
-                    btnMarkReturned.setVisibility(View.VISIBLE);
+                    btnMarkReturned.setVisibility("lost_claimed_confirmed".equals(notificationType) || "item_returned_confirmed".equals(notificationType) ? View.GONE : View.VISIBLE);
                 } else {
-                    btnMarkReturned.setVisibility(View.VISIBLE);
+                    btnMarkReturned.setVisibility("lost_claimed_confirmed".equals(notificationType) || "item_returned_confirmed".equals(notificationType) ? View.GONE : View.VISIBLE);
                     btnMarkReturned.setText("Mark as Recovered");
                 }
             } else {
@@ -232,9 +295,9 @@ public class ClaimDetailsActivity extends AppCompatActivity {
                 if ("Claimed".equalsIgnoreCase(item.getAdminStatus()) || "Returned".equalsIgnoreCase(item.getAdminStatus())) {
                     btnMarkReturned.setEnabled(false);
                     btnMarkReturned.setText("Item Already Returned");
-                    btnMarkReturned.setVisibility(View.VISIBLE);
+                    btnMarkReturned.setVisibility("item_returned_confirmed".equals(notificationType) ? View.GONE : View.VISIBLE);
                 } else {
-                    btnMarkReturned.setVisibility(View.VISIBLE);
+                    btnMarkReturned.setVisibility("item_returned_confirmed".equals(notificationType) ? View.GONE : View.VISIBLE);
                     btnMarkReturned.setText("Mark as Returned");
                 }
             }
