@@ -17,13 +17,9 @@
             android:icon="@drawable/ic_lost_times"
             android:title="@string/my_lost_reports" />
         <item
-            android:id="@+id/nav_return_items"
-            android:icon="@drawable/ic_assignment_return"
-            android:title="@string/my_returned_items" />
-        <item
-            android:id="@+id/nav_claimed_items"
+            android:id="@+id/nav_resolved_items"
             android:icon="@drawable/ic_fact_check"
-            android:title="@string/my_claimed_items" />
+            android:title="@string/my_resolved_items" />
     </group>
 
     <item android:title="Other">

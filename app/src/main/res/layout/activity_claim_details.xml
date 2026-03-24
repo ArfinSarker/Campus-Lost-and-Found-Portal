@@ -63,7 +63,7 @@
                     android:padding="2dp"
                     android:scaleType="centerCrop"
                     android:src="@drawable/ic_user"
-                    app:shapeAppearanceOverlay="@style/CircleAppearanceOverlay"
+                    app:shapeAppearanceOverlay="@style/ShapeAppearance.App.Circle"
                     app:strokeColor="@color/primaryColor"
                     app:strokeWidth="2dp" />
             </FrameLayout>
@@ -81,6 +81,7 @@
 
             <!-- Information Section -->
             <TextView
+                android:id="@+id/tvInformationLabel"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="12dp"
@@ -132,12 +133,30 @@
                     </com.google.android.material.textfield.TextInputLayout>
 
                     <com.google.android.material.textfield.TextInputLayout
+                        android:id="@+id/tilDesignation"
                         style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginBottom="16dp"
                         android:enabled="false"
-                        android:hint="Batch">
+                        android:hint="Designation"
+                        android:visibility="gone">
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/etDesignation"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:textColor="@color/black" />
+                    </com.google.android.material.textfield.TextInputLayout>
+
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:id="@+id/tilBatch"
+                        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="16dp"
+                        android:enabled="false"
+                        android:hint="Batch"
+                        android:visibility="gone">
                         <com.google.android.material.textfield.TextInputEditText
                             android:id="@+id/etBatch"
                             android:layout_width="match_parent"
@@ -146,12 +165,14 @@
                     </com.google.android.material.textfield.TextInputLayout>
 
                     <com.google.android.material.textfield.TextInputLayout
+                        android:id="@+id/tilLevelTerm"
                         style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginBottom="16dp"
                         android:enabled="false"
-                        android:hint="Level &amp; Term">
+                        android:hint="Level &amp; Term"
+                        android:visibility="gone">
                         <com.google.android.material.textfield.TextInputEditText
                             android:id="@+id/etLevelTerm"
                             android:layout_width="match_parent"
@@ -160,12 +181,14 @@
                     </com.google.android.material.textfield.TextInputLayout>
 
                     <com.google.android.material.textfield.TextInputLayout
+                        android:id="@+id/tilDepartment"
                         style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginBottom="16dp"
                         android:enabled="false"
-                        android:hint="Department">
+                        android:hint="Department"
+                        android:visibility="gone">
                         <com.google.android.material.textfield.TextInputEditText
                             android:id="@+id/etDepartment"
                             android:layout_width="match_parent"
@@ -193,6 +216,7 @@
 
             <!-- Contact Section -->
             <TextView
+                android:id="@+id/tvContactLabel"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="12dp"
@@ -260,6 +284,7 @@
 
             <!-- Item Claimed Section -->
             <TextView
+                android:id="@+id/tvItemHeaderLabel"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="12dp"
@@ -281,6 +306,15 @@
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
                     android:padding="16dp">
+
+                    <com.google.android.material.imageview.ShapeableImageView
+                        android:id="@+id/ivItemImage"
+                        android:layout_width="match_parent"
+                        android:layout_height="180dp"
+                        android:layout_marginBottom="16dp"
+                        android:scaleType="centerCrop"
+                        android:src="@drawable/ic_package"
+                        app:shapeAppearanceOverlay="@style/ShapeAppearance.App.MediumComponent" />
 
                     <TextView
                         android:id="@+id/tvItemName"

@@ -91,26 +91,85 @@
             android:orientation="vertical"
             android:padding="24dp">
 
-            <com.google.android.material.card.MaterialCardView
-                android:id="@+id/cardBadge"
-                android:layout_width="wrap_content"
+            <LinearLayout
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                app:cardBackgroundColor="@color/lost_bg"
-                app:cardCornerRadius="8dp"
-                app:cardElevation="0dp">
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
 
-                <TextView
-                    android:id="@+id/tvStatus"
-                    style="@style/TextAppearance.App.Small"
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/cardBadge"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:paddingHorizontal="12dp"
-                    android:paddingVertical="4dp"
-                    android:textAllCaps="true"
-                    android:textColor="@color/statusLost"
-                    android:textStyle="bold"
-                    tools:text="LOST" />
-            </com.google.android.material.card.MaterialCardView>
+                    app:cardBackgroundColor="@color/lost_bg"
+                    app:cardCornerRadius="8dp"
+                    app:cardElevation="0dp">
+
+                    <TextView
+                        android:id="@+id/tvStatus"
+                        style="@style/TextAppearance.App.Small"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:paddingHorizontal="12dp"
+                        android:paddingVertical="4dp"
+                        android:textAllCaps="true"
+                        android:textColor="@color/statusLost"
+                        android:textStyle="bold"
+                        tools:text="LOST" />
+                </com.google.android.material.card.MaterialCardView>
+
+                <View
+                    android:layout_width="0dp"
+                    android:layout_height="0dp"
+                    android:layout_weight="1" />
+
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/cardReportId"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    app:cardBackgroundColor="#E3F2FD"
+                    app:cardCornerRadius="12dp"
+                    app:cardElevation="2dp"
+                    app:strokeColor="@color/primaryColor"
+                    app:strokeWidth="1.5dp">
+
+                    <TextView
+                        android:id="@+id/tvDetailReportId"
+                        style="@style/TextAppearance.App.Small"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:paddingHorizontal="14dp"
+                        android:paddingVertical="6dp"
+                        android:textColor="@color/primaryColor"
+                        android:textSize="11sp"
+                        android:textStyle="bold"
+                        tools:text="L1" />
+                </com.google.android.material.card.MaterialCardView>
+
+                <!-- Edited Label for Admin -->
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/cardEditedLabel"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
+                    android:visibility="gone"
+                    app:cardBackgroundColor="#FFF3E0"
+                    app:cardCornerRadius="4dp"
+                    app:cardElevation="0dp"
+                    app:strokeColor="#FFE0B2"
+                    app:strokeWidth="1dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:paddingHorizontal="8dp"
+                        android:paddingVertical="2dp"
+                        android:text="Edited"
+                        android:textColor="#E65100"
+                        android:textSize="11sp"
+                        android:textStyle="bold" />
+                </com.google.android.material.card.MaterialCardView>
+            </LinearLayout>
 
             <TextView
                 android:id="@+id/tvItemName"
@@ -301,69 +360,174 @@
                 android:layout_marginVertical="24dp"
                 android:background="@color/dividerColor" />
 
-            <TextView
-                style="@style/TextAppearance.App.SectionTitle"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="@string/label_reported_by" />
-
             <LinearLayout
+                android:id="@+id/llReportedByContainer"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="12dp"
-                android:gravity="center_vertical"
-                android:orientation="horizontal">
+                android:orientation="vertical">
 
-                <com.google.android.material.imageview.ShapeableImageView
-                    android:id="@+id/ivUserPhoto"
-                    android:layout_width="48dp"
-                    android:layout_height="48dp"
-                    android:scaleType="centerCrop"
-                    android:src="@drawable/ic_user"
-                    app:shapeAppearanceOverlay="@style/ShapeAppearance.App.Circle"
-                    tools:ignore="ContentDescription" />
+                <TextView
+                    style="@style/TextAppearance.App.SectionTitle"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/label_reported_by" />
 
                 <LinearLayout
-                    android:layout_width="0dp"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="16dp"
-                    android:layout_weight="1"
-                    android:orientation="vertical">
+                    android:layout_marginTop="12dp"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
 
-                    <TextView
-                        android:id="@+id/tvReporterName"
-                        style="@style/TextAppearance.App.SectionTitle"
+                    <com.google.android.material.imageview.ShapeableImageView
+                        android:id="@+id/ivUserPhoto"
+                        android:layout_width="48dp"
+                        android:layout_height="48dp"
+                        android:scaleType="centerCrop"
+                        android:src="@drawable/ic_user"
+                        app:shapeAppearanceOverlay="@style/ShapeAppearance.App.Circle"
+                        tools:ignore="ContentDescription" />
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="16dp"
+                        android:layout_weight="1"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:id="@+id/tvReporterName"
+                            style="@style/TextAppearance.App.SectionTitle"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:textSize="16sp"
+                            tools:text="John Doe" />
+
+                        <TextView
+                            android:id="@+id/tvReporterUniversityId"
+                            style="@style/TextAppearance.App.Small"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:textSize="13sp"
+                            android:textColor="@color/textSecondary"
+                            tools:text="ID: 180201001" />
+
+                        <TextView
+                            android:id="@+id/tvReporterType"
+                            style="@style/TextAppearance.App.Small"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:textSize="13sp"
+                            android:textStyle="bold"
+                            android:textColor="@color/primaryColor"
+                            tools:text="Student" />
+
+                        <TextView
+                            android:id="@+id/tvReporterDeptOrDesignation"
+                            style="@style/TextAppearance.App.Small"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:textSize="13sp"
+                            tools:text="Computer Science Department" />
+
+                        <TextView
+                            android:id="@+id/tvReporterPhone"
+                            style="@style/TextAppearance.App.Small"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:textSize="13sp"
+                            android:layout_marginTop="2dp"
+                            android:visibility="gone"
+                            tools:visibility="visible"
+                            tools:text="+880123456789" />
+                    </LinearLayout>
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btnContact"
+                        style="@style/Widget.Material3.Button.TextButton"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:textSize="16sp"
-                        tools:text="John Doe" />
-
-                    <TextView
-                        android:id="@+id/tvReporterType"
-                        style="@style/TextAppearance.App.Small"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:textSize="13sp"
-                        android:textStyle="bold"
-                        android:textColor="@color/primaryColor"
-                        tools:text="Student" />
-
-                    <TextView
-                        android:id="@+id/tvReporterDeptOrDesignation"
-                        style="@style/TextAppearance.App.Small"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:textSize="13sp"
-                        tools:text="Computer Science Department" />
+                        android:text="@string/btn_contact"
+                        android:textStyle="bold" />
                 </LinearLayout>
+            </LinearLayout>
 
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/btnContact"
-                    style="@style/Widget.Material3.Button.TextButton"
-                    android:layout_width="wrap_content"
+            <!-- Resolved User Info Section -->
+            <LinearLayout
+                android:id="@+id/llResolutionContainer"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:layout_marginTop="24dp"
+                android:visibility="gone"
+                tools:visibility="visible">
+
+                <TextView
+                    android:id="@+id/tvResolutionTitle"
+                    style="@style/TextAppearance.App.SectionTitle"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="@string/btn_contact"
-                    android:textStyle="bold" />
+                    tools:text="Returned To" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
+
+                    <com.google.android.material.imageview.ShapeableImageView
+                        android:id="@+id/ivResolvedUserPhoto"
+                        android:layout_width="48dp"
+                        android:layout_height="48dp"
+                        android:scaleType="centerCrop"
+                        android:src="@drawable/ic_user"
+                        app:shapeAppearanceOverlay="@style/ShapeAppearance.App.Circle"
+                        tools:ignore="ContentDescription" />
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="16dp"
+                        android:layout_weight="1"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:id="@+id/tvResolvedUserName"
+                            style="@style/TextAppearance.App.SectionTitle"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:textSize="16sp"
+                            tools:text="Jane Smith" />
+
+                        <TextView
+                            android:id="@+id/tvResolvedUserUniversityId"
+                            style="@style/TextAppearance.App.Small"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:textSize="13sp"
+                            android:textColor="@color/textSecondary"
+                            tools:text="ID: 180201099" />
+
+                        <TextView
+                            android:id="@+id/tvResolvedUserType"
+                            style="@style/TextAppearance.App.Small"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:textSize="13sp"
+                            android:textStyle="bold"
+                            android:textColor="@color/primaryColor"
+                            tools:text="Student" />
+
+                        <TextView
+                            android:id="@+id/tvResolvedUserDeptOrDesignation"
+                            style="@style/TextAppearance.App.Small"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:textSize="13sp"
+                            tools:text="Computer Science Department" />
+                    </LinearLayout>
+                </LinearLayout>
             </LinearLayout>
 
             <com.google.android.material.button.MaterialButton
@@ -372,6 +536,67 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="32dp"
                 android:text="@string/btn_found_this" />
+
+            <!-- Reporter Actions Container -->
+            <LinearLayout
+                android:id="@+id/llReporterActions"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:visibility="gone">
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnEdit"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="32dp"
+                    android:text="Edit Report"
+                    android:textColor="@color/white"
+                    app:icon="@drawable/ic_pen"
+                    app:iconGravity="textStart"
+                    app:iconTint="@color/white" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnReturnToOwner"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp"
+                    android:text="@string/btn_return_to_owner"
+                    android:textColor="@color/white"
+                    app:backgroundTint="@color/statusFound"
+                    app:icon="@drawable/ic_back_arrow"
+                    app:iconGravity="textStart"
+                    app:iconTint="@color/white"
+                    android:visibility="gone"
+                    tools:visibility="visible"/>
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnMarkAsClaimed"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp"
+                    android:text="Mark as Claimed"
+                    android:textColor="@color/white"
+                    app:backgroundTint="@color/statusFound"
+                    app:icon="@drawable/ic_check"
+                    app:iconGravity="textStart"
+                    app:iconTint="@color/white"
+                    android:visibility="gone"
+                    tools:visibility="visible"/>
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnReporterDelete"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp"
+                    android:text="Delete Report"
+                    android:textColor="@color/white"
+                    app:backgroundTint="@color/errorColor"
+                    app:icon="@drawable/ic_delete"
+                    app:iconGravity="textStart"
+                    app:iconTint="@color/white" />
+
+            </LinearLayout>
 
             <!-- Delete Item Button - Redesigned to match Sign In button style -->
             <com.google.android.material.button.MaterialButton

@@ -102,11 +102,12 @@ public class CampusMyItemsActivity extends AppCompatActivity {
             case "find":
                 tvHeaderTitle.setText("My Lost Reports");
                 break;
-            case "return":
-                tvHeaderTitle.setText("My Returned Items");
+            case "resolved":
+                tvHeaderTitle.setText("My Resolved Items");
                 break;
+            case "return":
             case "claimed":
-                tvHeaderTitle.setText("My Claimed Items");
+                tvHeaderTitle.setText("My Resolved Items");
                 break;
         }
     }
@@ -154,20 +155,20 @@ public class CampusMyItemsActivity extends AppCompatActivity {
     }
 
     private boolean shouldInclude(Item item, String userId) {
+        boolean isResolved = "Claimed".equalsIgnoreCase(item.getAdminStatus()) || "Returned".equalsIgnoreCase(item.getAdminStatus());
+        
         switch (filterType) {
             case "reported":
-                // All found reports by this user
-                return "found".equals(item.getStatus()) && userId.equals(item.getUserId());
+                // Active found reports by this user
+                return "found".equals(item.getStatus()) && userId.equals(item.getUserId()) && !isResolved;
             case "find":
-                // All lost reports by this user
-                return "lost".equals(item.getStatus()) && userId.equals(item.getUserId());
+                // Active lost reports by this user
+                return "lost".equals(item.getStatus()) && userId.equals(item.getUserId()) && !isResolved;
+            case "resolved":
             case "return":
-                // Found items by this user that were returned (Claimed/Returned status)
-                return "found".equals(item.getStatus()) && userId.equals(item.getUserId()) && 
-                        ("Returned".equalsIgnoreCase(item.getAdminStatus()) || "Claimed".equalsIgnoreCase(item.getAdminStatus()));
             case "claimed":
-                // Items claimed by this user (originally found by someone else)
-                return "found".equals(item.getStatus()) && userId.equals(item.getClaimedByUserId());
+                // Item is resolved and user is either reporter or second user
+                return isResolved && (userId.equals(item.getUserId()) || userId.equals(item.getClaimedByUserId()));
             default:
                 return false;
         }
@@ -205,12 +206,18 @@ public class CampusMyItemsActivity extends AppCompatActivity {
             holder.tvLocation.setText(item.getLocation());
             holder.tvTime.setText(item.getDate());
             
-            if ("lost".equals(item.getStatus())) {
-                holder.statusIndicator.setBackgroundColor(0xFFA31621);
+            boolean isResolved = "Claimed".equalsIgnoreCase(item.getAdminStatus()) || "Returned".equalsIgnoreCase(item.getAdminStatus());
+
+            if (isResolved) {
+                holder.statusIndicator.setBackgroundColor(0xFF2E7D32); // Green
+                holder.tvBadge.setText("RESOLVED");
+                holder.cardBadge.setCardBackgroundColor(ContextCompat.getColor(holder.itemView.getContext(), R.color.badge_found_bg));
+            } else if ("lost".equals(item.getStatus())) {
+                holder.statusIndicator.setBackgroundColor(0xFFA31621); // Red
                 holder.tvBadge.setText("LOST");
                 holder.cardBadge.setCardBackgroundColor(ContextCompat.getColor(holder.itemView.getContext(), R.color.badge_lost_bg));
             } else {
-                holder.statusIndicator.setBackgroundColor(0xFF2E7D32);
+                holder.statusIndicator.setBackgroundColor(0xFF2E7D32); // Green
                 holder.tvBadge.setText("FOUND");
                 holder.cardBadge.setCardBackgroundColor(ContextCompat.getColor(holder.itemView.getContext(), R.color.badge_found_bg));
             }
