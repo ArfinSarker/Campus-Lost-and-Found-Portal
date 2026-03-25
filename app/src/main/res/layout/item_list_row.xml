@@ -36,6 +36,12 @@
                 android:text="@string/item_image_description"
                 android:textSize="24sp" />
 
+            <androidx.viewpager2.widget.ViewPager2
+                android:id="@+id/viewPagerSlider"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:visibility="gone" />
+
             <ImageView
                 android:id="@+id/ivItemImage"
                 android:layout_width="match_parent"
@@ -43,6 +49,20 @@
                 android:scaleType="centerCrop"
                 android:visibility="gone"
                 android:contentDescription="@string/item_image_description" />
+
+            <com.google.android.material.tabs.TabLayout
+                android:id="@+id/tabLayoutIndicator"
+                android:layout_width="match_parent"
+                android:layout_height="8dp"
+                android:layout_gravity="bottom"
+                android:layout_marginBottom="4dp"
+                android:background="@android:color/transparent"
+                android:visibility="gone"
+                app:tabBackground="@drawable/slider_indicator_selector"
+                app:tabGravity="center"
+                app:tabIndicatorHeight="0dp"
+                app:tabMaxWidth="8dp"
+                app:tabRippleColor="@null" />
         </FrameLayout>
 
         <TextView

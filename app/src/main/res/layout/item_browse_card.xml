@@ -14,13 +14,39 @@
         android:orientation="horizontal"
         android:padding="12dp">
 
-        <com.google.android.material.imageview.ShapeableImageView
-            android:id="@+id/ivItemImage"
+        <FrameLayout
             android:layout_width="80dp"
-            android:layout_height="80dp"
-            android:scaleType="centerCrop"
-            android:src="@drawable/ic_package"
-            app:shapeAppearanceOverlay="@style/ShapeAppearance.App.MediumComponent" />
+            android:layout_height="80dp">
+
+            <androidx.viewpager2.widget.ViewPager2
+                android:id="@+id/viewPagerSlider"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:visibility="gone"
+                app:shapeAppearanceOverlay="@style/ShapeAppearance.App.MediumComponent" />
+
+            <com.google.android.material.imageview.ShapeableImageView
+                android:id="@+id/ivItemImage"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:scaleType="centerCrop"
+                android:src="@drawable/ic_package"
+                app:shapeAppearanceOverlay="@style/ShapeAppearance.App.MediumComponent" />
+
+            <com.google.android.material.tabs.TabLayout
+                android:id="@+id/tabLayoutIndicator"
+                android:layout_width="match_parent"
+                android:layout_height="6dp"
+                android:layout_gravity="bottom"
+                android:layout_marginBottom="2dp"
+                android:background="@android:color/transparent"
+                android:visibility="gone"
+                app:tabBackground="@drawable/slider_indicator_selector"
+                app:tabGravity="center"
+                app:tabIndicatorHeight="0dp"
+                app:tabMaxWidth="6dp"
+                app:tabRippleColor="@null" />
+        </FrameLayout>
 
         <LinearLayout
             android:layout_width="0dp"

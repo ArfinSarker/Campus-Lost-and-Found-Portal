@@ -2,6 +2,8 @@ package com.sas.lostandfound;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,9 +18,12 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.viewpager2.widget.ViewPager2;
 
 import com.bumptech.glide.Glide;
 import com.google.android.material.card.MaterialCardView;
+import com.google.android.material.tabs.TabLayout;
+import com.google.android.material.tabs.TabLayoutMediator;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -27,14 +32,16 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class CampusMyItemsActivity extends AppCompatActivity {
 
     private RecyclerView rvMyItems;
     private MyItemsAdapter adapter;
     private List<Item> itemList;
-    private String filterType; 
+    private String filterType;
     private TextView tvHeaderTitle;
     private Toolbar toolbar;
     private boolean fromDrawer = false;
@@ -50,7 +57,7 @@ public class CampusMyItemsActivity extends AppCompatActivity {
 
         filterType = getIntent().getStringExtra("filterType");
         if (filterType == null) filterType = "reported";
-        
+
         fromDrawer = getIntent().getBooleanExtra("fromDrawer", false);
 
         mAuth = FirebaseAuth.getInstance();
@@ -85,7 +92,7 @@ public class CampusMyItemsActivity extends AppCompatActivity {
         });
 
         setupTitle();
-        
+
         itemList = new ArrayList<>();
         adapter = new MyItemsAdapter(itemList);
         rvMyItems.setLayoutManager(new LinearLayoutManager(this));
@@ -115,7 +122,7 @@ public class CampusMyItemsActivity extends AppCompatActivity {
     private void fetchMyItems() {
         if (mAuth.getCurrentUser() == null) return;
         String userId = mAuth.getCurrentUser().getUid();
-        
+
         // Use University ID if available for consistency
         mDatabase.child("UIDToUniversityID").child(userId).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
@@ -156,7 +163,7 @@ public class CampusMyItemsActivity extends AppCompatActivity {
 
     private boolean shouldInclude(Item item, String userId) {
         boolean isResolved = "Claimed".equalsIgnoreCase(item.getAdminStatus()) || "Returned".equalsIgnoreCase(item.getAdminStatus());
-        
+
         switch (filterType) {
             case "reported":
                 // Active found reports by this user
@@ -187,6 +194,8 @@ public class CampusMyItemsActivity extends AppCompatActivity {
 
     private class MyItemsAdapter extends RecyclerView.Adapter<MyItemsAdapter.ViewHolder> {
         private List<Item> items;
+        private Map<Integer, Runnable> sliderRunnables = new HashMap<>();
+        private Handler sliderHandler = new Handler(Looper.getMainLooper());
 
         public MyItemsAdapter(List<Item> items) {
             this.items = items;
@@ -205,7 +214,7 @@ public class CampusMyItemsActivity extends AppCompatActivity {
             holder.tvTitle.setText(item.getName());
             holder.tvLocation.setText(item.getLocation());
             holder.tvTime.setText(item.getDate());
-            
+
             boolean isResolved = "Claimed".equalsIgnoreCase(item.getAdminStatus()) || "Returned".equalsIgnoreCase(item.getAdminStatus());
 
             if (isResolved) {
@@ -223,13 +232,7 @@ public class CampusMyItemsActivity extends AppCompatActivity {
             }
             holder.tvBadge.setTextColor(ContextCompat.getColor(holder.itemView.getContext(), R.color.white));
 
-            if (item.getImageUrl() != null && !item.getImageUrl().isEmpty()) {
-                Glide.with(holder.itemView.getContext())
-                        .load(item.getImageUrl())
-                        .placeholder(R.drawable.ic_package)
-                        .centerCrop()
-                        .into(holder.ivIcon);
-            }
+            setupImageOrSlider(holder, item, position);
 
             holder.itemView.setOnClickListener(v -> {
                 Intent intent = new Intent(v.getContext(), ItemDetailActivity.class);
@@ -250,6 +253,65 @@ public class CampusMyItemsActivity extends AppCompatActivity {
             });
         }
 
+        private void setupImageOrSlider(ViewHolder holder, Item item, int position) {
+            List<String> urls = item.getImageUrls();
+            if (urls != null && urls.size() > 1 && holder.viewPagerSlider != null) {
+                holder.ivIcon.setVisibility(View.GONE);
+                holder.viewPagerSlider.setVisibility(View.VISIBLE);
+                holder.tabLayoutIndicator.setVisibility(View.VISIBLE);
+
+                ImageSliderAdapter sliderAdapter = new ImageSliderAdapter(urls);
+                holder.viewPagerSlider.setAdapter(sliderAdapter);
+                holder.viewPagerSlider.setUserInputEnabled(true);
+
+                new TabLayoutMediator(holder.tabLayoutIndicator, holder.viewPagerSlider, (tab, pos) -> {}).attach();
+
+                stopSlider(position);
+                Runnable runnable = new Runnable() {
+                    @Override
+                    public void run() {
+                        if (holder.viewPagerSlider != null) {
+                            int current = holder.viewPagerSlider.getCurrentItem();
+                            int next = (current + 1) % urls.size();
+                            holder.viewPagerSlider.setCurrentItem(next, true);
+                            sliderHandler.postDelayed(this, 3000);
+                        }
+                    }
+                };
+                sliderRunnables.put(position, runnable);
+                sliderHandler.postDelayed(runnable, 3000);
+            } else {
+                if (holder.viewPagerSlider != null) holder.viewPagerSlider.setVisibility(View.GONE);
+                if (holder.tabLayoutIndicator != null) holder.tabLayoutIndicator.setVisibility(View.GONE);
+                holder.ivIcon.setVisibility(View.VISIBLE);
+                stopSlider(position);
+
+                if (item.getImageUrl() != null && !item.getImageUrl().isEmpty()) {
+                    Glide.with(holder.itemView.getContext())
+                            .load(item.getImageUrl())
+                            .placeholder(R.drawable.ic_package)
+                            .centerCrop()
+                            .into(holder.ivIcon);
+                } else {
+                    holder.ivIcon.setImageResource(R.drawable.ic_package);
+                }
+            }
+        }
+
+        private void stopSlider(int position) {
+            Runnable runnable = sliderRunnables.get(position);
+            if (runnable != null) {
+                sliderHandler.removeCallbacks(runnable);
+                sliderRunnables.remove(position);
+            }
+        }
+
+        @Override
+        public void onViewRecycled(@NonNull ViewHolder holder) {
+            super.onViewRecycled(holder);
+            stopSlider(holder.getBindingAdapterPosition());
+        }
+
         @Override
         public int getItemCount() {
             return items.size();
@@ -260,6 +322,8 @@ public class CampusMyItemsActivity extends AppCompatActivity {
             ImageView ivIcon;
             View statusIndicator;
             MaterialCardView cardBadge;
+            ViewPager2 viewPagerSlider;
+            TabLayout tabLayoutIndicator;
 
             public ViewHolder(@NonNull View itemView) {
                 super(itemView);
@@ -270,6 +334,8 @@ public class CampusMyItemsActivity extends AppCompatActivity {
                 statusIndicator = itemView.findViewById(R.id.viewStatusIndicator);
                 tvBadge = itemView.findViewById(R.id.tvBadge);
                 cardBadge = itemView.findViewById(R.id.cardBadge);
+                viewPagerSlider = itemView.findViewById(R.id.viewPagerSlider);
+                tabLayoutIndicator = itemView.findViewById(R.id.tabLayoutIndicator);
             }
         }
     }
