@@ -153,7 +153,7 @@
     <string name="title_found_item">Found Item</string>
     <string name="header_subtitle_format">%1$s • %2$s</string>
     <string name="btn_mark_as_claimed">Mark as Claimed</string>
-    <string name="prompt_mark_as_claimed">Enter the University ID of the person who returned the item</string>
+    <string name="prompt_mark_as_claimed">Enter the University ID of the person from whom you received the item</string>
     <string name="status_lost_label">LOST</string>
     <string name="status_found_label">FOUND</string>
     <string name="status_returned_label">RESOLVED</string>
@@ -163,7 +163,7 @@
 
     <!-- Return to Owner Strings -->
     <string name="btn_return_to_owner">Return to Owner</string>
-    <string name="prompt_return_to_owner">Enter the University ID of the actual owner (who lost the item)</string>
+    <string name="prompt_return_to_owner">Enter the University ID of the person to whom you returned the item</string>
     <string name="msg_item_returned_notification">%1$s has marked that they returned ‘%2$s’ to you. Click to view details.</string>
 
     <!-- Report Lost Strings -->
