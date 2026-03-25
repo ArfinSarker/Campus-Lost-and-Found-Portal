@@ -24,14 +24,39 @@
             app:titleEnabled="false"
             app:scrimAnimationDuration="200">
 
-            <ImageView
-                android:id="@+id/ivItemImage"
+            <FrameLayout
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:scaleType="centerCrop"
-                android:src="@drawable/ic_package"
-                app:layout_collapseMode="parallax"
-                tools:ignore="ContentDescription" />
+                app:layout_collapseMode="parallax">
+
+                <androidx.viewpager2.widget.ViewPager2
+                    android:id="@+id/viewPagerImageSlider"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:visibility="gone" />
+
+                <ImageView
+                    android:id="@+id/ivItemImage"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:scaleType="centerCrop"
+                    android:src="@drawable/ic_package"
+                    tools:ignore="ContentDescription" />
+
+                <com.google.android.material.tabs.TabLayout
+                    android:id="@+id/tabLayoutIndicator"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="bottom|center_horizontal"
+                    android:layout_marginBottom="36dp"
+                    android:background="@android:color/transparent"
+                    android:visibility="gone"
+                    app:tabBackground="@drawable/slider_indicator_selector"
+                    app:tabGravity="center"
+                    app:tabIndicatorHeight="0dp"
+                    app:tabMaxWidth="12dp"
+                    app:tabRippleColor="@null" />
+            </FrameLayout>
 
             <View
                 android:layout_width="match_parent"
@@ -350,7 +375,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:textSize="14sp"
-                        tools:text="Oct 24, 2023 - 10:30 AM" />
+                        tools:text="Oct 26, 2026 - 10:30 AM" />
                 </LinearLayout>
             </LinearLayout>
 
@@ -428,9 +453,9 @@
                             android:id="@+id/tvReporterDeptOrDesignation"
                             style="@style/TextAppearance.App.Small"
                             android:layout_width="match_parent"
-                            android:layout_height="match_parent"
+                            android:layout_height="wrap_content"
                             android:textSize="13sp"
-                            tools:text="Computer Science Department" />
+                            tools:text="Computer Science and Engineering" />
 
                         <TextView
                             android:id="@+id/tvPreferredContact"
@@ -502,18 +527,18 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:textSize="16sp"
-                            tools:text="Jane Smith" />
+                            tools:text="Arfin Sarker" />
 
                         <TextView
                             android:id="@+id/tvResolvedUserUniversityId"
                             style="@style/TextAppearance.App.Small"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:textSize="11sp"
+                            android:textSize="12sp"
                             android:textColor="@color/textSecondary"
                             android:maxLines="1"
                             android:ellipsize="none"
-                            tools:text="ID: 180201099" />
+                            tools:text="ID: 0802410205101019" />
 
                         <TextView
                             android:id="@+id/tvResolvedUserType"
@@ -531,7 +556,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:textSize="13sp"
-                            tools:text="Computer Science Department" />
+                            tools:text="Computer Science and Engineering" />
                     </LinearLayout>
                 </LinearLayout>
 

@@ -1,15 +1,20 @@
 package com.sas.lostandfound;
 
+import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.text.SpannableString;
 import android.text.Spanned;
 import android.text.TextPaint;
 import android.text.method.LinkMovementMethod;
 import android.text.style.ClickableSpan;
+import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -20,11 +25,14 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.viewpager2.widget.ViewPager2;
 
 import com.bumptech.glide.Glide;
 import com.google.android.material.appbar.AppBarLayout;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.card.MaterialCardView;
+import com.google.android.material.tabs.TabLayout;
+import com.google.android.material.tabs.TabLayoutMediator;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
@@ -40,6 +48,8 @@ import java.util.List;
 public class ItemDetailActivity extends AppCompatActivity {
 
     private ImageView ivItemImage, ivUserPhoto, ivResolvedUserPhoto;
+    private ViewPager2 viewPagerImageSlider;
+    private TabLayout tabLayoutIndicator;
     private TextView tvStatus, tvItemName, tvCategory, tvDescription, tvLocation, tvDateTime, tvDetailReportId;
     private TextView tvReporterName, tvReporterUniversityId, tvReporterType, tvReporterDeptOrDesignation, tvPreferredContact;
     private TextView tvHeaderTitle, tvHeaderSubtitle;
@@ -51,7 +61,7 @@ public class ItemDetailActivity extends AppCompatActivity {
     private MaterialButton btnEdit, btnReporterDelete, btnMarkAsClaimed, btnReturnToOwner, btnResolvedUserContact;
     private Toolbar toolbar;
     private AppBarLayout appBarLayout;
-    
+
     private DatabaseReference mDatabase;
     private FirebaseAuth mAuth;
     private static final String DATABASE_URL = "https://campus-lost-and-found-portal-default-rtdb.asia-southeast1.firebasedatabase.app";
@@ -60,6 +70,10 @@ public class ItemDetailActivity extends AppCompatActivity {
     private boolean isAdminMode;
     private ValueEventListener itemListener;
     private Item currentItem;
+
+    private Handler sliderHandler = new Handler(Looper.getMainLooper());
+    private Runnable sliderRunnable;
+    private boolean isUserInteracting = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -85,13 +99,31 @@ public class ItemDetailActivity extends AppCompatActivity {
     }
 
     @Override
+    protected void onPause() {
+        super.onPause();
+        stopAutoSlide();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if (currentItem != null && currentItem.getImageUrls() != null && currentItem.getImageUrls().size() > 1) {
+            startAutoSlide(currentItem.getImageUrls().size());
+        }
+    }
+
+    @Override
     protected void onDestroy() {
         super.onDestroy();
         stopListeningToItemChanges();
+        stopAutoSlide();
     }
 
+    @SuppressLint("ClickableViewAccessibility")
     private void initializeViews() {
         ivItemImage = findViewById(R.id.ivItemImage);
+        viewPagerImageSlider = findViewById(R.id.viewPagerImageSlider);
+        tabLayoutIndicator = findViewById(R.id.tabLayoutIndicator);
         ivUserPhoto = findViewById(R.id.ivUserPhoto);
         ivResolvedUserPhoto = findViewById(R.id.ivResolvedUserPhoto);
         tvStatus = findViewById(R.id.tvStatus);
@@ -141,6 +173,96 @@ public class ItemDetailActivity extends AppCompatActivity {
         headerTitleContainer = findViewById(R.id.headerTitleContainer);
         tvHeaderTitle = findViewById(R.id.tvHeaderTitle);
         tvHeaderSubtitle = findViewById(R.id.tvHeaderSubtitle);
+
+        viewPagerImageSlider.registerOnPageChangeCallback(new ViewPager2.OnPageChangeCallback() {
+            @Override
+            public void onPageScrollStateChanged(int state) {
+                super.onPageScrollStateChanged(state);
+                if (state == ViewPager2.SCROLL_STATE_DRAGGING) {
+                    isUserInteracting = true;
+                    stopAutoSlide();
+                } else if (state == ViewPager2.SCROLL_STATE_IDLE) {
+                    // We don't resume here directly, we'll rely on touch up or a separate logic if needed
+                    // But usually, manual swipe should stop auto-slide according to requirements
+                    // "If the user manually slides images: Auto-slide should pause/stop"
+                }
+            }
+        });
+
+        // "If the user presses and holds on an image: Auto-slide should pause"
+        // "When the user releases touch / stops interaction: Auto-slide should resume automatically"
+        viewPagerImageSlider.getChildAt(0).setOnTouchListener((v, event) -> {
+            if (event.getAction() == MotionEvent.ACTION_DOWN || event.getAction() == MotionEvent.ACTION_MOVE) {
+                isUserInteracting = true;
+                stopAutoSlide();
+            } else if (event.getAction() == MotionEvent.ACTION_UP || event.getAction() == MotionEvent.ACTION_CANCEL) {
+                isUserInteracting = false;
+                if (currentItem != null && currentItem.getImageUrls() != null && currentItem.getImageUrls().size() > 1) {
+                    startAutoSlide(currentItem.getImageUrls().size());
+                }
+            }
+            return false;
+        });
+
+        // Enable Full Image View on Click
+        ivItemImage.setOnClickListener(v -> {
+            List<String> urls = new ArrayList<>();
+            if (currentItem != null) {
+                if (currentItem.getImageUrls() != null && !currentItem.getImageUrls().isEmpty()) {
+                    urls.addAll(currentItem.getImageUrls());
+                } else if (currentItem.getImageUrl() != null && !currentItem.getImageUrl().isEmpty()) {
+                    urls.add(currentItem.getImageUrl());
+                }
+            }
+            
+            if (urls.isEmpty()) {
+                String intentUrl = getIntent().getStringExtra("itemImageUrl");
+                if (intentUrl != null) urls.add(intentUrl);
+            }
+            
+            if (!urls.isEmpty()) {
+                showFullScreenImageSlider(urls, 0);
+            }
+        });
+    }
+
+    private void showFullScreenImageSlider(List<String> imageUrls, int initialPosition) {
+        if (imageUrls == null || imageUrls.isEmpty()) return;
+        
+        android.app.Dialog dialog = new android.app.Dialog(this, android.R.style.Theme_Black_NoTitleBar_Fullscreen);
+        
+        android.widget.RelativeLayout layout = new android.widget.RelativeLayout(this);
+        layout.setBackgroundColor(Color.BLACK);
+        
+        ViewPager2 fullViewPager = new ViewPager2(this);
+        fullViewPager.setLayoutParams(new ViewGroup.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.MATCH_PARENT));
+        
+        ImageSliderAdapter adapter = new ImageSliderAdapter(imageUrls, true);
+        fullViewPager.setAdapter(adapter);
+        fullViewPager.setCurrentItem(initialPosition, false);
+        
+        layout.addView(fullViewPager);
+        
+        ImageView backButton = new ImageView(this);
+        int padding = (int) (16 * getResources().getDisplayMetrics().density);
+        backButton.setPadding(padding, padding, padding, padding);
+        backButton.setImageResource(R.drawable.ic_back_arrow);
+        backButton.setColorFilter(Color.WHITE);
+        
+        android.widget.RelativeLayout.LayoutParams lp = new android.widget.RelativeLayout.LayoutParams(
+                (int) (56 * getResources().getDisplayMetrics().density),
+                (int) (56 * getResources().getDisplayMetrics().density));
+        lp.addRule(android.widget.RelativeLayout.ALIGN_PARENT_TOP);
+        lp.addRule(android.widget.RelativeLayout.ALIGN_PARENT_START);
+        backButton.setLayoutParams(lp);
+        
+        backButton.setOnClickListener(v -> dialog.dismiss());
+        layout.addView(backButton);
+        
+        dialog.setContentView(layout);
+        dialog.show();
     }
 
     private void setupToolbar() {
@@ -182,7 +304,7 @@ public class ItemDetailActivity extends AppCompatActivity {
             tvDetailReportId.setText(reportId);
         }
 
-        updateUI(itemName, itemDescription, itemLocation, itemCategory, itemDate, itemTime, itemImageUrl, false);
+        updateUI(itemName, itemDescription, itemLocation, itemCategory, itemDate, itemTime, itemImageUrl, false, null);
     }
 
     private void startListeningToItemChanges() {
@@ -196,7 +318,7 @@ public class ItemDetailActivity extends AppCompatActivity {
                 if (currentItem != null) {
                     currentAdminStatus = currentItem.getAdminStatus();
                     updateUI(currentItem.getName(), currentItem.getDescription(), currentItem.getLocation(), currentItem.getCategory(),
-                            currentItem.getDate(), currentItem.getTime(), currentItem.getImageUrl(), currentItem.isEdited());
+                            currentItem.getDate(), currentItem.getTime(), currentItem.getImageUrl(), currentItem.isEdited(), currentItem.getImageUrls());
                     
                     if (tvDetailReportId != null && currentItem.getDisplayId() != null) {
                         tvDetailReportId.setText(currentItem.getDisplayId());
@@ -305,7 +427,7 @@ public class ItemDetailActivity extends AppCompatActivity {
         }
     }
 
-    private void updateUI(String name, String description, String location, String category, String date, String time, String imageUrl, boolean isEdited) {
+    private void updateUI(String name, String description, String location, String category, String date, String time, String imageUrl, boolean isEdited, List<String> imageUrls) {
         tvItemName.setText(name != null ? name : "No Name");
         tvDescription.setText(description != null ? description : "No Description");
         tvLocation.setText(location != null ? location : "No Location");
@@ -339,8 +461,53 @@ public class ItemDetailActivity extends AppCompatActivity {
             }
         }
 
-        if (imageUrl != null && !imageUrl.isEmpty()) {
-            Glide.with(this).load(imageUrl).placeholder(R.drawable.ic_package).into(ivItemImage);
+        setupImageSlider(imageUrls, imageUrl);
+    }
+
+    private void setupImageSlider(List<String> imageUrls, String fallbackUrl) {
+        if (imageUrls != null && imageUrls.size() > 1) {
+            ivItemImage.setVisibility(View.GONE);
+            viewPagerImageSlider.setVisibility(View.VISIBLE);
+            tabLayoutIndicator.setVisibility(View.VISIBLE);
+
+            ImageSliderAdapter adapter = new ImageSliderAdapter(imageUrls);
+            // Add click listener to adapter for full screen view
+            adapter.setOnImageClickListener(position -> showFullScreenImageSlider(imageUrls, position));
+            viewPagerImageSlider.setAdapter(adapter);
+
+            new TabLayoutMediator(tabLayoutIndicator, viewPagerImageSlider, (tab, position) -> {}).attach();
+
+            startAutoSlide(imageUrls.size());
+        } else {
+            stopAutoSlide();
+            viewPagerImageSlider.setVisibility(View.GONE);
+            tabLayoutIndicator.setVisibility(View.GONE);
+            ivItemImage.setVisibility(View.VISIBLE);
+
+            String finalUrl = (imageUrls != null && !imageUrls.isEmpty()) ? imageUrls.get(0) : fallbackUrl;
+            if (finalUrl != null && !finalUrl.isEmpty()) {
+                Glide.with(this).load(finalUrl).placeholder(R.drawable.ic_package).into(ivItemImage);
+            } else {
+                ivItemImage.setImageResource(R.drawable.ic_package);
+            }
+        }
+    }
+
+    private void startAutoSlide(int size) {
+        if (isUserInteracting) return;
+        stopAutoSlide();
+        sliderRunnable = () -> {
+            int current = viewPagerImageSlider.getCurrentItem();
+            int next = (current + 1) % size;
+            viewPagerImageSlider.setCurrentItem(next, true);
+            sliderHandler.postDelayed(sliderRunnable, 3000);
+        };
+        sliderHandler.postDelayed(sliderRunnable, 3000);
+    }
+
+    private void stopAutoSlide() {
+        if (sliderRunnable != null) {
+            sliderHandler.removeCallbacks(sliderRunnable);
         }
     }
 

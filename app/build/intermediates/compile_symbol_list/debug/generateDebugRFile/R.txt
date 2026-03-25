@@ -103,6 +103,9 @@ int drawable ic_shield 0x0
 int drawable ic_user 0x0
 int drawable ic_users 0x0
 int drawable logo 0x0
+int drawable slider_indicator_default 0x0
+int drawable slider_indicator_selected 0x0
+int drawable slider_indicator_selector 0x0
 int drawable splash_background 0x0
 int drawable text_overlay_background 0x0
 int id actvCategory 0x0
@@ -224,9 +227,11 @@ int id etUniversityId 0x0
 int id fabAddPhoto 0x0
 int id fabChangePhoto 0x0
 int id flIconContainer 0x0
+int id flImageContainer 0x0
 int id headerTitleContainer 0x0
 int id hsvCategories 0x0
 int id idleSpacer 0x0
+int id imageView 0x0
 int id ivAdminLogo 0x0
 int id ivClaimantPhoto 0x0
 int id ivDetailEvidence 0x0
@@ -282,6 +287,7 @@ int id rvMyItems 0x0
 int id rvNotifications 0x0
 int id rvRecentItems 0x0
 int id tabLayout 0x0
+int id tabLayoutIndicator 0x0
 int id tilAdminCode 0x0
 int id tilAuthorityName 0x0
 int id tilBatch 0x0
@@ -429,6 +435,8 @@ int id tvVerificationCode 0x0
 int id tvWelcome 0x0
 int id uploadCard 0x0
 int id uploadScreenshotCard 0x0
+int id viewPagerImageSlider 0x0
+int id viewPagerSlider 0x0
 int id viewStatus 0x0
 int id viewStatusIndicator 0x0
 int id viewUnreadIndicator 0x0
@@ -462,6 +470,7 @@ int layout item_browse_card 0x0
 int layout item_campus_my_item_card 0x0
 int layout item_campus_reported_recent 0x0
 int layout item_dashboard_card 0x0
+int layout item_image_slider 0x0
 int layout item_list_row 0x0
 int layout item_notification 0x0
 int layout item_user 0x0

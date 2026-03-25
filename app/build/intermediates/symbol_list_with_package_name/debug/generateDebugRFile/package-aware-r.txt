@@ -104,6 +104,9 @@ drawable ic_shield
 drawable ic_user
 drawable ic_users
 drawable logo
+drawable slider_indicator_default
+drawable slider_indicator_selected
+drawable slider_indicator_selector
 drawable splash_background
 drawable text_overlay_background
 id actvCategory
@@ -225,9 +228,11 @@ id etUniversityId
 id fabAddPhoto
 id fabChangePhoto
 id flIconContainer
+id flImageContainer
 id headerTitleContainer
 id hsvCategories
 id idleSpacer
+id imageView
 id ivAdminLogo
 id ivClaimantPhoto
 id ivDetailEvidence
@@ -283,6 +288,7 @@ id rvMyItems
 id rvNotifications
 id rvRecentItems
 id tabLayout
+id tabLayoutIndicator
 id tilAdminCode
 id tilAuthorityName
 id tilBatch
@@ -430,6 +436,8 @@ id tvVerificationCode
 id tvWelcome
 id uploadCard
 id uploadScreenshotCard
+id viewPagerImageSlider
+id viewPagerSlider
 id viewStatus
 id viewStatusIndicator
 id viewUnreadIndicator
@@ -463,6 +471,7 @@ layout item_browse_card
 layout item_campus_my_item_card
 layout item_campus_reported_recent
 layout item_dashboard_card
+layout item_image_slider
 layout item_list_row
 layout item_notification
 layout item_user

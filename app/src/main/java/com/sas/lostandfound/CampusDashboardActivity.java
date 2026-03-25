@@ -3,6 +3,8 @@ package com.sas.lostandfound;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -20,12 +22,14 @@ import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.viewpager2.widget.ViewPager2;
 
 import com.bumptech.glide.Glide;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.card.MaterialCardView;
 import com.google.android.material.navigation.NavigationView;
 import com.google.android.material.tabs.TabLayout;
+import com.google.android.material.tabs.TabLayoutMediator;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
@@ -35,7 +39,9 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class CampusDashboardActivity extends AppCompatActivity {
 
@@ -44,11 +50,11 @@ public class CampusDashboardActivity extends AppCompatActivity {
     private RecentItemsAdapter adapter;
     private List<Item> fullItemList;
     private List<Item> displayedItemList;
-    
+
     private TextView tvWelcome, tvDeveloperInfo, tvBrowseAll;
     private TextView tvLostCount, tvLostLabel, tvFoundCount, tvFoundLabel;
     private View cardLostReports, cardFoundReports;
-    
+
     private MaterialButton btnReportLost, btnReportFound, btnViewMore, btnViewLess;
     private ImageButton btnMenu;
     private FrameLayout btnNotifications;
@@ -56,7 +62,7 @@ public class CampusDashboardActivity extends AppCompatActivity {
     private TabLayout tabLayout;
     private DrawerLayout drawerLayout;
     private NavigationView navigationView;
-    
+
     private ImageView ivNavHeaderProfile;
     private TextView tvNavHeaderName;
 
@@ -75,12 +81,12 @@ public class CampusDashboardActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        
+
         // Check if admin is logged in and redirect if necessary
         SharedPreferences prefs = getSharedPreferences("MyApp", MODE_PRIVATE);
         boolean isAdminLoggedIn = prefs.getBoolean("isAdminLoggedIn", false);
         String userType = prefs.getString("userType", "");
-        
+
         if (isAdminLoggedIn || "Admin".equalsIgnoreCase(userType)) {
             startActivity(new Intent(this, AdminDashboardActivity.class));
             finish();
@@ -100,7 +106,7 @@ public class CampusDashboardActivity extends AppCompatActivity {
         fetchRecentItems();
 
         btnMenu.setOnClickListener(v -> drawerLayout.openDrawer(GravityCompat.START));
-        
+
         btnNotifications.setOnClickListener(v -> {
             startActivity(new Intent(this, NotificationsActivity.class));
         });
@@ -264,7 +270,7 @@ public class CampusDashboardActivity extends AppCompatActivity {
         FirebaseUser currentUser = mAuth.getCurrentUser();
         if (currentUser != null) {
             String authUid = currentUser.getUid();
-            
+
             // Promote specific user to Admin if they login
             if (ADMIN_UID.equals(authUid)) {
                 promoteToAdmin(authUid);
@@ -352,12 +358,12 @@ public class CampusDashboardActivity extends AppCompatActivity {
                 if (snapshot.exists()) {
                     String name = snapshot.child("name").getValue(String.class);
                     String profileImageUrl = snapshot.child("profileImageUrl").getValue(String.class);
-                    
+
                     if (name != null) {
                         tvWelcome.setText("Welcome back, " + name + "! 👋");
                         if (tvNavHeaderName != null) tvNavHeaderName.setText(name);
                     }
-                    
+
                     if (profileImageUrl != null && !profileImageUrl.isEmpty() && !isFinishing()) {
                         Glide.with(CampusDashboardActivity.this)
                                 .load(profileImageUrl)
@@ -382,7 +388,7 @@ public class CampusDashboardActivity extends AppCompatActivity {
         if (notificationListener != null) {
             mDatabase.child("Notifications").child(userId).removeEventListener(notificationListener);
         }
-        
+
         notificationListener = new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
@@ -435,7 +441,7 @@ public class CampusDashboardActivity extends AppCompatActivity {
 
     private void fetchRecentItems() {
         long twentyFourHoursAgo = System.currentTimeMillis() - (24 * 60 * 60 * 1000);
-        
+
         ValueEventListener itemListener = new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
@@ -474,7 +480,7 @@ public class CampusDashboardActivity extends AppCompatActivity {
             displayedItemList.add(fullItemList.get(i));
         }
         adapter.notifyDataSetChanged();
-        
+
         btnViewMore.setVisibility(fullItemList.size() > currentLimit ? View.VISIBLE : View.GONE);
         btnViewLess.setVisibility(currentLimit > 5 ? View.VISIBLE : View.GONE);
     }
@@ -495,6 +501,8 @@ public class CampusDashboardActivity extends AppCompatActivity {
 
     private class RecentItemsAdapter extends RecyclerView.Adapter<RecentItemsAdapter.ViewHolder> {
         private List<Item> items;
+        private Map<Integer, Runnable> sliderRunnables = new HashMap<>();
+        private Handler sliderHandler = new Handler(Looper.getMainLooper());
 
         public RecentItemsAdapter(List<Item> items) {
             this.items = items;
@@ -526,20 +534,7 @@ public class CampusDashboardActivity extends AppCompatActivity {
             }
             holder.tvBadge.setTextColor(ContextCompat.getColor(holder.itemView.getContext(), R.color.white));
 
-            if (item.getImageUrl() != null && !item.getImageUrl().isEmpty()) {
-                holder.ivIcon.setImageTintList(null);
-                holder.ivIcon.setScaleType(ImageView.ScaleType.CENTER_CROP);
-                Glide.with(holder.itemView.getContext())
-                        .load(item.getImageUrl())
-                        .placeholder(R.drawable.ic_package)
-                        .centerCrop()
-                        .into(holder.ivIcon);
-            } else {
-                holder.ivIcon.setImageResource(R.drawable.ic_package);
-                holder.ivIcon.setScaleType(ImageView.ScaleType.CENTER_INSIDE);
-                holder.ivIcon.setImageTintList(android.content.res.ColorStateList.valueOf(
-                        ContextCompat.getColor(holder.itemView.getContext(), R.color.textSecondary)));
-            }
+            setupImageOrSlider(holder, item, position);
 
             holder.itemView.setOnClickListener(v -> {
                 Intent intent = new Intent(v.getContext(), ItemDetailActivity.class);
@@ -560,6 +555,70 @@ public class CampusDashboardActivity extends AppCompatActivity {
             });
         }
 
+        private void setupImageOrSlider(ViewHolder holder, Item item, int position) {
+            List<String> urls = item.getImageUrls();
+            if (urls != null && urls.size() > 1 && holder.viewPagerSlider != null) {
+                holder.ivIcon.setVisibility(View.GONE);
+                holder.viewPagerSlider.setVisibility(View.VISIBLE);
+                holder.tabLayoutIndicator.setVisibility(View.VISIBLE);
+
+                ImageSliderAdapter sliderAdapter = new ImageSliderAdapter(urls);
+                holder.viewPagerSlider.setAdapter(sliderAdapter);
+                holder.viewPagerSlider.setUserInputEnabled(true);
+
+                new TabLayoutMediator(holder.tabLayoutIndicator, holder.viewPagerSlider, (tab, pos) -> {}).attach();
+
+                stopSlider(position);
+                Runnable runnable = new Runnable() {
+                    @Override
+                    public void run() {
+                        if (holder.viewPagerSlider != null) {
+                            int current = holder.viewPagerSlider.getCurrentItem();
+                            int next = (current + 1) % urls.size();
+                            holder.viewPagerSlider.setCurrentItem(next, true);
+                            sliderHandler.postDelayed(this, 3000);
+                        }
+                    }
+                };
+                sliderRunnables.put(position, runnable);
+                sliderHandler.postDelayed(runnable, 3000);
+            } else {
+                if (holder.viewPagerSlider != null) holder.viewPagerSlider.setVisibility(View.GONE);
+                if (holder.tabLayoutIndicator != null) holder.tabLayoutIndicator.setVisibility(View.GONE);
+                holder.ivIcon.setVisibility(View.VISIBLE);
+                stopSlider(position);
+
+                if (item.getImageUrl() != null && !item.getImageUrl().isEmpty()) {
+                    holder.ivIcon.setImageTintList(null);
+                    holder.ivIcon.setScaleType(ImageView.ScaleType.CENTER_CROP);
+                    Glide.with(holder.itemView.getContext())
+                            .load(item.getImageUrl())
+                            .placeholder(R.drawable.ic_package)
+                            .centerCrop()
+                            .into(holder.ivIcon);
+                } else {
+                    holder.ivIcon.setImageResource(R.drawable.ic_package);
+                    holder.ivIcon.setScaleType(ImageView.ScaleType.CENTER_INSIDE);
+                    holder.ivIcon.setImageTintList(android.content.res.ColorStateList.valueOf(
+                            ContextCompat.getColor(holder.itemView.getContext(), R.color.textSecondary)));
+                }
+            }
+        }
+
+        private void stopSlider(int position) {
+            Runnable runnable = sliderRunnables.get(position);
+            if (runnable != null) {
+                sliderHandler.removeCallbacks(runnable);
+                sliderRunnables.remove(position);
+            }
+        }
+
+        @Override
+        public void onViewRecycled(@NonNull ViewHolder holder) {
+            super.onViewRecycled(holder);
+            stopSlider(holder.getBindingAdapterPosition());
+        }
+
         @Override
         public int getItemCount() {
             return items.size();
@@ -570,6 +629,8 @@ public class CampusDashboardActivity extends AppCompatActivity {
             ImageView ivIcon;
             View statusIndicator;
             MaterialCardView cardBadge;
+            ViewPager2 viewPagerSlider;
+            TabLayout tabLayoutIndicator;
 
             public ViewHolder(@NonNull View itemView) {
                 super(itemView);
@@ -581,6 +642,8 @@ public class CampusDashboardActivity extends AppCompatActivity {
                 tvBadge = itemView.findViewById(R.id.tvBadge);
                 cardBadge = itemView.findViewById(R.id.cardBadge);
                 tvReportId = itemView.findViewById(R.id.tvReportId);
+                viewPagerSlider = itemView.findViewById(R.id.viewPagerSlider);
+                tabLayoutIndicator = itemView.findViewById(R.id.tabLayoutIndicator);
             }
         }
     }
