@@ -28,8 +28,10 @@ int color ic_launcher_background 0x0
 int color inputBackground 0x0
 int color lightGrey 0x0
 int color light_red_bg 0x0
+int color lime 0x0
 int color linkText 0x0
 int color lost_bg 0x0
+int color navy_blue 0x0
 int color primaryColor 0x0
 int color primaryDarkColor 0x0
 int color primaryLightColor 0x0
@@ -49,6 +51,7 @@ int color transparent 0x0
 int color vibrantBlue 0x0
 int color white 0x0
 int color windowBackground 0x0
+int color yellow 0x0
 int drawable admin_gradient_bg 0x0
 int drawable bg_bottom_gradient 0x0
 int drawable bg_bottom_gradient_overlay 0x0
@@ -143,6 +146,7 @@ int id btnNotifications 0x0
 int id btnReportFound 0x0
 int id btnReportLost 0x0
 int id btnReporterDelete 0x0
+int id btnResolvedUserContact 0x0
 int id btnReturnToOwner 0x0
 int id btnSaveChanges 0x0
 int id btnSignIn 0x0
@@ -372,6 +376,7 @@ int id tvNotificationBadge 0x0
 int id tvNotificationMessage 0x0
 int id tvNotificationTime 0x0
 int id tvOwnershipVerification 0x0
+int id tvPreferredContact 0x0
 int id tvPriorityBadge 0x0
 int id tvProofOwnership 0x0
 int id tvRegister 0x0
@@ -381,7 +386,6 @@ int id tvReportTitle 0x0
 int id tvReporterDeptOrDesignation 0x0
 int id tvReporterInfo 0x0
 int id tvReporterName 0x0
-int id tvReporterPhone 0x0
 int id tvReporterType 0x0
 int id tvReporterUniversityId 0x0
 int id tvRequestDesignation 0x0

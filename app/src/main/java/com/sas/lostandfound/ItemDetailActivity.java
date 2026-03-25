@@ -1,8 +1,14 @@
 package com.sas.lostandfound;
 
 import android.content.Intent;
+import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
+import android.text.SpannableString;
+import android.text.Spanned;
+import android.text.TextPaint;
+import android.text.method.LinkMovementMethod;
+import android.text.style.ClickableSpan;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -35,14 +41,14 @@ public class ItemDetailActivity extends AppCompatActivity {
 
     private ImageView ivItemImage, ivUserPhoto, ivResolvedUserPhoto;
     private TextView tvStatus, tvItemName, tvCategory, tvDescription, tvLocation, tvDateTime, tvDetailReportId;
-    private TextView tvReporterName, tvReporterUniversityId, tvReporterType, tvReporterDeptOrDesignation, tvReporterPhone;
+    private TextView tvReporterName, tvReporterUniversityId, tvReporterType, tvReporterDeptOrDesignation, tvPreferredContact;
     private TextView tvHeaderTitle, tvHeaderSubtitle;
     private TextView tvProofOwnership, tvHandlingStatus, tvSecurityQuestion;
     private TextView tvResolutionTitle, tvResolvedUserName, tvResolvedUserUniversityId, tvResolvedUserType, tvResolvedUserDeptOrDesignation;
     private LinearLayout headerTitleContainer, llLostSpecifics, llFoundSpecifics, llReportedByContainer, llReporterActions, llResolutionContainer;
     private MaterialCardView cardBadge, cardEditedLabel, cardReportId;
     private MaterialButton btnContact, btnClaim, btnDelete;
-    private MaterialButton btnEdit, btnReporterDelete, btnMarkAsClaimed, btnReturnToOwner;
+    private MaterialButton btnEdit, btnReporterDelete, btnMarkAsClaimed, btnReturnToOwner, btnResolvedUserContact;
     private Toolbar toolbar;
     private AppBarLayout appBarLayout;
     
@@ -50,9 +56,10 @@ public class ItemDetailActivity extends AppCompatActivity {
     private FirebaseAuth mAuth;
     private static final String DATABASE_URL = "https://campus-lost-and-found-portal-default-rtdb.asia-southeast1.firebasedatabase.app";
 
-    private String itemId, itemStatus, reporterId, currentAdminStatus;
+    private String itemId, itemStatus, reporterId, currentAdminStatus, currentUnivId;
     private boolean isAdminMode;
     private ValueEventListener itemListener;
+    private Item currentItem;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -73,10 +80,6 @@ public class ItemDetailActivity extends AppCompatActivity {
         setupScrollBehavior();
         displayInitialData(); // Show intent data first
         
-        if (reporterId != null) {
-            fetchReporterProfile(reporterId);
-        }
-
         checkUserRoleAndSetupActions();
         startListeningToItemChanges();
     }
@@ -102,8 +105,8 @@ public class ItemDetailActivity extends AppCompatActivity {
         tvReporterUniversityId = findViewById(R.id.tvReporterUniversityId);
         tvReporterType = findViewById(R.id.tvReporterType);
         tvReporterDeptOrDesignation = findViewById(R.id.tvReporterDeptOrDesignation);
-        tvReporterPhone = findViewById(R.id.tvReporterPhone);
-        
+        tvPreferredContact = findViewById(R.id.tvPreferredContact);
+
         tvProofOwnership = findViewById(R.id.tvProofOwnership);
         tvHandlingStatus = findViewById(R.id.tvHandlingStatus);
         tvSecurityQuestion = findViewById(R.id.tvSecurityQuestion);
@@ -131,6 +134,7 @@ public class ItemDetailActivity extends AppCompatActivity {
         btnReporterDelete = findViewById(R.id.btnReporterDelete);
         btnMarkAsClaimed = findViewById(R.id.btnMarkAsClaimed);
         btnReturnToOwner = findViewById(R.id.btnReturnToOwner);
+        btnResolvedUserContact = findViewById(R.id.btnResolvedUserContact);
 
         toolbar = findViewById(R.id.toolbar);
         appBarLayout = findViewById(R.id.appBarLayout);
@@ -188,33 +192,21 @@ public class ItemDetailActivity extends AppCompatActivity {
         itemListener = new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
-                Item item = snapshot.getValue(Item.class);
-                if (item != null) {
-                    currentAdminStatus = item.getAdminStatus();
-                    updateUI(item.getName(), item.getDescription(), item.getLocation(), item.getCategory(), 
-                            item.getDate(), item.getTime(), item.getImageUrl(), item.isEdited());
+                currentItem = snapshot.getValue(Item.class);
+                if (currentItem != null) {
+                    currentAdminStatus = currentItem.getAdminStatus();
+                    updateUI(currentItem.getName(), currentItem.getDescription(), currentItem.getLocation(), currentItem.getCategory(),
+                            currentItem.getDate(), currentItem.getTime(), currentItem.getImageUrl(), currentItem.isEdited());
                     
-                    if (tvDetailReportId != null && item.getDisplayId() != null) {
-                        tvDetailReportId.setText(item.getDisplayId());
-                    }
-
-                    // Priority: Show contact info from report document
-                    if (item.getContactName() != null && !item.getContactName().isEmpty()) {
-                        tvReporterName.setText(item.getContactName());
-                    }
-                    if (item.getContactPhone() != null && !item.getContactPhone().isEmpty()) {
-                        tvReporterPhone.setText(item.getContactPhone());
-                        tvReporterPhone.setVisibility(View.VISIBLE);
-                    } else {
-                        tvReporterPhone.setVisibility(View.GONE);
+                    if (tvDetailReportId != null && currentItem.getDisplayId() != null) {
+                        tvDetailReportId.setText(currentItem.getDisplayId());
                     }
 
                     // Update reporterId if it changes or to ensure we have the latest
-                    reporterId = item.getUserId();
-                    checkUserRoleAndSetupActions();
-
+                    reporterId = currentItem.getUserId();
+                    
                     // Specific fields
-                    if (item.isEdited() && isAdminMode) {
+                    if (currentItem.isEdited() && isAdminMode) {
                         cardEditedLabel.setVisibility(View.VISIBLE);
                     } else {
                         cardEditedLabel.setVisibility(View.GONE);
@@ -223,44 +215,30 @@ public class ItemDetailActivity extends AppCompatActivity {
                     if ("lost".equalsIgnoreCase(itemStatus)) {
                         llLostSpecifics.setVisibility(View.VISIBLE);
                         llFoundSpecifics.setVisibility(View.GONE);
-                        tvProofOwnership.setText(item.getProofOfOwnershipDetail() != null && !item.getProofOfOwnershipDetail().isEmpty()
-                                ? item.getProofOfOwnershipDetail() : "No details provided.");
+                        tvProofOwnership.setText(currentItem.getProofOfOwnershipDetail() != null && !currentItem.getProofOfOwnershipDetail().isEmpty()
+                                ? currentItem.getProofOfOwnershipDetail() : "No details provided.");
                     } else {
                         llLostSpecifics.setVisibility(View.GONE);
                         llFoundSpecifics.setVisibility(View.VISIBLE);
 
                         StringBuilder handlingBuilder = new StringBuilder();
-                        if (item.getItemHandlingStatus() != null && !item.getItemHandlingStatus().isEmpty()) {
-                            handlingBuilder.append(item.getItemHandlingStatus());
+                        if (currentItem.getItemHandlingStatus() != null && !currentItem.getItemHandlingStatus().isEmpty()) {
+                            handlingBuilder.append(currentItem.getItemHandlingStatus());
                         }
-                        if (item.getAuthorityName() != null && !item.getAuthorityName().isEmpty()) {
+                        if (currentItem.getAuthorityName() != null && !currentItem.getAuthorityName().isEmpty()) {
                             if (handlingBuilder.length() > 0) handlingBuilder.append("\n");
-                            handlingBuilder.append("Authority/Person: ").append(item.getAuthorityName());
+                            handlingBuilder.append("Authority/Person: ").append(currentItem.getAuthorityName());
                         }
-                        if (item.getOfficeRoomNumber() != null && !item.getOfficeRoomNumber().isEmpty()) {
+                        if (currentItem.getOfficeRoomNumber() != null && !currentItem.getOfficeRoomNumber().isEmpty()) {
                             if (handlingBuilder.length() > 0) handlingBuilder.append("\n");
-                            handlingBuilder.append("Office/Room: ").append(item.getOfficeRoomNumber());
+                            handlingBuilder.append("Office/Room: ").append(currentItem.getOfficeRoomNumber());
                         }
                         tvHandlingStatus.setText(handlingBuilder.length() > 0 ? handlingBuilder.toString() : "Status not provided.");
-                        tvSecurityQuestion.setText(item.getHiddenIdentificationQuestion() != null && !item.getHiddenIdentificationQuestion().isEmpty()
-                                ? item.getHiddenIdentificationQuestion() : "No security question provided.");
+                        tvSecurityQuestion.setText(currentItem.getHiddenIdentificationQuestion() != null && !currentItem.getHiddenIdentificationQuestion().isEmpty()
+                                ? currentItem.getHiddenIdentificationQuestion() : "No security question provided.");
                     }
                     
-                    // Show resolution info if claimed/returned
-                    if ("Claimed".equalsIgnoreCase(currentAdminStatus) || "Returned".equalsIgnoreCase(currentAdminStatus)) {
-                        String secondUserId = item.getClaimedByUserId();
-                        if (secondUserId != null && !secondUserId.isEmpty()) {
-                            fetchResolvedUserProfile(secondUserId);
-                            llResolutionContainer.setVisibility(View.VISIBLE);
-                            if ("lost".equalsIgnoreCase(itemStatus)) {
-                                tvResolutionTitle.setText("Returned By");
-                            } else {
-                                tvResolutionTitle.setText("Returned To");
-                            }
-                        }
-                    } else {
-                        llResolutionContainer.setVisibility(View.GONE);
-                    }
+                    refreshUIBasedOnRole();
                 }
             }
 
@@ -268,6 +246,56 @@ public class ItemDetailActivity extends AppCompatActivity {
             public void onCancelled(@NonNull DatabaseError error) {}
         };
         mDatabase.child(path).child(itemId).addValueEventListener(itemListener);
+    }
+
+    private void setupPreferredContactLink(Item item, String method) {
+        String fullText = "Preferred Contact: " + method;
+        SpannableString spannableString = new SpannableString(fullText);
+        
+        int start = fullText.indexOf(method);
+        if (start == -1) {
+            tvPreferredContact.setText(fullText);
+            return;
+        }
+        int end = start + method.length();
+
+        ClickableSpan clickableSpan = new ClickableSpan() {
+            @Override
+            public void onClick(@NonNull View widget) {
+                if ("Email".equalsIgnoreCase(method)) {
+                    String email = item.getUserEmail();
+                    if (email != null && !email.isEmpty()) {
+                        Intent intent = new Intent(Intent.ACTION_SENDTO);
+                        intent.setData(Uri.parse("mailto:" + email));
+                        intent.putExtra(Intent.EXTRA_SUBJECT, "Regarding your reported item: " + item.getName());
+                        startActivity(Intent.createChooser(intent, "Send Email"));
+                    } else {
+                        Toast.makeText(ItemDetailActivity.this, "Email address not available", Toast.LENGTH_SHORT).show();
+                    }
+                } else if ("Phone".equalsIgnoreCase(method)) {
+                    String phone = item.getUserPhone();
+                    if (phone != null && !phone.isEmpty()) {
+                        Intent intent = new Intent(Intent.ACTION_DIAL);
+                        intent.setData(Uri.parse("tel:" + phone));
+                        startActivity(intent);
+                    } else {
+                        Toast.makeText(ItemDetailActivity.this, "Phone number not available", Toast.LENGTH_SHORT).show();
+                    }
+                }
+            }
+
+            @Override
+            public void updateDrawState(@NonNull TextPaint ds) {
+                super.updateDrawState(ds);
+                ds.setUnderlineText(true);
+                ds.setColor(getResources().getColor(R.color.primaryColor));
+            }
+        };
+
+        spannableString.setSpan(clickableSpan, start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+        tvPreferredContact.setText(spannableString);
+        tvPreferredContact.setMovementMethod(LinkMovementMethod.getInstance());
+        tvPreferredContact.setHighlightColor(Color.TRANSPARENT);
     }
 
     private void stopListeningToItemChanges() {
@@ -323,72 +351,278 @@ public class ItemDetailActivity extends AppCompatActivity {
         mDatabase.child("UIDToUniversityID").child(authUser.getUid()).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
-                String currentUnivId = snapshot.exists() ? snapshot.getValue(String.class) : authUser.getUid();
+                currentUnivId = snapshot.exists() ? snapshot.getValue(String.class) : authUser.getUid();
+                refreshUIBasedOnRole();
+            }
+            @Override public void onCancelled(@NonNull DatabaseError error) {}
+        });
+    }
 
-                boolean isReporter = currentUnivId.equals(reporterId) || authUser.getUid().equals(reporterId);
-                boolean isResolved = "Claimed".equalsIgnoreCase(currentAdminStatus) || "Returned".equalsIgnoreCase(currentAdminStatus);
+    private void refreshUIBasedOnRole() {
+        FirebaseUser authUser = mAuth.getCurrentUser();
+        if (authUser == null || currentUnivId == null || currentItem == null) return;
 
-                if (isReporter) {
-                    llReportedByContainer.setVisibility(View.GONE);
-                    btnClaim.setVisibility(View.GONE);
-                    btnDelete.setVisibility(View.GONE);
-                    llReporterActions.setVisibility(View.VISIBLE);
-                    
-                    if (isResolved) {
-                        btnEdit.setVisibility(View.GONE);
-                        btnMarkAsClaimed.setVisibility(View.GONE);
-                        btnReturnToOwner.setVisibility(View.GONE);
-                        btnReporterDelete.setVisibility(View.VISIBLE); // Keep only delete
-                    } else {
-                        btnEdit.setVisibility(View.VISIBLE);
-                        btnReporterDelete.setVisibility(View.VISIBLE);
-                        if ("lost".equalsIgnoreCase(itemStatus)) {
-                            btnMarkAsClaimed.setVisibility(View.VISIBLE);
-                            btnReturnToOwner.setVisibility(View.GONE);
-                        } else {
-                            btnReturnToOwner.setVisibility(View.VISIBLE);
-                            btnMarkAsClaimed.setVisibility(View.GONE);
+        boolean isReporter = currentUnivId.equals(reporterId) || authUser.getUid().equals(reporterId);
+        boolean isResolved = "Claimed".equalsIgnoreCase(currentAdminStatus) || "Returned".equalsIgnoreCase(currentAdminStatus);
+
+        updateResolvedSections();
+
+        if (isReporter) {
+            btnClaim.setVisibility(View.GONE);
+            
+            if (isResolved) {
+                llReporterActions.setVisibility(View.GONE);
+                btnDelete.setVisibility(View.VISIBLE);
+                btnDelete.setOnClickListener(v -> deleteItem(itemId, itemStatus));
+            } else {
+                btnDelete.setVisibility(View.GONE);
+                llReporterActions.setVisibility(View.VISIBLE);
+                btnEdit.setVisibility(View.VISIBLE);
+                btnReporterDelete.setVisibility(View.VISIBLE);
+                if ("lost".equalsIgnoreCase(itemStatus)) {
+                    btnMarkAsClaimed.setVisibility(View.VISIBLE);
+                    btnReturnToOwner.setVisibility(View.GONE);
+                } else {
+                    btnReturnToOwner.setVisibility(View.VISIBLE);
+                    btnMarkAsClaimed.setVisibility(View.GONE);
+                }
+                setupReporterActions();
+            }
+        } else if (isAdminMode) {
+            llReportedByContainer.setVisibility(View.VISIBLE);
+            llReporterActions.setVisibility(View.GONE);
+            btnClaim.setVisibility(View.GONE);
+            btnDelete.setVisibility(View.VISIBLE);
+            btnDelete.setOnClickListener(v -> deleteItem(itemId, itemStatus));
+        } else {
+            llReporterActions.setVisibility(View.GONE);
+            btnDelete.setVisibility(View.GONE);
+
+            if (isResolved) {
+                btnClaim.setVisibility(View.GONE);
+            } else {
+                btnClaim.setVisibility(View.VISIBLE);
+                if ("lost".equalsIgnoreCase(itemStatus)) {
+                    btnClaim.setText("I Found This Item");
+                } else {
+                    btnClaim.setText("This is Mine");
+                }
+                btnClaim.setOnClickListener(v -> handleClaim(itemId, getIntent().getStringExtra("itemName"), itemStatus, reporterId));
+                checkIfAlreadyClaimed(itemId, reporterId);
+            }
+        }
+    }
+
+    private void updateResolvedSections() {
+        if (currentItem == null || currentUnivId == null) return;
+
+        boolean isResolved = "Claimed".equalsIgnoreCase(currentAdminStatus) || "Returned".equalsIgnoreCase(currentAdminStatus);
+        String secondUserId = currentItem.getClaimedByUserId();
+        
+        boolean isMeReporter = currentUnivId.equals(reporterId) || mAuth.getUid().equals(reporterId);
+        boolean isMeSecond = currentUnivId.equals(secondUserId);
+
+        if (!isResolved) {
+            llResolutionContainer.setVisibility(View.GONE);
+            if (isMeReporter) {
+                llReportedByContainer.setVisibility(View.GONE);
+            } else {
+                llReportedByContainer.setVisibility(View.VISIBLE);
+                fetchReporterProfile(reporterId, false);
+            }
+            return;
+        }
+
+        // Scenario 1: Reporter views Resolved Card
+        if (isMeReporter) {
+            llReportedByContainer.setVisibility(View.VISIBLE);
+            fetchReporterProfile(reporterId, true);
+            
+            if (secondUserId != null && !secondUserId.isEmpty()) {
+                llResolutionContainer.setVisibility(View.VISIBLE);
+                fetchResolvedUserProfile(secondUserId, false);
+            } else {
+                llResolutionContainer.setVisibility(View.GONE);
+            }
+        } 
+        // Scenario 2: Second User views Resolved Card
+        else if (isMeSecond) {
+            llReportedByContainer.setVisibility(View.VISIBLE);
+            fetchReporterProfile(reporterId, false);
+            
+            llResolutionContainer.setVisibility(View.VISIBLE);
+            fetchResolvedUserProfile(secondUserId, true);
+        }
+        // Scenario 3: Other user views Resolved Card
+        else {
+            llReportedByContainer.setVisibility(View.VISIBLE);
+            fetchReporterProfile(reporterId, false);
+            
+            if (secondUserId != null && !secondUserId.isEmpty()) {
+                llResolutionContainer.setVisibility(View.VISIBLE);
+                fetchResolvedUserProfile(secondUserId, false);
+            } else {
+                llResolutionContainer.setVisibility(View.GONE);
+            }
+        }
+
+        if ("lost".equalsIgnoreCase(itemStatus)) {
+            tvResolutionTitle.setText("Returned By");
+        } else {
+            tvResolutionTitle.setText("Returned To");
+        }
+    }
+
+    private void fetchReporterProfile(String reporterId, boolean isMe) {
+        if (reporterId == null) return;
+        mDatabase.child("UIDToUniversityID").child(reporterId).addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                String resolvedId = snapshot.exists() ? snapshot.getValue(String.class) : reporterId;
+
+                mDatabase.child("Users").child(resolvedId).addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot userSnapshot) {
+                        if (userSnapshot.exists()) {
+                            User user = userSnapshot.getValue(User.class);
+                            if (user != null) {
+                                if (isMe) {
+                                    tvReporterName.setText(user.getName() + " (You)");
+                                    tvReporterUniversityId.setText("ID: " + user.getUniversityId());
+                                    tvReporterUniversityId.setVisibility(View.VISIBLE);
+                                    tvReporterType.setVisibility(View.GONE);
+                                    tvReporterDeptOrDesignation.setVisibility(View.GONE);
+                                    tvPreferredContact.setVisibility(View.GONE);
+                                    btnContact.setVisibility(View.GONE);
+                                } else {
+                                    tvReporterName.setText(user.getName());
+                                    tvReporterUniversityId.setText("ID: " + user.getUniversityId());
+                                    tvReporterUniversityId.setVisibility(View.VISIBLE);
+                                    tvReporterType.setText(user.getUserType());
+                                    tvReporterType.setVisibility(View.VISIBLE);
+
+                                    if ("Staff".equalsIgnoreCase(user.getUserType()) || "Admin".equalsIgnoreCase(user.getUserType())) {
+                                        tvReporterDeptOrDesignation.setText(user.getDesignation());
+                                        tvReporterDeptOrDesignation.setVisibility(View.VISIBLE);
+                                    } else if ("Student".equalsIgnoreCase(user.getUserType())) {
+                                        tvReporterDeptOrDesignation.setText(user.getDepartment());
+                                        tvReporterDeptOrDesignation.setVisibility(View.VISIBLE);
+                                    } else {
+                                        tvReporterDeptOrDesignation.setVisibility(View.GONE);
+                                    }
+                                    
+                                    btnContact.setVisibility(View.VISIBLE);
+                                    btnContact.setOnClickListener(v -> showContactOptions(user));
+                                }
+
+                                if (user.getProfileImageUrl() != null && !user.getProfileImageUrl().isEmpty()) {
+                                    Glide.with(ItemDetailActivity.this)
+                                            .load(user.getProfileImageUrl())
+                                            .placeholder(R.drawable.ic_user)
+                                            .circleCrop()
+                                            .into(ivUserPhoto);
+                                } else {
+                                    ivUserPhoto.setImageResource(R.drawable.ic_user);
+                                }
+
+                                // Show preferred contact method if provided in the item
+                                if (!isMe && currentItem != null && tvPreferredContact != null) {
+                                    String method = currentItem.getPreferredContactMethod();
+                                    if (method != null && !method.isEmpty()) {
+                                        setupPreferredContactLink(currentItem, method);
+                                        tvPreferredContact.setVisibility(View.VISIBLE);
+                                    } else {
+                                        tvPreferredContact.setVisibility(View.GONE);
+                                    }
+                                }
+                            }
                         }
                     }
-                    
-                    setupReporterActions();
-                } else if (isAdminMode) {
-                    llReportedByContainer.setVisibility(View.VISIBLE);
-                    llReporterActions.setVisibility(View.GONE);
-                    btnClaim.setVisibility(View.GONE);
-                    btnDelete.setVisibility(View.VISIBLE);
-                    btnDelete.setOnClickListener(v -> deleteItem(itemId, itemStatus));
-                } else {
-                    llReporterActions.setVisibility(View.GONE);
-                    btnDelete.setVisibility(View.GONE);
+                    @Override public void onCancelled(@NonNull DatabaseError error) {}
+                });
+            }
+            @Override public void onCancelled(@NonNull DatabaseError error) {}
+        });
+    }
 
-                    // Check if this is the "Second User" (Claimant/Helper)
-                    if (isResolved && currentUnivId.equals(getIntent().getStringExtra("claimedByUserId"))) {
-                        llReportedByContainer.setVisibility(View.VISIBLE);
-                        btnContact.setVisibility(View.VISIBLE);
-                        btnClaim.setVisibility(View.GONE);
-                    } else if (isResolved) {
-                        // Regular user view for resolved item
-                        llReportedByContainer.setVisibility(View.VISIBLE);
-                        btnContact.setVisibility(View.GONE);
-                        btnClaim.setVisibility(View.GONE);
-                    } else {
-                        // Regular user view for active item
-                        llReportedByContainer.setVisibility(View.VISIBLE);
-                        btnContact.setVisibility(View.VISIBLE);
-                        btnClaim.setVisibility(View.VISIBLE);
-                        if ("lost".equalsIgnoreCase(itemStatus)) {
-                            btnClaim.setText("I Found This Item");
+    private void fetchResolvedUserProfile(String secondUserId, boolean isMe) {
+        if (secondUserId == null) return;
+        
+        mDatabase.child("Users").child(secondUserId).addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                if (snapshot.exists()) {
+                    User user = snapshot.getValue(User.class);
+                    if (user != null) {
+                        if (isMe) {
+                            tvResolvedUserName.setText(user.getName() + " (You)");
+                            tvResolvedUserUniversityId.setText("ID: " + user.getUniversityId());
+                            tvResolvedUserUniversityId.setVisibility(View.VISIBLE);
+                            tvResolvedUserType.setVisibility(View.GONE);
+                            tvResolvedUserDeptOrDesignation.setVisibility(View.GONE);
+                            btnResolvedUserContact.setVisibility(View.GONE);
                         } else {
-                            btnClaim.setText("This is Mine");
+                            tvResolvedUserName.setText(user.getName());
+                            tvResolvedUserUniversityId.setText("ID: " + user.getUniversityId());
+                            tvResolvedUserUniversityId.setVisibility(View.VISIBLE);
+                            tvResolvedUserType.setText(user.getUserType());
+                            tvResolvedUserType.setVisibility(View.VISIBLE);
+
+                            if ("Staff".equalsIgnoreCase(user.getUserType()) || "Admin".equalsIgnoreCase(user.getUserType())) {
+                                tvResolvedUserDeptOrDesignation.setText(user.getDesignation());
+                                tvResolvedUserDeptOrDesignation.setVisibility(View.VISIBLE);
+                            } else if ("Student".equalsIgnoreCase(user.getUserType())) {
+                                tvResolvedUserDeptOrDesignation.setText(user.getDepartment());
+                                tvResolvedUserDeptOrDesignation.setVisibility(View.VISIBLE);
+                            } else {
+                                tvResolvedUserDeptOrDesignation.setVisibility(View.GONE);
+                            }
+                            
+                            btnResolvedUserContact.setVisibility(View.VISIBLE);
+                            btnResolvedUserContact.setOnClickListener(v -> showContactOptions(user));
                         }
-                        btnClaim.setOnClickListener(v -> handleClaim(itemId, getIntent().getStringExtra("itemName"), itemStatus, reporterId));
-                        checkIfAlreadyClaimed(itemId, reporterId);
+
+                        if (user.getProfileImageUrl() != null && !user.getProfileImageUrl().isEmpty()) {
+                            Glide.with(ItemDetailActivity.this)
+                                    .load(user.getProfileImageUrl())
+                                    .placeholder(R.drawable.ic_user)
+                                    .circleCrop()
+                                    .into(ivResolvedUserPhoto);
+                        } else {
+                            ivResolvedUserPhoto.setImageResource(R.drawable.ic_user);
+                        }
                     }
                 }
             }
             @Override public void onCancelled(@NonNull DatabaseError error) {}
         });
+    }
+
+    private void showContactOptions(User user) {
+        String[] options = {"Email", "Phone"};
+        new AlertDialog.Builder(this)
+                .setTitle("Contact Information")
+                .setItems(options, (dialog, which) -> {
+                    if (which == 0) { // Email
+                        if (user.getEmail() != null && !user.getEmail().isEmpty()) {
+                            Intent intent = new Intent(Intent.ACTION_SENDTO);
+                            intent.setData(Uri.parse("mailto:" + user.getEmail()));
+                            intent.putExtra(Intent.EXTRA_SUBJECT, "Regarding item: " + tvItemName.getText().toString());
+                            startActivity(Intent.createChooser(intent, "Send Email"));
+                        } else {
+                            Toast.makeText(this, "Email address not available", Toast.LENGTH_SHORT).show();
+                        }
+                    } else { // Phone
+                        if (user.getPhone() != null && !user.getPhone().isEmpty()) {
+                            Intent intent = new Intent(Intent.ACTION_DIAL);
+                            intent.setData(Uri.parse("tel:" + user.getPhone()));
+                            startActivity(intent);
+                        } else {
+                            Toast.makeText(this, "Phone number not available", Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                })
+                .show();
     }
 
     private void setupReporterActions() {
@@ -525,6 +759,9 @@ public class ItemDetailActivity extends AppCompatActivity {
                                 mDatabase.child(path).child(itemId).child("adminStatus").setValue("Claimed");
                                 mDatabase.child(path).child(itemId).child("claimedByUserId").setValue(universityId);
 
+                                // Add the item to the receiver's UserItems so it shows in their resolved list
+                                mDatabase.child("UserItems").child(universityId).child(itemId).setValue(true);
+
                                 // Create notification for the receiver
                                 String notificationId = mDatabase.child("Notifications").child(universityId).push().getKey();
                                 if (notificationId != null) {
@@ -592,6 +829,9 @@ public class ItemDetailActivity extends AppCompatActivity {
                                 mDatabase.child(path).child(itemId).child("adminStatus").setValue("Returned");
                                 mDatabase.child(path).child(itemId).child("claimedByUserId").setValue(ownerUniversityId);
 
+                                // Add the item to the receiver's UserItems so it shows in their resolved list
+                                mDatabase.child("UserItems").child(ownerUniversityId).child(itemId).setValue(true);
+
                                 // Create notification for the owner
                                 String notificationId = mDatabase.child("Notifications").child(ownerUniversityId).push().getKey();
                                 if (notificationId != null) {
@@ -617,109 +857,6 @@ public class ItemDetailActivity extends AppCompatActivity {
             public void onCancelled(@NonNull DatabaseError error) {
                 Toast.makeText(ItemDetailActivity.this, "Error checking user: " + error.getMessage(), Toast.LENGTH_SHORT).show();
             }
-        });
-    }
-
-    private void fetchReporterProfile(String reporterId) {
-        if (reporterId == null) return;
-        mDatabase.child("UIDToUniversityID").child(reporterId).addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                String resolvedId = snapshot.exists() ? snapshot.getValue(String.class) : reporterId;
-
-                mDatabase.child("Users").child(resolvedId).addListenerForSingleValueEvent(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(@NonNull DataSnapshot userSnapshot) {
-                        if (userSnapshot.exists()) {
-                            User user = userSnapshot.getValue(User.class);
-                            if (user != null) {
-                                // Only set Name and Phone from profile if they weren't overridden in the report
-                                if (tvReporterName.getText().toString().isEmpty() || tvReporterName.getText().toString().equals("No Name") || tvReporterName.getText().toString().equals("John Doe")) {
-                                    tvReporterName.setText(user.getName());
-                                }
-                                
-                                if (tvReporterPhone.getVisibility() == View.GONE || tvReporterPhone.getText().toString().isEmpty()) {
-                                    tvReporterPhone.setText(user.getPhone());
-                                    tvReporterPhone.setVisibility(View.VISIBLE);
-                                }
-
-                                tvReporterUniversityId.setText("ID: " + user.getUniversityId());
-                                tvReporterType.setText(user.getUserType());
-
-                                if ("Staff".equalsIgnoreCase(user.getUserType())) {
-                                    tvReporterDeptOrDesignation.setText(user.getDesignation());
-                                    tvReporterDeptOrDesignation.setVisibility(View.VISIBLE);
-                                } else if ("Student".equalsIgnoreCase(user.getUserType())) {
-                                    tvReporterDeptOrDesignation.setText(user.getDepartment());
-                                    tvReporterDeptOrDesignation.setVisibility(View.VISIBLE);
-                                } else {
-                                    tvReporterDeptOrDesignation.setVisibility(View.GONE);
-                                }
-
-                                if (user.getProfileImageUrl() != null && !user.getProfileImageUrl().isEmpty()) {
-                                    Glide.with(ItemDetailActivity.this)
-                                            .load(user.getProfileImageUrl())
-                                            .placeholder(R.drawable.ic_user)
-                                            .circleCrop()
-                                            .into(ivUserPhoto);
-                                } else {
-                                    ivUserPhoto.setImageResource(R.drawable.ic_user);
-                                }
-
-                                // If admin, allow clicking profile to see details
-                                ivUserPhoto.setOnClickListener(v -> {
-                                    if (getIntent().getBooleanExtra("isAdmin", false)) {
-                                        Intent intent = new Intent(ItemDetailActivity.this, UserProfileActivity.class);
-                                        intent.putExtra("targetUserId", resolvedId);
-                                        intent.putExtra("isAdminViewing", true);
-                                        startActivity(intent);
-                                    }
-                                });
-                            }
-                        }
-                    }
-                    @Override public void onCancelled(@NonNull DatabaseError error) {}
-                });
-            }
-            @Override public void onCancelled(@NonNull DatabaseError error) {}
-        });
-    }
-
-    private void fetchResolvedUserProfile(String secondUserId) {
-        if (secondUserId == null) return;
-        mDatabase.child("Users").child(secondUserId).addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                if (snapshot.exists()) {
-                    User user = snapshot.getValue(User.class);
-                    if (user != null) {
-                        tvResolvedUserName.setText(user.getName());
-                        tvResolvedUserUniversityId.setText("ID: " + user.getUniversityId());
-                        tvResolvedUserType.setText(user.getUserType());
-
-                        if ("Staff".equalsIgnoreCase(user.getUserType())) {
-                            tvResolvedUserDeptOrDesignation.setText(user.getDesignation());
-                            tvResolvedUserDeptOrDesignation.setVisibility(View.VISIBLE);
-                        } else if ("Student".equalsIgnoreCase(user.getUserType())) {
-                            tvResolvedUserDeptOrDesignation.setText(user.getDepartment());
-                            tvResolvedUserDeptOrDesignation.setVisibility(View.VISIBLE);
-                        } else {
-                            tvResolvedUserDeptOrDesignation.setVisibility(View.GONE);
-                        }
-
-                        if (user.getProfileImageUrl() != null && !user.getProfileImageUrl().isEmpty()) {
-                            Glide.with(ItemDetailActivity.this)
-                                    .load(user.getProfileImageUrl())
-                                    .placeholder(R.drawable.ic_user)
-                                    .circleCrop()
-                                    .into(ivResolvedUserPhoto);
-                        } else {
-                            ivResolvedUserPhoto.setImageResource(R.drawable.ic_user);
-                        }
-                    }
-                }
-            }
-            @Override public void onCancelled(@NonNull DatabaseError error) {}
         });
     }
 
@@ -870,40 +1007,51 @@ public class ItemDetailActivity extends AppCompatActivity {
     }
 
     private void deleteItem(String itemId, String status) {
-        String path = "lost".equalsIgnoreCase(status) ? "LostItems" : "FoundItems";
+        new androidx.appcompat.app.AlertDialog.Builder(this)
+                .setTitle("Delete Report")
+                .setMessage("Permanently delete this resolved item including all data and images from the database?")
+                .setPositiveButton("Delete", (dialog, which) -> {
+                    String path = "lost".equalsIgnoreCase(status) ? "LostItems" : "FoundItems";
 
-        mDatabase.child(path).child(itemId).addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                if (snapshot.exists()) {
-                    Item item = snapshot.getValue(Item.class);
-                    if (item != null) {
-                        // 1. Delete images from storage (Supabase or Firebase)
-                        deleteItemImages(item);
+                    mDatabase.child(path).child(itemId).addListenerForSingleValueEvent(new ValueEventListener() {
+                        @Override
+                        public void onDataChange(@NonNull DataSnapshot snapshot) {
+                            if (snapshot.exists()) {
+                                Item item = snapshot.getValue(Item.class);
+                                if (item != null) {
+                                    // 1. Delete images from storage (Supabase or Firebase)
+                                    deleteItemImages(item);
 
-                        // 2. Delete from node (LostItems/FoundItems)
-                        mDatabase.child(path).child(itemId).removeValue();
+                                    // 2. Delete from node (LostItems/FoundItems)
+                                    mDatabase.child(path).child(itemId).removeValue();
 
-                        // 3. Delete from UserItems
-                        if (item.getUserId() != null) {
-                            mDatabase.child("UserItems").child(item.getUserId()).child(itemId).removeValue();
+                                    // 3. Delete from UserItems
+                                    if (item.getUserId() != null) {
+                                        mDatabase.child("UserItems").child(item.getUserId()).child(itemId).removeValue();
+                                    }
+                                    
+                                    // Also delete from claimant's UserItems if resolved
+                                    if (item.getClaimedByUserId() != null) {
+                                        mDatabase.child("UserItems").child(item.getClaimedByUserId()).child(itemId).removeValue();
+                                    }
+
+                                    // 4. Delete claims and notifications related to this item if needed
+                                    mDatabase.child("ItemClaims").child(itemId).removeValue();
+
+                                    Toast.makeText(ItemDetailActivity.this, "Report deleted successfully", Toast.LENGTH_SHORT).show();
+                                    finish();
+                                }
+                            }
                         }
 
-                        // 4. Delete claims and notifications related to this item if needed
-                        // (Optional, but good for database hygiene)
-                        mDatabase.child("ItemClaims").child(itemId).removeValue();
-
-                        Toast.makeText(ItemDetailActivity.this, "Report updated successfully", Toast.LENGTH_SHORT).show();
-                        finish();
-                    }
-                }
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-                Toast.makeText(ItemDetailActivity.this, "Delete failed: " + error.getMessage(), Toast.LENGTH_SHORT).show();
-            }
-        });
+                        @Override
+                        public void onCancelled(@NonNull DatabaseError error) {
+                            Toast.makeText(ItemDetailActivity.this, "Delete failed: " + error.getMessage(), Toast.LENGTH_SHORT).show();
+                        }
+                    });
+                })
+                .setNegativeButton("Cancel", null)
+                .show();
     }
 
     private void deleteItemImages(Item item) {

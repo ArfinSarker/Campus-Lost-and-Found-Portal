@@ -391,7 +391,7 @@
                     <LinearLayout
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
-                        android:layout_marginStart="16dp"
+                        android:layout_marginStart="8dp"
                         android:layout_weight="1"
                         android:orientation="vertical">
 
@@ -401,16 +401,18 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:textSize="16sp"
-                            tools:text="John Doe" />
+                            tools:text="Arfin Sarker" />
 
                         <TextView
                             android:id="@+id/tvReporterUniversityId"
                             style="@style/TextAppearance.App.Small"
-                            android:layout_width="wrap_content"
+                            android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:textSize="13sp"
                             android:textColor="@color/textSecondary"
-                            tools:text="ID: 180201001" />
+                            android:maxLines="1"
+                            android:ellipsize="none"
+                            tools:text="ID: 0802410205101019" />
 
                         <TextView
                             android:id="@+id/tvReporterType"
@@ -425,31 +427,33 @@
                         <TextView
                             android:id="@+id/tvReporterDeptOrDesignation"
                             style="@style/TextAppearance.App.Small"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
                             android:textSize="13sp"
                             tools:text="Computer Science Department" />
 
                         <TextView
-                            android:id="@+id/tvReporterPhone"
+                            android:id="@+id/tvPreferredContact"
                             style="@style/TextAppearance.App.Small"
-                            android:layout_width="wrap_content"
+                            android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:textSize="13sp"
+                            android:textStyle="italic"
                             android:layout_marginTop="2dp"
-                            android:visibility="gone"
-                            tools:visibility="visible"
-                            tools:text="+880123456789" />
+                            android:textColor="@color/textSecondary"
+                            tools:text="Preferred Contact: Email" />
                     </LinearLayout>
-
-                    <com.google.android.material.button.MaterialButton
-                        android:id="@+id/btnContact"
-                        style="@style/Widget.Material3.Button.TextButton"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="@string/btn_contact"
-                        android:textStyle="bold" />
                 </LinearLayout>
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnContact"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:layout_gravity="center_horizontal"
+                    android:text="@string/btn_contact"
+                    android:textColor="@color/navy_blue"
+                    app:backgroundTint="@color/lime" />
             </LinearLayout>
 
             <!-- Resolved User Info Section -->
@@ -488,7 +492,7 @@
                     <LinearLayout
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
-                        android:layout_marginStart="16dp"
+                        android:layout_marginStart="8dp"
                         android:layout_weight="1"
                         android:orientation="vertical">
 
@@ -503,10 +507,12 @@
                         <TextView
                             android:id="@+id/tvResolvedUserUniversityId"
                             style="@style/TextAppearance.App.Small"
-                            android:layout_width="wrap_content"
+                            android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:textSize="13sp"
+                            android:textSize="11sp"
                             android:textColor="@color/textSecondary"
+                            android:maxLines="1"
+                            android:ellipsize="none"
                             tools:text="ID: 180201099" />
 
                         <TextView
@@ -528,6 +534,16 @@
                             tools:text="Computer Science Department" />
                     </LinearLayout>
                 </LinearLayout>
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnResolvedUserContact"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:layout_gravity="center_horizontal"
+                    android:text="@string/btn_contact"
+                    android:textColor="@color/navy_blue"
+                    app:backgroundTint="@color/lime" />
             </LinearLayout>
 
             <com.google.android.material.button.MaterialButton
@@ -592,6 +608,7 @@
                     android:text="Delete Report"
                     android:textColor="@color/white"
                     app:backgroundTint="@color/errorColor"
+                    app:cornerRadius="8dp"
                     app:icon="@drawable/ic_delete"
                     app:iconGravity="textStart"
                     app:iconTint="@color/white" />

@@ -29,8 +29,10 @@ color ic_launcher_background
 color inputBackground
 color lightGrey
 color light_red_bg
+color lime
 color linkText
 color lost_bg
+color navy_blue
 color primaryColor
 color primaryDarkColor
 color primaryLightColor
@@ -50,6 +52,7 @@ color transparent
 color vibrantBlue
 color white
 color windowBackground
+color yellow
 drawable admin_gradient_bg
 drawable bg_bottom_gradient
 drawable bg_bottom_gradient_overlay
@@ -144,6 +147,7 @@ id btnNotifications
 id btnReportFound
 id btnReportLost
 id btnReporterDelete
+id btnResolvedUserContact
 id btnReturnToOwner
 id btnSaveChanges
 id btnSignIn
@@ -373,6 +377,7 @@ id tvNotificationBadge
 id tvNotificationMessage
 id tvNotificationTime
 id tvOwnershipVerification
+id tvPreferredContact
 id tvPriorityBadge
 id tvProofOwnership
 id tvRegister
@@ -382,7 +387,6 @@ id tvReportTitle
 id tvReporterDeptOrDesignation
 id tvReporterInfo
 id tvReporterName
-id tvReporterPhone
 id tvReporterType
 id tvReporterUniversityId
 id tvRequestDesignation

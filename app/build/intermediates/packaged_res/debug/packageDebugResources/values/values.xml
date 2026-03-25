@@ -29,8 +29,10 @@
     <color name="inputBackground">#F1F3F5</color>
     <color name="lightGrey">#F5F5F5</color>
     <color name="light_red_bg">#FEE2E2</color>
+    <color name="lime">#00FF00</color>
     <color name="linkText">#2AABEE</color>
     <color name="lost_bg">#FFEBEE</color>
+    <color name="navy_blue">#000080</color>
     <color name="primaryColor">#2AABEE</color>
     <color name="primaryDarkColor">#229ED9</color>
     <color name="primaryLightColor">#D1E1FF</color>
@@ -50,6 +52,7 @@
     <color name="vibrantBlue">#2AABEE</color>
     <color name="white">#FFFFFF</color>
     <color name="windowBackground">#FFFFFF</color>
+    <color name="yellow">#FFFF00</color>
     <string name="active_items_count">You have %1$d active items</string>
     <string name="active_items_default">You have 0 active items</string>
     <string name="add_photo">Add Photo</string>
@@ -347,8 +350,8 @@
     <string name="privacy_policy">Privacy Policy</string>
     <string name="profile">Profile</string>
     <string name="project_id" translatable="false">campus-lost-and-found-portal</string>
-    <string name="prompt_mark_as_claimed">Enter the University ID of the person who returned the item</string>
-    <string name="prompt_return_to_owner">Enter the University ID of the actual owner (who lost the item)</string>
+    <string name="prompt_mark_as_claimed">Enter the University ID of the person from whom you received the item</string>
+    <string name="prompt_return_to_owner">Enter the University ID of the person to whom you returned the item</string>
     <string name="recent_reports_title">Recent Reports</string>
     <string name="recent_title">Recently Reported</string>
     <string name="recently_reported_items">Recently reported items</string>
