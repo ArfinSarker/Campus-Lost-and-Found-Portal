@@ -7,6 +7,7 @@ import android.text.style.UnderlineSpan;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageButton;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -22,14 +23,20 @@ public class NotificationAdapter extends RecyclerView.Adapter<NotificationAdapte
 
     private List<Notification> notifications;
     private OnNotificationClickListener listener;
+    private OnNotificationDeleteListener deleteListener;
 
     public interface OnNotificationClickListener {
         void onNotificationClick(Notification notification);
     }
 
-    public NotificationAdapter(List<Notification> notifications, OnNotificationClickListener listener) {
+    public interface OnNotificationDeleteListener {
+        void onNotificationDelete(Notification notification);
+    }
+
+    public NotificationAdapter(List<Notification> notifications, OnNotificationClickListener listener, OnNotificationDeleteListener deleteListener) {
         this.notifications = notifications;
         this.listener = listener;
+        this.deleteListener = deleteListener;
     }
 
     @NonNull
@@ -71,6 +78,11 @@ public class NotificationAdapter extends RecyclerView.Adapter<NotificationAdapte
         }
 
         holder.itemView.setOnClickListener(v -> listener.onNotificationClick(notification));
+        holder.btnDelete.setOnClickListener(v -> {
+            if (deleteListener != null) {
+                deleteListener.onNotificationDelete(notification);
+            }
+        });
     }
 
     @Override
@@ -81,6 +93,7 @@ public class NotificationAdapter extends RecyclerView.Adapter<NotificationAdapte
     public static class ViewHolder extends RecyclerView.ViewHolder {
         TextView tvMessage, tvTime;
         View viewUnread, llRoot;
+        ImageButton btnDelete;
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -88,6 +101,7 @@ public class NotificationAdapter extends RecyclerView.Adapter<NotificationAdapte
             tvTime = itemView.findViewById(R.id.tvNotificationTime);
             viewUnread = itemView.findViewById(R.id.viewUnreadIndicator);
             llRoot = itemView.findViewById(R.id.llNotificationRoot);
+            btnDelete = itemView.findViewById(R.id.btnDeleteNotification);
         }
     }
 }

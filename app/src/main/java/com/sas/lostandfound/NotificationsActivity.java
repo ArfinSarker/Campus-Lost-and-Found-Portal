@@ -8,6 +8,7 @@ import android.widget.LinearLayout;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -58,24 +59,30 @@ public class NotificationsActivity extends AppCompatActivity {
         mDatabase = FirebaseDatabase.getInstance(DATABASE_URL).getReference();
         
         notificationList = new ArrayList<>();
-        adapter = new NotificationAdapter(notificationList, notification -> {
-            // Mark as read
-            if (resolvedUserId != null) {
-                mDatabase.child("Notifications").child(resolvedUserId).child(notification.getId()).child("read").setValue(true);
+        adapter = new NotificationAdapter(notificationList, 
+            notification -> {
+                // Mark as read
+                if (resolvedUserId != null) {
+                    mDatabase.child("Notifications").child(resolvedUserId).child(notification.getId()).child("read").setValue(true);
+                }
+                
+                // Redirect to Claim Details
+                Intent intent = new Intent(this, ClaimDetailsActivity.class);
+                intent.putExtra("senderId", notification.getSenderId());
+                intent.putExtra("senderName", notification.getSenderName());
+                intent.putExtra("senderPhone", notification.getSenderPhone());
+                intent.putExtra("senderEmail", notification.getSenderEmail());
+                intent.putExtra("itemId", notification.getItemId());
+                intent.putExtra("itemName", notification.getItemName());
+                intent.putExtra("additionalDetails", notification.getAdditionalDetails());
+                intent.putExtra("type", notification.getType());
+                startActivity(intent);
+            },
+            notification -> {
+                // Handle Delete
+                showDeleteConfirmation(notification);
             }
-            
-            // Redirect to Claim Details
-            Intent intent = new Intent(this, ClaimDetailsActivity.class);
-            intent.putExtra("senderId", notification.getSenderId());
-            intent.putExtra("senderName", notification.getSenderName());
-            intent.putExtra("senderPhone", notification.getSenderPhone());
-            intent.putExtra("senderEmail", notification.getSenderEmail());
-            intent.putExtra("itemId", notification.getItemId());
-            intent.putExtra("itemName", notification.getItemName());
-            intent.putExtra("additionalDetails", notification.getAdditionalDetails());
-            intent.putExtra("type", notification.getType());
-            startActivity(intent);
-        });
+        );
 
         rvNotifications.setLayoutManager(new LinearLayoutManager(this));
         rvNotifications.setAdapter(adapter);
@@ -83,6 +90,21 @@ public class NotificationsActivity extends AppCompatActivity {
         btnMarkAllRead.setOnClickListener(v -> markAllAsRead());
 
         resolveUserAndFetchNotifications();
+    }
+
+    private void showDeleteConfirmation(Notification notification) {
+        new AlertDialog.Builder(this)
+                .setTitle("Delete Notification")
+                .setMessage("Are you sure you want to delete this notification?")
+                .setPositiveButton("Delete", (dialog, which) -> {
+                    if (resolvedUserId != null) {
+                        mDatabase.child("Notifications").child(resolvedUserId).child(notification.getId()).removeValue()
+                                .addOnSuccessListener(aVoid -> Toast.makeText(this, "Notification deleted", Toast.LENGTH_SHORT).show())
+                                .addOnFailureListener(e -> Toast.makeText(this, "Failed to delete: " + e.getMessage(), Toast.LENGTH_SHORT).show());
+                    }
+                })
+                .setNegativeButton("Cancel", null)
+                .show();
     }
 
     private void resolveUserAndFetchNotifications() {

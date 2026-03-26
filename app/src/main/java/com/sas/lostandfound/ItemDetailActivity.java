@@ -1104,13 +1104,14 @@ public class ItemDetailActivity extends AppCompatActivity {
         }
 
         String type = "lost_claim";
-        if (!"lost".equalsIgnoreCase(itemStatus)) {
+        String message;
+        if ("lost".equalsIgnoreCase(itemStatus)) {
+            type = "lost_claim";
+            message = itemName + " - This item has been found by " + senderName + ". Click to view details.";
+        } else {
             type = "found_claim";
+            message = itemName + " - This item has been claimed by " + senderName + ". Click to view details.";
         }
-
-        String message = "lost".equalsIgnoreCase(itemStatus) ?
-                "Someone claims they found your lost item (" + itemName + "). Click to view details." :
-                "Someone claims this item (" + itemName + ") is theirs. Click to view details.";
 
         Notification notification = new Notification(
                 notificationId, recipientId, senderId, senderName, senderPhone, senderEmail,
