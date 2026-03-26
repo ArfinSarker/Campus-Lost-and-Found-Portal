@@ -28,6 +28,7 @@
     <color name="ic_launcher_background">#FFFFFF</color>
     <color name="inputBackground">#F1F3F5</color>
     <color name="lightGrey">#F5F5F5</color>
+    <color name="light_red">#FF0000</color>
     <color name="light_red_bg">#FEE2E2</color>
     <color name="lime">#00FF00</color>
     <color name="linkText">#2AABEE</color>
@@ -72,6 +73,7 @@
     <string name="browse_all_arrow">Browse all →</string>
     <string name="btn_accept">Accept</string>
     <string name="btn_contact">Contact</string>
+    <string name="btn_delete">Delete</string>
     <string name="btn_delete_report">Delete Report</string>
     <string name="btn_delete_report_confirm">Delete Report</string>
     <string name="btn_delete_user">Delete User</string>

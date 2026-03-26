@@ -29,6 +29,7 @@ color found_bg
 color ic_launcher_background
 color inputBackground
 color lightGrey
+color light_red
 color light_red_bg
 color lime
 color linkText
@@ -134,6 +135,7 @@ id btnConfirmPasswordChange
 id btnContact
 id btnCreateAccount
 id btnDelete
+id btnDeleteNotification
 id btnDeleteReport
 id btnDeleteUser
 id btnDeny
@@ -501,6 +503,7 @@ string browse_all
 string browse_all_arrow
 string btn_accept
 string btn_contact
+string btn_delete
 string btn_delete_report
 string btn_delete_report_confirm
 string btn_delete_user

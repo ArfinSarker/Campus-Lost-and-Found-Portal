@@ -67,6 +67,8 @@
     <color name="yellow">#FFFF00</color>
     <color name="lime">#00FF00</color>
     <color name="navy_blue">#000080</color>
+    <color name="light_red">#FF0000</color>
+
 
     <!-- Standard Colors -->
     <color name="white">#FFFFFF</color>

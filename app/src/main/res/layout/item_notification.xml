@@ -13,6 +13,7 @@
         android:id="@+id/llNotificationRoot"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:gravity="center_vertical"
         android:orientation="horizontal"
         android:padding="16dp">
 
@@ -55,9 +56,18 @@
             android:id="@+id/viewUnreadIndicator"
             android:layout_width="8dp"
             android:layout_height="8dp"
-            android:layout_gravity="center_vertical"
+            android:layout_marginEnd="8dp"
             android:background="@drawable/bg_notification_badge"
             android:visibility="gone" />
+
+        <ImageButton
+            android:id="@+id/btnDeleteNotification"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:src="@drawable/ic_delete"
+            app:tint="@color/light_red"
+            android:contentDescription="@string/btn_delete" />
 
     </LinearLayout>
 

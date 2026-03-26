@@ -35,6 +35,7 @@
     <string name="status_resolved">RESOLVED</string>
     <string name="btn_view_details">View Details</string>
     <string name="btn_edit">Edit</string>
+    <string name="btn_delete">Delete</string>
 
     <!-- Report Form Strings -->
     <string name="report_lost_title">Report a lost item</string>

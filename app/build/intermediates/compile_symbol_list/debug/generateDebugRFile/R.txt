@@ -27,6 +27,7 @@ int color found_bg 0x0
 int color ic_launcher_background 0x0
 int color inputBackground 0x0
 int color lightGrey 0x0
+int color light_red 0x0
 int color light_red_bg 0x0
 int color lime 0x0
 int color linkText 0x0
@@ -132,6 +133,7 @@ int id btnConfirmPasswordChange 0x0
 int id btnContact 0x0
 int id btnCreateAccount 0x0
 int id btnDelete 0x0
+int id btnDeleteNotification 0x0
 int id btnDeleteReport 0x0
 int id btnDeleteUser 0x0
 int id btnDeny 0x0
@@ -499,6 +501,7 @@ int string browse_all 0x0
 int string browse_all_arrow 0x0
 int string btn_accept 0x0
 int string btn_contact 0x0
+int string btn_delete 0x0
 int string btn_delete_report 0x0
 int string btn_delete_report_confirm 0x0
 int string btn_delete_user 0x0
