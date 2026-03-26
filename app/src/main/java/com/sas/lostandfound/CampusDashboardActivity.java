@@ -523,7 +523,13 @@ public class CampusDashboardActivity extends AppCompatActivity {
             holder.tvTime.setText(item.getDate());
             holder.tvReportId.setText(item.getDisplayId() != null ? item.getDisplayId() : "");
             
-            if ("lost".equals(item.getStatus())) {
+            boolean isResolved = "Claimed".equalsIgnoreCase(item.getAdminStatus()) || "Returned".equalsIgnoreCase(item.getAdminStatus());
+
+            if (isResolved) {
+                holder.statusIndicator.setBackgroundColor(0xFF2E7D32);
+                holder.tvBadge.setText("RESOLVED");
+                holder.cardBadge.setCardBackgroundColor(ContextCompat.getColor(holder.itemView.getContext(), R.color.badge_found_bg));
+            } else if ("lost".equals(item.getStatus())) {
                 holder.statusIndicator.setBackgroundColor(0xFFA31621);
                 holder.tvBadge.setText("LOST");
                 holder.cardBadge.setCardBackgroundColor(ContextCompat.getColor(holder.itemView.getContext(), R.color.badge_lost_bg));

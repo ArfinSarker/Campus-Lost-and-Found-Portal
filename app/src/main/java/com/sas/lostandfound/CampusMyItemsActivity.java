@@ -214,6 +214,10 @@ public class CampusMyItemsActivity extends AppCompatActivity {
             holder.tvTitle.setText(item.getName());
             holder.tvLocation.setText(item.getLocation());
             holder.tvTime.setText(item.getDate());
+            
+            if (holder.tvReportId != null) {
+                holder.tvReportId.setText(item.getDisplayId() != null ? item.getDisplayId() : "");
+            }
 
             boolean isResolved = "Claimed".equalsIgnoreCase(item.getAdminStatus()) || "Returned".equalsIgnoreCase(item.getAdminStatus());
 
@@ -249,6 +253,7 @@ public class CampusMyItemsActivity extends AppCompatActivity {
                 intent.putExtra("userDepartment", item.getUserDepartment());
                 intent.putExtra("userPhone", item.getUserPhone());
                 intent.putExtra("userId", item.getUserId());
+                intent.putExtra("itemReportId", item.getDisplayId());
                 v.getContext().startActivity(intent);
             });
         }
@@ -318,7 +323,7 @@ public class CampusMyItemsActivity extends AppCompatActivity {
         }
 
         class ViewHolder extends RecyclerView.ViewHolder {
-            TextView tvTitle, tvLocation, tvTime, tvBadge;
+            TextView tvTitle, tvLocation, tvTime, tvBadge, tvReportId;
             ImageView ivIcon;
             View statusIndicator;
             MaterialCardView cardBadge;
@@ -336,6 +341,7 @@ public class CampusMyItemsActivity extends AppCompatActivity {
                 cardBadge = itemView.findViewById(R.id.cardBadge);
                 viewPagerSlider = itemView.findViewById(R.id.viewPagerSlider);
                 tabLayoutIndicator = itemView.findViewById(R.id.tabLayoutIndicator);
+                tvReportId = itemView.findViewById(R.id.tvReportId);
             }
         }
     }

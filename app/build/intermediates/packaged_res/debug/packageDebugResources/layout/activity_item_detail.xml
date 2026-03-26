@@ -375,7 +375,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:textSize="14sp"
-                        tools:text="Oct 26, 2026 - 10:30 AM" />
+                        tools:text="Oct 24, 2023 - 10:30 AM" />
                 </LinearLayout>
             </LinearLayout>
 
@@ -455,7 +455,7 @@
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:textSize="13sp"
-                            tools:text="Computer Science and Engineering" />
+                            tools:text="Computer Science Department" />
 
                         <TextView
                             android:id="@+id/tvPreferredContact"
@@ -527,18 +527,18 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:textSize="16sp"
-                            tools:text="Arfin Sarker" />
+                            tools:text="Jane Smith" />
 
                         <TextView
                             android:id="@+id/tvResolvedUserUniversityId"
                             style="@style/TextAppearance.App.Small"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:textSize="12sp"
+                            android:textSize="11sp"
                             android:textColor="@color/textSecondary"
                             android:maxLines="1"
                             android:ellipsize="none"
-                            tools:text="ID: 0802410205101019" />
+                            tools:text="ID: 180201099" />
 
                         <TextView
                             android:id="@+id/tvResolvedUserType"
@@ -556,7 +556,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:textSize="13sp"
-                            tools:text="Computer Science and Engineering" />
+                            tools:text="Computer Science Department" />
                     </LinearLayout>
                 </LinearLayout>
 
