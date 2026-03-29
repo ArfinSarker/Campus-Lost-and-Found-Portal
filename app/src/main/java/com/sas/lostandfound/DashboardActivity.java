@@ -100,17 +100,45 @@ public class DashboardActivity extends AppCompatActivity {
     private void checkSessionAndRedirect() {
         if (mAuth.getCurrentUser() != null) {
             SharedPreferences prefs = getSharedPreferences("MyApp", MODE_PRIVATE);
-            boolean isAdminLoggedIn = prefs.getBoolean("isAdminLoggedIn", false);
-            String userType = prefs.getString("userType", "");
+            String universityId = prefs.getString("universityId", "");
 
-            Intent intent;
-            if (isAdminLoggedIn || "Admin".equalsIgnoreCase(userType)) {
-                intent = new Intent(this, AdminDashboardActivity.class);
+            if (!universityId.isEmpty()) {
+                mDatabase.child("Users").child(universityId).addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot snapshot) {
+                        if (snapshot.exists()) {
+                            User user = snapshot.getValue(User.class);
+                            if (user != null) {
+                                boolean dbIsAdmin = "admin".equalsIgnoreCase(user.getRole()) || user.isAdmin() || "Admin".equalsIgnoreCase(user.getUserType());
+                                Intent intent;
+                                if (dbIsAdmin) {
+                                    intent = new Intent(DashboardActivity.this, AdminDashboardActivity.class);
+                                } else {
+                                    intent = new Intent(DashboardActivity.this, CampusDashboardActivity.class);
+                                }
+                                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                                startActivity(intent);
+                                finish();
+                            }
+                        }
+                    }
+
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError error) {}
+                });
             } else {
-                intent = new Intent(this, CampusDashboardActivity.class);
+                // Fallback to local prefs if universityId is missing
+                boolean isAdminLoggedIn = prefs.getBoolean("isAdminLoggedIn", false);
+                String userType = prefs.getString("userType", "");
+                Intent intent;
+                if (isAdminLoggedIn || "Admin".equalsIgnoreCase(userType)) {
+                    intent = new Intent(this, AdminDashboardActivity.class);
+                } else {
+                    intent = new Intent(this, CampusDashboardActivity.class);
+                }
+                startActivity(intent);
+                finish();
             }
-            startActivity(intent);
-            finish();
         }
     }
 

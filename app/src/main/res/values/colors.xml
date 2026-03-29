@@ -66,8 +66,15 @@
 
     <color name="yellow">#FFFF00</color>
     <color name="lime">#00FF00</color>
-    <color name="navy_blue">#000080</color>
-    <color name="light_red">#FF0000</color>
+    <color name="navyBlue">#000080</color>
+    <color name="lightRed">#FF0000</color>
+    <color name="standardGray">#808080</color>
+    <color name="scienceBlue">#0A66C2</color>
+    <color name="vibrantGreen">#4CAF50</color>
+    <color name="mutedBlueGrey">#546E7A</color>
+
+
+
 
 
     <!-- Standard Colors -->

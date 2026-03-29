@@ -4,12 +4,14 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.NonNull;
@@ -31,13 +33,17 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 public class CampusMyItemsActivity extends AppCompatActivity {
 
+    private static final String TAG = "CampusMyItems";
     private RecyclerView rvMyItems;
     private MyItemsAdapter adapter;
     private List<Item> itemList;
@@ -112,40 +118,41 @@ public class CampusMyItemsActivity extends AppCompatActivity {
             case "resolved":
                 tvHeaderTitle.setText("My Resolved Items");
                 break;
-            case "return":
-            case "claimed":
-                tvHeaderTitle.setText("My Resolved Items");
+            case "admin_reports":
+                tvHeaderTitle.setText("My Admin Reports");
+                break;
+            default:
+                tvHeaderTitle.setText("My Reports");
                 break;
         }
     }
 
     private void fetchMyItems() {
         if (mAuth.getCurrentUser() == null) return;
-        String userId = mAuth.getCurrentUser().getUid();
+        String authUid = mAuth.getCurrentUser().getUid();
 
-        // Use University ID if available for consistency
-        mDatabase.child("UIDToUniversityID").child(userId).addListenerForSingleValueEvent(new ValueEventListener() {
+        mDatabase.child("UIDToUniversityID").child(authUid).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
-                final String resolvedUserId = snapshot.exists() ? snapshot.getValue(String.class) : userId;
-                loadItems(resolvedUserId);
+                final String resolvedUserId = snapshot.exists() ? snapshot.getValue(String.class) : authUid;
+                loadItems(resolvedUserId, authUid);
             }
 
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
-                loadItems(userId);
+                loadItems(authUid, authUid);
             }
         });
     }
 
-    private void loadItems(String userId) {
-        ValueEventListener listener = new ValueEventListener() {
+    private void loadItems(String universityId, String authUid) {
+        ValueEventListener itemListener = new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 for (DataSnapshot data : snapshot.getChildren()) {
                     Item item = data.getValue(Item.class);
                     if (item != null) {
-                        if (shouldInclude(item, userId)) {
+                        if (shouldInclude(item, universityId)) {
                             updateOrAddItem(item);
                         }
                     }
@@ -157,24 +164,67 @@ public class CampusMyItemsActivity extends AppCompatActivity {
             public void onCancelled(@NonNull DatabaseError error) {}
         };
 
-        mDatabase.child("LostItems").addValueEventListener(listener);
-        mDatabase.child("FoundItems").addValueEventListener(listener);
+        mDatabase.child("LostItems").addValueEventListener(itemListener);
+        mDatabase.child("FoundItems").addValueEventListener(itemListener);
+
+        // Also fetch Admin Reports submitted by this user
+        mDatabase.child("AdminReports").orderByChild("reporterAuthId").equalTo(authUid).addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                for (DataSnapshot data : snapshot.getChildren()) {
+                    AdminReport report = data.getValue(AdminReport.class);
+                    if (report != null) {
+                        Item item = convertToItem(report);
+                        if (shouldInclude(item, universityId)) {
+                            updateOrAddItem(item);
+                        }
+                    }
+                }
+                adapter.notifyDataSetChanged();
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                Log.e(TAG, "Error fetching admin reports: " + error.getMessage());
+            }
+        });
+    }
+
+    private Item convertToItem(AdminReport report) {
+        Item item = new Item();
+        item.setId(report.getReportId());
+        item.setDisplayId(report.getDisplayId());
+        item.setName(report.getTitle());
+        item.setDescription(report.getDescription());
+        item.setCategory(report.getCategory());
+        item.setUserId(report.getReporterAuthId());
+        item.setStatus("admin_report");
+        item.setAdminStatus(report.getStatus());
+        item.setTimestamp(report.getTimestamp());
+        item.setImageUrl(report.getImageUrl());
+        item.setUserName(report.getReporterName());
+        item.setUserPhone(report.getPhone());
+        item.setLocation("Reported to Admin");
+        
+        SimpleDateFormat sdf = new SimpleDateFormat("dd MMM yyyy", Locale.getDefault());
+        item.setDate(sdf.format(new Date(report.getTimestamp())));
+
+        return item;
     }
 
     private boolean shouldInclude(Item item, String userId) {
         boolean isResolved = "Claimed".equalsIgnoreCase(item.getAdminStatus()) || "Returned".equalsIgnoreCase(item.getAdminStatus());
 
+        if ("admin_report".equals(item.getStatus())) {
+            return "reported".equals(filterType) || "admin_reports".equals(filterType);
+        }
+
         switch (filterType) {
             case "reported":
-                // Active found reports by this user
                 return "found".equals(item.getStatus()) && userId.equals(item.getUserId()) && !isResolved;
             case "find":
-                // Active lost reports by this user
                 return "lost".equals(item.getStatus()) && userId.equals(item.getUserId()) && !isResolved;
             case "resolved":
-            case "return":
-            case "claimed":
-                // Item is resolved and user is either reporter or second user
                 return isResolved && (userId.equals(item.getUserId()) || userId.equals(item.getClaimedByUserId()));
             default:
                 return false;
@@ -221,7 +271,17 @@ public class CampusMyItemsActivity extends AppCompatActivity {
 
             boolean isResolved = "Claimed".equalsIgnoreCase(item.getAdminStatus()) || "Returned".equalsIgnoreCase(item.getAdminStatus());
 
-            if (isResolved) {
+            if ("admin_report".equals(item.getStatus())) {
+                String status = item.getAdminStatus();
+                int statusColor;
+                if ("Pending".equalsIgnoreCase(status)) statusColor = 0xFF757575; // Gray
+                else if ("Reviewed".equalsIgnoreCase(status)) statusColor = 0xFF1976D2; // Blue
+                else statusColor = 0xFF2E7D32; // Green
+                
+                holder.statusIndicator.setBackgroundColor(statusColor);
+                holder.tvBadge.setText(status.toUpperCase());
+                holder.cardBadge.setCardBackgroundColor(statusColor);
+            } else if (isResolved) {
                 holder.statusIndicator.setBackgroundColor(0xFF2E7D32); // Green
                 holder.tvBadge.setText("RESOLVED");
                 holder.cardBadge.setCardBackgroundColor(ContextCompat.getColor(holder.itemView.getContext(), R.color.badge_found_bg));
@@ -239,6 +299,10 @@ public class CampusMyItemsActivity extends AppCompatActivity {
             setupImageOrSlider(holder, item, position);
 
             holder.itemView.setOnClickListener(v -> {
+                if ("admin_report".equals(item.getStatus())) {
+                    Toast.makeText(v.getContext(), "Admin Report: " + item.getName(), Toast.LENGTH_SHORT).show();
+                    return;
+                }
                 Intent intent = new Intent(v.getContext(), ItemDetailActivity.class);
                 intent.putExtra("itemId", item.getId());
                 intent.putExtra("itemName", item.getName());

@@ -3,6 +3,7 @@ package com.sas.lostandfound;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -21,6 +22,7 @@ import com.google.firebase.database.ValueEventListener;
 
 public class AdminDashboardActivity extends AppCompatActivity {
 
+    private static final String TAG = "AdminDashboard";
     private TextView tvTotalLost, tvTotalFound, tvTotalUsers, tvTotalAdminRequests, tvTotalAdminReports, tvAdminTitle;
     private MaterialCardView cardLostItems, cardFoundItems, cardTotalUsers, cardAdminRequests, cardAdminReports;
     private MaterialButton btnManageItems, btnLogout, btnAdminRequests, btnManageUsers, btnAdminReports;
@@ -126,7 +128,9 @@ public class AdminDashboardActivity extends AppCompatActivity {
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 tvTotalLost.setText(String.valueOf(snapshot.getChildrenCount()));
             }
-            @Override public void onCancelled(@NonNull DatabaseError error) {}
+            @Override public void onCancelled(@NonNull DatabaseError error) {
+                Log.e(TAG, "Error fetching LostItems: " + error.getMessage());
+            }
         });
 
         mDatabase.child("FoundItems").addValueEventListener(new ValueEventListener() {
@@ -134,7 +138,9 @@ public class AdminDashboardActivity extends AppCompatActivity {
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 tvTotalFound.setText(String.valueOf(snapshot.getChildrenCount()));
             }
-            @Override public void onCancelled(@NonNull DatabaseError error) {}
+            @Override public void onCancelled(@NonNull DatabaseError error) {
+                Log.e(TAG, "Error fetching FoundItems: " + error.getMessage());
+            }
         });
 
         mDatabase.child("Users").addValueEventListener(new ValueEventListener() {
@@ -142,7 +148,9 @@ public class AdminDashboardActivity extends AppCompatActivity {
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 tvTotalUsers.setText(String.valueOf(snapshot.getChildrenCount()));
             }
-            @Override public void onCancelled(@NonNull DatabaseError error) {}
+            @Override public void onCancelled(@NonNull DatabaseError error) {
+                Log.e(TAG, "Error fetching Users: " + error.getMessage());
+            }
         });
 
         mDatabase.child("adminRequests").addValueEventListener(new ValueEventListener() {
@@ -150,7 +158,9 @@ public class AdminDashboardActivity extends AppCompatActivity {
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 tvTotalAdminRequests.setText(String.valueOf(snapshot.getChildrenCount()));
             }
-            @Override public void onCancelled(@NonNull DatabaseError error) {}
+            @Override public void onCancelled(@NonNull DatabaseError error) {
+                Log.e(TAG, "Error fetching adminRequests: " + error.getMessage());
+            }
         });
 
         mDatabase.child("AdminReports").addValueEventListener(new ValueEventListener() {
@@ -158,7 +168,9 @@ public class AdminDashboardActivity extends AppCompatActivity {
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 tvTotalAdminReports.setText(String.valueOf(snapshot.getChildrenCount()));
             }
-            @Override public void onCancelled(@NonNull DatabaseError error) {}
+            @Override public void onCancelled(@NonNull DatabaseError error) {
+                Log.e(TAG, "Error fetching AdminReports count: " + error.getMessage());
+            }
         });
     }
 }

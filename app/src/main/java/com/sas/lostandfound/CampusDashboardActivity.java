@@ -55,7 +55,7 @@ public class CampusDashboardActivity extends AppCompatActivity {
     private TextView tvLostCount, tvLostLabel, tvFoundCount, tvFoundLabel;
     private View cardLostReports, cardFoundReports;
 
-    private MaterialButton btnReportLost, btnReportFound, btnViewMore, btnViewLess;
+    private MaterialButton btnReportLost, btnReportFound, btnViewMore, btnViewLess, btnReportProblem;
     private ImageButton btnMenu;
     private FrameLayout btnNotifications;
     private TextView tvNotificationBadge;
@@ -82,21 +82,13 @@ public class CampusDashboardActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        // Check if admin is logged in and redirect if necessary
-        SharedPreferences prefs = getSharedPreferences("MyApp", MODE_PRIVATE);
-        boolean isAdminLoggedIn = prefs.getBoolean("isAdminLoggedIn", false);
-        String userType = prefs.getString("userType", "");
-
-        if (isAdminLoggedIn || "Admin".equalsIgnoreCase(userType)) {
-            startActivity(new Intent(this, AdminDashboardActivity.class));
-            finish();
-            return;
-        }
-
-        setContentView(R.layout.activity_campus_dashboard);
-
         mAuth = FirebaseAuth.getInstance();
         mDatabase = FirebaseDatabase.getInstance(DATABASE_URL).getReference();
+
+        // Check if admin is logged in and redirect if necessary
+        checkSessionAndRedirect();
+
+        setContentView(R.layout.activity_campus_dashboard);
 
         initializeViews();
         setupRecyclerView();
@@ -121,6 +113,13 @@ public class CampusDashboardActivity extends AppCompatActivity {
             });
         }
 
+        if (btnReportProblem != null) {
+            btnReportProblem.setOnClickListener(v -> {
+                Intent intent = new Intent(CampusDashboardActivity.this, ReportToAdminActivity.class);
+                startActivity(intent);
+            });
+        }
+
         if (tvBrowseAll != null) {
             tvBrowseAll.setOnClickListener(v -> {
                 startActivity(new Intent(this, AllReportedItemsActivity.class));
@@ -140,6 +139,41 @@ public class CampusDashboardActivity extends AppCompatActivity {
         });
     }
 
+    private void checkSessionAndRedirect() {
+        if (mAuth.getCurrentUser() != null) {
+            SharedPreferences prefs = getSharedPreferences("MyApp", MODE_PRIVATE);
+            String universityId = prefs.getString("universityId", "");
+
+            if (!universityId.isEmpty()) {
+                mDatabase.child("Users").child(universityId).addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot snapshot) {
+                        if (snapshot.exists()) {
+                            User user = snapshot.getValue(User.class);
+                            if (user != null) {
+                                boolean dbIsAdmin = "admin".equalsIgnoreCase(user.getRole()) || user.isAdmin() || "Admin".equalsIgnoreCase(user.getUserType());
+                                if (dbIsAdmin) {
+                                    startActivity(new Intent(CampusDashboardActivity.this, AdminDashboardActivity.class));
+                                    finish();
+                                }
+                            }
+                        }
+                    }
+
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError error) {}
+                });
+            } else {
+                boolean isAdminLoggedIn = prefs.getBoolean("isAdminLoggedIn", false);
+                String userType = prefs.getString("userType", "");
+                if (isAdminLoggedIn || "Admin".equalsIgnoreCase(userType)) {
+                    startActivity(new Intent(this, AdminDashboardActivity.class));
+                    finish();
+                }
+            }
+        }
+    }
+
     @Override
     protected void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
@@ -156,6 +190,7 @@ public class CampusDashboardActivity extends AppCompatActivity {
         tvDeveloperInfo = findViewById(R.id.tvDeveloperInfo);
         btnReportLost = findViewById(R.id.btnReportLost);
         btnReportFound = findViewById(R.id.btnReportFound);
+        btnReportProblem = findViewById(R.id.btnReportProblem);
         btnMenu = findViewById(R.id.btnMenu);
         btnNotifications = findViewById(R.id.btnNotifications);
         tvNotificationBadge = findViewById(R.id.tvNotificationBadge);
@@ -360,7 +395,7 @@ public class CampusDashboardActivity extends AppCompatActivity {
                     String profileImageUrl = snapshot.child("profileImageUrl").getValue(String.class);
 
                     if (name != null) {
-                        tvWelcome.setText("Welcome back, " + name + "! 👋");
+                        tvWelcome.setText("Welcome, " + name + "! 👋");
                         if (tvNavHeaderName != null) tvNavHeaderName.setText(name);
                     }
 
@@ -522,7 +557,7 @@ public class CampusDashboardActivity extends AppCompatActivity {
             holder.tvLocation.setText(item.getLocation());
             holder.tvTime.setText(item.getDate());
             holder.tvReportId.setText(item.getDisplayId() != null ? item.getDisplayId() : "");
-            
+
             boolean isResolved = "Claimed".equalsIgnoreCase(item.getAdminStatus()) || "Returned".equalsIgnoreCase(item.getAdminStatus());
 
             if (isResolved) {

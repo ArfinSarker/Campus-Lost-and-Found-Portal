@@ -1,10 +1,6 @@
 <resources>
     <string name="app_name">Lost &amp; Found</string>
     <string name="app_name_no_space">Lost&amp;Found</string>
-    <string name="campus_verified">CAMPUS VERIFIED • STUDENTS AND STAFF ONLY</string>
-    <string name="lost_something">Lost Something?</string>
-    <string name="we_help">We’ll Help You Find It</string>
-    <string name="description">A centralized platform for students and staff to report and recover lost items within the university campus.</string>
     <string name="report_lost">Report\nLost</string>
     <string name="report_found">Report\nFound</string>
     <string name="recent_title">Recently Reported</string>
@@ -13,7 +9,6 @@
 
     <!-- Dashboard Strings -->
     <string name="welcome_back">Welcome back, %1$s! 👋</string>
-    <string name="active_items_count">You have %1$d active items</string>
     <string name="stat_lost_items">Lost Items</string>
     <string name="stat_found_items">Found Items</string>
     <string name="stat_resolved">Resolved</string>
@@ -28,7 +23,7 @@
 
     <!-- My Items Strings -->
     <string name="my_items">My Items</string>
-    <string name="my_found_reports">My Found Reports</string>
+    <string name="myFoundReports">My Found Reports</string>
     <string name="my_lost_reports">My Lost Reports</string>
     <string name="my_resolved_items">My Resolved Items</string>
     <string name="status_active">Active</string>
@@ -40,16 +35,16 @@
     <!-- Report Form Strings -->
     <string name="report_lost_title">Report a lost item</string>
     <string name="report_found_title">Report a found item</string>
-    <string name="label_item_name">Item Title *</string>
+    <string name="label_item_name">Item Title</string>
     <string name="hint_item_name">e.g. Black Wallet, HP Laptop</string>
-    <string name="label_category">Category *</string>
+    <string name="label_category">Category</string>
     <string name="hint_category">Select Category</string>
-    <string name="label_date_lost">Date Lost *</string>
-    <string name="label_date_found">Date Found *</string>
+    <string name="label_date_lost">Date Lost</string>
+    <string name="label_date_found">Date Found</string>
     <string name="hint_date">Select Date</string>
     <string name="label_time">Time (Optional)</string>
     <string name="hint_time">Select Time</string>
-    <string name="label_location">Location *</string>
+    <string name="label_location">Location</string>
     <string name="hint_location">Select Location</string>
     <string name="label_location_manual">Other Location</string>
     <string name="hint_location_manual">Enter location manually</string>
@@ -66,7 +61,7 @@
     <string name="hint_proof_description">Receipt / ID proof / Serial number details</string>
     <string name="label_confidential_detail">Confidential Identification Detail</string>
     <string name="hint_confidential_detail">e.g. What is inside the wallet? (Hidden field)</string>
-    <string name="label_found_handling">Current Item Status *</string>
+    <string name="label_found_handling">Current Item Status</string>
     <string name="label_authority_name">Authority Name (If submitted)</string>
     <string name="label_office_room">Office Room Number</string>
     <string name="label_hidden_question">Hidden Identification Question *</string>
@@ -92,15 +87,14 @@
 
     <!-- Login / Registration strings -->
     <string name="login_subtitle">Recover what you\'ve lost</string>
-    <string name="login_description">Fast, secure, and verified campus network.</string>
     <string name="hint_email">Email Address (Optional)</string>
     <string name="hint_password">Password</string>
     <string name="forgot_password">Forgot Password?</string>
     <string name="lost_something_heading">Lost Something?</string>
     <string name="sign_in">Sign In</string>
     <string name="register_link">Don\'t have an account? <b>Register</b></string>
-    <string name="register_title">Create Your Account</string>
-    <string name="register_subtitle">Join the network\nHelp others and recover your item</string>
+    <string name="registerTitle">Create Your Account</string>
+    <string name="registerSubtitle">Join the Lost&amp;Found community today and help make our campus a better place.</string>
     <string name="hint_full_name">Full Name</string>
     <string name="hint_university_id">University ID</string>
     <string name="hint_department">Department</string>
@@ -109,7 +103,7 @@
     <string name="lost_and_found_policy">I agree to the Lost &amp; Found policy and verification.</string>
     <string name="lost_and_found_policy_clickable">Lost &amp; Found policy</string>
     <string name="create_account">Create Account</string>
-    <string name="login_link">Already have an account? <b>Login</b></string>
+    <string name="login_link">Already have an account? <b>Sign In</b></string>
 
     <string name="login_welcome_back">Welcome Back</string>
     <string name="login_subtitle_new">Sign in as a Student or Staff member to continue.</string>
@@ -121,25 +115,23 @@
     <string name="admin_access_heading">ADMIN ACCESS</string>
     <string name="back_to_user">← Back to User Login</string>
 
-    <string name="dashboard_headline">Lost something? Found something?</string>
-    <string name="dashboard_description">Join our campus community to help each other recover lost belongings quickly and safely.</string>
+    <string name="dashboardHeadline">Find What You\'ve Lost, Return What You\'ve Found.</string>
+    <string name="dashboardDescription">Lost&amp;Found is your trusted platform for reporting and recovering lost items on campus. Connect directly with fellow students and staff to reunite with your belongings.</string>
     <string name="report_lost_btn">Report Lost</string>
     <string name="report_found_btn">Report Found</string>
     <string name="recent_reports_title">Recent Reports</string>
     <string name="view_all_link">View all</string>
     <string name="made_for_users">Made for the Campus Community</string>
-    <string name="made_for_students">Made for Students by Students</string>
 
     <string name="dashboard_title">Dashboard</string>
     <string name="logout">Logout</string>
     <string name="tab_home">Home</string>
     <string name="tab_browse">Browse</string>
     <string name="tab_report">Report</string>
-    <string name="welcome_back_default">Welcome back!</string>
-    <string name="active_items_default">You have 0 active items</string>
+    <string name="welcomeUser">Welcome, %1$s!</string>
     <string name="need_help">Need Help?</string>
-    <string name="help_description">Contact security office for urgent matters.</string>
-    <string name="contact_support">Contact Support</string>
+    <string name="helpDescription">If you encounter any issues or inappropriate listings, you can report them to our admin team.</string>
+    <string name="reportProblem">Report a Problem</string>
     <string name="developer_info_short">Developer Information</string>
 
     <!-- Item Detail Strings -->
@@ -303,7 +295,7 @@
     <string name="dev_email">m.shamsulsrfinsarkernayan@gmail.com</string>
     <string name="dev_phone">+8801819966626</string>
     <string name="dev_github">https://github.com/ArfinSarker</string>
-    <string name="dev_linkedin">https://bd.linkedin.com/in/arfinsarkar</string>
+    <string name="dev_linkedin">https://bd.linkedin.com/in/arfinsarker</string>
 
     <!-- Lost & Found Policy Page Strings -->
     <string name="policy_title">Lost&amp;Found Policy</string>
@@ -439,4 +431,6 @@
     <string name="msg_report_resolved">Your report has been resolved</string>
     <string name="label_metadata">⏱️ Metadata</string>
     <string name="label_admin_actions">⚙️ Admin Actions</string>
+    <string name="allUsers">All Users</string>
+
 </resources>
