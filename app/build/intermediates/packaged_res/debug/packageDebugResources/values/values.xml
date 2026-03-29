@@ -28,16 +28,19 @@
     <color name="ic_launcher_background">#FFFFFF</color>
     <color name="inputBackground">#F1F3F5</color>
     <color name="lightGrey">#F5F5F5</color>
-    <color name="light_red">#FF0000</color>
+    <color name="lightRed">#FF0000</color>
     <color name="light_red_bg">#FEE2E2</color>
     <color name="lime">#00FF00</color>
     <color name="linkText">#2AABEE</color>
     <color name="lost_bg">#FFEBEE</color>
-    <color name="navy_blue">#000080</color>
+    <color name="mutedBlueGrey">#546E7A</color>
+    <color name="navyBlue">#000080</color>
     <color name="primaryColor">#2AABEE</color>
     <color name="primaryDarkColor">#229ED9</color>
     <color name="primaryLightColor">#D1E1FF</color>
+    <color name="scienceBlue">#0A66C2</color>
     <color name="secondaryColor">#34C759</color>
+    <color name="standardGray">#808080</color>
     <color name="statusFound">#34C759</color>
     <color name="statusLost">#FF3B30</color>
     <color name="success">#34C759</color>
@@ -51,11 +54,10 @@
     <color name="textSecondaryDark">#A1A1AA</color>
     <color name="transparent">#00000000</color>
     <color name="vibrantBlue">#2AABEE</color>
+    <color name="vibrantGreen">#4CAF50</color>
     <color name="white">#FFFFFF</color>
     <color name="windowBackground">#FFFFFF</color>
     <color name="yellow">#FFFF00</color>
-    <string name="active_items_count">You have %1$d active items</string>
-    <string name="active_items_default">You have 0 active items</string>
     <string name="add_photo">Add Photo</string>
     <string name="adjust_search_filters">Try adjusting your search or filters</string>
     <string name="admin_access_heading">ADMIN ACCESS</string>
@@ -64,6 +66,7 @@
     <string name="admin_portal">Admin Portal</string>
     <string name="admin_request_sent">Admin request sent to Admin for approval.</string>
     <string name="admin_sign_in">Secure Sign In</string>
+    <string name="allUsers">All Users</string>
     <string name="already_signed_in">You are already signed in</string>
     <string name="app_name">Lost &amp; Found</string>
     <string name="app_name_no_space">Lost&amp;Found</string>
@@ -89,7 +92,6 @@
     <string name="btn_submit_report">Submit Report</string>
     <string name="btn_submit_report_admin">Submit Report</string>
     <string name="btn_view_details">View Details</string>
-    <string name="campus_verified">CAMPUS VERIFIED • STUDENTS AND STAFF ONLY</string>
     <string name="cancel">Cancel</string>
     <string name="category_all">All Categories</string>
     <string name="change_photo">Change Photo</string>
@@ -104,14 +106,12 @@
     <string name="contact_chat">In-app Chat</string>
     <string name="contact_email">Email</string>
     <string name="contact_phone">Phone</string>
-    <string name="contact_support">Contact Support</string>
     <string name="contact_us">Contact Us</string>
     <string name="create_account">Create Account</string>
-    <string name="dashboard_description">Join our campus community to help each other recover lost belongings quickly and safely.</string>
-    <string name="dashboard_headline">Lost something? Found something?</string>
+    <string name="dashboardDescription">Lost&amp;Found is your trusted platform for reporting and recovering lost items on campus. Connect directly with fellow students and staff to reunite with your belongings.</string>
+    <string name="dashboardHeadline">Find What You\'ve Lost, Return What You\'ve Found.</string>
     <string name="dashboard_title">Dashboard</string>
     <string name="default_web_client_id" translatable="false">207058759801-921oq3rl6five9bcc86n2vq856notncg.apps.googleusercontent.com</string>
-    <string name="description">A centralized platform for students and staff to report and recover lost items within the university campus.</string>
     <string name="dev_about_desc">Passionate Android developer with a strong focus on creating clean, efficient, and user-centric mobile applications. Currently pursuing my degree in Computer Science and Engineering, I enjoy solving complex problems and staying updated with the latest mobile technologies. I am dedicated to building high-quality apps that provide great user experiences.</string>
     <string name="dev_about_title">About Me</string>
     <string name="dev_contact_title">Contact Information</string>
@@ -121,7 +121,7 @@
     <string name="dev_edu_uni">Bangladesh Army University of Science and Technology (BAUST), Saidpur</string>
     <string name="dev_email">m.shamsulsrfinsarkernayan@gmail.com</string>
     <string name="dev_github">https://github.com/ArfinSarker</string>
-    <string name="dev_linkedin">https://bd.linkedin.com/in/arfinsarkar</string>
+    <string name="dev_linkedin">https://bd.linkedin.com/in/arfinsarker</string>
     <string name="dev_name">Md. Shamsul Arfin Sarker</string>
     <string name="dev_phone">+8801819966626</string>
     <string name="dev_skill_firebase">Firebase</string>
@@ -150,7 +150,7 @@
     <string name="google_crash_reporting_api_key" translatable="false">AIzaSyD8yb6ES6bopObPQ-W_4LiscXEduk-3TyM</string>
     <string name="google_storage_bucket" translatable="false">campus-lost-and-found-portal.firebasestorage.app</string>
     <string name="header_subtitle_format">%1$s • %2$s</string>
-    <string name="help_description">Contact security office for urgent matters.</string>
+    <string name="helpDescription">If you encounter any issues or inappropriate listings, you can report them to our admin team.</string>
     <string name="helper_confidential">Information to be kept confidential (e.g., IMEI number, specific document ID)</string>
     <string name="helper_proof">Describe specific marks, unique ID, or content only the owner knows</string>
     <string name="helper_security_question">A question only the owner could answer (e.g., Lock screen wallpaper)</string>
@@ -199,7 +199,7 @@
     <string name="label_admin_verification_code">Special Admin Verification Code</string>
     <string name="label_authority_name">Authority Name (If submitted)</string>
     <string name="label_basic_info">Basic Information</string>
-    <string name="label_category">Category *</string>
+    <string name="label_category">Category</string>
     <string name="label_change_password">Change Password</string>
     <string name="label_change_password_profile">Change Password</string>
     <string name="label_confidential_detail">Confidential Identification Detail</string>
@@ -208,24 +208,24 @@
     <string name="label_contact_phone">Contact Phone</string>
     <string name="label_contact_profile">Contact</string>
     <string name="label_date">Date</string>
-    <string name="label_date_found">Date Found *</string>
-    <string name="label_date_lost">Date Lost *</string>
+    <string name="label_date_found">Date Found</string>
+    <string name="label_date_lost">Date Lost</string>
     <string name="label_date_time_detail">Date &amp; Time</string>
     <string name="label_description">Description *</string>
     <string name="label_description_detail">Description</string>
     <string name="label_description_simple">Description</string>
     <string name="label_detailed_info">Detailed Information</string>
     <string name="label_found_details">Found Details</string>
-    <string name="label_found_handling">Current Item Status *</string>
+    <string name="label_found_handling">Current Item Status</string>
     <string name="label_found_reports_count">Found Reports: %1$d</string>
     <string name="label_handling_status">Handling Status</string>
     <string name="label_hidden_question">Hidden Identification Question *</string>
     <string name="label_information">Information</string>
     <string name="label_information_profile">Information</string>
-    <string name="label_item_name">Item Title *</string>
+    <string name="label_item_name">Item Title</string>
     <string name="label_item_name_simple">Item Name</string>
     <string name="label_level_term">Level &amp; Term</string>
-    <string name="label_location">Location *</string>
+    <string name="label_location">Location</string>
     <string name="label_location_detail">Location</string>
     <string name="label_location_details">Additional Location Details</string>
     <string name="label_location_manual">Other Location</string>
@@ -261,9 +261,8 @@
     <string name="label_verify_method_simple">Verification Method</string>
     <string name="label_verify_security">Verification &amp; Security</string>
     <string name="label_your_name">Your Name</string>
-    <string name="login_description">Fast, secure, and verified campus network.</string>
     <string name="login_first">Please login first</string>
-    <string name="login_link">Already have an account? <b>Login</b></string>
+    <string name="login_link">Already have an account? <b>Sign In</b></string>
     <string name="login_no_account">No account exists with this University ID. Please register again.</string>
     <string name="login_subtitle">Recover what you\'ve lost</string>
     <string name="login_subtitle_new">Sign in as a Student or Staff member to continue.</string>
@@ -276,9 +275,7 @@
     <string name="lost_and_found_policy">I agree to the Lost &amp; Found policy and verification.</string>
     <string name="lost_and_found_policy_clickable">Lost &amp; Found policy</string>
     <string name="lost_part">Lost&amp;</string>
-    <string name="lost_something">Lost Something?</string>
     <string name="lost_something_heading">Lost Something?</string>
-    <string name="made_for_students">Made for Students by Students</string>
     <string name="made_for_users">Made for the Campus Community</string>
     <string name="menu_settings">Settings</string>
     <string name="modal_text_1">Your content goes here. This scrollable modal follows the premium university portal feel with rounded corners and soft shadows.</string>
@@ -289,7 +286,7 @@
     <string name="msg_item_returned_notification">%1$s has marked that they returned ‘%2$s’ to you. Click to view details.</string>
     <string name="msg_report_resolved">Your report has been resolved</string>
     <string name="msg_report_reviewed">Your report has been reviewed</string>
-    <string name="my_found_reports">My Found Reports</string>
+    <string name="myFoundReports">My Found Reports</string>
     <string name="my_items">My Items</string>
     <string name="my_lost_reports">My Lost Reports</string>
     <string name="my_resolved_items">My Resolved Items</string>
@@ -357,10 +354,11 @@
     <string name="recent_reports_title">Recent Reports</string>
     <string name="recent_title">Recently Reported</string>
     <string name="recently_reported_items">Recently reported items</string>
+    <string name="registerSubtitle">Join the Lost&amp;Found community today and help make our campus a better place.</string>
+    <string name="registerTitle">Create Your Account</string>
     <string name="register_link">Don\'t have an account? <b>Register</b></string>
-    <string name="register_subtitle">Join the network\nHelp others and recover your item</string>
-    <string name="register_title">Create Your Account</string>
     <string name="remove_photo">Remove Photo</string>
+    <string name="reportProblem">Report a Problem</string>
     <string name="report_found">Report\nFound</string>
     <string name="report_found_btn">Report Found</string>
     <string name="report_found_title">Report a found item</string>
@@ -414,9 +412,8 @@
     <string name="user_role_student">Student</string>
     <string name="view_all_link">View all</string>
     <string name="view_more">View More</string>
-    <string name="we_help">We’ll Help You Find It</string>
+    <string name="welcomeUser">Welcome, %1$s!</string>
     <string name="welcome_back">Welcome back, %1$s! 👋</string>
-    <string name="welcome_back_default">Welcome back!</string>
     <style name="AppTheme" parent="Theme.Material3.DayNight.NoActionBar">
         
         <item name="colorPrimary">@color/primaryColor</item>

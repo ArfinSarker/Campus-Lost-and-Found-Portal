@@ -27,6 +27,7 @@
                 android:id="@+id/tvHeaderTitle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
                 android:text="@string/report_found_btn"
                 android:textColor="@color/white"
                 android:textSize="19sp"

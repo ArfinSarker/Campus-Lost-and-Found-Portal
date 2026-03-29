@@ -28,16 +28,19 @@ color found_bg
 color ic_launcher_background
 color inputBackground
 color lightGrey
-color light_red
+color lightRed
 color light_red_bg
 color lime
 color linkText
 color lost_bg
-color navy_blue
+color mutedBlueGrey
+color navyBlue
 color primaryColor
 color primaryDarkColor
 color primaryLightColor
+color scienceBlue
 color secondaryColor
+color standardGray
 color statusFound
 color statusLost
 color success
@@ -51,6 +54,7 @@ color textSecondary
 color textSecondaryDark
 color transparent
 color vibrantBlue
+color vibrantGreen
 color white
 color windowBackground
 color yellow
@@ -62,6 +66,7 @@ drawable bg_button_secondary_outline
 drawable bg_card_top_rounded
 drawable bg_notification_badge
 drawable bg_primary_gradient
+drawable bg_rounded_top
 drawable bg_status_badge_found
 drawable bg_status_badge_lost
 drawable developer_profile_picture
@@ -80,6 +85,7 @@ drawable ic_clock
 drawable ic_delete
 drawable ic_edit
 drawable ic_envelope
+drawable ic_error_outline
 drawable ic_fact_check
 drawable ic_filter_list
 drawable ic_found_search
@@ -97,11 +103,13 @@ drawable ic_logout
 drawable ic_lost_times
 drawable ic_map_pin
 drawable ic_menu
+drawable ic_note
 drawable ic_package
 drawable ic_pen
 drawable ic_phone
 drawable ic_search
 drawable ic_shield
+drawable ic_status
 drawable ic_user
 drawable ic_users
 drawable logo
@@ -151,6 +159,7 @@ id btnMenu
 id btnNotifications
 id btnReportFound
 id btnReportLost
+id btnReportProblem
 id btnReporterDelete
 id btnResolvedUserContact
 id btnReturnToOwner
@@ -187,6 +196,8 @@ id chipPending
 id chipResolved
 id chipReviewed
 id collapsingToolbar
+id dashboardDescription
+id dashboardHeadline
 id drawer_layout
 id etAdminCode
 id etAdminId
@@ -385,6 +396,7 @@ id tvNotificationBadge
 id tvNotificationMessage
 id tvNotificationTime
 id tvOwnershipVerification
+id tvPolicyText
 id tvPreferredContact
 id tvPriorityBadge
 id tvProofOwnership
@@ -483,8 +495,6 @@ menu activity_campus_dashboard_drawer
 mipmap ic_launcher
 mipmap ic_launcher_foreground
 mipmap ic_launcher_round
-string active_items_count
-string active_items_default
 string add_photo
 string adjust_search_filters
 string admin_access_heading
@@ -493,6 +503,7 @@ string admin_login_subtitle
 string admin_portal
 string admin_request_sent
 string admin_sign_in
+string allUsers
 string already_signed_in
 string app_name
 string app_name_no_space
@@ -518,7 +529,6 @@ string btn_submit
 string btn_submit_report
 string btn_submit_report_admin
 string btn_view_details
-string campus_verified
 string cancel
 string category_all
 string change_photo
@@ -533,14 +543,12 @@ string confirm_accuracy_lost
 string contact_chat
 string contact_email
 string contact_phone
-string contact_support
 string contact_us
 string create_account
-string dashboard_description
-string dashboard_headline
+string dashboardDescription
+string dashboardHeadline
 string dashboard_title
 string default_web_client_id
-string description
 string dev_about_desc
 string dev_about_title
 string dev_contact_title
@@ -579,7 +587,7 @@ string google_app_id
 string google_crash_reporting_api_key
 string google_storage_bucket
 string header_subtitle_format
-string help_description
+string helpDescription
 string helper_confidential
 string helper_proof
 string helper_security_question
@@ -690,7 +698,6 @@ string label_verification_method
 string label_verify_method_simple
 string label_verify_security
 string label_your_name
-string login_description
 string login_first
 string login_link
 string login_no_account
@@ -705,9 +712,7 @@ string logout
 string lost_and_found_policy
 string lost_and_found_policy_clickable
 string lost_part
-string lost_something
 string lost_something_heading
-string made_for_students
 string made_for_users
 string menu_settings
 string modal_text_1
@@ -718,7 +723,7 @@ string msg_item_claimed_notification
 string msg_item_returned_notification
 string msg_report_resolved
 string msg_report_reviewed
-string my_found_reports
+string myFoundReports
 string my_items
 string my_lost_reports
 string my_resolved_items
@@ -786,10 +791,11 @@ string prompt_return_to_owner
 string recent_reports_title
 string recent_title
 string recently_reported_items
+string registerSubtitle
+string registerTitle
 string register_link
-string register_subtitle
-string register_title
 string remove_photo
+string reportProblem
 string report_found
 string report_found_btn
 string report_found_title
@@ -843,9 +849,8 @@ string user_role_staff
 string user_role_student
 string view_all_link
 string view_more
-string we_help
+string welcomeUser
 string welcome_back
-string welcome_back_default
 style AppTheme
 style CircleAppearanceOverlay
 style CircleImageView

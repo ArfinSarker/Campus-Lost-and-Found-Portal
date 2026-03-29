@@ -44,17 +44,11 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:fontFamily="sans-serif-black"
-                    android:text="@string/lost_part"
+                    android:text="@string/developer_info"
                     android:textColor="@color/white"
                     android:textSize="20sp" />
 
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:fontFamily="sans-serif-black"
-                    android:text="@string/found_part"
-                    android:textColor="@color/cyan"
-                    android:textSize="20sp" />
+
             </LinearLayout>
 
         </androidx.constraintlayout.widget.ConstraintLayout>
@@ -193,7 +187,7 @@
                             android:paddingHorizontal="12dp"
                             android:paddingVertical="6dp"
                             android:background="@drawable/edit_text_rounded"
-                            android:textColor="@color/dev_primary"
+                            android:textColor="@color/mutedBlueGrey"
                             android:textSize="14sp"
                             android:layout_marginEnd="8dp"/>
 
@@ -204,7 +198,7 @@
                             android:paddingHorizontal="12dp"
                             android:paddingVertical="6dp"
                             android:background="@drawable/edit_text_rounded"
-                            android:textColor="@color/dev_primary"
+                            android:textColor="@color/mutedBlueGrey"
                             android:textSize="14sp"
                             android:layout_marginEnd="8dp"/>
 
@@ -215,7 +209,7 @@
                             android:paddingHorizontal="12dp"
                             android:paddingVertical="6dp"
                             android:background="@drawable/edit_text_rounded"
-                            android:textColor="@color/dev_primary"
+                            android:textColor="@color/mutedBlueGrey"
                             android:textSize="14sp"/>
                     </LinearLayout>
 
@@ -232,7 +226,7 @@
                             android:paddingHorizontal="12dp"
                             android:paddingVertical="6dp"
                             android:background="@drawable/edit_text_rounded"
-                            android:textColor="@color/dev_primary"
+                            android:textColor="@color/mutedBlueGrey"
                             android:textSize="14sp"
                             android:layout_marginEnd="8dp"/>
 
@@ -243,7 +237,7 @@
                             android:paddingHorizontal="12dp"
                             android:paddingVertical="6dp"
                             android:background="@drawable/edit_text_rounded"
-                            android:textColor="@color/dev_primary"
+                            android:textColor="@color/mutedBlueGrey"
                             android:textSize="14sp"
                             android:layout_marginEnd="8dp"/>
 
@@ -254,7 +248,7 @@
                             android:paddingHorizontal="12dp"
                             android:paddingVertical="6dp"
                             android:background="@drawable/edit_text_rounded"
-                            android:textColor="@color/dev_primary"
+                            android:textColor="@color/mutedBlueGrey"
                             android:textSize="14sp"/>
                     </LinearLayout>
 
@@ -362,8 +356,9 @@
                             android:layout_width="24dp"
                             android:layout_height="24dp"
                             android:src="@drawable/ic_envelope"
+                            app:tint="@color/lightRed"
                             android:contentDescription="@string/dev_email"
-                            app:tint="@color/dev_primary" />
+                            android:textColor="@color/primaryDarkColor" />
 
                         <TextView
                             android:layout_width="wrap_content"
@@ -395,8 +390,10 @@
                             android:layout_width="24dp"
                             android:layout_height="24dp"
                             android:src="@drawable/ic_phone"
+                            app:tint="@color/vibrantGreen"
                             android:contentDescription="@string/dev_phone"
-                            app:tint="@color/dev_primary" />
+                            android:textColor="@color/primaryDarkColor"
+                            />
 
                         <TextView
                             android:layout_width="wrap_content"
@@ -428,8 +425,10 @@
                             android:layout_width="24dp"
                             android:layout_height="24dp"
                             android:src="@drawable/ic_github"
+                            app:tint="@color/black"
                             android:contentDescription="@string/dev_skill_github"
-                            app:tint="@color/dev_primary" />
+                            android:textColor="@color/primaryDarkColor"
+                             />
 
                         <TextView
                             android:layout_width="wrap_content"
@@ -461,8 +460,10 @@
                             android:layout_width="24dp"
                             android:layout_height="24dp"
                             android:src="@drawable/ic_linkedin"
+                            app:tint="@color/scienceBlue"
                             android:contentDescription="@string/dev_skill_linkedin"
-                            app:tint="@color/dev_primary" />
+                            android:textColor="@color/primaryDarkColor"
+                             />
 
                         <TextView
                             android:layout_width="wrap_content"

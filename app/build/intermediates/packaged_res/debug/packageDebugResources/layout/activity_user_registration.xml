@@ -45,16 +45,8 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:fontFamily="sans-serif-black"
-                    android:text="@string/lost_part"
+                    android:text="@string/registerTitle"
                     android:textColor="@color/white"
-                    android:textSize="20sp" />
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:fontFamily="sans-serif-black"
-                    android:text="@string/found_part"
-                    android:textColor="@color/cyan"
                     android:textSize="20sp" />
             </LinearLayout>
 
@@ -81,14 +73,16 @@
             <!-- Main Heading -->
             <TextView
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:layout_height="match_parent"
                 android:layout_gravity="center_horizontal"
                 android:layout_marginTop="0dp"
                 android:gravity="center"
-                android:lineSpacingExtra="2dp"
-                android:text="@string/register_title"
-                android:textColor="@color/vibrantBlue"
-                android:textSize="28sp"
+                android:lineSpacingExtra="0dp"
+                android:text="@string/registerSubtitle"
+                android:textColor="@color/black"
+                android:textSize="16sp"
+                android:paddingStart="-5dp"
+                android:paddingEnd="-5dp"
                 android:textStyle="bold" />
 
             <!-- Profile Picture Section -->
@@ -411,16 +405,29 @@
                     android:textColor="@color/black" />
             </com.google.android.material.textfield.TextInputLayout>
 
-            <!-- Policy Agreement Checkbox -->
-            <com.google.android.material.checkbox.MaterialCheckBox
-                android:id="@+id/cbPolicy"
+            <!-- Policy Agreement Section -->
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:orientation="horizontal"
                 android:layout_marginBottom="24dp"
-                android:layout_gravity="center"
-                android:text="@string/lost_and_found_policy"
-                android:textColor="@color/textSecondary"
-                android:textSize="14sp" />
+                android:gravity="center_vertical">
+
+                <com.google.android.material.checkbox.MaterialCheckBox
+                    android:id="@+id/cbPolicy"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:minWidth="0dp"
+                    android:minHeight="0dp" />
+
+                <TextView
+                    android:id="@+id/tvPolicyText"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
+                    android:textColor="@color/black"
+                    android:textSize="13sp" />
+            </LinearLayout>
 
             <!-- Flexible Spacer to push footer to bottom when keyboard is closed -->
             <View
@@ -441,6 +448,7 @@
                     android:layout_height="56dp"
                     android:backgroundTint="@color/vibrantBlue"
                     android:text="@string/create_account"
+                    android:textColor="@color/white"
                     android:textAllCaps="false"
                     android:textSize="16sp"
                     android:enabled="false"
@@ -464,7 +472,7 @@
                 android:padding="8dp"
                 android:layout_marginBottom="20dp"
                 android:text="@string/login_link"
-                android:textColor="@color/textSecondary" />
+                android:textColor="@color/black" />
 
             <!-- Flexible Spacer BELOW Login text, only when manual keyboard is on -->
             <View

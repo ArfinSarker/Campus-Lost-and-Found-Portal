@@ -4,11 +4,13 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -35,6 +37,7 @@ import java.util.Locale;
 
 public class AdminReportManagementActivity extends AppCompatActivity {
 
+    private static final String TAG = "AdminReportManagement";
     private RecyclerView rvAdminReports;
     private ProgressBar progressBar;
     private TextView tvEmptyState;
@@ -113,22 +116,35 @@ public class AdminReportManagementActivity extends AppCompatActivity {
 
     private void fetchReports() {
         progressBar.setVisibility(View.VISIBLE);
+        Log.d(TAG, "Fetching reports from: " + mDatabase.child("AdminReports").toString());
+        
         mDatabase.child("AdminReports").addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
+                Log.d(TAG, "Data received. Count: " + snapshot.getChildrenCount());
                 allReports.clear();
                 int total = 0, pending = 0, reviewed = 0, resolved = 0;
                 
-                for (DataSnapshot data : snapshot.getChildren()) {
-                    AdminReport report = data.getValue(AdminReport.class);
-                    if (report != null) {
-                        allReports.add(report);
-                        total++;
-                        String status = report.getStatus();
-                        if ("Pending".equalsIgnoreCase(status)) pending++;
-                        else if ("Reviewed".equalsIgnoreCase(status)) reviewed++;
-                        else if ("Resolved".equalsIgnoreCase(status)) resolved++;
+                if (snapshot.exists()) {
+                    for (DataSnapshot data : snapshot.getChildren()) {
+                        try {
+                            AdminReport report = data.getValue(AdminReport.class);
+                            if (report != null) {
+                                allReports.add(report);
+                                total++;
+                                String status = report.getStatus();
+                                if ("Pending".equalsIgnoreCase(status)) pending++;
+                                else if ("Reviewed".equalsIgnoreCase(status)) reviewed++;
+                                else if ("Resolved".equalsIgnoreCase(status)) resolved++;
+                            } else {
+                                Log.e(TAG, "Report is null for key: " + data.getKey());
+                            }
+                        } catch (Exception e) {
+                            Log.e(TAG, "Error parsing report at key: " + data.getKey(), e);
+                        }
                     }
+                } else {
+                    Log.d(TAG, "AdminReports node does not exist or is empty.");
                 }
                 
                 tvStatTotal.setText(String.valueOf(total));
@@ -136,7 +152,7 @@ public class AdminReportManagementActivity extends AppCompatActivity {
                 tvStatReviewed.setText(String.valueOf(reviewed));
                 tvStatResolved.setText(String.valueOf(resolved));
                 
-                Collections.sort(allReports, (o1, o2) -> Long.compare(o2.getCreatedAt(), o1.getCreatedAt()));
+                Collections.sort(allReports, (o1, o2) -> Long.compare(o2.getTimestamp(), o1.getTimestamp()));
                 applyFilters();
                 progressBar.setVisibility(View.GONE);
             }
@@ -144,6 +160,8 @@ public class AdminReportManagementActivity extends AppCompatActivity {
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
                 progressBar.setVisibility(View.GONE);
+                Log.e(TAG, "Error fetching reports list: " + error.getMessage());
+                Toast.makeText(AdminReportManagementActivity.this, "Database error: " + error.getMessage(), Toast.LENGTH_LONG).show();
             }
         });
     }
@@ -154,10 +172,16 @@ public class AdminReportManagementActivity extends AppCompatActivity {
         
         filteredReports.clear();
         for (AdminReport report : allReports) {
-            boolean matchesSearch = report.getDisplayId().toLowerCase().contains(query) ||
-                    report.getReporterName().toLowerCase().contains(query) ||
-                    (report.getRelatedReportId() != null && report.getRelatedReportId().toLowerCase().contains(query)) ||
-                    report.getTitle().toLowerCase().contains(query);
+            // Null-safe search check
+            String displayId = report.getDisplayId() != null ? report.getDisplayId().toLowerCase() : "";
+            String reporterName = report.getReporterName() != null ? report.getReporterName().toLowerCase() : "";
+            String title = report.getTitle() != null ? report.getTitle().toLowerCase() : "";
+            String relatedId = report.getRelatedId() != null ? report.getRelatedId().toLowerCase() : "";
+
+            boolean matchesSearch = displayId.contains(query) ||
+                    reporterName.contains(query) ||
+                    relatedId.contains(query) ||
+                    title.contains(query);
             
             boolean matchesStatus = true;
             if (checkedChipId == R.id.chipPending) matchesStatus = "Pending".equalsIgnoreCase(report.getStatus());
@@ -170,6 +194,8 @@ public class AdminReportManagementActivity extends AppCompatActivity {
         }
         adapter.notifyDataSetChanged();
         tvEmptyState.setVisibility(filteredReports.isEmpty() ? View.VISIBLE : View.GONE);
+        
+        Log.d(TAG, "Filters applied. Displaying " + filteredReports.size() + " out of " + allReports.size() + " reports.");
     }
 
     private class ReportAdapter extends RecyclerView.Adapter<ReportAdapter.ViewHolder> {
@@ -193,7 +219,7 @@ public class AdminReportManagementActivity extends AppCompatActivity {
             holder.tvTitle.setText(report.getTitle());
             holder.tvCategory.setText("Category: " + report.getCategory());
             holder.tvReporterInfo.setText("Submitted By: " + report.getReporterName() + " (" + report.getUniversityId() + ")");
-            holder.tvRelatedItemId.setText("Related Item: " + (report.getRelatedReportId() != null ? report.getRelatedReportId() : "None"));
+            holder.tvRelatedItemId.setText("Related Item: " + (report.getRelatedId() != null ? report.getRelatedId() : "None"));
             holder.tvStatus.setText(report.getStatus());
             holder.tvPriority.setText(report.getPriority());
 
@@ -214,7 +240,7 @@ public class AdminReportManagementActivity extends AppCompatActivity {
             holder.tvPriority.setBackgroundTintList(android.content.res.ColorStateList.valueOf(priorityColor));
 
             SimpleDateFormat sdf = new SimpleDateFormat("dd MMM, hh:mm a", Locale.getDefault());
-            holder.tvTimestamp.setText(sdf.format(new Date(report.getCreatedAt())));
+            holder.tvTimestamp.setText(sdf.format(new Date(report.getTimestamp())));
 
             holder.itemView.setOnClickListener(v -> {
                 Intent intent = new Intent(AdminReportManagementActivity.this, AdminReportDetailsActivity.class);

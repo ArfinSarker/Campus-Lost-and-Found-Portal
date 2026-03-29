@@ -4,11 +4,14 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
+
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.firebase.auth.FirebaseAuth;
@@ -21,25 +24,20 @@ import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Interface for system administrators to manage the application.
  */
 public class AdminLoginActivity extends AppCompatActivity {
 
+    private static final String TAG = "AdminLogin";
     private TextInputEditText etAdminId, etAdminPassword;
     private MaterialButton btnAdminSignIn;
     private TextView tvBackToUser;
 
-    // Hardcoded Admin credentials
-    private static final String PRIMARY_ADMIN_ID = "0802410205101019";
-    private static final String PRIMARY_ADMIN_PASS = "123456789";
-    private static final String PRIMARY_ADMIN_EMAIL = "m.shamsularfinsarkernayan@gmail.com";
-    private static final String PRIMARY_ADMIN_NAME = "Md. Shamsul Arfin Sarker";
-    private static final String PRIMARY_ADMIN_PHONE = "+8801819966626";
-    private static final String PRIMARY_ADMIN_DESIGNATION = "Admin";
-    
     private FirebaseAuth mAuth;
     private DatabaseReference mDatabase;
     private static final String DATABASE_URL = "https://campus-lost-and-found-portal-default-rtdb.asia-southeast1.firebasedatabase.app";
@@ -87,12 +85,6 @@ public class AdminLoginActivity extends AppCompatActivity {
             return;
         }
 
-        // Special handling for hardcoded Admin
-        if (PRIMARY_ADMIN_ID.equals(adminId) && PRIMARY_ADMIN_PASS.equals(password)) {
-            performAuthLogin(PRIMARY_ADMIN_EMAIL, password, PRIMARY_ADMIN_ID);
-            return;
-        }
-
         // Regular admin login flow
         searchIdAndLogin(adminId, password);
     }
@@ -102,7 +94,7 @@ public class AdminLoginActivity extends AppCompatActivity {
         variations.add(adminId);
         if (adminId.startsWith("0")) variations.add(adminId.substring(1));
         else variations.add("0" + adminId);
-        
+
         try { variations.add(Long.parseLong(adminId)); } catch (Exception ignored) {}
 
         collectResultsAndLogin(variations, 0, password);
@@ -145,6 +137,7 @@ public class AdminLoginActivity extends AppCompatActivity {
                     if (task.isSuccessful()) {
                         FirebaseUser user = mAuth.getCurrentUser();
                         if (user != null) {
+                            Log.d(TAG, "Auth Success. UID: " + user.getUid());
                             checkStatusAndPrivileges(user.getUid(), dbId);
                         }
                     } else {
@@ -155,12 +148,6 @@ public class AdminLoginActivity extends AppCompatActivity {
     }
 
     private void checkStatusAndPrivileges(String uid, String dbId) {
-        // Special Admin Bypass
-        if (PRIMARY_ADMIN_ID.equals(dbId) || PRIMARY_ADMIN_ID.equals(etAdminId.getText().toString().trim())) {
-            ensureAdminInDatabase(uid, dbId);
-            return;
-        }
-
         // Regular admin checks
         mDatabase.child("adminRequests").child(dbId).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
@@ -187,28 +174,6 @@ public class AdminLoginActivity extends AppCompatActivity {
         });
     }
 
-    private void ensureAdminInDatabase(String uid, String dbId) {
-        // Force the DB record to match the admin details
-        User admin = new User();
-        admin.setUserId(PRIMARY_ADMIN_ID);
-        admin.setFullName(PRIMARY_ADMIN_NAME);
-        admin.setUniversityId(PRIMARY_ADMIN_ID);
-        admin.setEmail(PRIMARY_ADMIN_EMAIL);
-        admin.setPassword(PRIMARY_ADMIN_PASS);
-        admin.setPhoneNumber(PRIMARY_ADMIN_PHONE);
-        admin.setDesignation(PRIMARY_ADMIN_DESIGNATION);
-        admin.setRole("admin");
-        admin.setUserType("Admin");
-        admin.setRequestStatus("approved");
-        admin.setAdmin(true);
-
-        mDatabase.child("Users").child(PRIMARY_ADMIN_ID).setValue(admin)
-                .addOnCompleteListener(task -> {
-                    mDatabase.child("UIDToUniversityID").child(uid).setValue(PRIMARY_ADMIN_ID);
-                    loginSuccess(true, PRIMARY_ADMIN_ID);
-                });
-    }
-
     private void validateAdminAccess(String uid, String dbId) {
         mDatabase.child("Users").child(dbId).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
@@ -221,7 +186,21 @@ public class AdminLoginActivity extends AppCompatActivity {
                     boolean isAdminRole = "admin".equals(role) || "Admin".equalsIgnoreCase(type) || (isAdmin != null && isAdmin);
 
                     if (isAdminRole) {
-                        loginSuccess(true, dbId);
+                        // Prepare updates to ensure role and mapping exist
+                        Map<String, Object> updates = new HashMap<>();
+                        updates.put("Users/" + dbId + "/role", "admin");
+                        updates.put("UIDToUniversityID/" + uid, dbId);
+
+                        mDatabase.updateChildren(updates)
+                                .addOnCompleteListener(task -> {
+                                    if (task.isSuccessful()) {
+                                        loginSuccess(true, dbId);
+                                    } else {
+                                        mAuth.signOut();
+                                        Toast.makeText(AdminLoginActivity.this,
+                                                "Failed to update admin privileges", Toast.LENGTH_SHORT).show();
+                                    }
+                                });
                     } else {
                         mAuth.signOut();
                         Toast.makeText(AdminLoginActivity.this, "Access Denied: Unauthorized.", Toast.LENGTH_SHORT).show();

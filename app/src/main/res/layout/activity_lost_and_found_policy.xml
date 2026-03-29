@@ -55,6 +55,14 @@
                     android:text="@string/found_part"
                     android:textColor="@color/cyan"
                     android:textSize="20sp" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="sans-serif-black"
+                    android:text=" Policy"
+                    android:textColor="@color/white"
+                    android:textSize="20sp" />
             </LinearLayout>
 
         </androidx.constraintlayout.widget.ConstraintLayout>
@@ -93,7 +101,7 @@
                         android:layout_height="80dp"
                         android:src="@drawable/ic_shield"
                         android:contentDescription="@string/privacy_policy"
-                        app:tint="@color/dev_primary" />
+                        app:tint="@color/lime" />
 
                     <TextView
                         android:layout_width="wrap_content"

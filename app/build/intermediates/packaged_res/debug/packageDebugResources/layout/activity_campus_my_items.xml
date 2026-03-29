@@ -30,7 +30,8 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textColor="@color/white"
-                tools:text="My Found Reports" />
+                android:layout_gravity="center_horizontal"
+                tools:text="@string/myFoundReports" />
 
         </com.google.android.material.appbar.MaterialToolbar>
 

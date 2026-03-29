@@ -73,6 +73,7 @@
         <activity android:name=".CampusReportFoundActivity" />
         <activity android:name=".ReportToAdminActivity" />
         <activity android:name=".AdminReportManagementActivity" />
+        <activity android:name=".AdminReportDetailsActivity" />
 
         <activity android:name=".DeveloperInfoActivity" />
         <activity android:name=".LostAndFoundPolicyActivity" />

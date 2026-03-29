@@ -11,10 +11,10 @@ INJECTED from E:\CampusLostandFound\app\src\main\AndroidManifest.xml:24:9-32:20
 	android:name
 		ADDED from E:\CampusLostandFound\app\src\main\AndroidManifest.xml:25:13-62
 manifest
-ADDED from E:\CampusLostandFound\app\src\main\AndroidManifest.xml:2:1-85:12
-INJECTED from E:\CampusLostandFound\app\src\main\AndroidManifest.xml:2:1-85:12
-INJECTED from E:\CampusLostandFound\app\src\main\AndroidManifest.xml:2:1-85:12
-INJECTED from E:\CampusLostandFound\app\src\main\AndroidManifest.xml:2:1-85:12
+ADDED from E:\CampusLostandFound\app\src\main\AndroidManifest.xml:2:1-86:12
+INJECTED from E:\CampusLostandFound\app\src\main\AndroidManifest.xml:2:1-86:12
+INJECTED from E:\CampusLostandFound\app\src\main\AndroidManifest.xml:2:1-86:12
+INJECTED from E:\CampusLostandFound\app\src\main\AndroidManifest.xml:2:1-86:12
 MERGED from [com.google.android.material:material:1.13.0] C:\Users\HP\.gradle\caches\9.3.1\transforms\5c9aecda1d38d38b729cdd9d75e56d63\workspace\transformed\material-1.13.0\AndroidManifest.xml:17:1-24:12
 MERGED from [androidx.constraintlayout:constraintlayout:2.2.1] C:\Users\HP\.gradle\caches\9.3.1\transforms\4623b4ed61ceeed785978a6172fd5520\workspace\transformed\constraintlayout-2.2.1\AndroidManifest.xml:2:1-9:12
 MERGED from [androidx.appcompat:appcompat-resources:1.7.1] C:\Users\HP\.gradle\caches\9.3.1\transforms\8589381a00bfdd53d83404bb83bc658c\workspace\transformed\appcompat-resources-1.7.1\AndroidManifest.xml:2:1-7:12
@@ -176,8 +176,8 @@ ADDED from E:\CampusLostandFound\app\src\main\AndroidManifest.xml:12:13-73
 	android:name
 		ADDED from E:\CampusLostandFound\app\src\main\AndroidManifest.xml:12:21-70
 application
-ADDED from E:\CampusLostandFound\app\src\main\AndroidManifest.xml:16:5-83:19
-INJECTED from E:\CampusLostandFound\app\src\main\AndroidManifest.xml:16:5-83:19
+ADDED from E:\CampusLostandFound\app\src\main\AndroidManifest.xml:16:5-84:19
+INJECTED from E:\CampusLostandFound\app\src\main\AndroidManifest.xml:16:5-84:19
 MERGED from [com.google.android.material:material:1.13.0] C:\Users\HP\.gradle\caches\9.3.1\transforms\5c9aecda1d38d38b729cdd9d75e56d63\workspace\transformed\material-1.13.0\AndroidManifest.xml:22:5-20
 MERGED from [com.google.android.material:material:1.13.0] C:\Users\HP\.gradle\caches\9.3.1\transforms\5c9aecda1d38d38b729cdd9d75e56d63\workspace\transformed\material-1.13.0\AndroidManifest.xml:22:5-20
 MERGED from [androidx.constraintlayout:constraintlayout:2.2.1] C:\Users\HP\.gradle\caches\9.3.1\transforms\4623b4ed61ceeed785978a6172fd5520\workspace\transformed\constraintlayout-2.2.1\AndroidManifest.xml:7:5-20
@@ -346,26 +346,30 @@ activity#com.sas.lostandfound.AdminReportManagementActivity
 ADDED from E:\CampusLostandFound\app\src\main\AndroidManifest.xml:75:9-67
 	android:name
 		ADDED from E:\CampusLostandFound\app\src\main\AndroidManifest.xml:75:19-64
+activity#com.sas.lostandfound.AdminReportDetailsActivity
+ADDED from E:\CampusLostandFound\app\src\main\AndroidManifest.xml:76:9-64
+	android:name
+		ADDED from E:\CampusLostandFound\app\src\main\AndroidManifest.xml:76:19-61
 activity#com.sas.lostandfound.DeveloperInfoActivity
-ADDED from E:\CampusLostandFound\app\src\main\AndroidManifest.xml:77:9-59
+ADDED from E:\CampusLostandFound\app\src\main\AndroidManifest.xml:78:9-59
 	android:name
-		ADDED from E:\CampusLostandFound\app\src\main\AndroidManifest.xml:77:19-56
+		ADDED from E:\CampusLostandFound\app\src\main\AndroidManifest.xml:78:19-56
 activity#com.sas.lostandfound.LostAndFoundPolicyActivity
-ADDED from E:\CampusLostandFound\app\src\main\AndroidManifest.xml:78:9-64
+ADDED from E:\CampusLostandFound\app\src\main\AndroidManifest.xml:79:9-64
 	android:name
-		ADDED from E:\CampusLostandFound\app\src\main\AndroidManifest.xml:78:19-61
+		ADDED from E:\CampusLostandFound\app\src\main\AndroidManifest.xml:79:19-61
 activity#com.sas.lostandfound.AllReportedItemsActivity
-ADDED from E:\CampusLostandFound\app\src\main\AndroidManifest.xml:79:9-62
+ADDED from E:\CampusLostandFound\app\src\main\AndroidManifest.xml:80:9-62
 	android:name
-		ADDED from E:\CampusLostandFound\app\src\main\AndroidManifest.xml:79:19-59
+		ADDED from E:\CampusLostandFound\app\src\main\AndroidManifest.xml:80:19-59
 activity#com.sas.lostandfound.NotificationsActivity
-ADDED from E:\CampusLostandFound\app\src\main\AndroidManifest.xml:80:9-59
+ADDED from E:\CampusLostandFound\app\src\main\AndroidManifest.xml:81:9-59
 	android:name
-		ADDED from E:\CampusLostandFound\app\src\main\AndroidManifest.xml:80:19-56
+		ADDED from E:\CampusLostandFound\app\src\main\AndroidManifest.xml:81:19-56
 activity#com.sas.lostandfound.ClaimDetailsActivity
-ADDED from E:\CampusLostandFound\app\src\main\AndroidManifest.xml:81:9-58
+ADDED from E:\CampusLostandFound\app\src\main\AndroidManifest.xml:82:9-58
 	android:name
-		ADDED from E:\CampusLostandFound\app\src\main\AndroidManifest.xml:81:19-55
+		ADDED from E:\CampusLostandFound\app\src\main\AndroidManifest.xml:82:19-55
 meta-data#android.support.FILE_PROVIDER_PATHS
 ADDED from E:\CampusLostandFound\app\src\main\AndroidManifest.xml:29:13-31:54
 	android:resource

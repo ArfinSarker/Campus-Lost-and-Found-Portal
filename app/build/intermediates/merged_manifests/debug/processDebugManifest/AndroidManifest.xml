@@ -99,6 +99,7 @@
         <activity android:name="com.sas.lostandfound.CampusReportFoundActivity" />
         <activity android:name="com.sas.lostandfound.ReportToAdminActivity" />
         <activity android:name="com.sas.lostandfound.AdminReportManagementActivity" />
+        <activity android:name="com.sas.lostandfound.AdminReportDetailsActivity" />
         <activity android:name="com.sas.lostandfound.DeveloperInfoActivity" />
         <activity android:name="com.sas.lostandfound.LostAndFoundPolicyActivity" />
         <activity android:name="com.sas.lostandfound.AllReportedItemsActivity" />

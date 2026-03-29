@@ -66,7 +66,7 @@
             android:layout_height="32dp"
             android:background="?attr/selectableItemBackgroundBorderless"
             android:src="@drawable/ic_delete"
-            app:tint="@color/light_red"
+            app:tint="@color/lightRed"
             android:contentDescription="@string/btn_delete" />
 
     </LinearLayout>

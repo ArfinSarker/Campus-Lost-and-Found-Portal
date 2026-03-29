@@ -184,11 +184,23 @@ public class UserLoginActivity extends AppCompatActivity {
                 if (snapshot.exists()) {
                     User user = snapshot.getValue(User.class);
                     if (user != null) {
-                        if (userType.equalsIgnoreCase(user.getUserType())) {
-                            performFirebaseLogin(user.getEmail(), password, userType, user.isAdmin(), universityId);
-                        } else {
+                        // Verification: check user role/admin status from DB
+                        boolean dbIsAdmin = "admin".equalsIgnoreCase(user.getRole()) || user.isAdmin() || "Admin".equalsIgnoreCase(user.getUserType());
+                        
+                        // Redirect based on DB role, even if user chose wrong type in dropdown (or enforce dropdown)
+                        // Here we prioritize the DB role for redirect, but check for mismatch toast
+                        if (userType.equalsIgnoreCase("Admin") && !dbIsAdmin) {
                             showLoading(false);
-                            Toast.makeText(UserLoginActivity.this, "User Type mismatch. You registered as " + user.getUserType(), Toast.LENGTH_LONG).show();
+                            Toast.makeText(UserLoginActivity.this, "Access Denied: You do not have administrator privileges.", Toast.LENGTH_LONG).show();
+                        } else if (userType.equalsIgnoreCase("Student") && dbIsAdmin || userType.equalsIgnoreCase("Staff") && dbIsAdmin) {
+                             // Admin logging in as User - we should still redirect to Admin if they are admin
+                             performFirebaseLogin(user.getEmail(), password, "Admin", true, universityId);
+                        } else if (userType.equalsIgnoreCase(user.getUserType())) {
+                            performFirebaseLogin(user.getEmail(), password, userType, dbIsAdmin, universityId);
+                        } else {
+                            // Normal type mismatch
+                            showLoading(false);
+                            Toast.makeText(UserLoginActivity.this, "User Type mismatch. Your account is " + user.getUserType(), Toast.LENGTH_LONG).show();
                         }
                     } else {
                         showLoading(false);
@@ -196,7 +208,6 @@ public class UserLoginActivity extends AppCompatActivity {
                     }
                 } else {
                     showLoading(false);
-                    // Updated error message to match requirement for deleted users or non-existent accounts
                     Toast.makeText(UserLoginActivity.this, "No account exists with this University ID. Please register again.", Toast.LENGTH_LONG).show();
                 }
             }
@@ -217,11 +228,13 @@ public class UserLoginActivity extends AppCompatActivity {
                         Toast.makeText(UserLoginActivity.this, "Login successful", Toast.LENGTH_SHORT).show();
 
                         Intent intent;
-                        if ("Admin".equalsIgnoreCase(userType)) {
+                        // Correctly verify the user's role and redirect
+                        if ("Admin".equalsIgnoreCase(userType) || isMainAdmin) {
                             intent = new Intent(this, AdminDashboardActivity.class);
                         } else {
                             intent = new Intent(this, CampusDashboardActivity.class);
                         }
+                        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
                         startActivity(intent);
                         finish();
                     } else {
@@ -236,8 +249,8 @@ public class UserLoginActivity extends AppCompatActivity {
         SharedPreferences prefs = getSharedPreferences("MyApp", MODE_PRIVATE);
         prefs.edit()
                 .putString("userType", userType)
-                .putBoolean("isAdminLoggedIn", "Admin".equalsIgnoreCase(userType))
-                .putBoolean("isMainAdmin", "Admin".equalsIgnoreCase(userType))
+                .putBoolean("isAdminLoggedIn", "Admin".equalsIgnoreCase(userType) || isMainAdmin)
+                .putBoolean("isMainAdmin", "Admin".equalsIgnoreCase(userType) || isMainAdmin)
                 .putString("universityId", dbId)
                 .putString("adminId", dbId)
                 .apply();

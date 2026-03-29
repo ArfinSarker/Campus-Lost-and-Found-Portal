@@ -73,7 +73,7 @@ public class UserRegistrationActivity extends AppCompatActivity {
     private ImageView ivProfilePicture;
     private FloatingActionButton fabAddPhoto;
     private ImageButton btnBack;
-    private TextView tvLogin;
+    private TextView tvLogin, tvPolicyText;
     private CheckBox cbPolicy;
     private View keyboardSpacer;
     private View registrationRoot;
@@ -134,6 +134,7 @@ public class UserRegistrationActivity extends AppCompatActivity {
         fabAddPhoto = findViewById(R.id.fabAddPhoto);
         btnBack = findViewById(R.id.btnBack);
         tvLogin = findViewById(R.id.tvLogin);
+        tvPolicyText = findViewById(R.id.tvPolicyText);
         cbPolicy = findViewById(R.id.cbPolicy);
         etPassword = findViewById(R.id.etPassword);
         etConfirmPassword = findViewById(R.id.etConfirmPassword);
@@ -243,6 +244,8 @@ public class UserRegistrationActivity extends AppCompatActivity {
     }
 
     private void setupPolicyText() {
+        if (tvPolicyText == null) return;
+
         String fullText = getString(R.string.lost_and_found_policy);
         String clickablePart = getString(R.string.lost_and_found_policy_clickable);
 
@@ -265,15 +268,16 @@ public class UserRegistrationActivity extends AppCompatActivity {
                 }
             };
 
-            ss.setSpan(clickablePart, startIndex, endIndex, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+            ss.setSpan(clickableSpan, startIndex, endIndex, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
             ss.setSpan(new ForegroundColorSpan(ContextCompat.getColor(this, R.color.primaryColor)),
                     startIndex, endIndex, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
             ss.setSpan(new StyleSpan(Typeface.BOLD),
                     startIndex, endIndex, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
         }
 
-        cbPolicy.setText(ss);
-        cbPolicy.setMovementMethod(LinkMovementMethod.getInstance());
+        tvPolicyText.setText(ss);
+        tvPolicyText.setMovementMethod(LinkMovementMethod.getInstance());
+        tvPolicyText.setHighlightColor(Color.TRANSPARENT);
     }
 
     private void setupLoginLink() {
@@ -283,7 +287,7 @@ public class UserRegistrationActivity extends AppCompatActivity {
         SpannableString ss = new SpannableString(spanned);
 
         String fullText = spanned.toString();
-        String loginText = "Login";
+        String loginText = "Sign In";
         int startIndex = fullText.indexOf(loginText);
 
         if (startIndex != -1) {

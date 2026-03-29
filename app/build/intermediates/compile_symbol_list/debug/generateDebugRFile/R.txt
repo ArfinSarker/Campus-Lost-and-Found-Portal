@@ -27,16 +27,19 @@ int color found_bg 0x0
 int color ic_launcher_background 0x0
 int color inputBackground 0x0
 int color lightGrey 0x0
-int color light_red 0x0
+int color lightRed 0x0
 int color light_red_bg 0x0
 int color lime 0x0
 int color linkText 0x0
 int color lost_bg 0x0
-int color navy_blue 0x0
+int color mutedBlueGrey 0x0
+int color navyBlue 0x0
 int color primaryColor 0x0
 int color primaryDarkColor 0x0
 int color primaryLightColor 0x0
+int color scienceBlue 0x0
 int color secondaryColor 0x0
+int color standardGray 0x0
 int color statusFound 0x0
 int color statusLost 0x0
 int color success 0x0
@@ -50,6 +53,7 @@ int color textSecondary 0x0
 int color textSecondaryDark 0x0
 int color transparent 0x0
 int color vibrantBlue 0x0
+int color vibrantGreen 0x0
 int color white 0x0
 int color windowBackground 0x0
 int color yellow 0x0
@@ -61,6 +65,7 @@ int drawable bg_button_secondary_outline 0x0
 int drawable bg_card_top_rounded 0x0
 int drawable bg_notification_badge 0x0
 int drawable bg_primary_gradient 0x0
+int drawable bg_rounded_top 0x0
 int drawable bg_status_badge_found 0x0
 int drawable bg_status_badge_lost 0x0
 int drawable developer_profile_picture 0x0
@@ -79,6 +84,7 @@ int drawable ic_clock 0x0
 int drawable ic_delete 0x0
 int drawable ic_edit 0x0
 int drawable ic_envelope 0x0
+int drawable ic_error_outline 0x0
 int drawable ic_fact_check 0x0
 int drawable ic_filter_list 0x0
 int drawable ic_found_search 0x0
@@ -96,11 +102,13 @@ int drawable ic_logout 0x0
 int drawable ic_lost_times 0x0
 int drawable ic_map_pin 0x0
 int drawable ic_menu 0x0
+int drawable ic_note 0x0
 int drawable ic_package 0x0
 int drawable ic_pen 0x0
 int drawable ic_phone 0x0
 int drawable ic_search 0x0
 int drawable ic_shield 0x0
+int drawable ic_status 0x0
 int drawable ic_user 0x0
 int drawable ic_users 0x0
 int drawable logo 0x0
@@ -150,6 +158,7 @@ int id btnMenu 0x0
 int id btnNotifications 0x0
 int id btnReportFound 0x0
 int id btnReportLost 0x0
+int id btnReportProblem 0x0
 int id btnReporterDelete 0x0
 int id btnResolvedUserContact 0x0
 int id btnReturnToOwner 0x0
@@ -186,6 +195,8 @@ int id chipPending 0x0
 int id chipResolved 0x0
 int id chipReviewed 0x0
 int id collapsingToolbar 0x0
+int id dashboardDescription 0x0
+int id dashboardHeadline 0x0
 int id drawer_layout 0x0
 int id etAdminCode 0x0
 int id etAdminId 0x0
@@ -384,6 +395,7 @@ int id tvNotificationBadge 0x0
 int id tvNotificationMessage 0x0
 int id tvNotificationTime 0x0
 int id tvOwnershipVerification 0x0
+int id tvPolicyText 0x0
 int id tvPreferredContact 0x0
 int id tvPriorityBadge 0x0
 int id tvProofOwnership 0x0
@@ -482,8 +494,6 @@ int menu activity_campus_dashboard_drawer 0x0
 int mipmap ic_launcher 0x0
 int mipmap ic_launcher_foreground 0x0
 int mipmap ic_launcher_round 0x0
-int string active_items_count 0x0
-int string active_items_default 0x0
 int string add_photo 0x0
 int string adjust_search_filters 0x0
 int string admin_access_heading 0x0
@@ -492,6 +502,7 @@ int string admin_login_subtitle 0x0
 int string admin_portal 0x0
 int string admin_request_sent 0x0
 int string admin_sign_in 0x0
+int string allUsers 0x0
 int string already_signed_in 0x0
 int string app_name 0x0
 int string app_name_no_space 0x0
@@ -517,7 +528,6 @@ int string btn_submit 0x0
 int string btn_submit_report 0x0
 int string btn_submit_report_admin 0x0
 int string btn_view_details 0x0
-int string campus_verified 0x0
 int string cancel 0x0
 int string category_all 0x0
 int string change_photo 0x0
@@ -532,14 +542,12 @@ int string confirm_accuracy_lost 0x0
 int string contact_chat 0x0
 int string contact_email 0x0
 int string contact_phone 0x0
-int string contact_support 0x0
 int string contact_us 0x0
 int string create_account 0x0
-int string dashboard_description 0x0
-int string dashboard_headline 0x0
+int string dashboardDescription 0x0
+int string dashboardHeadline 0x0
 int string dashboard_title 0x0
 int string default_web_client_id 0x0
-int string description 0x0
 int string dev_about_desc 0x0
 int string dev_about_title 0x0
 int string dev_contact_title 0x0
@@ -578,7 +586,7 @@ int string google_app_id 0x0
 int string google_crash_reporting_api_key 0x0
 int string google_storage_bucket 0x0
 int string header_subtitle_format 0x0
-int string help_description 0x0
+int string helpDescription 0x0
 int string helper_confidential 0x0
 int string helper_proof 0x0
 int string helper_security_question 0x0
@@ -689,7 +697,6 @@ int string label_verification_method 0x0
 int string label_verify_method_simple 0x0
 int string label_verify_security 0x0
 int string label_your_name 0x0
-int string login_description 0x0
 int string login_first 0x0
 int string login_link 0x0
 int string login_no_account 0x0
@@ -704,9 +711,7 @@ int string logout 0x0
 int string lost_and_found_policy 0x0
 int string lost_and_found_policy_clickable 0x0
 int string lost_part 0x0
-int string lost_something 0x0
 int string lost_something_heading 0x0
-int string made_for_students 0x0
 int string made_for_users 0x0
 int string menu_settings 0x0
 int string modal_text_1 0x0
@@ -717,7 +722,7 @@ int string msg_item_claimed_notification 0x0
 int string msg_item_returned_notification 0x0
 int string msg_report_resolved 0x0
 int string msg_report_reviewed 0x0
-int string my_found_reports 0x0
+int string myFoundReports 0x0
 int string my_items 0x0
 int string my_lost_reports 0x0
 int string my_resolved_items 0x0
@@ -785,10 +790,11 @@ int string prompt_return_to_owner 0x0
 int string recent_reports_title 0x0
 int string recent_title 0x0
 int string recently_reported_items 0x0
+int string registerSubtitle 0x0
+int string registerTitle 0x0
 int string register_link 0x0
-int string register_subtitle 0x0
-int string register_title 0x0
 int string remove_photo 0x0
+int string reportProblem 0x0
 int string report_found 0x0
 int string report_found_btn 0x0
 int string report_found_title 0x0
@@ -842,9 +848,8 @@ int string user_role_staff 0x0
 int string user_role_student 0x0
 int string view_all_link 0x0
 int string view_more 0x0
-int string we_help 0x0
+int string welcomeUser 0x0
 int string welcome_back 0x0
-int string welcome_back_default 0x0
 int style AppTheme 0x0
 int style CircleAppearanceOverlay 0x0
 int style CircleImageView 0x0
