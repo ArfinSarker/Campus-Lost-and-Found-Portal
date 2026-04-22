@@ -1,0 +1,89 @@
+{
+  "rules": {
+    "Users": {
+      ".read": "true",
+      ".indexOn": [
+        "universityId",
+        "email"
+      ],
+      "$universityId": {
+        ".write": "auth != null && (auth.uid == '1' || root.child('Users').child(root.child('UIDToUniversityID').child(auth.uid).val()).child('role').val() == 'admin' || root.child('Users').child(root.child('UIDToUniversityID').child(auth.uid).val()).child('userType').val() == 'Admin' || !data.exists() || data.child('authId').val() == auth.uid)"
+      }
+    },
+    "UIDToUniversityID": {
+      ".read": "auth != null",
+      ".write": "auth != null"
+    },
+    "adminRequests": {
+      ".read": "true",
+      "$universityId": {
+        ".write": "auth != null && (auth.uid == '1' || root.child('Users').child(root.child('UIDToUniversityID').child(auth.uid).val()).child('role').val() == 'admin' || !data.exists())"
+      }
+    },
+    "DeniedAdminRequests": {
+      ".read": "true",
+      ".write": "auth != null && (auth.uid == '1' || root.child('Users').child(root.child('UIDToUniversityID').child(auth.uid).val()).child('role').val() == 'admin' || root.child('Users').child(root.child('UIDToUniversityID').child(auth.uid).val()).child('userType').val() == 'Admin')"
+    },
+    "LostItems": {
+      ".read": "true",
+      ".write": "auth != null",
+      ".indexOn": [
+        "displayId",
+        "userId",
+        "status",
+        "category",
+        "timestamp",
+        "claimedByUserId"
+      ],
+      "$itemId": {
+        ".validate": "newData.hasChildren(['displayId', 'name', 'userId', 'status']) && (newData.child('status').val() == 'lost' || newData.child('status').val() == 'resolved') && (!newData.hasChild('secondUserId') || newData.child('secondUserId').val() != newData.child('userId').val())"
+      }
+    },
+    "FoundItems": {
+      ".read": "true",
+      ".write": "auth != null",
+      ".indexOn": [
+        "displayId",
+        "userId",
+        "status",
+        "category",
+        "timestamp",
+        "claimedByUserId"
+      ],
+      "$itemId": {
+        ".validate": "newData.hasChildren(['displayId', 'name', 'userId', 'status']) && (newData.child('status').val() == 'found' || newData.child('status').val() == 'resolved') && (!newData.hasChild('secondUserId') || newData.child('secondUserId').val() != newData.child('userId').val())"
+      }
+    },
+    "UserItems": {
+      "$uid": {
+        ".read": "auth != null && auth.uid == $uid",
+        ".write": "auth != null && auth.uid == $uid"
+      }
+    },
+    "Notifications": {
+      "$userId": {
+        ".read": "auth != null && (auth.uid == $userId || root.child('UIDToUniversityID').child(auth.uid).val() == $userId || auth.uid == '1' || root.child('Users').child(root.child('UIDToUniversityID').child(auth.uid).val()).child('role').val() == 'admin' || root.child('Users').child(root.child('UIDToUniversityID').child(auth.uid).val()).child('userType').val() == 'Admin')",
+        "$notificationId": {
+          ".write": "auth != null && (auth.uid == $userId || root.child('UIDToUniversityID').child(auth.uid).val() == $userId || auth.uid == '1' || root.child('Users').child(root.child('UIDToUniversityID').child(auth.uid).val()).child('role').val() == 'admin' || root.child('Users').child(root.child('UIDToUniversityID').child(auth.uid).val()).child('userType').val() == 'Admin' || !data.exists())"
+        }
+      }
+    },
+    "ItemClaims": {
+      ".read": "auth != null",
+      ".write": "auth != null"
+    },
+    "Counters": {
+      ".read": "auth != null",
+      ".write": "auth != null"
+    },
+    "AdminReports": {
+      ".read": "auth != null",
+      ".indexOn": ["reporterAuthId"],
+      "$reportId": {
+        ".read": "auth != null",
+        ".write": "auth != null",
+        ".validate": "newData.hasChildren(['reportId', 'displayId', 'title', 'reporterAuthId', 'status'])"
+      }
+    }
+  }
+}

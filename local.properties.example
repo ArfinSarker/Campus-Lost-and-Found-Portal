@@ -1,0 +1,9 @@
+# This is an example local.properties file.
+# Copy this to 'local.properties' and fill in your actual keys.
+
+# Firebase Realtime Database URL
+FIREBASE_DATABASE_URL=https://your-project-id.firebaseio.com
+
+# Supabase Configuration
+SUPABASE_URL=https://your-project.supabase.co
+SUPABASE_KEY=your-supabase-anon-key
