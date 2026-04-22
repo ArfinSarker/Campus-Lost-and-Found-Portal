@@ -45,12 +45,9 @@ public class UserLoginActivity extends AppCompatActivity {
     private TextView tvForgotPassword, tvRegister;
     private MaterialToolbar toolbar;
     private AppBarLayout appBarLayout;
-    private NestedScrollView nestedScrollView;
 
     private FirebaseAuth mAuth;
     private DatabaseReference mDatabase;
-
-    private static final String DATABASE_URL = "FIREBASE_URL_PLACEHOLDER";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -58,12 +55,11 @@ public class UserLoginActivity extends AppCompatActivity {
         setContentView(R.layout.activity_user_login);
 
         mAuth = FirebaseAuth.getInstance();
-        mDatabase = FirebaseDatabase.getInstance(DATABASE_URL).getReference();
+        mDatabase = FirebaseDatabase.getInstance(FirebaseConfig.DATABASE_URL).getReference();
 
         initializeViews();
         setupUserTypeDropdown();
         setupToolbar();
-        setupScrollListener();
         setupClickableRegister();
 
         btnSignIn.setOnClickListener(v -> loginUser());
@@ -83,7 +79,6 @@ public class UserLoginActivity extends AppCompatActivity {
         tvRegister = findViewById(R.id.tvRegister);
         toolbar = findViewById(R.id.toolbar);
         appBarLayout = findViewById(R.id.appBarLayout);
-        nestedScrollView = findViewById(R.id.nestedScrollView);
     }
 
     private void setupUserTypeDropdown() {
@@ -105,35 +100,10 @@ public class UserLoginActivity extends AppCompatActivity {
                 startActivity(intent);
                 finish();
             });
-        }
-    }
 
-    private void setupScrollListener() {
-        if (nestedScrollView != null && appBarLayout != null) {
-            updateStatusBarColor(false);
-            nestedScrollView.setOnScrollChangeListener((NestedScrollView.OnScrollChangeListener) (v, scrollX, scrollY, oldScrollX, oldScrollY) -> {
-                if (scrollY > 0) {
-                    updateStatusBarColor(true);
-                } else {
-                    updateStatusBarColor(false);
-                }
-            });
-        }
-    }
-
-    private void updateStatusBarColor(boolean isScrolled) {
-        if (isScrolled) {
-            getWindow().setStatusBarColor(ContextCompat.getColor(this, R.color.primaryDarkColor));
-            appBarLayout.setBackgroundColor(ContextCompat.getColor(this, R.color.primaryColor));
-            toolbar.setBackgroundColor(ContextCompat.getColor(this, R.color.primaryColor));
-            toolbar.setNavigationIconTint(Color.WHITE);
-            getWindow().getDecorView().setSystemUiVisibility(0);
-        } else {
-            getWindow().setStatusBarColor(Color.WHITE);
-            appBarLayout.setBackgroundColor(Color.WHITE);
-            toolbar.setBackgroundColor(Color.WHITE);
-            toolbar.setNavigationIconTint(ContextCompat.getColor(this, R.color.textPrimary));
-            getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR);
+            if (appBarLayout != null) {
+                HeaderColorHelper.setup(this, appBarLayout, toolbar);
+            }
         }
     }
 

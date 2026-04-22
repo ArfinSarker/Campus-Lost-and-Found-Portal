@@ -21,6 +21,11 @@ public class LostAndFoundPolicyActivity extends AppCompatActivity {
             btnBack.setOnClickListener(v -> onBackPressed());
         }
 
+        com.google.android.material.appbar.AppBarLayout appBarLayout = findViewById(R.id.appBarLayout);
+        if (appBarLayout != null) {
+            HeaderColorHelper.setup(this, appBarLayout);
+        }
+
         llPolicyEmail = findViewById(R.id.llPolicyEmail);
         llPolicyPhone = findViewById(R.id.llPolicyPhone);
         llPolicyAddress = findViewById(R.id.llPolicyAddress);

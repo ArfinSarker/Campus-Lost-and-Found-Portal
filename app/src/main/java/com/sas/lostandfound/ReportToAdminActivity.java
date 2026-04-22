@@ -1,5 +1,6 @@
 package com.sas.lostandfound;
 
+import android.content.ClipData;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
@@ -30,7 +31,11 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class ReportToAdminActivity extends AppCompatActivity {
 
@@ -47,12 +52,11 @@ public class ReportToAdminActivity extends AppCompatActivity {
 
     private FirebaseAuth mAuth;
     private DatabaseReference mDatabase;
-    private static final String DATABASE_URL = "FIREBASE_URL_PLACEHOLDER";
 
-    private Uri screenshotUri;
+    private List<Uri> selectedImageUris = new ArrayList<>();
     private String currentUniversityId;
     private String currentAuthId;
-    private static final int PICK_IMAGE_REQUEST = 1;
+    private static final int PICK_IMAGES_REQUEST = 1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -60,7 +64,7 @@ public class ReportToAdminActivity extends AppCompatActivity {
         setContentView(R.layout.activity_report_to_admin);
 
         mAuth = FirebaseAuth.getInstance();
-        mDatabase = FirebaseDatabase.getInstance(DATABASE_URL).getReference();
+        mDatabase = FirebaseDatabase.getInstance(FirebaseConfig.DATABASE_URL).getReference();
 
         if (mAuth.getCurrentUser() != null) {
             currentAuthId = mAuth.getCurrentUser().getUid();
@@ -103,6 +107,11 @@ public class ReportToAdminActivity extends AppCompatActivity {
                 getSupportActionBar().setDisplayHomeAsUpEnabled(true);
             }
             toolbar.setNavigationOnClickListener(v -> onBackPressed());
+
+            com.google.android.material.appbar.AppBarLayout appBarLayout = findViewById(R.id.appBarLayout);
+            if (appBarLayout != null) {
+                HeaderColorHelper.setup(this, appBarLayout, toolbar);
+            }
         }
     }
 
@@ -151,16 +160,28 @@ public class ReportToAdminActivity extends AppCompatActivity {
     private void openGallery() {
         Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
         intent.setType("image/*");
-        startActivityForResult(Intent.createChooser(intent, "Select Screenshot"), PICK_IMAGE_REQUEST);
+        intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true);
+        startActivityForResult(Intent.createChooser(intent, "Select Screenshot(s)"), PICK_IMAGES_REQUEST);
     }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == PICK_IMAGE_REQUEST && resultCode == RESULT_OK && data != null && data.getData() != null) {
-            screenshotUri = data.getData();
-            ivScreenshot.setImageURI(screenshotUri);
-            tvScreenshotStatus.setText("Screenshot Selected");
+        if (requestCode == PICK_IMAGES_REQUEST && resultCode == RESULT_OK && data != null) {
+            selectedImageUris.clear();
+            if (data.getClipData() != null) {
+                ClipData clipData = data.getClipData();
+                for (int i = 0; i < clipData.getItemCount(); i++) {
+                    selectedImageUris.add(clipData.getItemAt(i).getUri());
+                }
+            } else if (data.getData() != null) {
+                selectedImageUris.add(data.getData());
+            }
+
+            if (!selectedImageUris.isEmpty()) {
+                ivScreenshot.setImageURI(selectedImageUris.get(0));
+                tvScreenshotStatus.setText(selectedImageUris.size() + " Screenshot(s) Selected");
+            }
         }
     }
 
@@ -215,8 +236,8 @@ public class ReportToAdminActivity extends AppCompatActivity {
                 final String displayId = "R" + count;
                 final long newCount = count;
 
-                if (screenshotUri != null) {
-                    uploadImageAndReport(displayId, newCount, title, category, description, relatedId, reporterName, universityId, phone, priority);
+                if (!selectedImageUris.isEmpty()) {
+                    uploadImagesAndReport(displayId, newCount, title, category, description, relatedId, reporterName, universityId, phone, priority);
                 } else {
                     submitReportToFirebase(displayId, newCount, title, category, description, relatedId, reporterName, universityId, phone, null, priority);
                 }
@@ -230,24 +251,33 @@ public class ReportToAdminActivity extends AppCompatActivity {
         });
     }
 
-    private void uploadImageAndReport(String displayId, long newCount, String title, String category, String description, String relatedId, String reporterName, String universityId, String phone, String priority) {
-        String fileName = UUID.randomUUID().toString() + ".jpg";
+    private void uploadImagesAndReport(String displayId, long newCount, String title, String category, String description, String relatedId, String reporterName, String universityId, String phone, String priority) {
+        List<String> imageUrlStrings = Collections.synchronizedList(new ArrayList<>());
+        AtomicInteger remaining = new AtomicInteger(selectedImageUris.size());
 
-        Log.d(TAG, "Starting image upload to Supabase...");
+        for (int i = 0; i < selectedImageUris.size(); i++) {
+            String fileName = UUID.randomUUID().toString() + "_" + i + ".jpg";
+            SupabaseStorageHelper.uploadImage(this, selectedImageUris.get(i), "AdminReports", fileName, new SupabaseStorageHelper.UploadCallback() {
+                @Override
+                public void onSuccess(String publicUrl) {
+                    imageUrlStrings.add(publicUrl);
+                    if (remaining.decrementAndGet() == 0) {
+                        submitReportToFirebase(displayId, newCount, title, category, description, relatedId, reporterName, universityId, phone, imageUrlStrings, priority);
+                    }
+                }
 
-        SupabaseStorageHelper.uploadImage(this, screenshotUri, "AdminReports", fileName, new SupabaseStorageHelper.UploadCallback() {
-            @Override
-            public void onSuccess(String publicUrl) {
-                Log.d(TAG, "Upload successful: " + publicUrl);
-                submitReportToFirebase(displayId, newCount, title, category, description, relatedId, reporterName, universityId, phone, publicUrl, priority);
-            }
-
-            @Override
-            public void onFailure(Exception e) {
-                Log.e(TAG, "Upload failed: " + e.getMessage());
-                showUploadFailedDialog(displayId, newCount, title, category, description, relatedId, reporterName, universityId, phone, priority, e.getMessage());
-            }
-        });
+                @Override
+                public void onFailure(Exception e) {
+                    if (remaining.decrementAndGet() == 0) {
+                        if (imageUrlStrings.isEmpty()) {
+                            showUploadFailedDialog(displayId, newCount, title, category, description, relatedId, reporterName, universityId, phone, priority, e.getMessage());
+                        } else {
+                            submitReportToFirebase(displayId, newCount, title, category, description, relatedId, reporterName, universityId, phone, imageUrlStrings, priority);
+                        }
+                    }
+                }
+            });
+        }
     }
 
     private void showUploadFailedDialog(String displayId, long newCount, String title, String category, String description, String relatedId, String reporterName, String universityId, String phone, String priority, String error) {
@@ -261,14 +291,14 @@ public class ReportToAdminActivity extends AppCompatActivity {
                 })
                 .setNegativeButton("Retry", (dialog, which) -> {
                     progressBar.setVisibility(View.VISIBLE);
-                    uploadImageAndReport(displayId, newCount, title, category, description, relatedId, reporterName, universityId, phone, priority);
+                    uploadImagesAndReport(displayId, newCount, title, category, description, relatedId, reporterName, universityId, phone, priority);
                 })
                 .setNeutralButton("Cancel", (dialog, which) -> resetButton())
                 .setCancelable(false)
                 .show();
     }
 
-    private void submitReportToFirebase(String displayId, long newCount, String title, String category, String description, String relatedId, String reporterName, String universityId, String phone, String imageUrl, String priority) {
+    private void submitReportToFirebase(String displayId, long newCount, String title, String category, String description, String relatedId, String reporterName, String universityId, String phone, List<String> imageUrls, String priority) {
         String reportId = mDatabase.child("AdminReports").push().getKey();
         if (reportId == null) {
             resetButton();
@@ -279,9 +309,11 @@ public class ReportToAdminActivity extends AppCompatActivity {
             currentAuthId = mAuth.getCurrentUser().getUid();
         }
 
+        String firstImage = (imageUrls != null && !imageUrls.isEmpty()) ? imageUrls.get(0) : null;
         AdminReport report = new AdminReport(
-                reportId, displayId, title, category, description, relatedId, reporterName, universityId, currentAuthId, phone, imageUrl, priority, "Pending", System.currentTimeMillis()
+                reportId, displayId, title, category, description, relatedId, reporterName, universityId, currentAuthId, phone, firstImage, priority, "Pending", System.currentTimeMillis()
         );
+        report.setImageUrls(imageUrls != null ? imageUrls : new ArrayList<>());
 
         mDatabase.child("AdminReports").child(reportId).setValue(report)
                 .addOnSuccessListener(aVoid -> {

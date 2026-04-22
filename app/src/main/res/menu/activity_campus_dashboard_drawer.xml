@@ -20,6 +20,10 @@
             android:id="@+id/nav_resolved_items"
             android:icon="@drawable/ic_fact_check"
             android:title="@string/my_resolved_items" />
+        <item
+            android:id="@+id/nav_admin_reports"
+            android:icon="@drawable/ic_note"
+            android:title="My Admin Reports" />
     </group>
 
     <item android:title="Other">

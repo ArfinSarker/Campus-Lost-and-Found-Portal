@@ -25,9 +25,11 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.core.content.ContextCompat;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 import androidx.viewpager2.widget.ViewPager2;
 
-import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.google.android.material.appbar.AppBarLayout;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.card.MaterialCardView;
@@ -61,10 +63,10 @@ public class ItemDetailActivity extends AppCompatActivity {
     private MaterialButton btnEdit, btnReporterDelete, btnMarkAsClaimed, btnReturnToOwner, btnResolvedUserContact;
     private Toolbar toolbar;
     private AppBarLayout appBarLayout;
+    private SwipeRefreshLayout swipeRefreshLayout;
 
     private DatabaseReference mDatabase;
     private FirebaseAuth mAuth;
-    private static final String DATABASE_URL = "FIREBASE_URL_PLACEHOLDER";
 
     private String itemId, itemStatus, reporterId, currentAdminStatus, currentUnivId;
     private boolean isAdminMode;
@@ -81,7 +83,7 @@ public class ItemDetailActivity extends AppCompatActivity {
         setContentView(R.layout.activity_item_detail);
 
         mAuth = FirebaseAuth.getInstance();
-        mDatabase = FirebaseDatabase.getInstance(DATABASE_URL).getReference();
+        mDatabase = FirebaseDatabase.getInstance(FirebaseConfig.DATABASE_URL).getReference();
 
         // Get initial data from intent
         itemId = getIntent().getStringExtra("itemId");
@@ -92,6 +94,7 @@ public class ItemDetailActivity extends AppCompatActivity {
         initializeViews();
         setupToolbar();
         setupScrollBehavior();
+        setupSwipeRefresh();
         displayInitialData(); // Show intent data first
         
         checkUserRoleAndSetupActions();
@@ -173,6 +176,7 @@ public class ItemDetailActivity extends AppCompatActivity {
         headerTitleContainer = findViewById(R.id.headerTitleContainer);
         tvHeaderTitle = findViewById(R.id.tvHeaderTitle);
         tvHeaderSubtitle = findViewById(R.id.tvHeaderSubtitle);
+        swipeRefreshLayout = findViewById(R.id.swipeRefreshLayout);
 
         viewPagerImageSlider.registerOnPageChangeCallback(new ViewPager2.OnPageChangeCallback() {
             @Override
@@ -181,16 +185,10 @@ public class ItemDetailActivity extends AppCompatActivity {
                 if (state == ViewPager2.SCROLL_STATE_DRAGGING) {
                     isUserInteracting = true;
                     stopAutoSlide();
-                } else if (state == ViewPager2.SCROLL_STATE_IDLE) {
-                    // We don't resume here directly, we'll rely on touch up or a separate logic if needed
-                    // But usually, manual swipe should stop auto-slide according to requirements
-                    // "If the user manually slides images: Auto-slide should pause/stop"
                 }
             }
         });
 
-        // "If the user presses and holds on an image: Auto-slide should pause"
-        // "When the user releases touch / stops interaction: Auto-slide should resume automatically"
         viewPagerImageSlider.getChildAt(0).setOnTouchListener((v, event) -> {
             if (event.getAction() == MotionEvent.ACTION_DOWN || event.getAction() == MotionEvent.ACTION_MOVE) {
                 isUserInteracting = true;
@@ -204,7 +202,7 @@ public class ItemDetailActivity extends AppCompatActivity {
             return false;
         });
 
-        // Enable Full Image View on Click
+        // Enable Full Image View on Click inside Detail View
         ivItemImage.setOnClickListener(v -> {
             List<String> urls = new ArrayList<>();
             if (currentItem != null) {
@@ -221,48 +219,9 @@ public class ItemDetailActivity extends AppCompatActivity {
             }
             
             if (!urls.isEmpty()) {
-                showFullScreenImageSlider(urls, 0);
+                ItemNavigationUtils.openFullScreenImage(this, urls, 0);
             }
         });
-    }
-
-    private void showFullScreenImageSlider(List<String> imageUrls, int initialPosition) {
-        if (imageUrls == null || imageUrls.isEmpty()) return;
-        
-        android.app.Dialog dialog = new android.app.Dialog(this, android.R.style.Theme_Black_NoTitleBar_Fullscreen);
-        
-        android.widget.RelativeLayout layout = new android.widget.RelativeLayout(this);
-        layout.setBackgroundColor(Color.BLACK);
-        
-        ViewPager2 fullViewPager = new ViewPager2(this);
-        fullViewPager.setLayoutParams(new ViewGroup.LayoutParams(
-                ViewGroup.LayoutParams.MATCH_PARENT,
-                ViewGroup.LayoutParams.MATCH_PARENT));
-        
-        ImageSliderAdapter adapter = new ImageSliderAdapter(imageUrls, true);
-        fullViewPager.setAdapter(adapter);
-        fullViewPager.setCurrentItem(initialPosition, false);
-        
-        layout.addView(fullViewPager);
-        
-        ImageView backButton = new ImageView(this);
-        int padding = (int) (16 * getResources().getDisplayMetrics().density);
-        backButton.setPadding(padding, padding, padding, padding);
-        backButton.setImageResource(R.drawable.ic_back_arrow);
-        backButton.setColorFilter(Color.WHITE);
-        
-        android.widget.RelativeLayout.LayoutParams lp = new android.widget.RelativeLayout.LayoutParams(
-                (int) (56 * getResources().getDisplayMetrics().density),
-                (int) (56 * getResources().getDisplayMetrics().density));
-        lp.addRule(android.widget.RelativeLayout.ALIGN_PARENT_TOP);
-        lp.addRule(android.widget.RelativeLayout.ALIGN_PARENT_START);
-        backButton.setLayoutParams(lp);
-        
-        backButton.setOnClickListener(v -> dialog.dismiss());
-        layout.addView(backButton);
-        
-        dialog.setContentView(layout);
-        dialog.show();
     }
 
     private void setupToolbar() {
@@ -275,25 +234,44 @@ public class ItemDetailActivity extends AppCompatActivity {
     }
 
     private void setupScrollBehavior() {
-        appBarLayout.addOnOffsetChangedListener((appBarLayout, verticalOffset) -> {
-            float totalScrollRange = appBarLayout.getTotalScrollRange();
-            float percentage = (float) Math.abs(verticalOffset) / totalScrollRange;
+        // Centralized utility for dynamic header color transition (Telegram X Style)
+        HeaderColorHelper.setup(this, appBarLayout, toolbar);
+
+        // Additional custom logic for header title/subtitle fading
+        appBarLayout.addOnOffsetChangedListener((layout, verticalOffset) -> {
+            int scrollRange = layout.getTotalScrollRange();
+            if (scrollRange == 0) return;
             
-            if (percentage > 0.8f) {
-                float alpha = (percentage - 0.8f) / 0.2f;
-                headerTitleContainer.setAlpha(alpha);
-                headerTitleContainer.setVisibility(View.VISIBLE);
-            } else {
-                headerTitleContainer.setAlpha(0);
-                headerTitleContainer.setVisibility(View.GONE);
-            }
+            float percentage = (float) Math.abs(verticalOffset) / scrollRange;
+            
+            // 1. Smooth Title Alpha Transition (starts at 40% scroll)
+            float titleAlpha = Math.max(0, (percentage - 0.4f) / 0.6f);
+            headerTitleContainer.setAlpha(titleAlpha);
+            headerTitleContainer.setVisibility(titleAlpha > 0 ? View.VISIBLE : View.GONE);
         });
+    }
+
+    private void setupSwipeRefresh() {
+        if (swipeRefreshLayout != null) {
+            swipeRefreshLayout.setColorSchemeColors(ContextCompat.getColor(this, R.color.primaryColor));
+            swipeRefreshLayout.setOnRefreshListener(() -> {
+                stopListeningToItemChanges();
+                startListeningToItemChanges();
+                new Handler(Looper.getMainLooper()).postDelayed(() -> {
+                    if (swipeRefreshLayout != null && swipeRefreshLayout.isRefreshing()) {
+                        swipeRefreshLayout.setRefreshing(false);
+                    }
+                }, 5000);
+            });
+        }
     }
 
     private void displayInitialData() {
         String itemName = getIntent().getStringExtra("itemName");
         String itemDescription = getIntent().getStringExtra("itemDescription");
         String itemLocation = getIntent().getStringExtra("itemLocation");
+        String manualLocation = getIntent().getStringExtra("manualLocation");
+        String additionalDetails = getIntent().getStringExtra("additionalLocationDetails");
         String itemDate = getIntent().getStringExtra("itemDate");
         String itemTime = getIntent().getStringExtra("itemTime");
         String itemCategory = getIntent().getStringExtra("itemCategory");
@@ -304,30 +282,33 @@ public class ItemDetailActivity extends AppCompatActivity {
             tvDetailReportId.setText(reportId);
         }
 
-        updateUI(itemName, itemDescription, itemLocation, itemCategory, itemDate, itemTime, itemImageUrl, false, null);
+        updateUI(itemName, itemDescription, itemLocation, manualLocation, additionalDetails, itemCategory, itemDate, itemTime, itemImageUrl, false, null);
     }
 
     private void startListeningToItemChanges() {
-        if (itemId == null || itemStatus == null) return;
+        if (itemId == null || itemStatus == null) {
+            if (swipeRefreshLayout != null) swipeRefreshLayout.setRefreshing(false);
+            return;
+        }
         String path = "lost".equalsIgnoreCase(itemStatus) ? "LostItems" : "FoundItems";
         
         itemListener = new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
+                if (swipeRefreshLayout != null) swipeRefreshLayout.setRefreshing(false);
                 currentItem = snapshot.getValue(Item.class);
                 if (currentItem != null) {
                     currentAdminStatus = currentItem.getAdminStatus();
-                    updateUI(currentItem.getName(), currentItem.getDescription(), currentItem.getLocation(), currentItem.getCategory(),
+                    updateUI(currentItem.getName(), currentItem.getDescription(), currentItem.getLocation(), 
+                            currentItem.getManualLocation(), currentItem.getAdditionalLocationDetails(), currentItem.getCategory(),
                             currentItem.getDate(), currentItem.getTime(), currentItem.getImageUrl(), currentItem.isEdited(), currentItem.getImageUrls());
                     
                     if (tvDetailReportId != null && currentItem.getDisplayId() != null) {
                         tvDetailReportId.setText(currentItem.getDisplayId());
                     }
 
-                    // Update reporterId if it changes or to ensure we have the latest
                     reporterId = currentItem.getUserId();
                     
-                    // Specific fields
                     if (currentItem.isEdited() && isAdminMode) {
                         cardEditedLabel.setVisibility(View.VISIBLE);
                     } else {
@@ -365,7 +346,10 @@ public class ItemDetailActivity extends AppCompatActivity {
             }
 
             @Override
-            public void onCancelled(@NonNull DatabaseError error) {}
+            public void onCancelled(@NonNull DatabaseError error) {
+                if (swipeRefreshLayout != null) swipeRefreshLayout.setRefreshing(false);
+                Toast.makeText(ItemDetailActivity.this, "Failed to load data: " + error.getMessage(), Toast.LENGTH_SHORT).show();
+            }
         };
         mDatabase.child(path).child(itemId).addValueEventListener(itemListener);
     }
@@ -427,14 +411,17 @@ public class ItemDetailActivity extends AppCompatActivity {
         }
     }
 
-    private void updateUI(String name, String description, String location, String category, String date, String time, String imageUrl, boolean isEdited, List<String> imageUrls) {
+    private void updateUI(String name, String description, String location, String manualLocation, String additionalDetails, String category, String date, String time, String imageUrl, boolean isEdited, List<String> imageUrls) {
         tvItemName.setText(name != null ? name : "No Name");
         tvDescription.setText(description != null ? description : "No Description");
-        tvLocation.setText(location != null ? location : "No Location");
+        
+        String formattedLocation = ReportLocationDisplay.formatFullLocation(location, manualLocation, additionalDetails);
+        
+        tvLocation.setText(formattedLocation);
         tvCategory.setText(category != null ? category : "Uncategorized");
         
         tvHeaderTitle.setText(itemStatus != null && itemStatus.equalsIgnoreCase("lost") ? "Lost Item" : "Found Item");
-        tvHeaderSubtitle.setText((category != null ? category : "Uncategorized") + " • " + (location != null ? location : "N/A"));
+        tvHeaderSubtitle.setText((category != null ? category : "Uncategorized") + " • " + formattedLocation);
 
         String fullDateTime = date != null ? date : "";
         if (time != null && !time.isEmpty()) {
@@ -471,8 +458,9 @@ public class ItemDetailActivity extends AppCompatActivity {
             tabLayoutIndicator.setVisibility(View.VISIBLE);
 
             ImageSliderAdapter adapter = new ImageSliderAdapter(imageUrls);
-            // Add click listener to adapter for full screen view
-            adapter.setOnImageClickListener(position -> showFullScreenImageSlider(imageUrls, position));
+            // In Detail View, clicking the slider SHOULD open full screen image
+            adapter.setOnImageClickListener(position -> ItemNavigationUtils.openFullScreenImage(this, imageUrls, position));
+            
             viewPagerImageSlider.setAdapter(adapter);
 
             new TabLayoutMediator(tabLayoutIndicator, viewPagerImageSlider, (tab, position) -> {}).attach();
@@ -486,7 +474,12 @@ public class ItemDetailActivity extends AppCompatActivity {
 
             String finalUrl = (imageUrls != null && !imageUrls.isEmpty()) ? imageUrls.get(0) : fallbackUrl;
             if (finalUrl != null && !finalUrl.isEmpty()) {
-                Glide.with(this).load(finalUrl).placeholder(R.drawable.ic_package).into(ivItemImage);
+                GlideApp.with(this)
+                        .load(finalUrl)
+                        .placeholder(R.drawable.ic_package)
+                        .thumbnail(0.1f)
+                        .diskCacheStrategy(DiskCacheStrategy.ALL)
+                        .into(ivItemImage);
             } else {
                 ivItemImage.setImageResource(R.drawable.ic_package);
             }
@@ -519,7 +512,26 @@ public class ItemDetailActivity extends AppCompatActivity {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 currentUnivId = snapshot.exists() ? snapshot.getValue(String.class) : authUser.getUid();
-                refreshUIBasedOnRole();
+                
+                // Fetch User data to check Role/UserType for robust RBAC
+                mDatabase.child("Users").child(currentUnivId).addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot userSnapshot) {
+                        if (userSnapshot.exists()) {
+                            User user = userSnapshot.getValue(User.class);
+                            if (user != null) {
+                                // If user is Admin in DB, enable Admin Mode
+                                if ("Admin".equalsIgnoreCase(user.getUserType()) || "admin".equalsIgnoreCase(user.getRole())) {
+                                    isAdminMode = true;
+                                }
+                            }
+                        }
+                        refreshUIBasedOnRole();
+                    }
+                    @Override public void onCancelled(@NonNull DatabaseError error) {
+                        refreshUIBasedOnRole();
+                    }
+                });
             }
             @Override public void onCancelled(@NonNull DatabaseError error) {}
         });
@@ -533,6 +545,18 @@ public class ItemDetailActivity extends AppCompatActivity {
         boolean isResolved = "Claimed".equalsIgnoreCase(currentAdminStatus) || "Returned".equalsIgnoreCase(currentAdminStatus);
 
         updateResolvedSections();
+
+        // Admin view has highest priority
+        if (isAdminMode) {
+            llReportedByContainer.setVisibility(View.VISIBLE);
+            llReporterActions.setVisibility(isReporter && !isResolved ? View.VISIBLE : View.GONE);
+            if (isReporter && !isResolved) setupReporterActions();
+            
+            btnClaim.setVisibility(View.GONE);
+            btnDelete.setVisibility(View.VISIBLE);
+            btnDelete.setOnClickListener(v -> deleteItem(itemId, itemStatus));
+            return;
+        }
 
         if (isReporter) {
             btnClaim.setVisibility(View.GONE);
@@ -555,12 +579,6 @@ public class ItemDetailActivity extends AppCompatActivity {
                 }
                 setupReporterActions();
             }
-        } else if (isAdminMode) {
-            llReportedByContainer.setVisibility(View.VISIBLE);
-            llReporterActions.setVisibility(View.GONE);
-            btnClaim.setVisibility(View.GONE);
-            btnDelete.setVisibility(View.VISIBLE);
-            btnDelete.setOnClickListener(v -> deleteItem(itemId, itemStatus));
         } else {
             llReporterActions.setVisibility(View.GONE);
             btnDelete.setVisibility(View.GONE);
@@ -591,46 +609,32 @@ public class ItemDetailActivity extends AppCompatActivity {
 
         if (!isResolved) {
             llResolutionContainer.setVisibility(View.GONE);
-            if (isMeReporter) {
+            // Non-resolved: Show reporter info to everyone except the reporter (unless admin)
+            if (isMeReporter && !isAdminMode) {
                 llReportedByContainer.setVisibility(View.GONE);
             } else {
                 llReportedByContainer.setVisibility(View.VISIBLE);
-                fetchReporterProfile(reporterId, false);
+                fetchReporterProfile(reporterId, isMeReporter);
             }
             return;
         }
 
-        // Scenario 1: Reporter views Resolved Card
-        if (isMeReporter) {
+        // Item is Resolved
+        if (isMeReporter || isMeSecond || isAdminMode) {
             llReportedByContainer.setVisibility(View.VISIBLE);
-            fetchReporterProfile(reporterId, true);
+            fetchReporterProfile(reporterId, isMeReporter);
             
             if (secondUserId != null && !secondUserId.isEmpty()) {
                 llResolutionContainer.setVisibility(View.VISIBLE);
-                fetchResolvedUserProfile(secondUserId, false);
+                fetchResolvedUserProfile(secondUserId, isMeSecond);
             } else {
                 llResolutionContainer.setVisibility(View.GONE);
             }
         } 
-        // Scenario 2: Second User views Resolved Card
-        else if (isMeSecond) {
-            llReportedByContainer.setVisibility(View.VISIBLE);
-            fetchReporterProfile(reporterId, false);
-            
-            llResolutionContainer.setVisibility(View.VISIBLE);
-            fetchResolvedUserProfile(secondUserId, true);
-        }
-        // Scenario 3: Other user views Resolved Card
         else {
-            llReportedByContainer.setVisibility(View.VISIBLE);
-            fetchReporterProfile(reporterId, false);
-            
-            if (secondUserId != null && !secondUserId.isEmpty()) {
-                llResolutionContainer.setVisibility(View.VISIBLE);
-                fetchResolvedUserProfile(secondUserId, false);
-            } else {
-                llResolutionContainer.setVisibility(View.GONE);
-            }
+            // Regular users don't see resolution details or contact info for resolved items
+            llReportedByContainer.setVisibility(View.GONE);
+            llResolutionContainer.setVisibility(View.GONE);
         }
 
         if ("lost".equalsIgnoreCase(itemStatus)) {
@@ -653,7 +657,7 @@ public class ItemDetailActivity extends AppCompatActivity {
                         if (userSnapshot.exists()) {
                             User user = userSnapshot.getValue(User.class);
                             if (user != null) {
-                                if (isMe) {
+                                if (isMe && !isAdminMode) {
                                     tvReporterName.setText(user.getName() + " (You)");
                                     tvReporterUniversityId.setText("ID: " + user.getUniversityId());
                                     tvReporterUniversityId.setVisibility(View.VISIBLE);
@@ -662,7 +666,7 @@ public class ItemDetailActivity extends AppCompatActivity {
                                     tvPreferredContact.setVisibility(View.GONE);
                                     btnContact.setVisibility(View.GONE);
                                 } else {
-                                    tvReporterName.setText(user.getName());
+                                    tvReporterName.setText(user.getName() + (isMe ? " (You)" : ""));
                                     tvReporterUniversityId.setText("ID: " + user.getUniversityId());
                                     tvReporterUniversityId.setVisibility(View.VISIBLE);
                                     tvReporterType.setText(user.getUserType());
@@ -683,17 +687,18 @@ public class ItemDetailActivity extends AppCompatActivity {
                                 }
 
                                 if (user.getProfileImageUrl() != null && !user.getProfileImageUrl().isEmpty()) {
-                                    Glide.with(ItemDetailActivity.this)
+                                    GlideApp.with(ItemDetailActivity.this)
                                             .load(user.getProfileImageUrl())
                                             .placeholder(R.drawable.ic_user)
+                                            .thumbnail(0.1f)
+                                            .diskCacheStrategy(DiskCacheStrategy.ALL)
                                             .circleCrop()
                                             .into(ivUserPhoto);
                                 } else {
                                     ivUserPhoto.setImageResource(R.drawable.ic_user);
                                 }
 
-                                // Show preferred contact method if provided in the item
-                                if (!isMe && currentItem != null && tvPreferredContact != null) {
+                                if ((!isMe || isAdminMode) && currentItem != null && tvPreferredContact != null) {
                                     String method = currentItem.getPreferredContactMethod();
                                     if (method != null && !method.isEmpty()) {
                                         setupPreferredContactLink(currentItem, method);
@@ -721,7 +726,7 @@ public class ItemDetailActivity extends AppCompatActivity {
                 if (snapshot.exists()) {
                     User user = snapshot.getValue(User.class);
                     if (user != null) {
-                        if (isMe) {
+                        if (isMe && !isAdminMode) {
                             tvResolvedUserName.setText(user.getName() + " (You)");
                             tvResolvedUserUniversityId.setText("ID: " + user.getUniversityId());
                             tvResolvedUserUniversityId.setVisibility(View.VISIBLE);
@@ -729,7 +734,7 @@ public class ItemDetailActivity extends AppCompatActivity {
                             tvResolvedUserDeptOrDesignation.setVisibility(View.GONE);
                             btnResolvedUserContact.setVisibility(View.GONE);
                         } else {
-                            tvResolvedUserName.setText(user.getName());
+                            tvResolvedUserName.setText(user.getName() + (isMe ? " (You)" : ""));
                             tvResolvedUserUniversityId.setText("ID: " + user.getUniversityId());
                             tvResolvedUserUniversityId.setVisibility(View.VISIBLE);
                             tvResolvedUserType.setText(user.getUserType());
@@ -750,9 +755,11 @@ public class ItemDetailActivity extends AppCompatActivity {
                         }
 
                         if (user.getProfileImageUrl() != null && !user.getProfileImageUrl().isEmpty()) {
-                            Glide.with(ItemDetailActivity.this)
+                            GlideApp.with(ItemDetailActivity.this)
                                     .load(user.getProfileImageUrl())
                                     .placeholder(R.drawable.ic_user)
+                                    .thumbnail(0.1f)
+                                    .diskCacheStrategy(DiskCacheStrategy.ALL)
                                     .circleCrop()
                                     .into(ivResolvedUserPhoto);
                         } else {
@@ -884,7 +891,6 @@ public class ItemDetailActivity extends AppCompatActivity {
     private void markItemAsClaimed(String universityId) {
         if (itemId == null || itemStatus == null) return;
         
-        // Basic validation
         if (universityId.isEmpty()) {
             Toast.makeText(this, "University ID must not be empty", Toast.LENGTH_SHORT).show();
             return;
@@ -895,7 +901,6 @@ public class ItemDetailActivity extends AppCompatActivity {
         FirebaseUser currentUser = mAuth.getCurrentUser();
         if (currentUser == null) return;
 
-        // Check if receiver exists
         mDatabase.child("Users").child(universityId).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot userSnapshot) {
@@ -922,14 +927,11 @@ public class ItemDetailActivity extends AppCompatActivity {
                                 String reporterPhone = (reporter != null) ? reporter.getPhone() : "";
                                 String reporterEmail = (reporter != null) ? reporter.getEmail() : "";
 
-                                // Update item status
                                 mDatabase.child(path).child(itemId).child("adminStatus").setValue("Claimed");
                                 mDatabase.child(path).child(itemId).child("claimedByUserId").setValue(universityId);
 
-                                // Add the item to the receiver's UserItems so it shows in their resolved list
                                 mDatabase.child("UserItems").child(universityId).child(itemId).setValue(true);
 
-                                // Create notification for the receiver
                                 String notificationId = mDatabase.child("Notifications").child(universityId).push().getKey();
                                 if (notificationId != null) {
                                     String itemName = tvItemName.getText().toString();
@@ -963,7 +965,6 @@ public class ItemDetailActivity extends AppCompatActivity {
         FirebaseUser currentUser = mAuth.getCurrentUser();
         if (currentUser == null) return;
 
-        // Check if owner exists
         mDatabase.child("Users").child(ownerUniversityId).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot userSnapshot) {
@@ -992,14 +993,11 @@ public class ItemDetailActivity extends AppCompatActivity {
 
                                 String path = "found".equalsIgnoreCase(itemStatus) ? "FoundItems" : "LostItems";
 
-                                // Update item status
                                 mDatabase.child(path).child(itemId).child("adminStatus").setValue("Returned");
                                 mDatabase.child(path).child(itemId).child("claimedByUserId").setValue(ownerUniversityId);
 
-                                // Add the item to the receiver's UserItems so it shows in their resolved list
                                 mDatabase.child("UserItems").child(ownerUniversityId).child(itemId).setValue(true);
 
-                                // Create notification for the owner
                                 String notificationId = mDatabase.child("Notifications").child(ownerUniversityId).push().getKey();
                                 if (notificationId != null) {
                                     String itemName = tvItemName.getText().toString();
@@ -1177,7 +1175,7 @@ public class ItemDetailActivity extends AppCompatActivity {
     private void deleteItem(String itemId, String status) {
         new androidx.appcompat.app.AlertDialog.Builder(this)
                 .setTitle("Delete Report")
-                .setMessage("Permanently delete this resolved item including all data and images from the database?")
+                .setMessage("Permanently delete this item including all data and images from the database?")
                 .setPositiveButton("Delete", (dialog, which) -> {
                     String path = "lost".equalsIgnoreCase(status) ? "LostItems" : "FoundItems";
 
@@ -1187,25 +1185,15 @@ public class ItemDetailActivity extends AppCompatActivity {
                             if (snapshot.exists()) {
                                 Item item = snapshot.getValue(Item.class);
                                 if (item != null) {
-                                    // 1. Delete images from storage (Supabase or Firebase)
                                     deleteItemImages(item);
-
-                                    // 2. Delete from node (LostItems/FoundItems)
                                     mDatabase.child(path).child(itemId).removeValue();
-
-                                    // 3. Delete from UserItems
                                     if (item.getUserId() != null) {
                                         mDatabase.child("UserItems").child(item.getUserId()).child(itemId).removeValue();
                                     }
-                                    
-                                    // Also delete from claimant's UserItems if resolved
                                     if (item.getClaimedByUserId() != null) {
                                         mDatabase.child("UserItems").child(item.getClaimedByUserId()).child(itemId).removeValue();
                                     }
-
-                                    // 4. Delete claims and notifications related to this item if needed
                                     mDatabase.child("ItemClaims").child(itemId).removeValue();
-
                                     Toast.makeText(ItemDetailActivity.this, "Report deleted successfully", Toast.LENGTH_SHORT).show();
                                     finish();
                                 }
@@ -1231,7 +1219,6 @@ public class ItemDetailActivity extends AppCompatActivity {
 
         for (String url : urls) {
             if (url == null || url.isEmpty()) continue;
-
             if (url.contains("supabase.co")) {
                 SupabaseStorageHelper.deleteImage(url, null);
             } else if (url.contains("firebasestorage.googleapis.com")) {

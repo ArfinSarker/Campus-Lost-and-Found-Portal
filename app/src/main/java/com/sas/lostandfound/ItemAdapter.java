@@ -11,7 +11,7 @@ import androidx.annotation.NonNull;
 import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.viewpager2.widget.ViewPager2;
-import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.google.android.material.tabs.TabLayout;
 import com.google.android.material.tabs.TabLayoutMediator;
 import java.util.HashMap;
@@ -59,7 +59,12 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ViewHolder> {
         if (holder.tvName != null) holder.tvName.setText(item.getName());
         if (holder.tvTitle != null) holder.tvTitle.setText(item.getName());
         
-        if (holder.tvLocation != null) holder.tvLocation.setText(item.getLocation());
+        if (holder.tvLocation != null) {
+            holder.tvLocation.setText(ReportLocationDisplay.formatFullLocation(
+                    item.getLocation(), 
+                    item.getManualLocation(), 
+                    item.getAdditionalLocationDetails()));
+        }
         
         if (holder.tvTimeAgo != null) holder.tvTimeAgo.setText(item.getDate());
         if (holder.tvDate != null) holder.tvDate.setText(item.getDate());
@@ -87,9 +92,12 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ViewHolder> {
 
         setupImageOrSlider(holder, item, position);
 
+        // Entire card click leads to details
         holder.itemView.setOnClickListener(v -> {
             if (listener != null) {
                 listener.onItemClick(item);
+            } else {
+                ItemNavigationUtils.navigateToDetail(v.getContext(), item);
             }
         });
 
@@ -97,6 +105,8 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ViewHolder> {
             holder.btnViewDetails.setOnClickListener(v -> {
                 if (listener != null) {
                     listener.onItemClick(item);
+                } else {
+                    ItemNavigationUtils.navigateToDetail(v.getContext(), item);
                 }
             });
         }
@@ -113,6 +123,15 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ViewHolder> {
             if (holder.tabLayoutIndicator != null) holder.tabLayoutIndicator.setVisibility(View.VISIBLE);
             
             ImageSliderAdapter sliderAdapter = new ImageSliderAdapter(urls);
+            // Image click in slider also leads to details
+            sliderAdapter.setOnImageClickListener(pos -> {
+                if (listener != null) {
+                    listener.onItemClick(item);
+                } else {
+                    ItemNavigationUtils.navigateToDetail(holder.itemView.getContext(), item);
+                }
+            });
+            
             holder.viewPagerSlider.setAdapter(sliderAdapter);
             holder.viewPagerSlider.setUserInputEnabled(true); 
 
@@ -143,14 +162,33 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ViewHolder> {
             if (item.getImageUrl() != null && !item.getImageUrl().isEmpty()) {
                 holder.ivImage.setVisibility(View.VISIBLE);
                 if (holder.tvEmoji != null) holder.tvEmoji.setVisibility(View.GONE);
-                Glide.with(holder.itemView.getContext())
+                GlideApp.with(holder.itemView.getContext())
                         .load(item.getImageUrl())
                         .placeholder(R.drawable.ic_package)
+                        .thumbnail(0.1f)
+                        .diskCacheStrategy(DiskCacheStrategy.ALL)
                         .centerCrop()
                         .into(holder.ivImage);
+                
+                // Single image click also leads to details
+                holder.ivImage.setOnClickListener(v -> {
+                    if (listener != null) {
+                        listener.onItemClick(item);
+                    } else {
+                        ItemNavigationUtils.navigateToDetail(v.getContext(), item);
+                    }
+                });
             } else {
                 holder.ivImage.setVisibility(View.VISIBLE);
                 holder.ivImage.setImageResource(R.drawable.ic_package);
+                // Even if placeholder, click leads to details
+                holder.ivImage.setOnClickListener(v -> {
+                    if (listener != null) {
+                        listener.onItemClick(item);
+                    } else {
+                        ItemNavigationUtils.navigateToDetail(v.getContext(), item);
+                    }
+                });
                 if (holder.tvEmoji != null) {
                     holder.ivImage.setVisibility(View.GONE);
                     holder.tvEmoji.setVisibility(View.VISIBLE);

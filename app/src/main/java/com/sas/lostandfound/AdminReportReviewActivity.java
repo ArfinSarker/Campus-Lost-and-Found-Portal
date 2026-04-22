@@ -1,8 +1,13 @@
 package com.sas.lostandfound;
 
-import android.graphics.Color;
+import android.annotation.SuppressLint;
+import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
+import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.ImageView;
@@ -14,9 +19,12 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.viewpager2.widget.ViewPager2;
 
-import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.google.android.material.button.MaterialButton;
+import com.google.android.material.tabs.TabLayout;
+import com.google.android.material.tabs.TabLayoutMediator;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -24,14 +32,29 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Locale;
+
+/**
+ * Admin version of Report Details.
+ * Focused on reviewing and updating reports.
+ */
 public class AdminReportReviewActivity extends AppCompatActivity {
 
     private TextView tvHeaderTitle;
-    private TextView tvReporterName, tvUniversityId, tvReporterRole, tvReporterDeptDesignation, tvReporterPhone;
-    private TextView tvTitle, tvCategory, tvDescription, tvRelatedId, tvDate, tvPriority;
     private ImageView ivEvidence;
+    private ViewPager2 viewPagerEvidence;
+    private TabLayout tabLayoutIndicator;
     private View cardEvidence;
-    private TextView tvNoEvidence;
+    
+    // Views from included report card
+    private TextView tvCardStatus, tvCardId, tvCardTitle, tvCardReporter, tvCardCategory, tvCardTime;
+    private ViewPager2 cardViewPagerSlider;
+    private TabLayout cardTabLayoutIndicator;
+    private ImageView cardIvIcon;
     
     private AutoCompleteTextView actvUpdateStatus;
     private TextInputEditText etAdminNote;
@@ -43,7 +66,10 @@ public class AdminReportReviewActivity extends AppCompatActivity {
     private DatabaseReference mDatabase;
     private String reportId;
     private AdminReport currentReport;
-    private static final String DATABASE_URL = "FIREBASE_URL_PLACEHOLDER";
+
+    private Handler sliderHandler = new Handler(Looper.getMainLooper());
+    private Runnable sliderRunnable;
+    private boolean isUserInteracting = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -57,7 +83,7 @@ public class AdminReportReviewActivity extends AppCompatActivity {
             return;
         }
 
-        mDatabase = FirebaseDatabase.getInstance(DATABASE_URL).getReference();
+        mDatabase = FirebaseDatabase.getInstance(FirebaseConfig.DATABASE_URL).getReference();
 
         initializeViews();
         setupToolbar();
@@ -68,24 +94,26 @@ public class AdminReportReviewActivity extends AppCompatActivity {
         btnDelete.setOnClickListener(v -> confirmDelete());
     }
 
+    @SuppressLint("ClickableViewAccessibility")
     private void initializeViews() {
         tvHeaderTitle = findViewById(R.id.tvHeaderTitle);
-        tvReporterName = findViewById(R.id.tvDetailReporterName);
-        tvUniversityId = findViewById(R.id.tvDetailUniversityId);
-        tvReporterRole = findViewById(R.id.tvDetailReporterRole);
-        tvReporterDeptDesignation = findViewById(R.id.tvDetailReporterDeptDesignation);
-        tvReporterPhone = findViewById(R.id.tvDetailReporterPhone);
-        
-        tvTitle = findViewById(R.id.tvDetailTitle);
-        tvCategory = findViewById(R.id.tvDetailCategory);
-        tvDescription = findViewById(R.id.tvDetailDescription);
-        tvRelatedId = findViewById(R.id.tvDetailRelatedId);
-        tvDate = findViewById(R.id.tvDetailDate);
-        tvPriority = findViewById(R.id.tvDetailPriority);
         
         ivEvidence = findViewById(R.id.ivDetailEvidence);
+        viewPagerEvidence = findViewById(R.id.viewPagerEvidence);
+        tabLayoutIndicator = findViewById(R.id.tabLayoutIndicator);
         cardEvidence = findViewById(R.id.cardEvidence);
-        tvNoEvidence = findViewById(R.id.tvNoEvidence);
+        
+        // Find views in the included layout
+        View reportCard = findViewById(R.id.includedReportCard);
+        tvCardStatus = reportCard.findViewById(R.id.tvStatusBadge);
+        tvCardId = reportCard.findViewById(R.id.tvDisplayId);
+        tvCardTitle = reportCard.findViewById(R.id.tvReportTitle);
+        tvCardReporter = reportCard.findViewById(R.id.tvReporterInfo);
+        tvCardCategory = reportCard.findViewById(R.id.tvCategory);
+        tvCardTime = reportCard.findViewById(R.id.tvTimestamp);
+        cardViewPagerSlider = reportCard.findViewById(R.id.viewPagerSlider);
+        cardTabLayoutIndicator = reportCard.findViewById(R.id.tabLayoutIndicator);
+        cardIvIcon = reportCard.findViewById(R.id.ivReportIcon);
         
         actvUpdateStatus = findViewById(R.id.actvUpdateStatus);
         etAdminNote = findViewById(R.id.etAdminNote);
@@ -94,6 +122,52 @@ public class AdminReportReviewActivity extends AppCompatActivity {
         
         toolbar = findViewById(R.id.toolbar);
         progressBar = findViewById(R.id.progressBar);
+
+        // Slider interaction handling
+        viewPagerEvidence.registerOnPageChangeCallback(new ViewPager2.OnPageChangeCallback() {
+            @Override
+            public void onPageScrollStateChanged(int state) {
+                super.onPageScrollStateChanged(state);
+                if (state == ViewPager2.SCROLL_STATE_DRAGGING) {
+                    isUserInteracting = true;
+                    stopAutoSlide();
+                }
+            }
+        });
+
+        viewPagerEvidence.getChildAt(0).setOnTouchListener((v, event) -> {
+            if (event.getAction() == MotionEvent.ACTION_DOWN || event.getAction() == MotionEvent.ACTION_MOVE) {
+                isUserInteracting = true;
+                stopAutoSlide();
+            } else if (event.getAction() == MotionEvent.ACTION_UP || event.getAction() == MotionEvent.ACTION_CANCEL) {
+                isUserInteracting = false;
+                if (currentReport != null && currentReport.getImageUrls() != null && currentReport.getImageUrls().size() > 1) {
+                    startAutoSlide(currentReport.getImageUrls().size());
+                }
+            }
+            return false;
+        });
+
+        ivEvidence.setOnClickListener(v -> {
+            if (currentReport != null) {
+                List<String> urls = currentReport.getImageUrls();
+                if (urls != null && !urls.isEmpty()) {
+                    openFullScreenImage(urls, 0);
+                } else if (currentReport.getImageUrl() != null) {
+                    List<String> singleUrl = new ArrayList<>();
+                    singleUrl.add(currentReport.getImageUrl());
+                    openFullScreenImage(singleUrl, 0);
+                }
+            }
+        });
+    }
+
+    private void openFullScreenImage(List<String> imageUrls, int position) {
+        if (imageUrls == null || imageUrls.isEmpty()) return;
+        Intent intent = new Intent(this, FullScreenImageActivity.class);
+        intent.putStringArrayListExtra("imageUrls", new ArrayList<>(imageUrls));
+        intent.putExtra("position", position);
+        startActivity(intent);
     }
 
     private void setupToolbar() {
@@ -104,6 +178,11 @@ public class AdminReportReviewActivity extends AppCompatActivity {
                 getSupportActionBar().setDisplayHomeAsUpEnabled(true);
             }
             toolbar.setNavigationOnClickListener(v -> onBackPressed());
+            
+            com.google.android.material.appbar.AppBarLayout appBarLayout = findViewById(R.id.appBarLayout);
+            if (appBarLayout != null) {
+                HeaderColorHelper.setup(this, appBarLayout, toolbar);
+            }
         }
     }
 
@@ -123,7 +202,6 @@ public class AdminReportReviewActivity extends AppCompatActivity {
                     currentReport = snapshot.getValue(AdminReport.class);
                     if (currentReport != null) {
                         displayReportDetails(currentReport);
-                        fetchReporterExtraInfo(currentReport.getUniversityId());
                     }
                 }
             }
@@ -135,53 +213,110 @@ public class AdminReportReviewActivity extends AppCompatActivity {
         });
     }
 
-    private void fetchReporterExtraInfo(String universityId) {
-        if (universityId == null) return;
-        mDatabase.child("Users").child(universityId).addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                if (snapshot.exists()) {
-                    User user = snapshot.getValue(User.class);
-                    if (user != null) {
-                        tvReporterRole.setText("Role: " + user.getUserType());
-                        if ("Student".equalsIgnoreCase(user.getUserType())) {
-                            tvReporterDeptDesignation.setText("Department: " + (user.getDepartment() != null ? user.getDepartment() : "N/A"));
-                        } else {
-                            tvReporterDeptDesignation.setText("Designation: " + (user.getDesignation() != null ? user.getDesignation() : "N/A"));
-                        }
-                    }
-                }
-            }
-            @Override public void onCancelled(@NonNull DatabaseError error) {}
-        });
-    }
-
     private void displayReportDetails(AdminReport report) {
         tvHeaderTitle.setText("Report Details: " + (report.getTitle() != null ? report.getTitle() : "N/A"));
-        tvReporterName.setText("Name: " + report.getReporterName());
-        tvUniversityId.setText("University ID: " + report.getUniversityId());
-        tvReporterPhone.setText("Phone: " + report.getPhone());
         
-        tvTitle.setText(report.getTitle());
-        tvCategory.setText("Category: " + report.getCategory());
-        tvDescription.setText(report.getDescription());
-        tvRelatedId.setText("Related Report ID: " + (report.getRelatedId() != null ? report.getRelatedId() : "None"));
+        // Populate the report card area
+        String displayId = report.getDisplayId() != null ? report.getDisplayId() : "N/A";
+        if (!displayId.startsWith("#")) displayId = "#" + displayId;
+        tvCardId.setText(displayId);
         
-        java.text.SimpleDateFormat sdf = new java.text.SimpleDateFormat("dd MMM yyyy, hh:mm a", java.util.Locale.getDefault());
-        tvDate.setText("Submitted: " + sdf.format(new java.util.Date(report.getTimestamp())));
-        tvPriority.setText("Priority: " + report.getPriority());
+        tvCardTitle.setText(report.getTitle());
+        tvCardCategory.setText("Category: " + report.getCategory());
+        tvCardReporter.setText("Submitted By: " + report.getReporterName());
+        
+        String status = report.getStatus() != null ? report.getStatus() : "Pending";
+        tvCardStatus.setText(status.toUpperCase());
+        
+        int statusColor = "Reviewed".equalsIgnoreCase(status) ? 0xFF1976D2 : 0xFF757575;
+        tvCardStatus.setBackgroundTintList(android.content.res.ColorStateList.valueOf(statusColor));
+        
+        SimpleDateFormat sdf = new SimpleDateFormat("dd MMM yyyy, hh:mm a", Locale.getDefault());
+        tvCardTime.setText(sdf.format(new Date(report.getTimestamp())));
 
-        if (report.getImageUrl() != null && !report.getImageUrl().isEmpty()) {
-            cardEvidence.setVisibility(View.VISIBLE);
-            tvNoEvidence.setVisibility(View.GONE);
-            Glide.with(this).load(report.getImageUrl()).into(ivEvidence);
-        } else {
-            cardEvidence.setVisibility(View.GONE);
-            tvNoEvidence.setVisibility(View.VISIBLE);
-        }
+        setupReportCardSlider(report.getImageUrls(), report.getImageUrl());
+        setupEvidenceSlider(report.getImageUrls(), report.getImageUrl());
 
+        // Action section
         actvUpdateStatus.setText(report.getStatus(), false);
         etAdminNote.setText(report.getAdminNote());
+    }
+
+    private void setupReportCardSlider(List<String> urls, String fallbackUrl) {
+        ItemNavigationUtils.setupImageOrSlider(this, urls, fallbackUrl, cardIvIcon, cardViewPagerSlider, cardTabLayoutIndicator);
+    }
+
+    private void setupEvidenceSlider(List<String> urls, String fallbackUrl) {
+        if (urls != null && urls.size() > 1) {
+            ivEvidence.setVisibility(View.GONE);
+            viewPagerEvidence.setVisibility(View.VISIBLE);
+            tabLayoutIndicator.setVisibility(View.VISIBLE);
+            cardEvidence.setVisibility(View.VISIBLE);
+
+            ImageSliderAdapter adapter = new ImageSliderAdapter(urls);
+            // Default click behavior in ImageSliderAdapter now opens FullScreenImageActivity
+            viewPagerEvidence.setAdapter(adapter);
+
+            new TabLayoutMediator(tabLayoutIndicator, viewPagerEvidence, (tab, position) -> {}).attach();
+            startAutoSlide(urls.size());
+        } else {
+            stopAutoSlide();
+            viewPagerEvidence.setVisibility(View.GONE);
+            tabLayoutIndicator.setVisibility(View.GONE);
+            
+            String finalUrl = (urls != null && !urls.isEmpty()) ? urls.get(0) : fallbackUrl;
+            if (finalUrl != null && !finalUrl.isEmpty()) {
+                cardEvidence.setVisibility(View.VISIBLE);
+                ivEvidence.setVisibility(View.VISIBLE);
+                GlideApp.with(this)
+                        .load(finalUrl)
+                        .placeholder(R.drawable.ic_package)
+                        .thumbnail(0.1f)
+                        .diskCacheStrategy(DiskCacheStrategy.ALL)
+                        .into(ivEvidence);
+                ivEvidence.setOnClickListener(v -> {
+                    List<String> singleUrl = new ArrayList<>();
+                    singleUrl.add(finalUrl);
+                    ItemNavigationUtils.openFullScreenImage(this, singleUrl, 0);
+                });
+            } else {
+                cardEvidence.setVisibility(View.GONE);
+            }
+        }
+    }
+
+    private void startAutoSlide(int size) {
+        if (isUserInteracting) return;
+        stopAutoSlide();
+        sliderRunnable = () -> {
+            int current = viewPagerEvidence.getCurrentItem();
+            int next = (current + 1) % size;
+            viewPagerEvidence.setCurrentItem(next, true);
+            sliderHandler.postDelayed(sliderRunnable, 3000);
+        };
+        sliderHandler.postDelayed(sliderRunnable, 3000);
+    }
+
+    private void stopAutoSlide() {
+        if (sliderRunnable != null) {
+            sliderHandler.removeCallbacks(sliderRunnable);
+        }
+    }
+
+    private void confirmDelete() {
+        new AlertDialog.Builder(this)
+                .setTitle("Delete Report")
+                .setMessage("Are you sure you want to delete this report for both you and the reporter?")
+                .setPositiveButton("Delete", (dialog, which) -> {
+                    progressBar.setVisibility(View.VISIBLE);
+                    mDatabase.child("AdminReports").child(reportId).removeValue()
+                            .addOnSuccessListener(aVoid -> {
+                                progressBar.setVisibility(View.GONE);
+                                finish();
+                            });
+                })
+                .setNegativeButton("Cancel", null)
+                .show();
     }
 
     private void updateReport() {
@@ -214,19 +349,23 @@ public class AdminReportReviewActivity extends AppCompatActivity {
         }
     }
 
-    private void confirmDelete() {
-        new AlertDialog.Builder(this)
-                .setTitle("Delete Report")
-                .setMessage("Are you sure you want to delete this report for both you and the reporter?")
-                .setPositiveButton("Delete", (dialog, which) -> {
-                    progressBar.setVisibility(View.VISIBLE);
-                    mDatabase.child("AdminReports").child(reportId).removeValue()
-                            .addOnSuccessListener(aVoid -> {
-                                progressBar.setVisibility(View.GONE);
-                                finish();
-                            });
-                })
-                .setNegativeButton("Cancel", null)
-                .show();
+    @Override
+    protected void onPause() {
+        super.onPause();
+        stopAutoSlide();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if (currentReport != null && currentReport.getImageUrls() != null && currentReport.getImageUrls().size() > 1) {
+            startAutoSlide(currentReport.getImageUrls().size());
+        }
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        stopAutoSlide();
     }
 }

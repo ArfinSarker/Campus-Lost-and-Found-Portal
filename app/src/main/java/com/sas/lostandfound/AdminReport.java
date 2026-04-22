@@ -1,6 +1,8 @@
 package com.sas.lostandfound;
 
 import com.google.firebase.database.IgnoreExtraProperties;
+import java.util.ArrayList;
+import java.util.List;
 
 @IgnoreExtraProperties
 public class AdminReport {
@@ -9,19 +11,22 @@ public class AdminReport {
     private String title;
     private String category;
     private String description;
-    private String relatedId; // Match with ReportToAdminActivity constructor parameter name
+    private String relatedId;
     private String reporterName;
     private String universityId;
-    private String reporterAuthId; // Match with ReportToAdminActivity constructor parameter name
-    private String phone; // Match with ReportToAdminActivity constructor parameter name
-    private String imageUrl;
+    private String reporterAuthId;
+    private String phone;
+    private String imageUrl; // For backward compatibility (first image)
+    private List<String> imageUrls;
     private String priority; // Low, Medium, High
     private String status; // Pending, Reviewed, Resolved
     private String adminNote;
-    private long timestamp; // Match with ReportToAdminActivity constructor parameter name
+    private long timestamp;
     private long updatedAt;
+    private boolean deletedByUser;
 
     public AdminReport() {
+        this.imageUrls = new ArrayList<>();
     }
 
     public AdminReport(String reportId, String displayId, String title, String category, String description, String relatedId, String reporterName, String universityId, String reporterAuthId, String phone, String imageUrl, String priority, String status, long timestamp) {
@@ -36,10 +41,15 @@ public class AdminReport {
         this.reporterAuthId = reporterAuthId;
         this.phone = phone;
         this.imageUrl = imageUrl;
+        this.imageUrls = new ArrayList<>();
+        if (imageUrl != null && !imageUrl.isEmpty()) {
+            this.imageUrls.add(imageUrl);
+        }
         this.priority = priority;
         this.status = status;
         this.timestamp = timestamp;
         this.updatedAt = timestamp;
+        this.deletedByUser = false;
     }
 
     public String getReportId() { return reportId; }
@@ -64,6 +74,8 @@ public class AdminReport {
     public void setPhone(String phone) { this.phone = phone; }
     public String getImageUrl() { return imageUrl; }
     public void setImageUrl(String imageUrl) { this.imageUrl = imageUrl; }
+    public List<String> getImageUrls() { return imageUrls; }
+    public void setImageUrls(List<String> imageUrls) { this.imageUrls = imageUrls; }
     public String getPriority() { return priority; }
     public void setPriority(String priority) { this.priority = priority; }
     public String getStatus() { return status; }
@@ -74,8 +86,11 @@ public class AdminReport {
     public void setTimestamp(long timestamp) { this.timestamp = timestamp; }
     public long getUpdatedAt() { return updatedAt; }
     public void setUpdatedAt(long updatedAt) { this.updatedAt = updatedAt; }
+    public boolean isDeletedByUser() { return deletedByUser; }
+    public void setDeletedByUser(boolean deletedByUser) { this.deletedByUser = deletedByUser; }
 
-    // Compatibility getters for AdminReportManagementActivity
+    // Compatibility getters
     public long getCreatedAt() { return timestamp; }
     public String getRelatedReportId() { return relatedId; }
+    public String getContactPhone() { return phone; }
 }

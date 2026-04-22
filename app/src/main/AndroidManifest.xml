@@ -14,6 +14,7 @@
     </queries>
 
     <application
+        android:name=".LostAndFoundApplication"
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
@@ -74,12 +75,16 @@
         <activity android:name=".ReportToAdminActivity" />
         <activity android:name=".AdminReportManagementActivity" />
         <activity android:name=".AdminReportDetailsActivity" />
+        <activity android:name=".AdminReportReviewActivity" />
 
         <activity android:name=".DeveloperInfoActivity" />
         <activity android:name=".LostAndFoundPolicyActivity" />
         <activity android:name=".AllReportedItemsActivity" />
         <activity android:name=".NotificationsActivity" />
         <activity android:name=".ClaimDetailsActivity" />
+
+        <activity android:name=".FullScreenImageActivity"
+            android:theme="@style/Theme.App.FullScreen" />
 
     </application>
 

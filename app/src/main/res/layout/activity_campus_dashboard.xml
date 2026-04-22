@@ -21,7 +21,7 @@
             android:background="@color/primaryDarkColor"
             android:fitsSystemWindows="true"
             app:elevation="0dp"
-            app:liftOnScroll="true">
+            app:liftOnScroll="false">
 
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:layout_width="match_parent"
@@ -107,234 +107,240 @@
 
         </com.google.android.material.appbar.AppBarLayout>
 
-        <androidx.core.widget.NestedScrollView
+        <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+            android:id="@+id/swipeRefreshLayout"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
-            <LinearLayout
+            <androidx.core.widget.NestedScrollView
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:padding="16dp">
-
-                <TextView
-                    android:id="@+id/tvWelcome"
-                    style="@style/TextAppearance.App.Headline"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/welcomeUser" />
+                android:layout_height="match_parent">
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="24dp"
-                    android:orientation="horizontal">
-
-                    <!-- Lost Reports Card -->
-                    <com.google.android.material.card.MaterialCardView
-                        android:id="@+id/cardUserLostReports"
-                        style="@style/Widget.App.Card"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:clickable="true"
-                        android:focusable="true">
-                        <LinearLayout
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:orientation="vertical"
-                            android:padding="16dp"
-                            android:gravity="center">
-                            <TextView
-                                android:id="@+id/tvUserLostCount"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:text="0"
-                                style="@style/TextAppearance.App.Headline"
-                                android:textColor="#FF0000"/>
-                            <TextView
-                                android:id="@+id/tvUserLostLabel"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:text="Report Lost"
-                                android:textStyle="bold"
-                                android:textColor="#FF0000"
-                                style="@style/TextAppearance.App.Small"/>
-                        </LinearLayout>
-                    </com.google.android.material.card.MaterialCardView>
-
-                    <!-- Found Reports Card -->
-                    <com.google.android.material.card.MaterialCardView
-                        android:id="@+id/cardUserFoundReports"
-                        style="@style/Widget.App.Card"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:layout_marginStart="12dp"
-                        android:clickable="true"
-                        android:focusable="true">
-                        <LinearLayout
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:orientation="vertical"
-                            android:padding="16dp"
-                            android:gravity="center">
-                            <TextView
-                                android:id="@+id/tvUserFoundCount"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:text="0"
-                                style="@style/TextAppearance.App.Headline"
-                                android:textColor="@color/statusFound"/>
-                            <TextView
-                                android:id="@+id/tvUserFoundLabel"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:text="Report Found"
-                                android:textStyle="bold"
-                                android:textColor="@color/statusFound"
-                                style="@style/TextAppearance.App.Small"/>
-                        </LinearLayout>
-                    </com.google.android.material.card.MaterialCardView>
-                </LinearLayout>
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="24dp"
-                    android:orientation="horizontal">
-
-                    <com.google.android.material.button.MaterialButton
-                        android:id="@+id/btnReportLost"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_marginEnd="8dp"
-                        android:layout_weight="1"
-                        android:text="@string/report_lost" />
-
-                    <com.google.android.material.button.MaterialButton
-                        android:id="@+id/btnReportFound"
-                        style="@style/Widget.App.Button.Secondary"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_marginStart="8dp"
-                        android:layout_weight="1"
-                        android:text="@string/report_found" />
-                </LinearLayout>
-
-                <RelativeLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="32dp">
+                    android:orientation="vertical"
+                    android:padding="16dp">
 
                     <TextView
-                        style="@style/TextAppearance.App.SectionTitle"
+                        android:id="@+id/tvWelcome"
+                        style="@style/TextAppearance.App.Headline"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="@string/recent_reports_title" />
-
-                    <TextView
-                        android:id="@+id/tvBrowseAll"
-                        style="@style/TextAppearance.App.Small"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_alignParentEnd="true"
-                        android:layout_centerVertical="true"
-                        android:background="?attr/selectableItemBackground"
-                        android:clickable="true"
-                        android:focusable="true"
-                        android:text="@string/browse_all_arrow"
-                        android:textColor="@color/primaryColor"
-                        android:textStyle="bold" />
-                </RelativeLayout>
-
-                <androidx.recyclerview.widget.RecyclerView
-                    android:id="@+id/rvRecentItems"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="12dp"
-                    android:clipToPadding="false"
-                    android:nestedScrollingEnabled="false"
-                    app:layoutManager="androidx.recyclerview.widget.GridLayoutManager"
-                    app:spanCount="2"
-                    tools:listitem="@layout/item_campus_reported_recent" />
-
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/btnViewLess"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
-                    android:text="View Less"
-                    android:visibility="gone" />
-
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/btnViewMore"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="4dp"
-                    android:text="View More"
-                    android:visibility="gone" />
-
-                <com.google.android.material.card.MaterialCardView
-                    style="@style/Widget.App.Card"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="32dp"
-                    app:cardElevation="0dp"
-                    app:strokeColor="@color/dividerColor"
-                    app:strokeWidth="1dp">
+                        android:text="@string/welcomeUser" />
 
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:orientation="vertical"
-                        android:padding="16dp">
+                        android:layout_marginTop="24dp"
+                        android:orientation="horizontal">
+
+                        <!-- Lost Reports Card -->
+                        <com.google.android.material.card.MaterialCardView
+                            android:id="@+id/cardUserLostReports"
+                            style="@style/Widget.App.Card"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:clickable="true"
+                            android:focusable="true">
+                            <LinearLayout
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:orientation="vertical"
+                                android:padding="10dp"
+                                android:gravity="center">
+                                <TextView
+                                    android:id="@+id/tvUserLostCount"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="0"
+                                    style="@style/TextAppearance.App.Headline"
+                                    android:textColor="#FF0000"/>
+                                <TextView
+                                    android:id="@+id/tvUserLostLabel"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="Report Lost"
+                                    android:textStyle="bold"
+                                    android:textColor="#FF0000"
+                                    style="@style/TextAppearance.App.Small"/>
+                            </LinearLayout>
+                        </com.google.android.material.card.MaterialCardView>
+
+                        <!-- Found Reports Card -->
+                        <com.google.android.material.card.MaterialCardView
+                            android:id="@+id/cardUserFoundReports"
+                            style="@style/Widget.App.Card"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:layout_marginStart="12dp"
+                            android:clickable="true"
+                            android:focusable="true">
+                            <LinearLayout
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:orientation="vertical"
+                                android:padding="10dp"
+                                android:gravity="center">
+                                <TextView
+                                    android:id="@+id/tvUserFoundCount"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="0"
+                                    style="@style/TextAppearance.App.Headline"
+                                    android:textColor="@color/statusFound"/>
+                                <TextView
+                                    android:id="@+id/tvUserFoundLabel"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="Report Found"
+                                    android:textStyle="bold"
+                                    android:textColor="@color/statusFound"
+                                    style="@style/TextAppearance.App.Small"/>
+                            </LinearLayout>
+                        </com.google.android.material.card.MaterialCardView>
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="24dp"
+                        android:orientation="horizontal">
+
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/btnReportLost"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginEnd="8dp"
+                            android:layout_weight="1"
+                            android:text="@string/report_lost" />
+
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/btnReportFound"
+                            style="@style/Widget.App.Button.Secondary"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="8dp"
+                            android:layout_weight="1"
+                            android:text="@string/report_found" />
+                    </LinearLayout>
+
+                    <RelativeLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="32dp">
 
                         <TextView
                             style="@style/TextAppearance.App.SectionTitle"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            app:drawableStartCompat="@drawable/ic_error_outline"
-                            android:drawablePadding="8dp"
-                            android:gravity="center_vertical"
-                            app:drawableTint="@color/primaryColor"
-                            android:text="@string/need_help" />
+                            android:text="@string/recent_reports_title" />
 
                         <TextView
-                            style="@style/TextAppearance.App.Body"
+                            android:id="@+id/tvBrowseAll"
+                            style="@style/TextAppearance.App.Small"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_marginTop="8dp"
-                            android:text="@string/helpDescription"
-                            android:textColor="@color/textSecondary" />
+                            android:layout_alignParentEnd="true"
+                            android:layout_centerVertical="true"
+                            android:background="?attr/selectableItemBackground"
+                            android:clickable="true"
+                            android:focusable="true"
+                            android:text="@string/browse_all_arrow"
+                            android:textColor="@color/primaryColor"
+                            android:textStyle="bold" />
+                    </RelativeLayout>
 
-                        <com.google.android.material.button.MaterialButton
-                            android:id="@+id/btnReportProblem"
-                            style="@style/Widget.Material3.Button.TextButton"
-                            android:layout_width="wrap_content"
+                    <androidx.recyclerview.widget.RecyclerView
+                        android:id="@+id/rvRecentItems"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="12dp"
+                        android:clipToPadding="false"
+                        android:nestedScrollingEnabled="false"
+                        app:layoutManager="androidx.recyclerview.widget.GridLayoutManager"
+                        app:spanCount="2"
+                        tools:listitem="@layout/item_campus_reported_recent" />
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btnViewLess"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:text="View Less"
+                        android:visibility="gone" />
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btnViewMore"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="4dp"
+                        android:text="View More"
+                        android:visibility="gone" />
+
+                    <com.google.android.material.card.MaterialCardView
+                        style="@style/Widget.App.Card"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="32dp"
+                        app:cardElevation="0dp"
+                        app:strokeColor="@color/dividerColor"
+                        app:strokeWidth="1dp">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:layout_marginTop="8dp"
-                            android:layout_gravity="center_horizontal"
-                            android:text="@string/reportProblem" />
-                    </LinearLayout>
-                </com.google.android.material.card.MaterialCardView>
+                            android:orientation="vertical"
+                            android:padding="16dp">
 
-                <TextView
-                    android:id="@+id/tvDeveloperInfo"
-                    style="@style/TextAppearance.App.Small"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="32dp"
-                    android:layout_marginBottom="32dp"
-                    android:gravity="center"
-                    android:text="@string/developer_info_short"
-                    android:textSize="15sp"
-                    android:textColor="@color/primaryColor"
-                    android:textStyle="bold" />
+                            <TextView
+                                style="@style/TextAppearance.App.SectionTitle"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                app:drawableStartCompat="@drawable/ic_error_outline"
+                                android:drawablePadding="8dp"
+                                android:gravity="center_vertical"
+                                app:drawableTint="@color/primaryColor"
+                                android:text="@string/need_help" />
 
-            </LinearLayout>
-        </androidx.core.widget.NestedScrollView>
+                            <TextView
+                                style="@style/TextAppearance.App.Body"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="8dp"
+                                android:text="@string/helpDescription"
+                                android:textColor="@color/textSecondary" />
+
+                            <com.google.android.material.button.MaterialButton
+                                android:id="@+id/btnReportProblem"
+                                style="@style/Widget.Material3.Button.TextButton"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="8dp"
+                                android:layout_gravity="center_horizontal"
+                                android:text="@string/reportProblem" />
+                        </LinearLayout>
+                    </com.google.android.material.card.MaterialCardView>
+
+                    <TextView
+                        android:id="@+id/tvDeveloperInfo"
+                        style="@style/TextAppearance.App.Small"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="32dp"
+                        android:layout_marginBottom="32dp"
+                        android:gravity="center"
+                        android:text="@string/developer_info_short"
+                        android:textSize="15sp"
+                        android:textColor="@color/primaryColor"
+                        android:textStyle="bold" />
+
+                </LinearLayout>
+            </androidx.core.widget.NestedScrollView>
+        </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
 
     </androidx.coordinatorlayout.widget.CoordinatorLayout>
 

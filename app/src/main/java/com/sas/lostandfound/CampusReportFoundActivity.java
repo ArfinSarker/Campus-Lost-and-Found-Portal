@@ -77,7 +77,6 @@ public class CampusReportFoundActivity extends AppCompatActivity {
 
     private DatabaseReference mDatabase;
     private FirebaseAuth mAuth;
-    private static final String DATABASE_URL = "FIREBASE_URL_PLACEHOLDER";
     private String currentUniversityId;
     private User currentUser;
 
@@ -91,7 +90,7 @@ public class CampusReportFoundActivity extends AppCompatActivity {
         setContentView(R.layout.activity_campus_report_found);
 
         mAuth = FirebaseAuth.getInstance();
-        mDatabase = FirebaseDatabase.getInstance(DATABASE_URL).getReference();
+        mDatabase = FirebaseDatabase.getInstance(FirebaseConfig.DATABASE_URL).getReference();
 
         if (mAuth.getCurrentUser() != null) {
             currentUniversityId = mAuth.getCurrentUser().getUid();
@@ -102,7 +101,7 @@ public class CampusReportFoundActivity extends AppCompatActivity {
         setupDropdowns();
         setupPickers();
         setupTextWatchers();
-        
+
         editItemId = getIntent().getStringExtra("editItemId");
         if (editItemId != null) {
             isEditMode = true;
@@ -118,47 +117,47 @@ public class CampusReportFoundActivity extends AppCompatActivity {
     private void initViews() {
         etItemName = findViewById(R.id.etItemName);
         tilItemName = findViewById(R.id.tilItemName);
-        
+
         actvCategory = findViewById(R.id.actvCategory);
         tilCategory = findViewById(R.id.tilCategory);
-        
+
         etDescription = findViewById(R.id.etDescription);
         tilDescription = findViewById(R.id.tilDescription);
-        
+
         etDateFound = findViewById(R.id.etDateFound);
         tilDate = findViewById(R.id.tilDate);
-        
+
         etTimeFound = findViewById(R.id.etTimeFound);
-        
+
         actvLocation = findViewById(R.id.actvLocation);
         tilLocation = findViewById(R.id.tilLocation);
-        
+
         etManualLocation = findViewById(R.id.etManualLocation);
         tilManualLocation = findViewById(R.id.tilManualLocation);
-        
+
         etLocationDetails = findViewById(R.id.etLocationDetails);
-        
+
         actvHandlingStatus = findViewById(R.id.actvHandlingStatus);
         tilHandlingStatus = findViewById(R.id.tilHandlingStatus);
-        
+
         tilAuthorityName = findViewById(R.id.tilAuthorityName);
         etAuthorityName = findViewById(R.id.etAuthorityName);
-        
+
         tilOfficeRoom = findViewById(R.id.tilOfficeRoom);
         etOfficeRoom = findViewById(R.id.etOfficeRoom);
-        
+
         etHiddenQuestion = findViewById(R.id.etHiddenQuestion);
         tilHiddenQuestion = findViewById(R.id.tilHiddenQuestion);
-        
+
         etContactName = findViewById(R.id.etContactName);
         tilContactName = findViewById(R.id.tilContactName);
-        
+
         etContactPhone = findViewById(R.id.etContactPhone);
         tilContactPhone = findViewById(R.id.tilContactPhone);
-        
+
         actvPreferredContact = findViewById(R.id.actvPreferredContact);
         tilPreferredContact = findViewById(R.id.tilPreferredContact);
-        
+
         cbConfirm = findViewById(R.id.cbConfirm);
         btnSubmit = findViewById(R.id.btnSubmitReport);
         uploadCard = findViewById(R.id.uploadCard);
@@ -186,7 +185,7 @@ public class CampusReportFoundActivity extends AppCompatActivity {
         etDescription.setText(item.getDescription());
         etDateFound.setText(item.getDate());
         etTimeFound.setText(item.getTime());
-        
+
         String location = item.getLocation();
         String[] predefinedLocations = {"Academic Building", "Civil Building", "Library", "Cafeteria", "Medical Center", "Playground", "Abbas Uddin Ahmed Hall (AUAH)", "Shaheed Dr. Zikrul Haque Hall", "Bir Protik Taramon Bibi Hall", "Bir Protik Taramon Bibi (New Hall)"};
         boolean isPredefined = false;
@@ -196,17 +195,17 @@ public class CampusReportFoundActivity extends AppCompatActivity {
                 break;
             }
         }
-        
+
         if (isPredefined) {
             actvLocation.setText(location, false);
         } else {
             actvLocation.setText("Other", false);
             tilManualLocation.setVisibility(View.VISIBLE);
-            etManualLocation.setText(location);
+            etManualLocation.setText(item.getManualLocation());
         }
-        
+
         etLocationDetails.setText(item.getAdditionalLocationDetails());
-        
+
         actvHandlingStatus.setText(item.getItemHandlingStatus(), false);
         if ("Handed over to authorities".equals(item.getItemHandlingStatus())) {
             tilAuthorityName.setVisibility(View.VISIBLE);
@@ -214,15 +213,15 @@ public class CampusReportFoundActivity extends AppCompatActivity {
             etAuthorityName.setText(item.getAuthorityName());
             etOfficeRoom.setText(item.getOfficeRoomNumber());
         }
-        
+
         etHiddenQuestion.setText(item.getHiddenIdentificationQuestion());
         etContactName.setText(item.getUserName());
         etContactPhone.setText(item.getUserPhone());
         actvPreferredContact.setText(item.getPreferredContactMethod(), false);
-        
+
         currentUniversityId = item.getUserId();
         btnSubmit.setText("Save Changes");
-        
+
         if (item.getImageUrl() != null && !item.getImageUrl().isEmpty()) {
             tvUploadPlaceholder.setText("Previous images exist. Upload new to replace.");
         }
@@ -278,6 +277,11 @@ public class CampusReportFoundActivity extends AppCompatActivity {
                 getSupportActionBar().setDisplayShowTitleEnabled(false);
             }
             toolbar.setNavigationOnClickListener(v -> onBackPressed());
+
+            com.google.android.material.appbar.AppBarLayout appBarLayout = findViewById(R.id.appBarLayout);
+            if (appBarLayout != null) {
+                HeaderColorHelper.setup(this, appBarLayout, toolbar);
+            }
         }
     }
 
@@ -520,8 +524,6 @@ public class CampusReportFoundActivity extends AppCompatActivity {
             return;
         }
 
-        String finalLocation = "Other".equals(location) ? manualLocation : location;
-
         if (!selectedImageUris.isEmpty()) {
             List<String> imageUrlStrings = Collections.synchronizedList(new ArrayList<>());
             AtomicInteger remaining = new AtomicInteger(selectedImageUris.size());
@@ -534,9 +536,9 @@ public class CampusReportFoundActivity extends AppCompatActivity {
                         imageUrlStrings.add(publicUrl);
                         if (remaining.decrementAndGet() == 0) {
                             if (isEditMode) {
-                                saveReport(reportId, itemName, category, description, date, finalLocation, handlingStatus, authorityName, hiddenQuestion, contactName, contactPhone, preferredContact, imageUrlStrings, userId, null);
+                                saveReport(reportId, itemName, category, description, date, location, manualLocation, handlingStatus, authorityName, hiddenQuestion, contactName, contactPhone, preferredContact, imageUrlStrings, userId, null);
                             } else {
-                                generateDisplayIdAndSave(reportId, itemName, category, description, date, finalLocation, handlingStatus, authorityName, hiddenQuestion, contactName, contactPhone, preferredContact, imageUrlStrings, userId);
+                                generateDisplayIdAndSave(reportId, itemName, category, description, date, location, manualLocation, handlingStatus, authorityName, hiddenQuestion, contactName, contactPhone, preferredContact, imageUrlStrings, userId);
                             }
                         }
                     }
@@ -545,9 +547,9 @@ public class CampusReportFoundActivity extends AppCompatActivity {
                     public void onFailure(Exception e) {
                         if (remaining.decrementAndGet() == 0) {
                             if (isEditMode) {
-                                saveReport(reportId, itemName, category, description, date, finalLocation, handlingStatus, authorityName, hiddenQuestion, contactName, contactPhone, preferredContact, imageUrlStrings, userId, null);
+                                saveReport(reportId, itemName, category, description, date, location, manualLocation, handlingStatus, authorityName, hiddenQuestion, contactName, contactPhone, preferredContact, imageUrlStrings, userId, null);
                             } else {
-                                generateDisplayIdAndSave(reportId, itemName, category, description, date, finalLocation, handlingStatus, authorityName, hiddenQuestion, contactName, contactPhone, preferredContact, imageUrlStrings, userId);
+                                generateDisplayIdAndSave(reportId, itemName, category, description, date, location, manualLocation, handlingStatus, authorityName, hiddenQuestion, contactName, contactPhone, preferredContact, imageUrlStrings, userId);
                             }
                         }
                     }
@@ -556,14 +558,14 @@ public class CampusReportFoundActivity extends AppCompatActivity {
         } else {
             List<String> images = isEditMode && existingItem != null ? existingItem.getImageUrls() : new ArrayList<>();
             if (isEditMode) {
-                saveReport(reportId, itemName, category, description, date, finalLocation, handlingStatus, authorityName, hiddenQuestion, contactName, contactPhone, preferredContact, images, userId, null);
+                saveReport(reportId, itemName, category, description, date, location, manualLocation, handlingStatus, authorityName, hiddenQuestion, contactName, contactPhone, preferredContact, images, userId, null);
             } else {
-                generateDisplayIdAndSave(reportId, itemName, category, description, date, finalLocation, handlingStatus, authorityName, hiddenQuestion, contactName, contactPhone, preferredContact, images, userId);
+                generateDisplayIdAndSave(reportId, itemName, category, description, date, location, manualLocation, handlingStatus, authorityName, hiddenQuestion, contactName, contactPhone, preferredContact, images, userId);
             }
         }
     }
 
-    private void generateDisplayIdAndSave(String reportId, String itemName, String category, String description, String date, String location, String handlingStatus, String authorityName, String hiddenQuestion, String contactName, String contactPhone, String preferredContact, List<String> imageUrls, String userId) {
+    private void generateDisplayIdAndSave(String reportId, String itemName, String category, String description, String date, String location, String manualLocation, String handlingStatus, String authorityName, String hiddenQuestion, String contactName, String contactPhone, String preferredContact, List<String> imageUrls, String userId) {
         DatabaseReference counterRef = mDatabase.child("Counters").child("FoundItemsCount");
         counterRef.runTransaction(new Transaction.Handler() {
             @NonNull
@@ -591,7 +593,7 @@ public class CampusReportFoundActivity extends AppCompatActivity {
                     else if (val instanceof Integer) count = ((Integer) val).longValue();
                     
                     String displayId = "F" + count;
-                    saveReport(reportId, itemName, category, description, date, location, handlingStatus, authorityName, hiddenQuestion, contactName, contactPhone, preferredContact, imageUrls, userId, displayId);
+                    saveReport(reportId, itemName, category, description, date, location, manualLocation, handlingStatus, authorityName, hiddenQuestion, contactName, contactPhone, preferredContact, imageUrls, userId, displayId);
                 } else {
                     resetButton();
                     String msg = error != null ? error.getMessage() : "Database busy or connection issue.";
@@ -601,7 +603,7 @@ public class CampusReportFoundActivity extends AppCompatActivity {
         });
     }
 
-    private void saveReport(String reportId, String itemName, String category, String description, String date, String location, String handlingStatus, String authorityName, String hiddenQuestion, String contactName, String contactPhone, String preferredContact, List<String> imageUrls, String userId, String displayId) {
+    private void saveReport(String reportId, String itemName, String category, String description, String date, String location, String manualLocation, String handlingStatus, String authorityName, String hiddenQuestion, String contactName, String contactPhone, String preferredContact, List<String> imageUrls, String userId, String displayId) {
         Item report;
         if (isEditMode && existingItem != null) {
             report = existingItem;
@@ -609,10 +611,12 @@ public class CampusReportFoundActivity extends AppCompatActivity {
             report.setCategory(category);
             report.setDescription(description);
             report.setLocation(location);
+            report.setManualLocation(manualLocation);
             report.setDate(date);
             report.setEdited(true);
         } else {
             report = new Item(reportId, itemName, category, description, location, date, "found", userId);
+            report.setManualLocation(manualLocation);
             report.setDisplayId(displayId);
         }
         

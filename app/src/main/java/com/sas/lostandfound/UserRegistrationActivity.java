@@ -42,7 +42,7 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.core.content.FileProvider;
 
-import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.textfield.TextInputLayout;
@@ -88,15 +88,13 @@ public class UserRegistrationActivity extends AppCompatActivity {
     private FirebaseAuth mAuth;
     private DatabaseReference mDatabase;
 
-    private static final String DATABASE_URL = "FIREBASE_URL_PLACEHOLDER";
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_user_registration);
 
         mAuth = FirebaseAuth.getInstance();
-        mDatabase = FirebaseDatabase.getInstance(DATABASE_URL).getReference();
+        mDatabase = FirebaseDatabase.getInstance(FirebaseConfig.DATABASE_URL).getReference();
 
         initializeViews();
         setupDropdowns();
@@ -104,6 +102,11 @@ public class UserRegistrationActivity extends AppCompatActivity {
         setupPolicyText();
         setupLoginLink();
         setupKeyboardListener();
+        
+        com.google.android.material.appbar.AppBarLayout appBarLayout = findViewById(R.id.appBarLayout);
+        if (appBarLayout != null) {
+            HeaderColorHelper.setup(this, appBarLayout);
+        }
     }
 
     private void initializeViews() {
@@ -351,9 +354,19 @@ public class UserRegistrationActivity extends AppCompatActivity {
         if (resultCode == RESULT_OK) {
             if (requestCode == REQUEST_IMAGE_PICK && data != null && data.getData() != null) {
                 profileImageUri = data.getData();
-                Glide.with(this).load(profileImageUri).circleCrop().into(ivProfilePicture);
+                GlideApp.with(this)
+                        .load(profileImageUri)
+                        .thumbnail(0.1f)
+                        .diskCacheStrategy(DiskCacheStrategy.ALL)
+                        .circleCrop()
+                        .into(ivProfilePicture);
             } else if (requestCode == REQUEST_IMAGE_CAPTURE) {
-                Glide.with(this).load(profileImageUri).circleCrop().into(ivProfilePicture);
+                GlideApp.with(this)
+                        .load(profileImageUri)
+                        .thumbnail(0.1f)
+                        .diskCacheStrategy(DiskCacheStrategy.ALL)
+                        .circleCrop()
+                        .into(ivProfilePicture);
             }
         }
     }

@@ -2,127 +2,170 @@
 <com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    style="@style/Widget.App.Card"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_marginHorizontal="16dp"
-    android:layout_marginVertical="8dp"
-    app:cardElevation="2dp">
+    android:layout_margin="8dp"
+    app:cardCornerRadius="16dp"
+    app:cardElevation="3dp"
+    app:strokeWidth="1dp"
+    app:strokeColor="@color/dividerColor">
 
-    <LinearLayout
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:padding="16dp">
+        android:layout_height="wrap_content">
 
-        <RelativeLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+        <!-- Image Container with fixed Aspect Ratio -->
+        <FrameLayout
+            android:id="@+id/flImageContainer"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            app:layout_constraintDimensionRatio="H,16:9"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
 
-            <TextView
-                android:id="@+id/tvDisplayId"
-                style="@style/TextAppearance.App.Small"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="R1"
-                android:textStyle="bold"
-                android:textColor="@color/primaryColor" />
+            <androidx.viewpager2.widget.ViewPager2
+                android:id="@+id/viewPagerSlider"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:visibility="gone" />
 
-            <TextView
-                android:id="@+id/tvReportTitle"
-                style="@style/TextAppearance.App.SectionTitle"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="8dp"
-                android:layout_toEndOf="@id/tvDisplayId"
-                android:layout_toStartOf="@id/tvPriorityBadge"
-                android:ellipsize="end"
-                android:maxLines="1"
-                android:text="Report Title"
-                android:textColor="@color/black" />
+            <ImageView
+                android:id="@+id/ivReportIcon"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:scaleType="centerInside"
+                android:src="@drawable/ic_shield"
+                android:background="#F5F5F5"
+                android:padding="48dp"
+                app:tint="@color/primaryColor" />
 
-            <TextView
-                android:id="@+id/tvPriorityBadge"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignParentEnd="true"
-                android:background="@drawable/bg_notification_badge"
-                android:paddingHorizontal="8dp"
-                android:paddingVertical="2dp"
-                android:text="High"
-                android:textColor="@color/white"
-                android:textSize="10sp"
-                android:textStyle="bold" />
-        </RelativeLayout>
+            <com.google.android.material.tabs.TabLayout
+                android:id="@+id/tabLayoutIndicator"
+                android:layout_width="match_parent"
+                android:layout_height="8dp"
+                android:layout_gravity="bottom"
+                android:layout_marginBottom="8dp"
+                android:background="@android:color/transparent"
+                android:visibility="gone"
+                app:tabBackground="@drawable/slider_indicator_selector"
+                app:tabGravity="center"
+                app:tabIndicatorHeight="0dp"
+                app:tabMaxWidth="8dp"
+                app:tabRippleColor="@null" />
+        </FrameLayout>
 
-        <LinearLayout
-            android:layout_width="match_parent"
+        <!-- Status Badge Overlay (Left) -->
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/cardStatusBadge"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:orientation="horizontal"
-            android:gravity="center_vertical">
+            android:layout_margin="12dp"
+            app:cardCornerRadius="8dp"
+            app:cardElevation="4dp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:strokeWidth="0dp">
 
             <TextView
                 android:id="@+id/tvStatusBadge"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:paddingHorizontal="8dp"
-                android:paddingVertical="2dp"
-                android:text="Pending"
-                android:textSize="10sp"
-                android:textStyle="bold"
+                android:paddingHorizontal="10dp"
+                android:paddingVertical="4dp"
+                android:textAllCaps="true"
                 android:textColor="@color/white"
-                android:background="@drawable/bg_notification_badge" />
+                android:textSize="11sp"
+                android:textStyle="bold"
+                tools:text="PENDING" />
+        </com.google.android.material.card.MaterialCardView>
+
+        <!-- Report ID Badge Overlay (Right) -->
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/cardReportId"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="12dp"
+            app:cardCornerRadius="8dp"
+            app:cardElevation="4dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:cardBackgroundColor="@color/primaryDarkColor"
+            app:strokeWidth="0dp">
+
+            <TextView
+                android:id="@+id/tvDisplayId"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:paddingHorizontal="10dp"
+                android:paddingVertical="4dp"
+                android:textColor="@color/white"
+                android:textSize="11sp"
+                android:textStyle="bold"
+                tools:text="#R1" />
+        </com.google.android.material.card.MaterialCardView>
+
+        <!-- Info Content Section -->
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="12dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/flImageContainer">
+
+            <TextView
+                android:id="@+id/tvReportTitle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:ellipsize="end"
+                android:fontFamily="sans-serif-medium"
+                android:maxLines="1"
+                android:textColor="@color/textPrimary"
+                android:textSize="15sp"
+                tools:text="Report Title" />
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_marginVertical="8dp"
+                android:background="@color/dividerColor" />
+
+            <TextView
+                android:id="@+id/tvReporterInfo"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textColor="@color/textSecondary"
+                android:textSize="12sp"
+                tools:text="Submitted By: John Doe" />
 
             <TextView
                 android:id="@+id/tvCategory"
-                style="@style/TextAppearance.App.Small"
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="12dp"
-                android:text="Category: Spam"
-                android:textColor="@color/textSecondary" />
-        </LinearLayout>
-
-        <TextView
-            android:id="@+id/tvReporterInfo"
-            style="@style/TextAppearance.App.Small"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:text="Submitted By: John Doe (12345)" />
-
-        <TextView
-            android:id="@+id/tvRelatedItemId"
-            style="@style/TextAppearance.App.Small"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="4dp"
-            android:text="Related Item: L2"
-            android:textColor="@color/primaryColor" />
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="12dp"
-            android:orientation="horizontal">
+                android:layout_marginTop="2dp"
+                android:textColor="@color/primaryColor"
+                android:textSize="12sp"
+                android:textStyle="bold"
+                tools:text="Category: Spam" />
 
             <TextView
                 android:id="@+id/tvTimestamp"
-                style="@style/TextAppearance.App.Small"
-                android:layout_width="0dp"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="2 hours ago"
-                android:textColor="@color/textSecondary" />
-
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/btnViewDetails"
-                style="@style/Widget.Material3.Button.TextButton"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="View Details" />
+                android:layout_marginTop="4dp"
+                android:textColor="@color/textSecondary"
+                android:textSize="11sp"
+                tools:text="25 Oct, 10:30 AM" />
         </LinearLayout>
 
-    </LinearLayout>
+        <!-- Hidden elements for adapter compatibility -->
+        <TextView android:id="@+id/tvPriorityBadge" android:layout_width="0dp" android:layout_height="0dp" android:visibility="gone" app:layout_constraintStart_toStartOf="parent" app:layout_constraintTop_toTopOf="parent" />
+        <TextView android:id="@+id/tvRelatedItemId" android:layout_width="0dp" android:layout_height="0dp" android:visibility="gone" app:layout_constraintStart_toStartOf="parent" app:layout_constraintTop_toTopOf="parent" />
+        <com.google.android.material.button.MaterialButton android:id="@+id/btnViewDetails" android:layout_width="0dp" android:layout_height="0dp" android:visibility="gone" app:layout_constraintStart_toStartOf="parent" app:layout_constraintTop_toTopOf="parent" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
 </com.google.android.material.card.MaterialCardView>

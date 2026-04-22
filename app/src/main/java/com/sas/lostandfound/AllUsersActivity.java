@@ -14,10 +14,12 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
-import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -38,19 +40,20 @@ public class AllUsersActivity extends AppCompatActivity {
     private List<User> userList;
     private ProgressBar progressBar;
     private LinearLayout llEmptyState;
+    private SwipeRefreshLayout swipeRefreshLayout;
     private DatabaseReference mDatabase;
-    private static final String DATABASE_URL = "FIREBASE_URL_PLACEHOLDER";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_all_users);
 
-        mDatabase = FirebaseDatabase.getInstance(DATABASE_URL).getReference();
+        mDatabase = FirebaseDatabase.getInstance(FirebaseConfig.DATABASE_URL).getReference();
 
         initializeViews();
         setupToolbar();
         setupRecyclerView();
+        setupSwipeRefresh();
         fetchAllUsers();
     }
 
@@ -58,6 +61,7 @@ public class AllUsersActivity extends AppCompatActivity {
         rvAllUsers = findViewById(R.id.rvAllUsers);
         progressBar = findViewById(R.id.progressBar);
         llEmptyState = findViewById(R.id.llEmptyState);
+        swipeRefreshLayout = findViewById(R.id.swipeRefreshLayout);
     }
 
     private void setupToolbar() {
@@ -73,6 +77,11 @@ public class AllUsersActivity extends AppCompatActivity {
         if (btnBack != null) {
             btnBack.setOnClickListener(v -> onBackPressed());
         }
+
+        com.google.android.material.appbar.AppBarLayout appBarLayout = findViewById(R.id.appBarLayout);
+        if (appBarLayout != null) {
+            HeaderColorHelper.setup(this, appBarLayout, toolbar);
+        }
     }
 
     private void setupRecyclerView() {
@@ -82,8 +91,18 @@ public class AllUsersActivity extends AppCompatActivity {
         rvAllUsers.setAdapter(adapter);
     }
 
+    private void setupSwipeRefresh() {
+        if (swipeRefreshLayout != null) {
+            swipeRefreshLayout.setColorSchemeColors(ContextCompat.getColor(this, R.color.primaryColor));
+            swipeRefreshLayout.setOnRefreshListener(this::fetchAllUsers);
+        }
+    }
+
     private void fetchAllUsers() {
-        progressBar.setVisibility(View.VISIBLE);
+        if (swipeRefreshLayout == null || !swipeRefreshLayout.isRefreshing()) {
+            progressBar.setVisibility(View.VISIBLE);
+        }
+        
         mDatabase.child("Users").addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
@@ -97,12 +116,14 @@ public class AllUsersActivity extends AppCompatActivity {
                 adapter.notifyDataSetChanged();
                 progressBar.setVisibility(View.GONE);
                 llEmptyState.setVisibility(userList.isEmpty() ? View.VISIBLE : View.GONE);
+                if (swipeRefreshLayout != null) swipeRefreshLayout.setRefreshing(false);
             }
 
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
                 progressBar.setVisibility(View.GONE);
                 Toast.makeText(AllUsersActivity.this, "Error: " + error.getMessage(), Toast.LENGTH_SHORT).show();
+                if (swipeRefreshLayout != null) swipeRefreshLayout.setRefreshing(false);
             }
         });
     }
@@ -132,9 +153,11 @@ public class AllUsersActivity extends AppCompatActivity {
             holder.tvUnivId.setText(user.getUniversityId());
 
             if (user.getProfileImageUrl() != null && !user.getProfileImageUrl().isEmpty()) {
-                Glide.with(holder.itemView.getContext())
+                GlideApp.with(holder.itemView.getContext())
                         .load(user.getProfileImageUrl())
                         .placeholder(R.drawable.ic_user)
+                        .thumbnail(0.1f)
+                        .diskCacheStrategy(DiskCacheStrategy.ALL)
                         .circleCrop()
                         .into(holder.ivProfile);
             } else {

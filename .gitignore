@@ -1,5 +1,7 @@
+# Android Studio / IntelliJ IDEA
 *.iml
 .gradle
+.idea
 /local.properties
 /.idea/caches
 /.idea/libraries
@@ -7,27 +9,27 @@
 /.idea/workspace.xml
 /.idea/navEditor.xml
 /.idea/assetWizardSettings.xml
-.DS_Store
+
+# Built artifacts
 /build
-/captures
+app/build/
+captures/
 .externalNativeBuild
 .cxx
-local.properties
 
 # Secrets and Sensitive Files
 release-keystore.jks
 google-services.json
+app/google-services.json
 *.jks
 *.keystore
 *.p12
 *.pem
-google-services.json
-local.properties
-.idea/
-.gradle/
-build/
-captures/
-.externalNativeBuild/
-.cxx/
-*.iml
+
+# OS generated files
 .DS_Store
+Thumbs.db
+
+# Firebase Rules (Optional, keep if you want them versioned, but user wanted to prevent data exposure)
+# database.rules.json
+new.json

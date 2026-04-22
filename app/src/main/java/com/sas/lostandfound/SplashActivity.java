@@ -24,8 +24,6 @@ public class SplashActivity extends AppCompatActivity {
 
     private static final int SPLASH_DELAY = 2000;
     private static final String TAG = "SplashActivity";
-    private static final String DATABASE_URL = "FIREBASE_URL_PLACEHOLDER";
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -44,7 +42,7 @@ public class SplashActivity extends AppCompatActivity {
             String universityId = prefs.getString("universityId", "");
             
             if (!universityId.isEmpty()) {
-                DatabaseReference mDatabase = FirebaseDatabase.getInstance(DATABASE_URL).getReference();
+                DatabaseReference mDatabase = FirebaseDatabase.getInstance(FirebaseConfig.DATABASE_URL).getReference();
                 mDatabase.child("Users").child(universityId).addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
                     public void onDataChange(@NonNull DataSnapshot snapshot) {

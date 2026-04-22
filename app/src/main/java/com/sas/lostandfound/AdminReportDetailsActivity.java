@@ -1,11 +1,14 @@
 package com.sas.lostandfound;
 
+import android.annotation.SuppressLint;
+import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
-import android.text.TextUtils;
-import android.util.Log;
+import android.os.Handler;
+import android.os.Looper;
+import android.view.MotionEvent;
 import android.view.View;
-import android.widget.ArrayAdapter;
-import android.widget.AutoCompleteTextView;
+import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -15,11 +18,12 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.viewpager2.widget.ViewPager2;
 
-import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.google.android.material.button.MaterialButton;
-import com.google.android.material.card.MaterialCardView;
-import com.google.android.material.textfield.TextInputEditText;
+import com.google.android.material.tabs.TabLayout;
+import com.google.android.material.tabs.TabLayoutMediator;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -27,29 +31,38 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.Locale;
 
+/**
+ * User version of Admin Report Details.
+ * Displays submitted report info and admin's response.
+ */
 public class AdminReportDetailsActivity extends AppCompatActivity {
 
-    private static final String TAG = "AdminReportDetails";
-    private TextView tvHeaderId;
-    private TextView tvReporterName, tvUniversityId, tvReporterPhone;
-    private TextView tvTitle, tvCategory, tvDescription, tvRelatedId;
-    private TextView tvDate, tvPriority, tvStatus;
+    private TextView tvHeaderTitle;
+    private TextView tvReporterName, tvUniversityId, tvReporterRole, tvReporterDeptDesignation, tvReporterPhone;
+    private TextView tvTitle, tvCategory, tvDescription, tvRelatedId, tvDate, tvPriority;
+    private TextView tvFinalReportId, tvFinalStatus, tvFinalAdminNote;
     private ImageView ivEvidence;
-    private MaterialCardView cardEvidence;
+    private ViewPager2 viewPagerEvidence;
+    private TabLayout tabLayoutIndicator;
+    private View cardEvidence;
     private TextView tvNoEvidence;
-    private AutoCompleteTextView actvUpdateStatus;
-    private TextInputEditText etAdminNote;
-    private MaterialButton btnUpdate, btnDelete;
+    private MaterialButton btnDelete;
+    
     private Toolbar toolbar;
     private ProgressBar progressBar;
 
     private DatabaseReference mDatabase;
     private String reportId;
     private AdminReport currentReport;
-    private static final String DATABASE_URL = "FIREBASE_URL_PLACEHOLDER";
+
+    private Handler sliderHandler = new Handler(Looper.getMainLooper());
+    private Runnable sliderRunnable;
+    private boolean isUserInteracting = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -63,38 +76,96 @@ public class AdminReportDetailsActivity extends AppCompatActivity {
             return;
         }
 
-        mDatabase = FirebaseDatabase.getInstance(DATABASE_URL).getReference();
+        mDatabase = FirebaseDatabase.getInstance(FirebaseConfig.DATABASE_URL).getReference();
 
         initializeViews();
         setupToolbar();
-        setupStatusDropdown();
         fetchReportDetails();
-
-        btnUpdate.setOnClickListener(v -> updateReport());
-        btnDelete.setOnClickListener(v -> confirmDelete());
     }
 
+    @SuppressLint("ClickableViewAccessibility")
     private void initializeViews() {
-        tvHeaderId = findViewById(R.id.tvHeaderId);
+        tvHeaderTitle = findViewById(R.id.tvHeaderTitle);
         tvReporterName = findViewById(R.id.tvDetailReporterName);
         tvUniversityId = findViewById(R.id.tvDetailUniversityId);
+        tvReporterRole = findViewById(R.id.tvDetailReporterRole);
+        tvReporterDeptDesignation = findViewById(R.id.tvDetailReporterDeptDesignation);
         tvReporterPhone = findViewById(R.id.tvDetailReporterPhone);
+        
         tvTitle = findViewById(R.id.tvDetailTitle);
         tvCategory = findViewById(R.id.tvDetailCategory);
         tvDescription = findViewById(R.id.tvDetailDescription);
         tvRelatedId = findViewById(R.id.tvDetailRelatedId);
         tvDate = findViewById(R.id.tvDetailDate);
         tvPriority = findViewById(R.id.tvDetailPriority);
-        tvStatus = findViewById(R.id.tvDetailStatus);
+        
         ivEvidence = findViewById(R.id.ivDetailEvidence);
+        viewPagerEvidence = findViewById(R.id.viewPagerEvidence);
+        tabLayoutIndicator = findViewById(R.id.tabLayoutIndicator);
         cardEvidence = findViewById(R.id.cardEvidence);
         tvNoEvidence = findViewById(R.id.tvNoEvidence);
-        actvUpdateStatus = findViewById(R.id.actvUpdateStatus);
-        etAdminNote = findViewById(R.id.etAdminNote);
-        btnUpdate = findViewById(R.id.btnUpdateReport);
-        btnDelete = findViewById(R.id.btnDeleteReport);
+        
+        tvFinalReportId = findViewById(R.id.tvFinalReportId);
+        tvFinalStatus = findViewById(R.id.tvFinalStatus);
+        tvFinalAdminNote = findViewById(R.id.tvFinalAdminNote);
+        
+        btnDelete = findViewById(R.id.btnDeleteUserReport);
+        
         toolbar = findViewById(R.id.toolbar);
         progressBar = findViewById(R.id.progressBar);
+
+        ivEvidence.setOnClickListener(v -> {
+            if (currentReport != null) {
+                List<String> urls = currentReport.getImageUrls();
+                if (urls != null && !urls.isEmpty()) {
+                    openFullScreenImage(urls, 0);
+                } else if (currentReport.getImageUrl() != null) {
+                    List<String> singleUrl = new ArrayList<>();
+                    singleUrl.add(currentReport.getImageUrl());
+                    openFullScreenImage(singleUrl, 0);
+                }
+            }
+        });
+
+        tvRelatedId.setOnClickListener(v -> {
+            if (currentReport != null && currentReport.getRelatedId() != null && !currentReport.getRelatedId().isEmpty()) {
+                navigateToRelatedItem(currentReport.getRelatedId());
+            }
+        });
+
+        btnDelete.setOnClickListener(v -> confirmDeleteForUser());
+
+        viewPagerEvidence.registerOnPageChangeCallback(new ViewPager2.OnPageChangeCallback() {
+            @Override
+            public void onPageScrollStateChanged(int state) {
+                super.onPageScrollStateChanged(state);
+                if (state == ViewPager2.SCROLL_STATE_DRAGGING) {
+                    isUserInteracting = true;
+                    stopAutoSlide();
+                }
+            }
+        });
+
+        viewPagerEvidence.getChildAt(0).setOnTouchListener((v, event) -> {
+            if (event.getAction() == MotionEvent.ACTION_DOWN || event.getAction() == MotionEvent.ACTION_MOVE) {
+                isUserInteracting = true;
+                stopAutoSlide();
+            } else if (event.getAction() == MotionEvent.ACTION_UP || event.getAction() == MotionEvent.ACTION_CANCEL) {
+                isUserInteracting = false;
+                if (currentReport != null && currentReport.getImageUrls() != null && currentReport.getImageUrls().size() > 1) {
+                    startAutoSlide(currentReport.getImageUrls().size());
+                }
+            }
+            return false;
+        });
+    }
+
+    private void openFullScreenImage(List<String> imageUrls, int position) {
+        if (imageUrls == null || imageUrls.isEmpty()) return;
+        Intent intent = new Intent(this, FullScreenImageActivity.class);
+        intent.putStringArrayListExtra("imageUrls", new ArrayList<>(imageUrls));
+        intent.putExtra("position", position);
+        startActivity(intent);
     }
 
     private void setupToolbar() {
@@ -105,13 +176,12 @@ public class AdminReportDetailsActivity extends AppCompatActivity {
                 getSupportActionBar().setDisplayHomeAsUpEnabled(true);
             }
             toolbar.setNavigationOnClickListener(v -> onBackPressed());
+            
+            com.google.android.material.appbar.AppBarLayout appBarLayout = findViewById(R.id.appBarLayout);
+            if (appBarLayout != null) {
+                HeaderColorHelper.setup(this, appBarLayout, toolbar);
+            }
         }
-    }
-
-    private void setupStatusDropdown() {
-        String[] statuses = {"Pending", "Reviewed", "Resolved"};
-        ArrayAdapter<String> adapter = new ArrayAdapter<>(this, R.layout.dropdown_item, statuses);
-        actvUpdateStatus.setAdapter(adapter);
     }
 
     private void fetchReportDetails() {
@@ -121,133 +191,199 @@ public class AdminReportDetailsActivity extends AppCompatActivity {
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 if (progressBar != null) progressBar.setVisibility(View.GONE);
                 if (snapshot.exists()) {
-                    try {
-                        currentReport = snapshot.getValue(AdminReport.class);
-                        if (currentReport != null) {
-                            displayReportDetails(currentReport);
-                        }
-                    } catch (Exception e) {
-                        Log.e(TAG, "Error parsing report details", e);
-                        Toast.makeText(AdminReportDetailsActivity.this, "Error loading details", Toast.LENGTH_SHORT).show();
+                    currentReport = snapshot.getValue(AdminReport.class);
+                    if (currentReport != null) {
+                        displayReportDetails(currentReport);
+                        fetchReporterExtraInfo(currentReport.getUniversityId());
                     }
-                } else {
-                    Toast.makeText(AdminReportDetailsActivity.this, "Report no longer exists", Toast.LENGTH_SHORT).show();
-                    finish();
                 }
             }
 
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
                 if (progressBar != null) progressBar.setVisibility(View.GONE);
-                Log.e(TAG, "Error fetching report details: " + error.getMessage());
             }
         });
     }
 
+    private void fetchReporterExtraInfo(String universityId) {
+        if (universityId == null) return;
+        mDatabase.child("Users").child(universityId).addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                if (snapshot.exists()) {
+                    User user = snapshot.getValue(User.class);
+                    if (user != null) {
+                        tvReporterRole.setText("Role: " + user.getUserType());
+                        if ("Student".equalsIgnoreCase(user.getUserType())) {
+                            tvReporterDeptDesignation.setText("Department: " + (user.getDepartment() != null ? user.getDepartment() : "N/A"));
+                            tvReporterDeptDesignation.setVisibility(View.VISIBLE);
+                        } else {
+                            tvReporterDeptDesignation.setText("Designation: " + (user.getDesignation() != null ? user.getDesignation() : "N/A"));
+                            tvReporterDeptDesignation.setVisibility(View.VISIBLE);
+                        }
+                    }
+                }
+            }
+            @Override public void onCancelled(@NonNull DatabaseError error) {}
+        });
+    }
+
     private void displayReportDetails(AdminReport report) {
-        if (tvHeaderId != null) tvHeaderId.setText("Report Details: " + (report.getDisplayId() != null ? report.getDisplayId() : "N/A"));
-        if (tvReporterName != null) tvReporterName.setText("Name: " + (report.getReporterName() != null ? report.getReporterName() : "N/A"));
-        if (tvUniversityId != null) tvUniversityId.setText("University ID: " + (report.getUniversityId() != null ? report.getUniversityId() : "N/A"));
-        if (tvReporterPhone != null) tvReporterPhone.setText("Phone: " + (report.getPhone() != null ? report.getPhone() : "N/A"));
+        tvHeaderTitle.setText("Report Details: " + (report.getTitle() != null ? report.getTitle() : "N/A"));
+        tvReporterName.setText("Name: " + report.getReporterName());
+        tvUniversityId.setText("University ID: " + report.getUniversityId());
+        tvReporterPhone.setText("Phone: " + report.getPhone());
         
-        if (tvTitle != null) tvTitle.setText(report.getTitle() != null ? report.getTitle() : "No Title");
-        if (tvCategory != null) tvCategory.setText("Category: " + (report.getCategory() != null ? report.getCategory() : "N/A"));
-        if (tvDescription != null) tvDescription.setText(report.getDescription() != null ? report.getDescription() : "No Description");
-        if (tvRelatedId != null) tvRelatedId.setText("Related Report ID: " + (report.getRelatedId() != null ? report.getRelatedId() : "None"));
+        tvTitle.setText(report.getTitle());
+        tvCategory.setText("Category: " + report.getCategory());
+        tvDescription.setText(report.getDescription());
+        
+        String related = report.getRelatedId();
+        if (related == null || related.isEmpty() || "None".equalsIgnoreCase(related)) {
+            tvRelatedId.setText("Related Report ID: None");
+            tvRelatedId.setEnabled(false);
+            tvRelatedId.setTextColor(Color.GRAY);
+        } else {
+            tvRelatedId.setText("Related Report ID: " + related);
+            tvRelatedId.setEnabled(true);
+            tvRelatedId.setTextColor(getResources().getColor(R.color.primaryColor));
+        }
         
         SimpleDateFormat sdf = new SimpleDateFormat("dd MMM yyyy, hh:mm a", Locale.getDefault());
-        if (tvDate != null) tvDate.setText("Submitted: " + sdf.format(new Date(report.getTimestamp())));
-        if (tvPriority != null) tvPriority.setText("Priority: " + (report.getPriority() != null ? report.getPriority() : "N/A"));
-        if (tvStatus != null) tvStatus.setText("Current Status: " + (report.getStatus() != null ? report.getStatus() : "N/A"));
-        
-        if (actvUpdateStatus != null) actvUpdateStatus.setText(report.getStatus(), false);
-        if (etAdminNote != null) etAdminNote.setText(report.getAdminNote());
+        tvDate.setText("Submitted: " + sdf.format(new Date(report.getTimestamp())));
+        tvPriority.setText("Priority: " + report.getPriority());
 
-        if (report.getImageUrl() != null && !report.getImageUrl().isEmpty()) {
-            if (cardEvidence != null) cardEvidence.setVisibility(View.VISIBLE);
-            if (tvNoEvidence != null) tvNoEvidence.setVisibility(View.GONE);
-            if (ivEvidence != null) {
-                Glide.with(this)
-                        .load(report.getImageUrl())
-                        .placeholder(R.drawable.ic_package)
-                        .error(R.drawable.ic_error_outline)
-                        .into(ivEvidence);
-            }
+        setupImageSlider(report.getImageUrls(), report.getImageUrl());
+
+        String displayId = report.getDisplayId() != null ? report.getDisplayId() : "N/A";
+        if (!displayId.startsWith("#")) displayId = "#" + displayId;
+        tvFinalReportId.setText("Report ID: " + displayId);
+        
+        tvFinalStatus.setText("Report Status: " + (report.getStatus() != null ? report.getStatus() : "Pending"));
+        tvFinalAdminNote.setText("Admin Note: " + (report.getAdminNote() != null ? report.getAdminNote() : "None"));
+    }
+
+    private void setupImageSlider(List<String> urls, String fallbackUrl) {
+        ItemNavigationUtils.setupImageOrSlider(this, urls, fallbackUrl, ivEvidence, viewPagerEvidence, tabLayoutIndicator);
+        
+        if (urls != null && urls.size() > 1) {
+            tvNoEvidence.setVisibility(View.GONE);
+            startAutoSlide(urls.size());
         } else {
-            if (cardEvidence != null) cardEvidence.setVisibility(View.GONE);
-            if (tvNoEvidence != null) tvNoEvidence.setVisibility(View.VISIBLE);
+            stopAutoSlide();
+            String finalUrl = (urls != null && !urls.isEmpty()) ? urls.get(0) : fallbackUrl;
+            if (finalUrl != null && !finalUrl.isEmpty()) {
+                tvNoEvidence.setVisibility(View.GONE);
+            } else {
+                cardEvidence.setVisibility(View.GONE);
+                ivEvidence.setVisibility(View.GONE);
+                tvNoEvidence.setVisibility(View.VISIBLE);
+            }
         }
     }
 
-    private void updateReport() {
-        String newStatus = actvUpdateStatus.getText().toString();
-        String adminNote = etAdminNote.getText().toString().trim();
-
-        if (progressBar != null) progressBar.setVisibility(View.VISIBLE);
-        
-        mDatabase.child("AdminReports").child(reportId).child("status").setValue(newStatus);
-        mDatabase.child("AdminReports").child(reportId).child("adminNote").setValue(adminNote);
-        mDatabase.child("AdminReports").child(reportId).child("updatedAt").setValue(System.currentTimeMillis())
-                .addOnSuccessListener(aVoid -> {
-                    if (progressBar != null) progressBar.setVisibility(View.GONE);
-                    Toast.makeText(this, "Report updated successfully", Toast.LENGTH_SHORT).show();
-                    
-                    // Notify user - Ensure we use University ID if available
-                    String recipientId = currentReport.getUniversityId();
-                    if (recipientId != null) {
-                        sendNotificationToUser(recipientId, newStatus);
-                    }
-                })
-                .addOnFailureListener(e -> {
-                    if (progressBar != null) progressBar.setVisibility(View.GONE);
-                    Toast.makeText(this, "Update failed: " + e.getMessage(), Toast.LENGTH_SHORT).show();
-                });
+    private void startAutoSlide(int size) {
+        if (isUserInteracting) return;
+        stopAutoSlide();
+        sliderRunnable = () -> {
+            int current = viewPagerEvidence.getCurrentItem();
+            int next = (current + 1) % size;
+            viewPagerEvidence.setCurrentItem(next, true);
+            sliderHandler.postDelayed(sliderRunnable, 3000);
+        };
+        sliderHandler.postDelayed(sliderRunnable, 3000);
     }
 
-    private void sendNotificationToUser(String userId, String status) {
-        if ("Pending".equalsIgnoreCase(status)) return;
-
-        String message = "Reviewed".equalsIgnoreCase(status) ? 
-                getString(R.string.msg_report_reviewed) : getString(R.string.msg_report_resolved);
-        
-        String notificationId = mDatabase.child("Notifications").child(userId).push().getKey();
-        if (notificationId != null) {
-            Notification notification = new Notification(
-                    notificationId,
-                    userId,
-                    "admin",
-                    "Admin",
-                    "",
-                    "",
-                    currentReport.getReportId(),
-                    currentReport.getTitle(),
-                    message + " (ID: " + currentReport.getDisplayId() + ")",
-                    System.currentTimeMillis(),
-                    "admin_report",
-                    ""
-            );
-            mDatabase.child("Notifications").child(userId).child(notificationId).setValue(notification);
+    private void stopAutoSlide() {
+        if (sliderRunnable != null) {
+            sliderHandler.removeCallbacks(sliderRunnable);
         }
     }
 
-    private void confirmDelete() {
+    private void confirmDeleteForUser() {
         new AlertDialog.Builder(this)
                 .setTitle("Delete Report")
-                .setMessage("Are you sure you want to delete this report permanently?")
+                .setMessage("Remove this report from your history? It will still be visible to the Admin.")
                 .setPositiveButton("Delete", (dialog, which) -> {
                     if (progressBar != null) progressBar.setVisibility(View.VISIBLE);
-                    mDatabase.child("AdminReports").child(reportId).removeValue()
+                    mDatabase.child("AdminReports").child(reportId).child("deletedByUser").setValue(true)
                             .addOnSuccessListener(aVoid -> {
                                 if (progressBar != null) progressBar.setVisibility(View.GONE);
-                                Toast.makeText(AdminReportDetailsActivity.this, "Report deleted", Toast.LENGTH_SHORT).show();
+                                Toast.makeText(this, "Report removed from your view", Toast.LENGTH_SHORT).show();
                                 finish();
                             })
                             .addOnFailureListener(e -> {
                                 if (progressBar != null) progressBar.setVisibility(View.GONE);
-                                Toast.makeText(AdminReportDetailsActivity.this, "Delete failed: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                                Toast.makeText(this, "Error: " + e.getMessage(), Toast.LENGTH_SHORT).show();
                             });
                 })
                 .setNegativeButton("Cancel", null)
                 .show();
+    }
+
+    private void navigateToRelatedItem(String relatedId) {
+        if (relatedId == null || relatedId.isEmpty()) return;
+        
+        progressBar.setVisibility(View.VISIBLE);
+        mDatabase.child("FoundItems").orderByChild("displayId").equalTo(relatedId).addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                if (snapshot.exists()) {
+                    for (DataSnapshot data : snapshot.getChildren()) {
+                        Item item = data.getValue(Item.class);
+                        if (item != null) openItemDetails(item);
+                        return;
+                    }
+                }
+                
+                mDatabase.child("LostItems").orderByChild("displayId").equalTo(relatedId).addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot snapshot) {
+                        progressBar.setVisibility(View.GONE);
+                        if (snapshot.exists()) {
+                            for (DataSnapshot data : snapshot.getChildren()) {
+                                Item item = data.getValue(Item.class);
+                                if (item != null) openItemDetails(item);
+                                return;
+                            }
+                        } else {
+                            Toast.makeText(AdminReportDetailsActivity.this, "Related item not found", Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                    @Override public void onCancelled(@NonNull DatabaseError error) { progressBar.setVisibility(View.GONE); }
+                });
+            }
+            @Override public void onCancelled(@NonNull DatabaseError error) { progressBar.setVisibility(View.GONE); }
+        });
+    }
+
+    private void openItemDetails(Item item) {
+        Intent intent = new Intent(this, ItemDetailActivity.class);
+        intent.putExtra("itemId", item.getId());
+        intent.putExtra("itemStatus", item.getStatus());
+        intent.putExtra("userId", item.getUserId());
+        intent.putExtra("itemName", item.getName());
+        startActivity(intent);
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        stopAutoSlide();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if (currentReport != null && currentReport.getImageUrls() != null && currentReport.getImageUrls().size() > 1) {
+            startAutoSlide(currentReport.getImageUrls().size());
+        }
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        stopAutoSlide();
     }
 }

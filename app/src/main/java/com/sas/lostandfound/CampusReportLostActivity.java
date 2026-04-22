@@ -78,11 +78,10 @@ public class CampusReportLostActivity extends AppCompatActivity {
 
     private FirebaseAuth mAuth;
     private DatabaseReference mDatabase;
-    private static final String DATABASE_URL = "FIREBASE_URL_PLACEHOLDER";
 
     private String currentUniversityId;
     private User currentUser;
-    
+
     private boolean isEditMode = false;
     private String editItemId;
     private Item existingItem;
@@ -93,7 +92,7 @@ public class CampusReportLostActivity extends AppCompatActivity {
         setContentView(R.layout.activity_campus_report_lost);
 
         mAuth = FirebaseAuth.getInstance();
-        mDatabase = FirebaseDatabase.getInstance(DATABASE_URL).getReference();
+        mDatabase = FirebaseDatabase.getInstance(FirebaseConfig.DATABASE_URL).getReference();
 
         if (mAuth.getCurrentUser() != null) {
             currentUniversityId = mAuth.getCurrentUser().getUid();
@@ -120,22 +119,22 @@ public class CampusReportLostActivity extends AppCompatActivity {
     private void initializeViews() {
         etItemName = findViewById(R.id.etItemName);
         tilItemName = findViewById(R.id.tilItemName);
-        
+
         actvCategory = findViewById(R.id.actvCategory);
         tilCategory = findViewById(R.id.tilCategory);
-        
+
         etDescription = findViewById(R.id.etDescription);
         tilDescription = findViewById(R.id.tilDescription);
 
         etDateLost = findViewById(R.id.etDateLost);
         tilDate = findViewById(R.id.tilDate);
-        
+
         etTimeLost = findViewById(R.id.etTimeLost);
         tilTime = findViewById(R.id.tilTime);
-        
+
         actvLocation = findViewById(R.id.actvLocation);
         tilLocation = findViewById(R.id.tilLocation);
-        
+
         tilManualLocation = findViewById(R.id.tilManualLocation);
         etManualLocation = findViewById(R.id.etManualLocation);
         etLocationDetails = findViewById(R.id.etLocationDetails);
@@ -144,10 +143,10 @@ public class CampusReportLostActivity extends AppCompatActivity {
 
         etContactName = findViewById(R.id.etContactName);
         tilContactName = findViewById(R.id.tilContactName);
-        
+
         etContactPhone = findViewById(R.id.etContactPhone);
         tilContactPhone = findViewById(R.id.tilContactPhone);
-        
+
         actvPreferredContact = findViewById(R.id.actvPreferredContact);
         tilPreferredContact = findViewById(R.id.tilPreferredContact);
 
@@ -178,7 +177,7 @@ public class CampusReportLostActivity extends AppCompatActivity {
         etDescription.setText(item.getDescription());
         etDateLost.setText(item.getDate());
         etTimeLost.setText(item.getTime());
-        
+
         String location = item.getLocation();
         String[] predefinedLocations = {"Academic Building", "Civil Building", "Library", "Cafeteria", "Medical Center", "Playground", "Abbas Uddin Ahmed Hall (AUAH)", "Shaheed Dr. Zikrul Haque Hall", "Bir Protik Taramon Bibi Hall", "Bir Protik Taramon Bibi (New Hall)"};
         boolean isPredefined = false;
@@ -188,24 +187,24 @@ public class CampusReportLostActivity extends AppCompatActivity {
                 break;
             }
         }
-        
+
         if (isPredefined) {
             actvLocation.setText(location, false);
         } else {
             actvLocation.setText("Other", false);
             tilManualLocation.setVisibility(View.VISIBLE);
-            etManualLocation.setText(location);
+            etManualLocation.setText(item.getManualLocation());
         }
-        
+
         etLocationDetails.setText(item.getAdditionalLocationDetails());
         etProofOwnership.setText(item.getProofOfOwnershipDetail());
         etContactName.setText(item.getUserName());
         etContactPhone.setText(item.getUserPhone());
         actvPreferredContact.setText(item.getPreferredContactMethod(), false);
-        
+
         currentUniversityId = item.getUserId();
         btnSubmit.setText("Save Changes");
-        
+
         if (item.getImageUrl() != null && !item.getImageUrl().isEmpty()) {
             tvUploadStatus.setText("Previous images exist. Upload new to replace.");
         }
@@ -227,6 +226,11 @@ public class CampusReportLostActivity extends AppCompatActivity {
                 getSupportActionBar().setDisplayHomeAsUpEnabled(true);
             }
             toolbar.setNavigationOnClickListener(v -> onBackPressed());
+
+            com.google.android.material.appbar.AppBarLayout appBarLayout = findViewById(R.id.appBarLayout);
+            if (appBarLayout != null) {
+                HeaderColorHelper.setup(this, appBarLayout, toolbar);
+            }
         }
     }
 
@@ -444,7 +448,7 @@ public class CampusReportLostActivity extends AppCompatActivity {
         }
 
         if (isValid) {
-            submitReport(name, category, description, date, "Other".equals(location) ? manualLocation : location, contactName, contactPhone, preferredContact);
+            submitReport(name, category, description, date, location, manualLocation, contactName, contactPhone, preferredContact);
         }
     }
 
@@ -460,7 +464,7 @@ public class CampusReportLostActivity extends AppCompatActivity {
         tilPreferredContact.setError(null);
     }
 
-    private void submitReport(String name, String category, String description, String date, String location, String contactName, String contactPhone, String preferredContact) {
+    private void submitReport(String name, String category, String description, String date, String location, String manualLocation, String contactName, String contactPhone, String preferredContact) {
         btnSubmit.setEnabled(false);
         btnSubmit.setText("Submitting report, please wait...");
         Toast.makeText(this, "Submitting report, please wait...", Toast.LENGTH_SHORT).show();
@@ -486,9 +490,9 @@ public class CampusReportLostActivity extends AppCompatActivity {
                         imageUrlStrings.add(publicUrl);
                         if (remaining.decrementAndGet() == 0) {
                             if (isEditMode) {
-                                saveToDatabase(itemId, name, category, description, date, location, contactName, contactPhone, preferredContact, imageUrlStrings, userId, null);
+                                saveToDatabase(itemId, name, category, description, date, location, manualLocation, contactName, contactPhone, preferredContact, imageUrlStrings, userId, null);
                             } else {
-                                generateDisplayIdAndSave(itemId, name, category, description, date, location, contactName, contactPhone, preferredContact, imageUrlStrings, userId);
+                                generateDisplayIdAndSave(itemId, name, category, description, date, location, manualLocation, contactName, contactPhone, preferredContact, imageUrlStrings, userId);
                             }
                         }
                     }
@@ -497,9 +501,9 @@ public class CampusReportLostActivity extends AppCompatActivity {
                     public void onFailure(Exception e) {
                         if (remaining.decrementAndGet() == 0) {
                             if (isEditMode) {
-                                saveToDatabase(itemId, name, category, description, date, location, contactName, contactPhone, preferredContact, imageUrlStrings, userId, null);
+                                saveToDatabase(itemId, name, category, description, date, location, manualLocation, contactName, contactPhone, preferredContact, imageUrlStrings, userId, null);
                             } else {
-                                generateDisplayIdAndSave(itemId, name, category, description, date, location, contactName, contactPhone, preferredContact, imageUrlStrings, userId);
+                                generateDisplayIdAndSave(itemId, name, category, description, date, location, manualLocation, contactName, contactPhone, preferredContact, imageUrlStrings, userId);
                             }
                         }
                     }
@@ -508,14 +512,14 @@ public class CampusReportLostActivity extends AppCompatActivity {
         } else {
             List<String> images = isEditMode && existingItem != null ? existingItem.getImageUrls() : new ArrayList<>();
             if (isEditMode) {
-                saveToDatabase(itemId, name, category, description, date, location, contactName, contactPhone, preferredContact, images, userId, null);
+                saveToDatabase(itemId, name, category, description, date, location, manualLocation, contactName, contactPhone, preferredContact, images, userId, null);
             } else {
-                generateDisplayIdAndSave(itemId, name, category, description, date, location, contactName, contactPhone, preferredContact, images, userId);
+                generateDisplayIdAndSave(itemId, name, category, description, date, location, manualLocation, contactName, contactPhone, preferredContact, images, userId);
             }
         }
     }
 
-    private void generateDisplayIdAndSave(String itemId, String name, String category, String description, String date, String location, String contactName, String contactPhone, String preferredContact, List<String> imageUrls, String userId) {
+    private void generateDisplayIdAndSave(String itemId, String name, String category, String description, String date, String location, String manualLocation, String contactName, String contactPhone, String preferredContact, List<String> imageUrls, String userId) {
         DatabaseReference counterRef = mDatabase.child("Counters").child("LostItemsCount");
         counterRef.runTransaction(new Transaction.Handler() {
             @NonNull
@@ -543,7 +547,7 @@ public class CampusReportLostActivity extends AppCompatActivity {
                     else if (val instanceof Integer) count = ((Integer) val).longValue();
                     
                     String displayId = "L" + count;
-                    saveToDatabase(itemId, name, category, description, date, location, contactName, contactPhone, preferredContact, imageUrls, userId, displayId);
+                    saveToDatabase(itemId, name, category, description, date, location, manualLocation, contactName, contactPhone, preferredContact, imageUrls, userId, displayId);
                 } else {
                     resetButton();
                     String msg = error != null ? error.getMessage() : "Database busy or connection issue.";
@@ -553,7 +557,7 @@ public class CampusReportLostActivity extends AppCompatActivity {
         });
     }
 
-    private void saveToDatabase(String itemId, String name, String category, String description, String date, String location, String contactName, String contactPhone, String preferredContact, List<String> imageUrls, String userId, String displayId) {
+    private void saveToDatabase(String itemId, String name, String category, String description, String date, String location, String manualLocation, String contactName, String contactPhone, String preferredContact, List<String> imageUrls, String userId, String displayId) {
         Item item;
         if (isEditMode && existingItem != null) {
             item = existingItem;
@@ -561,10 +565,12 @@ public class CampusReportLostActivity extends AppCompatActivity {
             item.setCategory(category);
             item.setDescription(description);
             item.setLocation(location);
+            item.setManualLocation(manualLocation);
             item.setDate(date);
             item.setEdited(true);
         } else {
             item = new Item(itemId, name, category, description, location, date, "lost", userId);
+            item.setManualLocation(manualLocation);
             item.setDisplayId(displayId);
         }
         
@@ -601,7 +607,7 @@ public class CampusReportLostActivity extends AppCompatActivity {
             }
         });
     }
-    
+
     private void resetButton() {
         btnSubmit.setEnabled(true);
         btnSubmit.setText(isEditMode ? "Save Changes" : "Submit Report");

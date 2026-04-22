@@ -9,8 +9,10 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.google.android.material.button.MaterialButton;
 import com.google.firebase.auth.FirebaseAuth;
@@ -18,6 +20,7 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
@@ -30,10 +33,13 @@ public class DashboardActivity extends AppCompatActivity {
     private RecyclerView recyclerView;
     private ItemAdapter adapter;
     private List<Item> itemList;
+    private SwipeRefreshLayout swipeRefreshLayout;
 
     private FirebaseAuth mAuth;
     private DatabaseReference mDatabase;
-    private static final String DATABASE_URL = "FIREBASE_URL_PLACEHOLDER";
+
+    private ValueEventListener lostItemsListener, foundItemsListener;
+    private Query lostItemsQuery, foundItemsQuery;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -41,7 +47,7 @@ public class DashboardActivity extends AppCompatActivity {
         setContentView(R.layout.activity_dashboard);
 
         mAuth = FirebaseAuth.getInstance();
-        mDatabase = FirebaseDatabase.getInstance(DATABASE_URL).getReference();
+        mDatabase = FirebaseDatabase.getInstance(FirebaseConfig.DATABASE_URL).getReference();
 
         // Check if already logged in and redirect accordingly
         checkSessionAndRedirect();
@@ -53,6 +59,7 @@ public class DashboardActivity extends AppCompatActivity {
         btnViewMore = findViewById(R.id.btnViewMore);
         tvDeveloperInfo = findViewById(R.id.tvDeveloperInfo);
         recyclerView = findViewById(R.id.recyclerViewRecent);
+        swipeRefreshLayout = findViewById(R.id.swipeRefreshLayout);
 
         itemList = new ArrayList<>();
         // Use a specific card layout for the dashboard items
@@ -68,7 +75,13 @@ public class DashboardActivity extends AppCompatActivity {
         recyclerView.setAdapter(adapter);
         recyclerView.setNestedScrollingEnabled(false);
 
+        setupSwipeRefresh();
         loadRecentItems();
+        
+        com.google.android.material.appbar.AppBarLayout appBarLayout = findViewById(R.id.appBarLayout);
+        if (appBarLayout != null) {
+            HeaderColorHelper.setup(this, appBarLayout);
+        }
 
         // Set click listeners
         btnSignIn.setOnClickListener(v -> {
@@ -94,6 +107,13 @@ public class DashboardActivity extends AppCompatActivity {
             tvDeveloperInfo.setOnClickListener(v -> {
                 startActivity(new Intent(DashboardActivity.this, DeveloperInfoActivity.class));
             });
+        }
+    }
+
+    private void setupSwipeRefresh() {
+        if (swipeRefreshLayout != null) {
+            swipeRefreshLayout.setColorSchemeColors(ContextCompat.getColor(this, R.color.primaryColor));
+            swipeRefreshLayout.setOnRefreshListener(this::loadRecentItems);
         }
     }
 
@@ -143,6 +163,14 @@ public class DashboardActivity extends AppCompatActivity {
     }
 
     private void loadRecentItems() {
+        // Remove existing listeners if any
+        if (lostItemsQuery != null && lostItemsListener != null) {
+            lostItemsQuery.removeEventListener(lostItemsListener);
+        }
+        if (foundItemsQuery != null && foundItemsListener != null) {
+            foundItemsQuery.removeEventListener(foundItemsListener);
+        }
+
         ValueEventListener itemListener = new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
@@ -163,17 +191,24 @@ public class DashboardActivity extends AppCompatActivity {
 
                     adapter.notifyDataSetChanged();
                 }
+                if (swipeRefreshLayout != null) swipeRefreshLayout.setRefreshing(false);
             }
 
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
-                // Log error if needed
+                if (swipeRefreshLayout != null) swipeRefreshLayout.setRefreshing(false);
             }
         };
 
-        // Listen to both LostItems and FoundItems specifically
-        mDatabase.child("LostItems").addValueEventListener(itemListener);
-        mDatabase.child("FoundItems").addValueEventListener(itemListener);
+        lostItemsListener = itemListener;
+        foundItemsListener = itemListener;
+
+        // Use queries with limits to improve performance and responsiveness
+        lostItemsQuery = mDatabase.child("LostItems").orderByChild("timestamp").limitToLast(10);
+        foundItemsQuery = mDatabase.child("FoundItems").orderByChild("timestamp").limitToLast(10);
+
+        lostItemsQuery.addValueEventListener(lostItemsListener);
+        foundItemsQuery.addValueEventListener(foundItemsListener);
     }
 
     private synchronized void updateOrAddItem(Item item) {
@@ -190,5 +225,17 @@ public class DashboardActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
         checkSessionAndRedirect();
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        // Clean up listeners to prevent memory leaks and redundant background processing
+        if (lostItemsQuery != null && lostItemsListener != null) {
+            lostItemsQuery.removeEventListener(lostItemsListener);
+        }
+        if (foundItemsQuery != null && foundItemsListener != null) {
+            foundItemsQuery.removeEventListener(foundItemsListener);
+        }
     }
 }

@@ -206,10 +206,6 @@
     <string name="modal_text_1">Your content goes here. This scrollable modal follows the premium university portal feel with rounded corners and soft shadows.</string>
     <string name="modal_text_2">Designed with a clean SaaS dashboard look, ensuring consistency across all screens.</string>
 
-    <!-- Stat Card Strings -->
-    <string name="stat_default_value">0</string>
-    <string name="stat_default_label">Items</string>
-
     <!-- Browse Items Strings -->
     <string name="title_browse_items">Browse Items</string>
     <string name="hint_search_items">Search lost or found items...</string>

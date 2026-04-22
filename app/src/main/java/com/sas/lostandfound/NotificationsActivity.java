@@ -11,9 +11,12 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
+import com.google.android.material.appbar.AppBarLayout;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
@@ -35,10 +38,9 @@ public class NotificationsActivity extends AppCompatActivity {
     private List<Notification> notificationList;
     private LinearLayout llEmptyState;
     private ImageButton btnMarkAllRead;
+    private SwipeRefreshLayout swipeRefreshLayout;
     private DatabaseReference mDatabase;
     private String resolvedUserId;
-    private static final String DATABASE_URL = "FIREBASE_URL_PLACEHOLDER";
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -55,8 +57,14 @@ public class NotificationsActivity extends AppCompatActivity {
         rvNotifications = findViewById(R.id.rvNotifications);
         llEmptyState = findViewById(R.id.llEmptyState);
         btnMarkAllRead = findViewById(R.id.btnMarkAllRead);
+        swipeRefreshLayout = findViewById(R.id.swipeRefreshLayout);
         
-        mDatabase = FirebaseDatabase.getInstance(DATABASE_URL).getReference();
+        AppBarLayout appBarLayout = findViewById(R.id.appBarLayout);
+        if (appBarLayout != null) {
+            HeaderColorHelper.setup(this, appBarLayout, toolbar);
+        }
+        
+        mDatabase = FirebaseDatabase.getInstance(FirebaseConfig.DATABASE_URL).getReference();
         
         notificationList = new ArrayList<>();
         adapter = new NotificationAdapter(notificationList, 
@@ -66,17 +74,24 @@ public class NotificationsActivity extends AppCompatActivity {
                     mDatabase.child("Notifications").child(resolvedUserId).child(notification.getId()).child("read").setValue(true);
                 }
                 
-                // Redirect to Claim Details
-                Intent intent = new Intent(this, ClaimDetailsActivity.class);
-                intent.putExtra("senderId", notification.getSenderId());
-                intent.putExtra("senderName", notification.getSenderName());
-                intent.putExtra("senderPhone", notification.getSenderPhone());
-                intent.putExtra("senderEmail", notification.getSenderEmail());
-                intent.putExtra("itemId", notification.getItemId());
-                intent.putExtra("itemName", notification.getItemName());
-                intent.putExtra("additionalDetails", notification.getAdditionalDetails());
-                intent.putExtra("type", notification.getType());
-                startActivity(intent);
+                if ("admin_report".equals(notification.getType())) {
+                    // Redirect to Admin Report Details
+                    Intent intent = new Intent(this, AdminReportDetailsActivity.class);
+                    intent.putExtra("reportId", notification.getItemId());
+                    startActivity(intent);
+                } else {
+                    // Redirect to Claim Details
+                    Intent intent = new Intent(this, ClaimDetailsActivity.class);
+                    intent.putExtra("senderId", notification.getSenderId());
+                    intent.putExtra("senderName", notification.getSenderName());
+                    intent.putExtra("senderPhone", notification.getSenderPhone());
+                    intent.putExtra("senderEmail", notification.getSenderEmail());
+                    intent.putExtra("itemId", notification.getItemId());
+                    intent.putExtra("itemName", notification.getItemName());
+                    intent.putExtra("additionalDetails", notification.getAdditionalDetails());
+                    intent.putExtra("type", notification.getType());
+                    startActivity(intent);
+                }
             },
             notification -> {
                 // Handle Delete
@@ -89,7 +104,15 @@ public class NotificationsActivity extends AppCompatActivity {
 
         btnMarkAllRead.setOnClickListener(v -> markAllAsRead());
 
+        setupSwipeRefresh();
         resolveUserAndFetchNotifications();
+    }
+
+    private void setupSwipeRefresh() {
+        if (swipeRefreshLayout != null) {
+            swipeRefreshLayout.setColorSchemeColors(ContextCompat.getColor(this, R.color.primaryColor));
+            swipeRefreshLayout.setOnRefreshListener(this::resolveUserAndFetchNotifications);
+        }
     }
 
     private void showDeleteConfirmation(Notification notification) {
@@ -109,7 +132,10 @@ public class NotificationsActivity extends AppCompatActivity {
 
     private void resolveUserAndFetchNotifications() {
         FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
-        if (currentUser == null) return;
+        if (currentUser == null) {
+            if (swipeRefreshLayout != null) swipeRefreshLayout.setRefreshing(false);
+            return;
+        }
 
         String authUid = currentUser.getUid();
         // Resolve University ID to match Dashboard behavior
@@ -155,10 +181,14 @@ public class NotificationsActivity extends AppCompatActivity {
                 llEmptyState.setVisibility(notificationList.isEmpty() ? View.VISIBLE : View.GONE);
                 rvNotifications.setVisibility(notificationList.isEmpty() ? View.GONE : View.VISIBLE);
                 btnMarkAllRead.setVisibility(hasUnread ? View.VISIBLE : View.GONE);
+                
+                if (swipeRefreshLayout != null) swipeRefreshLayout.setRefreshing(false);
             }
 
             @Override
-            public void onCancelled(@NonNull DatabaseError error) {}
+            public void onCancelled(@NonNull DatabaseError error) {
+                if (swipeRefreshLayout != null) swipeRefreshLayout.setRefreshing(false);
+            }
         });
     }
 

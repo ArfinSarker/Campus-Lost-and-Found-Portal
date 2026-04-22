@@ -1,7 +1,6 @@
 package com.sas.lostandfound;
 
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -10,6 +9,7 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.card.MaterialCardView;
@@ -26,20 +26,26 @@ public class AdminDashboardActivity extends AppCompatActivity {
     private TextView tvTotalLost, tvTotalFound, tvTotalUsers, tvTotalAdminRequests, tvTotalAdminReports, tvAdminTitle;
     private MaterialCardView cardLostItems, cardFoundItems, cardTotalUsers, cardAdminRequests, cardAdminReports;
     private MaterialButton btnManageItems, btnLogout, btnAdminRequests, btnManageUsers, btnAdminReports;
+    private SwipeRefreshLayout swipeRefreshLayout;
     private DatabaseReference mDatabase;
-    private static final String DATABASE_URL = "FIREBASE_URL_PLACEHOLDER";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_admin_dashboard);
 
-        mDatabase = FirebaseDatabase.getInstance(DATABASE_URL).getReference();
+        mDatabase = FirebaseDatabase.getInstance(FirebaseConfig.DATABASE_URL).getReference();
 
         initializeViews();
         setupClickListeners();
+        setupSwipeRefresh();
         loadStats();
         setupAdminDashboard();
+        
+        com.google.android.material.appbar.AppBarLayout appBarLayout = findViewById(R.id.appBarLayout);
+        if (appBarLayout != null) {
+            HeaderColorHelper.setup(this, appBarLayout);
+        }
     }
 
     private void initializeViews() {
@@ -61,10 +67,28 @@ public class AdminDashboardActivity extends AppCompatActivity {
         btnManageItems = findViewById(R.id.btnManageItems);
         btnManageUsers = findViewById(R.id.btnManageUsers);
         btnLogout = findViewById(R.id.btnLogout);
+        swipeRefreshLayout = findViewById(R.id.swipeRefreshLayout);
     }
 
     private void setupAdminDashboard() {
         if (tvAdminTitle != null) tvAdminTitle.setText("Admin Dashboard");
+    }
+
+    private void setupSwipeRefresh() {
+        if (swipeRefreshLayout != null) {
+            swipeRefreshLayout.setColorSchemeResources(R.color.primaryColor);
+            swipeRefreshLayout.setOnRefreshListener(() -> {
+                loadStats();
+                // Since we use addValueEventListener, it might already be fresh, 
+                // but this triggers a re-fetch. We'll stop refreshing after a short delay 
+                // or when the first listener completes.
+                new android.os.Handler().postDelayed(() -> {
+                    if (swipeRefreshLayout.isRefreshing()) {
+                        swipeRefreshLayout.setRefreshing(false);
+                    }
+                }, 1500);
+            });
+        }
     }
 
     private void setupClickListeners() {
@@ -120,6 +144,11 @@ public class AdminDashboardActivity extends AppCompatActivity {
             startActivity(intent);
             finish();
         });
+
+        View btnBack = findViewById(R.id.btnBack);
+        if (btnBack != null) {
+            btnBack.setOnClickListener(v -> onBackPressed());
+        }
     }
 
     private void loadStats() {
@@ -127,9 +156,11 @@ public class AdminDashboardActivity extends AppCompatActivity {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 tvTotalLost.setText(String.valueOf(snapshot.getChildrenCount()));
+                if (swipeRefreshLayout != null) swipeRefreshLayout.setRefreshing(false);
             }
             @Override public void onCancelled(@NonNull DatabaseError error) {
                 Log.e(TAG, "Error fetching LostItems: " + error.getMessage());
+                if (swipeRefreshLayout != null) swipeRefreshLayout.setRefreshing(false);
             }
         });
 

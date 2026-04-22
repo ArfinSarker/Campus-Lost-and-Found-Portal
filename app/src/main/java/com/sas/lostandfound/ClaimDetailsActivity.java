@@ -13,13 +13,16 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
-import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.google.android.material.button.MaterialButton;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class ClaimDetailsActivity extends AppCompatActivity {
 
@@ -32,14 +35,12 @@ public class ClaimDetailsActivity extends AppCompatActivity {
     private DatabaseReference mDatabase;
     private String itemId, senderId, itemStatus, notificationType;
     private ValueEventListener claimantProfileListener;
-    private static final String DATABASE_URL = "FIREBASE_URL_PLACEHOLDER";
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_claim_details);
 
-        mDatabase = FirebaseDatabase.getInstance(DATABASE_URL).getReference();
+        mDatabase = FirebaseDatabase.getInstance(FirebaseConfig.DATABASE_URL).getReference();
 
         initializeViews();
         setupToolbar();
@@ -74,7 +75,7 @@ public class ClaimDetailsActivity extends AppCompatActivity {
                 Intent intent = new Intent(Intent.ACTION_SENDTO);
                 intent.setData(Uri.parse("mailto:" + email));
                 intent.putExtra(Intent.EXTRA_SUBJECT, "Regarding " + itemName);
-                startActivity(Intent.createChooser(intent, "Send Email"));
+                startActivity(intent);
             }
         });
         
@@ -160,6 +161,11 @@ public class ClaimDetailsActivity extends AppCompatActivity {
             getSupportActionBar().setDisplayShowTitleEnabled(false);
         }
         toolbar.setNavigationOnClickListener(v -> onBackPressed());
+
+        com.google.android.material.appbar.AppBarLayout appBarLayout = findViewById(R.id.appBarLayout);
+        if (appBarLayout != null) {
+            HeaderColorHelper.setup(this, appBarLayout, toolbar);
+        }
     }
 
     private void setupRealtimeClaimantProfile(String claimantId) {
@@ -193,9 +199,11 @@ public class ClaimDetailsActivity extends AppCompatActivity {
                     updateFieldVisibility(llSection, tvSection, section);
 
                     if (profileImageUrl != null && !profileImageUrl.isEmpty()) {
-                        Glide.with(ClaimDetailsActivity.this)
+                        GlideApp.with(ClaimDetailsActivity.this)
                                 .load(profileImageUrl)
                                 .placeholder(R.drawable.ic_user)
+                                .thumbnail(0.1f)
+                                .diskCacheStrategy(DiskCacheStrategy.ALL)
                                 .circleCrop()
                                 .into(ivClaimantPhoto);
                     } else {
@@ -258,19 +266,55 @@ public class ClaimDetailsActivity extends AppCompatActivity {
             if (item.getTime() != null && !item.getTime().isEmpty()) {
                 details += "\nTime: " + item.getTime();
             }
-            details += "\nLocation: " + item.getLocation();
+            
+            // Use ReportLocationDisplay for consistent location display
+            String formattedLocation = ReportLocationDisplay.formatFullLocation(
+                    item.getLocation(), 
+                    item.getManualLocation(), 
+                    item.getAdditionalLocationDetails());
+            
+            details += "\nLocation: " + formattedLocation;
             tvItemDetails.setText(details);
 
             // Handle Item Image
             String imageUrl = item.getImageUrl();
-            if (imageUrl != null && !imageUrl.isEmpty()) {
+            List<String> imageUrls = item.getImageUrls();
+            
+            if (imageUrls != null && !imageUrls.isEmpty()) {
                 ivItemImage.setVisibility(View.VISIBLE);
-                Glide.with(this)
+                GlideApp.with(this)
+                        .load(imageUrls.get(0))
+                        .placeholder(R.drawable.ic_package)
+                        .thumbnail(0.1f)
+                        .diskCacheStrategy(DiskCacheStrategy.ALL)
+                        .into(ivItemImage);
+                        
+                ivItemImage.setOnClickListener(v -> {
+                    Intent intent = new Intent(this, FullScreenImageActivity.class);
+                    intent.putStringArrayListExtra("imageUrls", new ArrayList<>(imageUrls));
+                    intent.putExtra("position", 0);
+                    startActivity(intent);
+                });
+            } else if (imageUrl != null && !imageUrl.isEmpty()) {
+                ivItemImage.setVisibility(View.VISIBLE);
+                GlideApp.with(this)
                         .load(imageUrl)
                         .placeholder(R.drawable.ic_package)
+                        .thumbnail(0.1f)
+                        .diskCacheStrategy(DiskCacheStrategy.ALL)
                         .into(ivItemImage);
+                
+                ivItemImage.setOnClickListener(v -> {
+                    Intent intent = new Intent(this, FullScreenImageActivity.class);
+                    ArrayList<String> singleUrlList = new ArrayList<>();
+                    singleUrlList.add(imageUrl);
+                    intent.putStringArrayListExtra("imageUrls", singleUrlList);
+                    intent.putExtra("position", 0);
+                    startActivity(intent);
+                });
             } else {
                 ivItemImage.setImageResource(R.drawable.ic_package);
+                ivItemImage.setOnClickListener(null);
             }
 
             if ("lost".equals(itemStatus)) {

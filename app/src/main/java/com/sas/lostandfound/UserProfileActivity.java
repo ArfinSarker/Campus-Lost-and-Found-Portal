@@ -29,8 +29,9 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.core.content.FileProvider;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
-import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
@@ -68,10 +69,10 @@ public class UserProfileActivity extends AppCompatActivity {
     private Toolbar toolbar;
     private TextView tvHeaderTitle, tvLostReportsCount, tvFoundReportsCount, tvReturnedItemsCount;
     private View changePasswordSection, activitySection;
+    private SwipeRefreshLayout swipeRefreshLayout;
 
     private FirebaseAuth mAuth;
     private DatabaseReference mDatabase;
-    private static final String DATABASE_URL = "FIREBASE_URL_PLACEHOLDER";
 
     private static final int REQUEST_IMAGES_PICK = 2;
     private static final int REQUEST_IMAGE_CAPTURE = 3;
@@ -87,6 +88,7 @@ public class UserProfileActivity extends AppCompatActivity {
     private boolean isDataLoaded = false;
     private boolean isProfilePictureRemoved = false;
     private boolean isAdminViewing = false;
+    private boolean fromDrawer = false;
     private String targetUserId;
 
     // Real-time listeners for Admin Activity counts
@@ -98,14 +100,16 @@ public class UserProfileActivity extends AppCompatActivity {
         setContentView(R.layout.activity_user_profile);
 
         mAuth = FirebaseAuth.getInstance();
-        mDatabase = FirebaseDatabase.getInstance(DATABASE_URL).getReference();
+        mDatabase = FirebaseDatabase.getInstance(FirebaseConfig.DATABASE_URL).getReference();
 
         isAdminViewing = getIntent().getBooleanExtra("isAdminViewing", false);
         targetUserId = getIntent().getStringExtra("targetUserId");
+        fromDrawer = getIntent().getBooleanExtra("fromDrawer", false);
 
         initializeViews();
         setupToolbar();
         setupDropdowns();
+        setupSwipeRefresh();
 
         if (isAdminViewing && targetUserId != null) {
             currentUniversityId = targetUserId;
@@ -133,9 +137,30 @@ public class UserProfileActivity extends AppCompatActivity {
         getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
             @Override
             public void handleOnBackPressed() {
-                finish();
+                handleBackNavigation();
             }
         });
+    }
+
+    /**
+     * Dedicated function to handle back navigation.
+     * If the user came from the navigation drawer, it ensures the drawer is open
+     * and the correct item is highlighted when returning to the dashboard.
+     */
+    private void handleBackNavigation() {
+        if (isAdminViewing) {
+            finish();
+            return;
+        }
+
+        Intent intent = new Intent(this, CampusDashboardActivity.class);
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+        if (fromDrawer) {
+            intent.putExtra("openDrawer", true);
+            intent.putExtra("selectedItemId", R.id.nav_profile);
+        }
+        startActivity(intent);
+        finish();
     }
 
     private void setupAdminView() {
@@ -186,6 +211,24 @@ public class UserProfileActivity extends AppCompatActivity {
         tilDepartment.setEndIconMode(TextInputLayout.END_ICON_NONE);
         tilSection.setEndIconMode(TextInputLayout.END_ICON_NONE);
         tilDesignation.setEndIconMode(TextInputLayout.END_ICON_NONE);
+    }
+
+    private void setupSwipeRefresh() {
+        if (swipeRefreshLayout != null) {
+            swipeRefreshLayout.setColorSchemeColors(ContextCompat.getColor(this, R.color.primaryColor));
+            swipeRefreshLayout.setOnRefreshListener(() -> {
+                if (isAdminViewing && targetUserId != null) {
+                    loadUserData(targetUserId);
+                } else {
+                    FirebaseUser user = mAuth.getCurrentUser();
+                    if (user != null) {
+                        fetchUniversityIdAndLoadData(user.getUid());
+                    } else {
+                        swipeRefreshLayout.setRefreshing(false);
+                    }
+                }
+            });
+        }
     }
 
     private void setupRealTimeActivityTracking(String userId) {
@@ -390,6 +433,7 @@ public class UserProfileActivity extends AppCompatActivity {
         tvLostReportsCount = findViewById(R.id.tvLostReportsCount);
         tvFoundReportsCount = findViewById(R.id.tvFoundReportsCount);
         tvReturnedItemsCount = findViewById(R.id.tvReturnedItemsCount);
+        swipeRefreshLayout = findViewById(R.id.swipeRefreshLayout);
     }
 
     private void setupToolbar() {
@@ -400,7 +444,12 @@ public class UserProfileActivity extends AppCompatActivity {
                 getSupportActionBar().setDisplayShowTitleEnabled(false);
                 getSupportActionBar().setDisplayHomeAsUpEnabled(true);
             }
-            toolbar.setNavigationOnClickListener(v -> onBackPressed());
+            toolbar.setNavigationOnClickListener(v -> handleBackNavigation());
+            
+            com.google.android.material.appbar.AppBarLayout appBarLayout = findViewById(R.id.appBarLayout);
+            if (appBarLayout != null) {
+                HeaderColorHelper.setup(this, appBarLayout, toolbar);
+            }
         }
     }
 
@@ -529,7 +578,10 @@ public class UserProfileActivity extends AppCompatActivity {
     }
 
     private void fetchUniversityIdAndLoadData(String authUid) {
-        showLoading(true);
+        if (swipeRefreshLayout == null || !swipeRefreshLayout.isRefreshing()) {
+            showLoading(true);
+        }
+        
         mDatabase.child("UIDToUniversityID").child(authUid).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
@@ -552,6 +604,7 @@ public class UserProfileActivity extends AppCompatActivity {
         FirebaseUser currentUser = mAuth.getCurrentUser();
         if (currentUser == null) {
             showLoading(false);
+            if (swipeRefreshLayout != null) swipeRefreshLayout.setRefreshing(false);
             return;
         }
         
@@ -629,9 +682,11 @@ public class UserProfileActivity extends AppCompatActivity {
                         }
                         
                         if (originalUser.getProfileImageUrl() != null && !originalUser.getProfileImageUrl().isEmpty()) {
-                            Glide.with(UserProfileActivity.this)
+                            GlideApp.with(UserProfileActivity.this)
                                     .load(originalUser.getProfileImageUrl())
                                     .placeholder(R.drawable.ic_user)
+                                    .thumbnail(0.1f)
+                                    .diskCacheStrategy(DiskCacheStrategy.ALL)
                                     .circleCrop()
                                     .into(ivProfilePicture);
                         } else {
@@ -644,11 +699,13 @@ public class UserProfileActivity extends AppCompatActivity {
                         if (isAdminViewing) disableAllFields();
                     }
                 }
+                if (swipeRefreshLayout != null) swipeRefreshLayout.setRefreshing(false);
             }
 
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
                 showLoading(false);
+                if (swipeRefreshLayout != null) swipeRefreshLayout.setRefreshing(false);
                 Toast.makeText(UserProfileActivity.this, "Failed to load data", Toast.LENGTH_SHORT).show();
             }
         });

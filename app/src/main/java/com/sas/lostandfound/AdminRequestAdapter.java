@@ -9,7 +9,7 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.google.android.material.button.MaterialButton;
 
 import java.util.List;
@@ -48,9 +48,11 @@ public class AdminRequestAdapter extends RecyclerView.Adapter<AdminRequestAdapte
         holder.tvCode.setText("Code: " + request.getVerificationCode());
 
         if (request.getProfileImageUrl() != null && !request.getProfileImageUrl().isEmpty()) {
-            Glide.with(holder.itemView.getContext())
+            GlideApp.with(holder.itemView.getContext())
                     .load(request.getProfileImageUrl())
                     .placeholder(R.drawable.ic_user)
+                    .thumbnail(0.1f)
+                    .diskCacheStrategy(DiskCacheStrategy.ALL)
                     .circleCrop()
                     .into(holder.ivProfile);
         } else {

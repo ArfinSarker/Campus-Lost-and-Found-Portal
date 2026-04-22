@@ -17,9 +17,10 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 import androidx.viewpager2.widget.ViewPager2;
 
-import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.google.android.material.card.MaterialCardView;
 import com.google.android.material.tabs.TabLayout;
 import com.google.android.material.tabs.TabLayoutMediator;
@@ -42,21 +43,22 @@ public class AllReportedItemsActivity extends AppCompatActivity {
     private List<Item> filteredList;
     private ProgressBar progressBar;
     private Toolbar toolbar;
+    private com.google.android.material.appbar.AppBarLayout appBarLayout;
     private TextView tvHeaderTitle;
+    private SwipeRefreshLayout swipeRefreshLayout;
     private String filterStatus; // "lost", "found", "returned" or null
     private String targetUserId;
     private String userName;
     private boolean isAdmin = false;
 
     private DatabaseReference mDatabase;
-    private static final String DATABASE_URL = "FIREBASE_URL_PLACEHOLDER";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_all_reported_items);
 
-        mDatabase = FirebaseDatabase.getInstance(DATABASE_URL).getReference();
+        mDatabase = FirebaseDatabase.getInstance(FirebaseConfig.DATABASE_URL).getReference();
         filterStatus = getIntent().getStringExtra("filterStatus");
         targetUserId = getIntent().getStringExtra("targetUserId");
         userName = getIntent().getStringExtra("userName");
@@ -65,6 +67,7 @@ public class AllReportedItemsActivity extends AppCompatActivity {
         initializeViews();
         setupToolbar();
         setupRecyclerView();
+        setupSwipeRefresh();
         fetchAllItems();
     }
 
@@ -72,7 +75,13 @@ public class AllReportedItemsActivity extends AppCompatActivity {
         rvAllItems = findViewById(R.id.rvAllItems);
         progressBar = findViewById(R.id.progressBar);
         toolbar = findViewById(R.id.toolbar);
+        appBarLayout = findViewById(R.id.appBarLayout);
         tvHeaderTitle = findViewById(R.id.tvHeaderTitle);
+        swipeRefreshLayout = findViewById(R.id.swipeRefreshLayout);
+        
+        if (appBarLayout != null) {
+            HeaderColorHelper.setup(this, appBarLayout, toolbar);
+        }
         
         String prefix = (userName != null && !userName.isEmpty()) ? userName + "'s " : "All ";
         
@@ -107,8 +116,18 @@ public class AllReportedItemsActivity extends AppCompatActivity {
         rvAllItems.setAdapter(adapter);
     }
 
+    private void setupSwipeRefresh() {
+        if (swipeRefreshLayout != null) {
+            swipeRefreshLayout.setColorSchemeColors(ContextCompat.getColor(this, R.color.primaryColor));
+            swipeRefreshLayout.setOnRefreshListener(this::fetchAllItems);
+        }
+    }
+
     private void fetchAllItems() {
-        progressBar.setVisibility(View.VISIBLE);
+        if (swipeRefreshLayout == null || !swipeRefreshLayout.isRefreshing()) {
+            progressBar.setVisibility(View.VISIBLE);
+        }
+        
         ValueEventListener itemListener = new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
@@ -120,11 +139,13 @@ public class AllReportedItemsActivity extends AppCompatActivity {
                 }
                 applyFilter();
                 progressBar.setVisibility(View.GONE);
+                if (swipeRefreshLayout != null) swipeRefreshLayout.setRefreshing(false);
             }
 
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
                 progressBar.setVisibility(View.GONE);
+                if (swipeRefreshLayout != null) swipeRefreshLayout.setRefreshing(false);
             }
         };
 
@@ -183,8 +204,33 @@ public class AllReportedItemsActivity extends AppCompatActivity {
         public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
             Item item = items.get(position);
             holder.tvTitle.setText(item.getName());
-            holder.tvLocation.setText(item.getLocation());
+            
+            holder.tvLocation.setText(ReportLocationDisplay.formatFullLocation(
+                    item.getLocation(), 
+                    item.getManualLocation(), 
+                    item.getAdditionalLocationDetails()));
+                    
             holder.tvTime.setText(item.getDate());
+
+            if (holder.tvReportId != null) {
+                String displayId = item.getDisplayId();
+                if (displayId == null || displayId.isEmpty()) {
+                    displayId = item.getReportId();
+                }
+
+                if (displayId != null && !displayId.isEmpty()) {
+                    if (!displayId.startsWith("#")) {
+                        displayId = "#" + displayId;
+                    }
+                    holder.tvReportId.setText(displayId);
+                    View parent = (View) holder.tvReportId.getParent();
+                    if (parent != null) parent.setVisibility(View.VISIBLE);
+                } else {
+                    holder.tvReportId.setText("");
+                    View parent = (View) holder.tvReportId.getParent();
+                    if (parent != null) parent.setVisibility(View.GONE);
+                }
+            }
 
             if ("lost".equals(item.getStatus())) {
                 holder.statusIndicator.setBackgroundColor(0xFFA31621);
@@ -199,24 +245,8 @@ public class AllReportedItemsActivity extends AppCompatActivity {
 
             setupImageOrSlider(holder, item, position);
 
-            holder.itemView.setOnClickListener(v -> {
-                Intent intent = new Intent(v.getContext(), ItemDetailActivity.class);
-                intent.putExtra("itemId", item.getId());
-                intent.putExtra("itemName", item.getName());
-                intent.putExtra("itemDescription", item.getDescription());
-                intent.putExtra("itemLocation", item.getLocation());
-                intent.putExtra("itemDate", item.getDate());
-                intent.putExtra("itemTime", item.getTime());
-                intent.putExtra("itemStatus", item.getStatus());
-                intent.putExtra("itemCategory", item.getCategory());
-                intent.putExtra("itemImageUrl", item.getImageUrl());
-                intent.putExtra("userName", item.getUserName());
-                intent.putExtra("userDepartment", item.getUserDepartment());
-                intent.putExtra("userPhone", item.getUserPhone());
-                intent.putExtra("userId", item.getUserId());
-                intent.putExtra("isAdmin", isAdmin);
-                v.getContext().startActivity(intent);
-            });
+            // Entire card click leads to details - Use Activity's isAdmin flag
+            holder.itemView.setOnClickListener(v -> ItemNavigationUtils.navigateToDetail(v.getContext(), item, isAdmin));
         }
 
         private void setupImageOrSlider(ViewHolder holder, Item item, int position) {
@@ -227,6 +257,9 @@ public class AllReportedItemsActivity extends AppCompatActivity {
                 holder.tabLayoutIndicator.setVisibility(View.VISIBLE);
 
                 ImageSliderAdapter sliderAdapter = new ImageSliderAdapter(urls);
+                // Slider clicks lead to details - Use Activity's isAdmin flag
+                sliderAdapter.setOnImageClickListener(pos -> ItemNavigationUtils.navigateToDetail(holder.itemView.getContext(), item, isAdmin));
+                
                 holder.viewPagerSlider.setAdapter(sliderAdapter);
                 holder.viewPagerSlider.setUserInputEnabled(true);
 
@@ -255,16 +288,23 @@ public class AllReportedItemsActivity extends AppCompatActivity {
                 if (item.getImageUrl() != null && !item.getImageUrl().isEmpty()) {
                     holder.ivIcon.setImageTintList(null);
                     holder.ivIcon.setScaleType(ImageView.ScaleType.CENTER_CROP);
-                    Glide.with(holder.itemView.getContext())
+                    GlideApp.with(holder.itemView.getContext())
                             .load(item.getImageUrl())
                             .placeholder(R.drawable.ic_package)
+                            .thumbnail(0.1f)
+                            .diskCacheStrategy(DiskCacheStrategy.ALL)
                             .centerCrop()
                             .into(holder.ivIcon);
+                            
+                    // Image click leads to details - Use Activity's isAdmin flag
+                    holder.ivIcon.setOnClickListener(v -> ItemNavigationUtils.navigateToDetail(v.getContext(), item, isAdmin));
                 } else {
                     holder.ivIcon.setImageResource(R.drawable.ic_package);
                     holder.ivIcon.setScaleType(ImageView.ScaleType.CENTER_INSIDE);
                     holder.ivIcon.setImageTintList(android.content.res.ColorStateList.valueOf(
                             ContextCompat.getColor(holder.itemView.getContext(), R.color.textSecondary)));
+                    // Navigate even for placeholders - Use Activity's isAdmin flag
+                    holder.ivIcon.setOnClickListener(v -> ItemNavigationUtils.navigateToDetail(v.getContext(), item, isAdmin));
                 }
             }
         }
@@ -289,7 +329,7 @@ public class AllReportedItemsActivity extends AppCompatActivity {
         }
 
         class ViewHolder extends RecyclerView.ViewHolder {
-            TextView tvTitle, tvLocation, tvTime, tvBadge;
+            TextView tvTitle, tvLocation, tvTime, tvBadge, tvReportId;
             ImageView ivIcon;
             View statusIndicator;
             MaterialCardView cardBadge;
@@ -307,6 +347,7 @@ public class AllReportedItemsActivity extends AppCompatActivity {
                 cardBadge = itemView.findViewById(R.id.cardBadge);
                 viewPagerSlider = itemView.findViewById(R.id.viewPagerSlider);
                 tabLayoutIndicator = itemView.findViewById(R.id.tabLayoutIndicator);
+                tvReportId = itemView.findViewById(R.id.tvReportId);
             }
         }
     }

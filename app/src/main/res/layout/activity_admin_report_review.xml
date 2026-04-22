@@ -28,261 +28,193 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
-                android:ellipsize="end"
-                android:maxLines="1"
-                android:text="Report Review"
+                android:text="Report Details"
                 android:textColor="@color/white" />
 
         </com.google.android.material.appbar.MaterialToolbar>
 
     </com.google.android.material.appbar.AppBarLayout>
 
-    <androidx.core.widget.NestedScrollView
+    <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+        android:id="@+id/swipeRefreshLayout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
-        <LinearLayout
+        <androidx.core.widget.NestedScrollView
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:padding="20dp">
+            android:layout_height="match_parent">
 
-            <!-- Reporter Details Card -->
-            <com.google.android.material.card.MaterialCardView
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                app:cardCornerRadius="16dp"
-                app:cardElevation="2dp"
-                app:strokeWidth="0dp">
+                android:orientation="vertical"
+                android:padding="12dp">
 
-                <LinearLayout
+                <!-- Report Summary Card -->
+                <include
+                    android:id="@+id/includedReportCard"
+                    layout="@layout/item_admin_report" />
+
+                <!-- Evidence Section -->
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/cardEvidence"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:padding="16dp">
+                    android:layout_margin="8dp"
+                    android:visibility="gone"
+                    app:cardCornerRadius="16dp"
+                    app:cardElevation="2dp"
+                    app:strokeWidth="0dp">
 
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:gravity="center_vertical"
-                        android:orientation="horizontal">
-                        <ImageView
-                            android:layout_width="24dp"
-                            android:layout_height="24dp"
-                            android:src="@drawable/ic_user"
-                            app:tint="@color/primaryColor" />
+                        android:orientation="vertical"
+                        android:padding="16dp">
+
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_marginStart="8dp"
-                            android:text="Reporter Information"
+                            android:text="Supporting Evidence"
                             android:textColor="@color/primaryColor"
-                            android:textStyle="bold" />
+                            android:textStyle="bold"
+                            android:textSize="14sp" />
+
+                        <View
+                            android:layout_width="match_parent"
+                            android:layout_height="1dp"
+                            android:layout_marginTop="8dp"
+                            android:layout_marginBottom="12dp"
+                            android:background="#DDDDDD" />
+
+                        <FrameLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="240dp">
+
+                            <androidx.viewpager2.widget.ViewPager2
+                                android:id="@+id/viewPagerEvidence"
+                                android:layout_width="match_parent"
+                                android:layout_height="match_parent"
+                                android:visibility="gone" />
+
+                            <ImageView
+                                android:id="@+id/ivDetailEvidence"
+                                android:layout_width="match_parent"
+                                android:layout_height="match_parent"
+                                android:scaleType="centerCrop"
+                                android:contentDescription="Evidence" />
+
+                            <com.google.android.material.tabs.TabLayout
+                                android:id="@+id/tabLayoutIndicator"
+                                android:layout_width="wrap_content"
+                                android:layout_height="12dp"
+                                android:layout_gravity="bottom|center_horizontal"
+                                android:layout_marginBottom="8dp"
+                                android:background="@android:color/transparent"
+                                android:visibility="gone"
+                                app:tabBackground="@drawable/slider_indicator_selector"
+                                app:tabGravity="center"
+                                app:tabIndicatorHeight="0dp"
+                                app:tabMaxWidth="10dp"
+                                app:tabMinWidth="10dp"
+                                app:tabPaddingStart="0dp"
+                                app:tabPaddingEnd="0dp"
+                                app:tabRippleColor="@null" />
+                        </FrameLayout>
                     </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
 
-                    <View
-                        android:layout_width="match_parent"
-                        android:layout_height="1dp"
-                        android:layout_marginVertical="12dp"
-                        android:background="#EEEEEE" />
-
-                    <TextView android:id="@+id/tvDetailReporterName" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Name: Loading..." android:textColor="@color/black" android:textSize="16sp" />
-                    <TextView android:id="@+id/tvDetailUniversityId" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="4dp" android:text="University ID: ..." android:textColor="@color/textSecondary" />
-                    <TextView android:id="@+id/tvDetailReporterRole" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="4dp" android:text="Role: ..." android:textColor="@color/textSecondary" />
-                    <TextView android:id="@+id/tvDetailReporterDeptDesignation" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="4dp" android:text="..." android:textColor="@color/textSecondary" />
-                    <TextView android:id="@+id/tvDetailReporterPhone" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="4dp" android:text="Phone: ..." android:textColor="@color/textSecondary" />
-                </LinearLayout>
-            </com.google.android.material.card.MaterialCardView>
-
-            <!-- Report Content Card -->
-            <com.google.android.material.card.MaterialCardView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
-                app:cardCornerRadius="16dp"
-                app:cardElevation="2dp"
-                app:strokeWidth="0dp">
-
-                <LinearLayout
+                <!-- Admin Review Section -->
+                <com.google.android.material.card.MaterialCardView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:padding="16dp">
-
-                    <TextView
-                        android:id="@+id/tvDetailTitle"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:text="Report Title"
-                        android:textColor="@color/black"
-                        android:textSize="20sp"
-                        android:textStyle="bold" />
-
-                    <TextView
-                        android:id="@+id/tvDetailCategory"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="4dp"
-                        android:text="Category: N/A"
-                        android:textColor="@color/primaryColor"
-                        android:textStyle="bold" />
-
-                    <TextView
-                        android:id="@+id/tvDetailDate"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="4dp"
-                        android:text="Submitted: ..."
-                        android:textColor="@color/textSecondary"
-                        android:textSize="12sp" />
-
-                    <TextView
-                        android:id="@+id/tvDetailPriority"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="4dp"
-                        android:text="Priority: ..."
-                        android:textColor="@color/textSecondary"
-                        android:textSize="12sp"
-                        android:textStyle="bold" />
-
-                    <TextView
-                        android:id="@+id/tvDetailDescription"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="16dp"
-                        android:lineSpacingExtra="4dp"
-                        android:text="Full Description"
-                        android:textColor="@color/textPrimary"
-                        android:textSize="15sp" />
-
-                    <TextView
-                        android:id="@+id/tvDetailRelatedId"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="16dp"
-                        android:background="#F5F5F5"
-                        android:paddingHorizontal="8dp"
-                        android:paddingVertical="4dp"
-                        android:text="Related Report ID: None"
-                        android:textColor="@color/primaryColor"
-                        android:textSize="12sp" />
-                </LinearLayout>
-            </com.google.android.material.card.MaterialCardView>
-
-            <!-- Evidence Section -->
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="24dp"
-                android:text="Supporting Evidence"
-                android:textColor="@color/black"
-                android:textStyle="bold" />
-
-            <com.google.android.material.card.MaterialCardView
-                android:id="@+id/cardEvidence"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                app:cardCornerRadius="16dp"
-                app:cardElevation="2dp"
-                app:strokeWidth="0dp">
-                <ImageView
-                    android:id="@+id/ivDetailEvidence"
-                    android:layout_width="match_parent"
-                    android:layout_height="300dp"
-                    android:adjustViewBounds="true"
-                    android:scaleType="centerCrop" />
-            </com.google.android.material.card.MaterialCardView>
-
-            <TextView
-                android:id="@+id/tvNoEvidence"
-                android:layout_width="match_parent"
-                android:layout_height="100dp"
-                android:layout_marginTop="8dp"
-                android:background="#F5F5F5"
-                android:gravity="center"
-                android:text="No evidence uploaded"
-                android:textColor="@color/textSecondary" />
-
-            <!-- Admin Review Card -->
-            <com.google.android.material.card.MaterialCardView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="24dp"
-                android:layout_marginBottom="32dp"
-                app:cardCornerRadius="16dp"
-                app:cardElevation="2dp"
-                app:strokeWidth="0dp">
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:padding="16dp">
-
-                    <com.google.android.material.textfield.TextInputLayout
-                        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:hint="Update Status"
-                        app:startIconDrawable="@drawable/ic_status">
-                        <AutoCompleteTextView
-                            android:id="@+id/actvUpdateStatus"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:inputType="none"
-                            android:textColor="@color/black" />
-                    </com.google.android.material.textfield.TextInputLayout>
-
-                    <com.google.android.material.textfield.TextInputLayout
-                        style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="12dp"
-                        android:hint="Admin Note"
-                        app:startIconDrawable="@drawable/ic_note">
-                        <com.google.android.material.textfield.TextInputEditText
-                            android:id="@+id/etAdminNote"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:minLines="2"
-                            android:gravity="center"
-                            android:hint="Admin Note"
-                            android:inputType="textMultiLine" />
-                    </com.google.android.material.textfield.TextInputLayout>
+                    android:layout_margin="8dp"
+                    android:layout_marginBottom="32dp"
+                    app:cardCornerRadius="16dp"
+                    app:cardElevation="2dp"
+                    app:strokeWidth="0dp">
 
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="24dp"
-                        android:orientation="horizontal">
+                        android:orientation="vertical"
+                        android:padding="16dp">
 
-                        <com.google.android.material.button.MaterialButton
-                            android:id="@+id/btnDeleteReport"
-                            android:layout_width="56dp"
-                            android:layout_height="56dp"
-                            android:backgroundTint="@color/errorColor"
-                            app:icon="@drawable/ic_delete"
-                            app:iconTint="@color/white"
-                            app:cornerRadius="8dp" />
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Review Report"
+                            android:textColor="@color/primaryColor"
+                            android:textStyle="bold"
+                            android:textSize="14sp"
+                            android:layout_marginBottom="12dp" />
 
+                        <!-- Status Selection -->
+                        <com.google.android.material.textfield.TextInputLayout
+                            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:hint="Update Status"
+                            app:startIconDrawable="@drawable/ic_status">
+                            <AutoCompleteTextView
+                                android:id="@+id/actvUpdateStatus"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:inputType="none"
+                                android:textColor="@color/black" />
+                        </com.google.android.material.textfield.TextInputLayout>
+
+                        <!-- Admin Notes Section -->
+                        <com.google.android.material.textfield.TextInputLayout
+                            style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="16dp"
+                            android:hint="Admin Note"
+                            app:startIconDrawable="@drawable/ic_note">
+                            <com.google.android.material.textfield.TextInputEditText
+                                android:id="@+id/etAdminNote"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:minLines="3"
+                                android:gravity="center"
+                                android:hint="Admin Note"
+                                android:inputType="textMultiLine" />
+                        </com.google.android.material.textfield.TextInputLayout>
+
+                        <!-- Save Updates Button -->
                         <com.google.android.material.button.MaterialButton
                             android:id="@+id/btnUpdateReport"
-                            android:layout_width="0dp"
+                            android:layout_width="match_parent"
                             android:layout_height="56dp"
-                            android:layout_marginStart="12dp"
-                            android:layout_weight="1"
+                            android:layout_marginTop="32dp"
                             android:text="Save Updates"
                             android:textColor="@color/white"
+                            android:textAllCaps="false"
                             app:cornerRadius="8dp" />
-                    </LinearLayout>
-                </LinearLayout>
-            </com.google.android.material.card.MaterialCardView>
 
-        </LinearLayout>
-    </androidx.core.widget.NestedScrollView>
+                        <!-- Delete Report Button -->
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/btnDeleteReport"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="12dp"
+                            android:text="Delete Report"
+                            android:textColor="@color/white"
+                            android:textAllCaps="false"
+                            app:backgroundTint="@color/errorColor"
+                            app:cornerRadius="8dp"
+                            app:icon="@drawable/ic_delete"
+                            app:iconGravity="textStart"
+                            app:iconTint="@color/white" />
+
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+
+            </LinearLayout>
+        </androidx.core.widget.NestedScrollView>
+    </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
 
     <ProgressBar
         android:id="@+id/progressBar"

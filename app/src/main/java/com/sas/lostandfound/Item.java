@@ -13,6 +13,7 @@ public class Item {
     private String category;
     private String description;
     private String location;
+    private String manualLocation;
     private String date;
     private String time;
     private String additionalLocationDetails;
@@ -54,6 +55,7 @@ public class Item {
     private String claimedByUserId; // The user who claimed/received the item
     private long timestamp;
     private boolean isEdited;
+    private boolean deletedByUser;
 
     public Item() {
         this.imageUrls = new ArrayList<>();
@@ -74,6 +76,7 @@ public class Item {
         this.imageUrls = new ArrayList<>();
         this.proofOfOwnershipUrls = new ArrayList<>();
         this.isEdited = false;
+        this.deletedByUser = false;
     }
 
     // Getters and Setters
@@ -91,6 +94,8 @@ public class Item {
     public void setDescription(String description) { this.description = description; }
     public String getLocation() { return location; }
     public void setLocation(String location) { this.location = location; }
+    public String getManualLocation() { return manualLocation; }
+    public void setManualLocation(String manualLocation) { this.manualLocation = manualLocation; }
     public String getDate() { return date; }
     public void setDate(String date) { this.date = date; }
     public String getTime() { return time; }
@@ -155,5 +160,7 @@ public class Item {
     public long getTimestamp() { return timestamp; }
     public void setTimestamp(long timestamp) { this.timestamp = timestamp; }
     public boolean isEdited() { return isEdited; }
-    public void setEdited(boolean edited) { isEdited = edited; }
+    public void setEdited(boolean edited) { this.isEdited = edited; }
+    public boolean isDeletedByUser() { return deletedByUser; }
+    public void setDeletedByUser(boolean deletedByUser) { this.deletedByUser = deletedByUser; }
 }

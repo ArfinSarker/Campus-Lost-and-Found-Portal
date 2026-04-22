@@ -9,8 +9,10 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -32,19 +34,20 @@ public class AdminRequestsActivity extends AppCompatActivity {
     private List<AdminRequest> requestList;
     private ProgressBar progressBar;
     private LinearLayout llEmptyState;
+    private SwipeRefreshLayout swipeRefreshLayout;
     private DatabaseReference mDatabase;
-    private static final String DATABASE_URL = "FIREBASE_URL_PLACEHOLDER";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_admin_requests);
 
-        mDatabase = FirebaseDatabase.getInstance(DATABASE_URL).getReference();
+        mDatabase = FirebaseDatabase.getInstance(FirebaseConfig.DATABASE_URL).getReference();
 
         initializeViews();
         setupToolbar();
         setupRecyclerView();
+        setupSwipeRefresh();
         fetchAdminRequests();
     }
 
@@ -52,6 +55,7 @@ public class AdminRequestsActivity extends AppCompatActivity {
         rvAdminRequests = findViewById(R.id.rvAdminRequests);
         progressBar = findViewById(R.id.progressBar);
         llEmptyState = findViewById(R.id.llEmptyState);
+        swipeRefreshLayout = findViewById(R.id.swipeRefreshLayout);
     }
 
     private void setupToolbar() {
@@ -61,6 +65,11 @@ public class AdminRequestsActivity extends AppCompatActivity {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         }
         toolbar.setNavigationOnClickListener(v -> onBackPressed());
+
+        com.google.android.material.appbar.AppBarLayout appBarLayout = findViewById(R.id.appBarLayout);
+        if (appBarLayout != null) {
+            HeaderColorHelper.setup(this, appBarLayout, toolbar);
+        }
     }
 
     private void setupRecyclerView() {
@@ -80,8 +89,18 @@ public class AdminRequestsActivity extends AppCompatActivity {
         rvAdminRequests.setAdapter(adapter);
     }
 
+    private void setupSwipeRefresh() {
+        if (swipeRefreshLayout != null) {
+            swipeRefreshLayout.setColorSchemeColors(ContextCompat.getColor(this, R.color.primaryColor));
+            swipeRefreshLayout.setOnRefreshListener(this::fetchAdminRequests);
+        }
+    }
+
     private void fetchAdminRequests() {
-        progressBar.setVisibility(View.VISIBLE);
+        if (swipeRefreshLayout == null || !swipeRefreshLayout.isRefreshing()) {
+            progressBar.setVisibility(View.VISIBLE);
+        }
+        
         mDatabase.child("adminRequests").addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
@@ -95,12 +114,14 @@ public class AdminRequestsActivity extends AppCompatActivity {
                 adapter.notifyDataSetChanged();
                 progressBar.setVisibility(View.GONE);
                 llEmptyState.setVisibility(requestList.isEmpty() ? View.VISIBLE : View.GONE);
+                if (swipeRefreshLayout != null) swipeRefreshLayout.setRefreshing(false);
             }
 
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
                 progressBar.setVisibility(View.GONE);
                 Toast.makeText(AdminRequestsActivity.this, "Database Error: " + error.getMessage(), Toast.LENGTH_SHORT).show();
+                if (swipeRefreshLayout != null) swipeRefreshLayout.setRefreshing(false);
             }
         });
     }

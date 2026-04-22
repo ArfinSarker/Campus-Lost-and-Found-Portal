@@ -24,6 +24,11 @@ public class DeveloperInfoActivity extends AppCompatActivity {
             btnBack.setOnClickListener(v -> onBackPressed());
         }
 
+        com.google.android.material.appbar.AppBarLayout appBarLayout = findViewById(R.id.appBarLayout);
+        if (appBarLayout != null) {
+            HeaderColorHelper.setup(this, appBarLayout);
+        }
+
         llEmail = findViewById(R.id.llEmail);
         llPhone = findViewById(R.id.llPhone);
         llGithub = findViewById(R.id.llGithub);

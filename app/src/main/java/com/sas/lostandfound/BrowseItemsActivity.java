@@ -1,6 +1,5 @@
 package com.sas.lostandfound;
 
-import android.content.Intent;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -11,8 +10,10 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.chip.ChipGroup;
@@ -36,13 +37,13 @@ public class BrowseItemsActivity extends AppCompatActivity {
     private final List<Item> foundItemsList = new ArrayList<>();
     private final List<Item> filteredItems = new ArrayList<>();
     private DatabaseReference mDatabase;
-    private static final String DATABASE_URL = "FIREBASE_URL_PLACEHOLDER";
 
     private TextInputEditText etSearch;
     private AutoCompleteTextView actvCategoryFilter;
     private ChipGroup chipGroup;
     private View layoutEmptyState;
     private MaterialToolbar toolbar;
+    private SwipeRefreshLayout swipeRefreshLayout;
 
     private String currentSearchQuery = "";
     private String currentCategory = "All Categories";
@@ -53,12 +54,13 @@ public class BrowseItemsActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_browse_items);
 
-        mDatabase = FirebaseDatabase.getInstance(DATABASE_URL).getReference();
+        mDatabase = FirebaseDatabase.getInstance(FirebaseConfig.DATABASE_URL).getReference();
         
         initViews();
         setupToolbar();
         setupRecyclerView();
         setupFilters();
+        setupSwipeRefresh();
 
         loadItems();
     }
@@ -70,34 +72,26 @@ public class BrowseItemsActivity extends AppCompatActivity {
         chipGroup = findViewById(R.id.chipGroup);
         layoutEmptyState = findViewById(R.id.layoutEmptyState);
         toolbar = findViewById(R.id.toolbar);
+        swipeRefreshLayout = findViewById(R.id.swipeRefreshLayout);
     }
 
     private void setupToolbar() {
         if (toolbar != null) {
             setSupportActionBar(toolbar);
             toolbar.setNavigationOnClickListener(v -> finish());
+            
+            com.google.android.material.appbar.AppBarLayout appBarLayout = findViewById(R.id.appBarLayout);
+            if (appBarLayout != null) {
+                HeaderColorHelper.setup(this, appBarLayout, toolbar);
+            }
         }
     }
 
     private void setupRecyclerView() {
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
-        // Using R.layout.item_browse_card as requested for the Browse section
+        // Using centralized navigation utility
         adapter = new ItemAdapter(filteredItems, R.layout.item_browse_card, item -> {
-            Intent intent = new Intent(BrowseItemsActivity.this, ItemDetailActivity.class);
-            intent.putExtra("itemId", item.getId());
-            intent.putExtra("itemName", item.getName());
-            intent.putExtra("itemDescription", item.getDescription());
-            intent.putExtra("itemLocation", item.getLocation());
-            intent.putExtra("itemDate", item.getDate());
-            intent.putExtra("itemTime", item.getTime());
-            intent.putExtra("itemStatus", item.getStatus());
-            intent.putExtra("itemCategory", item.getCategory());
-            intent.putExtra("itemImageUrl", item.getImageUrl());
-            intent.putExtra("userName", item.getUserName());
-            intent.putExtra("userDepartment", item.getUserDepartment());
-            intent.putExtra("userPhone", item.getUserPhone());
-            intent.putExtra("userId", item.getUserId());
-            startActivity(intent);
+            ItemNavigationUtils.navigateToDetail(BrowseItemsActivity.this, item);
         });
         recyclerView.setAdapter(adapter);
     }
@@ -134,8 +128,14 @@ public class BrowseItemsActivity extends AppCompatActivity {
         });
     }
 
+    private void setupSwipeRefresh() {
+        if (swipeRefreshLayout != null) {
+            swipeRefreshLayout.setColorSchemeColors(ContextCompat.getColor(this, R.color.primaryColor));
+            swipeRefreshLayout.setOnRefreshListener(this::loadItems);
+        }
+    }
+
     private void loadItems() {
-        // Fix: Listen to specific child nodes instead of root to avoid "Permission Denied" errors
         mDatabase.child("LostItems").addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
@@ -147,6 +147,7 @@ public class BrowseItemsActivity extends AppCompatActivity {
                     } catch (Exception e) { e.printStackTrace(); }
                 }
                 combineAndFilter();
+                if (swipeRefreshLayout != null) swipeRefreshLayout.setRefreshing(false);
             }
 
             @Override
@@ -154,6 +155,7 @@ public class BrowseItemsActivity extends AppCompatActivity {
                 if (!isFinishing()) {
                     Toast.makeText(BrowseItemsActivity.this, "LostItems Error: " + error.getMessage(), Toast.LENGTH_SHORT).show();
                 }
+                if (swipeRefreshLayout != null) swipeRefreshLayout.setRefreshing(false);
             }
         });
 
@@ -168,6 +170,7 @@ public class BrowseItemsActivity extends AppCompatActivity {
                     } catch (Exception e) { e.printStackTrace(); }
                 }
                 combineAndFilter();
+                if (swipeRefreshLayout != null) swipeRefreshLayout.setRefreshing(false);
             }
 
             @Override
@@ -175,6 +178,7 @@ public class BrowseItemsActivity extends AppCompatActivity {
                 if (!isFinishing()) {
                     Toast.makeText(BrowseItemsActivity.this, "FoundItems Error: " + error.getMessage(), Toast.LENGTH_SHORT).show();
                 }
+                if (swipeRefreshLayout != null) swipeRefreshLayout.setRefreshing(false);
             }
         });
     }
@@ -183,7 +187,6 @@ public class BrowseItemsActivity extends AppCompatActivity {
         allItems.clear();
         allItems.addAll(lostItemsList);
         allItems.addAll(foundItemsList);
-        // Sort items by timestamp - newest first
         Collections.sort(allItems, (o1, o2) -> Long.compare(o2.getTimestamp(), o1.getTimestamp()));
         filterItems();
     }

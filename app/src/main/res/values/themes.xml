@@ -45,6 +45,13 @@
         <item name="materialCalendarTheme">@style/ThemeOverlay.App.DatePicker</item>
     </style>
 
+    <style name="Theme.App.FullScreen" parent="Theme.Material3.DayNight.NoActionBar">
+        <item name="android:windowFullscreen">true</item>
+        <item name="android:windowContentOverlay">@null</item>
+        <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="android:navigationBarColor">@android:color/black</item>
+    </style>
+
     <!-- Theme Overlay for TimePicker to achieve the requested look -->
     <style name="ThemeOverlay.App.TimePicker" parent="ThemeOverlay.Material3.MaterialTimePicker">
         <!-- Main dialog and Header background (Dark as per screenshot) -->
