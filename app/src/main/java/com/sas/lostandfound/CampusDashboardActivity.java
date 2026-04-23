@@ -77,6 +77,9 @@ public class CampusDashboardActivity extends AppCompatActivity {
         mAuth = FirebaseAuth.getInstance();
         mDatabase = FirebaseDatabase.getInstance(FirebaseConfig.DATABASE_URL).getReference();
 
+        // Ensure user is logged in
+        RoleVerifier.checkUserAccess(this);
+
         // Check if admin is logged in and redirect if necessary
         checkSessionAndRedirect();
 
@@ -408,7 +411,7 @@ public class CampusDashboardActivity extends AppCompatActivity {
                 @Override
                 public void onDataChange(@NonNull DataSnapshot snapshot) {
                     currentUniversityId = snapshot.exists() ? snapshot.getValue(String.class) : authUid;
-                    
+
                     mDatabase.child("Users").child(currentUniversityId).addValueEventListener(new ValueEventListener() {
                         @Override
                         public void onDataChange(@NonNull DataSnapshot userSnapshot) {
@@ -671,22 +674,22 @@ public class CampusDashboardActivity extends AppCompatActivity {
             boolean isResolved = "Claimed".equalsIgnoreCase(item.getAdminStatus()) || "Returned".equalsIgnoreCase(item.getAdminStatus());
 
             if (isResolved) {
-                holder.statusIndicator.setBackgroundColor(0xFF2E7D32);
-                holder.tvBadge.setText("RESOLVED");
+                holder.statusIndicator.setBackgroundColor(ContextCompat.getColor(holder.itemView.getContext(), R.color.badge_resolved_bg));
+                holder.tvBadge.setText(R.string.status_resolved);
                 if (holder.cardBadge != null) {
-                    holder.cardBadge.setCardBackgroundColor(0xFF2E7D32);
+                    holder.cardBadge.setCardBackgroundColor(ContextCompat.getColor(holder.itemView.getContext(), R.color.badge_resolved_bg));
                 }
             } else if ("lost".equals(item.getStatus())) {
-                holder.statusIndicator.setBackgroundColor(0xFFA31621);
-                holder.tvBadge.setText("LOST");
+                holder.statusIndicator.setBackgroundColor(ContextCompat.getColor(holder.itemView.getContext(), R.color.badge_lost_bg));
+                holder.tvBadge.setText(R.string.status_lost_label);
                 if (holder.cardBadge != null) {
-                    holder.cardBadge.setCardBackgroundColor(0xFFA31621);
+                    holder.cardBadge.setCardBackgroundColor(ContextCompat.getColor(holder.itemView.getContext(), R.color.badge_lost_bg));
                 }
             } else {
-                holder.statusIndicator.setBackgroundColor(0xFF2E7D32);
-                holder.tvBadge.setText("FOUND");
+                holder.statusIndicator.setBackgroundColor(ContextCompat.getColor(holder.itemView.getContext(), R.color.badge_found_bg));
+                holder.tvBadge.setText(R.string.status_found_label);
                 if (holder.cardBadge != null) {
-                    holder.cardBadge.setCardBackgroundColor(0xFF2E7D32);
+                    holder.cardBadge.setCardBackgroundColor(ContextCompat.getColor(holder.itemView.getContext(), R.color.badge_found_bg));
                 }
             }
             holder.tvBadge.setTextColor(ContextCompat.getColor(holder.itemView.getContext(), R.color.white));
@@ -706,7 +709,8 @@ public class CampusDashboardActivity extends AppCompatActivity {
                     holder.tabLayoutIndicator.setVisibility(View.VISIBLE);
                 }
 
-                ImageSliderAdapter sliderAdapter = new ImageSliderAdapter(urls);
+                // Use fitCenter (true) for multiple images to prevent zooming in cards
+                ImageSliderAdapter sliderAdapter = new ImageSliderAdapter(urls, true);
                 // Redirect image taps to card click behavior
                 sliderAdapter.setOnImageClickListener(pos -> ItemNavigationUtils.navigateToDetail(holder.itemView.getContext(), item));
                 

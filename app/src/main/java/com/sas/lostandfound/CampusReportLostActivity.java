@@ -156,6 +156,17 @@ public class CampusReportLostActivity extends AppCompatActivity {
         ivUploadedImage = findViewById(R.id.ivUploadedImage);
         tvUploadStatus = findViewById(R.id.tvUploadStatus);
         toolbar = findViewById(R.id.toolbar);
+
+        ErrorHelper.attachToTextInputLayout(tilItemName);
+        ErrorHelper.attachToTextInputLayout(tilCategory);
+        ErrorHelper.attachToTextInputLayout(tilDescription);
+        ErrorHelper.attachToTextInputLayout(tilDate);
+        ErrorHelper.attachToTextInputLayout(tilTime);
+        ErrorHelper.attachToTextInputLayout(tilLocation);
+        ErrorHelper.attachToTextInputLayout(tilManualLocation);
+        ErrorHelper.attachToTextInputLayout(tilContactName);
+        ErrorHelper.attachToTextInputLayout(tilContactPhone);
+        ErrorHelper.attachToTextInputLayout(tilPreferredContact);
     }
 
     private void loadItemDataForEdit(String itemId) {
@@ -413,7 +424,7 @@ public class CampusReportLostActivity extends AppCompatActivity {
 
     private void validateAndSubmit() {
         if (mAuth.getCurrentUser() == null) {
-            Toast.makeText(this, "Please log in again to submit", Toast.LENGTH_SHORT).show();
+            ErrorHelper.showError(btnSubmit, "Please log in again to submit");
             return;
         }
 
@@ -443,7 +454,7 @@ public class CampusReportLostActivity extends AppCompatActivity {
         if (TextUtils.isEmpty(preferredContact)) { tilPreferredContact.setError("Preferred contact is required"); isValid = false; }
 
         if (!cbConfirm.isChecked()) {
-            Toast.makeText(this, "Please confirm the information is accurate", Toast.LENGTH_SHORT).show();
+            ErrorHelper.showError(btnSubmit, "Please confirm the information is accurate");
             isValid = false;
         }
 
@@ -467,14 +478,13 @@ public class CampusReportLostActivity extends AppCompatActivity {
     private void submitReport(String name, String category, String description, String date, String location, String manualLocation, String contactName, String contactPhone, String preferredContact) {
         btnSubmit.setEnabled(false);
         btnSubmit.setText("Submitting report, please wait...");
-        Toast.makeText(this, "Submitting report, please wait...", Toast.LENGTH_SHORT).show();
 
         String itemId = isEditMode ? editItemId : mDatabase.child("LostItems").push().getKey();
         String userId = currentUniversityId != null ? currentUniversityId : (mAuth.getCurrentUser() != null ? mAuth.getCurrentUser().getUid() : null);
 
         if (itemId == null || userId == null) {
             resetButton();
-            Toast.makeText(this, "Failed to initialize submission. Try again.", Toast.LENGTH_SHORT).show();
+            ErrorHelper.showError(btnSubmit, "Failed to initialize submission. Try again.");
             return;
         }
 
@@ -551,7 +561,7 @@ public class CampusReportLostActivity extends AppCompatActivity {
                 } else {
                     resetButton();
                     String msg = error != null ? error.getMessage() : "Database busy or connection issue.";
-                    Toast.makeText(CampusReportLostActivity.this, "Failed to generate Report ID: " + msg, Toast.LENGTH_LONG).show();
+                    ErrorHelper.showError(btnSubmit, "Failed to generate Report ID: " + msg);
                 }
             }
         });
@@ -603,7 +613,7 @@ public class CampusReportLostActivity extends AppCompatActivity {
             } else {
                 resetButton();
                 String error = task.getException() != null ? task.getException().getMessage() : "Unknown database error";
-                Toast.makeText(this, "Failed to save report: " + error, Toast.LENGTH_SHORT).show();
+                ErrorHelper.showError(btnSubmit, "Failed to save report: " + error);
             }
         });
     }

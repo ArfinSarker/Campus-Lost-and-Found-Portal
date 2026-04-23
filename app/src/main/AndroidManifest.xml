@@ -84,7 +84,8 @@
         <activity android:name=".ClaimDetailsActivity" />
 
         <activity android:name=".FullScreenImageActivity"
-            android:theme="@style/Theme.App.FullScreen" />
+            android:theme="@style/Theme.App.FullScreen"
+            android:launchMode="singleTop" />
 
     </application>
 

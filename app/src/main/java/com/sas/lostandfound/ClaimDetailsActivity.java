@@ -10,11 +10,15 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.activity.OnBackPressedCallback;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.viewpager2.widget.ViewPager2;
 
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.google.android.material.button.MaterialButton;
+import com.google.android.material.tabs.TabLayout;
+import com.google.android.material.tabs.TabLayoutMediator;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -26,10 +30,12 @@ import java.util.List;
 
 public class ClaimDetailsActivity extends AppCompatActivity {
 
-    private TextView tvHeaderTitle, tvNameHeader, tvUniversityId, tvGender, tvBatch, tvLevelTerm, tvDepartment, tvSection, tvPhone, tvEmail, tvPreferredContact, tvDesignation;
+    private TextView tvHeaderTitle, tvNameHeader, tvUniversityId, tvGender, tvBatch, tvLevelTerm, tvDepartment, tvSection, tvPhone, tvEmail, tvPreferredContact, tvDesignation, tvReportId;
     private TextView tvItemName, tvCategory, tvDescription, tvItemDetails, tvOwnershipVerification, tvHandlingStatus, tvSecurityQuestion;
     private TextView tvInformationLabel, tvContactLabel, tvItemHeaderLabel;
     private ImageView ivClaimantPhoto, ivItemImage;
+    private ViewPager2 viewPagerImageSlider;
+    private TabLayout tabLayoutIndicator;
     private LinearLayout llSection, llBatch, llLevelTerm, llDesignation, llDepartment, llOwnershipVerification, llFoundSpecifics;
     private MaterialButton btnCall, btnEmail, btnMarkReturned;
     private DatabaseReference mDatabase;
@@ -80,6 +86,14 @@ public class ClaimDetailsActivity extends AppCompatActivity {
         });
         
         btnMarkReturned.setOnClickListener(v -> markAsReturned());
+
+        // Ensure back press always exits the activity immediately
+        getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
+            @Override
+            public void handleOnBackPressed() {
+                finish();
+            }
+        });
     }
 
     private void initializeViews() {
@@ -125,6 +139,9 @@ public class ClaimDetailsActivity extends AppCompatActivity {
         tvInformationLabel = findViewById(R.id.tvInformationLabel);
         tvContactLabel = findViewById(R.id.tvContactLabel);
         tvItemHeaderLabel = findViewById(R.id.tvItemHeaderLabel);
+        tvReportId = findViewById(R.id.tvReportId);
+        viewPagerImageSlider = findViewById(R.id.viewPagerImageSlider);
+        tabLayoutIndicator = findViewById(R.id.tabLayoutIndicator);
         
         btnCall = findViewById(R.id.btnCall);
         btnEmail = findViewById(R.id.btnEmail);
@@ -132,24 +149,14 @@ public class ClaimDetailsActivity extends AppCompatActivity {
     }
 
     private void setupLabels() {
-        if ("lost_claimed_confirmed".equals(notificationType)) {
-            tvHeaderTitle.setText("Claim Confirmed");
-            tvInformationLabel.setText("Reporter Information");
-            tvContactLabel.setText("Contact Reporter");
-            tvItemHeaderLabel.setText("Item Details");
-            btnCall.setText("Call Reporter");
-        } else if ("item_returned_confirmed".equals(notificationType)) {
-            tvHeaderTitle.setText("Item Returned");
-            tvInformationLabel.setText("Finder Information");
-            tvContactLabel.setText("Contact Finder");
-            tvItemHeaderLabel.setText("Item Details");
-            btnCall.setText("Call Finder");
+        if ("lost_claimed_confirmed".equals(notificationType) || "item_returned_confirmed".equals(notificationType)) {
+            tvHeaderTitle.setText(R.string.title_claimed_confirm);
+            tvInformationLabel.setText("Person Information");
+            tvItemHeaderLabel.setText(R.string.label_item_details);
         } else {
             tvHeaderTitle.setText("Claimer Details");
             tvInformationLabel.setText("Information");
-            tvContactLabel.setText("Contact");
             tvItemHeaderLabel.setText("Item Claimed");
-            btnCall.setText("Call Claimant");
         }
     }
 
@@ -256,6 +263,20 @@ public class ClaimDetailsActivity extends AppCompatActivity {
     private void displayItem(DataSnapshot snapshot) {
         Item item = snapshot.getValue(Item.class);
         if (item != null) {
+            String displayId = item.getDisplayId();
+            if (displayId == null || displayId.isEmpty()) {
+                displayId = item.getReportId();
+            }
+            if (displayId != null && !displayId.isEmpty()) {
+                if (!displayId.startsWith("#")) {
+                    displayId = "#" + displayId;
+                }
+                tvReportId.setText(displayId);
+                tvReportId.setVisibility(View.VISIBLE);
+            } else {
+                tvReportId.setVisibility(View.GONE);
+            }
+
             tvItemName.setText(item.getName());
             tvCategory.setText(item.getCategory());
             tvDescription.setText(item.getDescription());
@@ -279,43 +300,7 @@ public class ClaimDetailsActivity extends AppCompatActivity {
             // Handle Item Image
             String imageUrl = item.getImageUrl();
             List<String> imageUrls = item.getImageUrls();
-            
-            if (imageUrls != null && !imageUrls.isEmpty()) {
-                ivItemImage.setVisibility(View.VISIBLE);
-                GlideApp.with(this)
-                        .load(imageUrls.get(0))
-                        .placeholder(R.drawable.ic_package)
-                        .thumbnail(0.1f)
-                        .diskCacheStrategy(DiskCacheStrategy.ALL)
-                        .into(ivItemImage);
-                        
-                ivItemImage.setOnClickListener(v -> {
-                    Intent intent = new Intent(this, FullScreenImageActivity.class);
-                    intent.putStringArrayListExtra("imageUrls", new ArrayList<>(imageUrls));
-                    intent.putExtra("position", 0);
-                    startActivity(intent);
-                });
-            } else if (imageUrl != null && !imageUrl.isEmpty()) {
-                ivItemImage.setVisibility(View.VISIBLE);
-                GlideApp.with(this)
-                        .load(imageUrl)
-                        .placeholder(R.drawable.ic_package)
-                        .thumbnail(0.1f)
-                        .diskCacheStrategy(DiskCacheStrategy.ALL)
-                        .into(ivItemImage);
-                
-                ivItemImage.setOnClickListener(v -> {
-                    Intent intent = new Intent(this, FullScreenImageActivity.class);
-                    ArrayList<String> singleUrlList = new ArrayList<>();
-                    singleUrlList.add(imageUrl);
-                    intent.putStringArrayListExtra("imageUrls", singleUrlList);
-                    intent.putExtra("position", 0);
-                    startActivity(intent);
-                });
-            } else {
-                ivItemImage.setImageResource(R.drawable.ic_package);
-                ivItemImage.setOnClickListener(null);
-            }
+            setupImageSlider(imageUrls, imageUrl);
 
             if ("lost".equals(itemStatus)) {
                 llOwnershipVerification.setVisibility(View.VISIBLE);
@@ -344,6 +329,44 @@ public class ClaimDetailsActivity extends AppCompatActivity {
                     btnMarkReturned.setVisibility("item_returned_confirmed".equals(notificationType) ? View.GONE : View.VISIBLE);
                     btnMarkReturned.setText("Mark as Returned");
                 }
+            }
+        }
+    }
+
+    private void setupImageSlider(List<String> imageUrls, String fallbackUrl) {
+        if (imageUrls != null && imageUrls.size() > 1) {
+            ivItemImage.setVisibility(View.GONE);
+            viewPagerImageSlider.setVisibility(View.VISIBLE);
+            tabLayoutIndicator.setVisibility(View.VISIBLE);
+
+            // Use fitCenter (true) for multiple images to prevent zooming
+            ImageSliderAdapter adapter = new ImageSliderAdapter(imageUrls, true);
+            adapter.setOnImageClickListener(position -> ItemNavigationUtils.openFullScreenImage(this, imageUrls, position));
+            
+            viewPagerImageSlider.setAdapter(adapter);
+            new TabLayoutMediator(tabLayoutIndicator, viewPagerImageSlider, (tab, position) -> {}).attach();
+        } else {
+            viewPagerImageSlider.setVisibility(View.GONE);
+            tabLayoutIndicator.setVisibility(View.GONE);
+            ivItemImage.setVisibility(View.VISIBLE);
+
+            String finalUrl = (imageUrls != null && !imageUrls.isEmpty()) ? imageUrls.get(0) : fallbackUrl;
+            if (finalUrl != null && !finalUrl.isEmpty()) {
+                GlideApp.with(this)
+                        .load(finalUrl)
+                        .placeholder(R.drawable.ic_package)
+                        .thumbnail(0.1f)
+                        .diskCacheStrategy(DiskCacheStrategy.ALL)
+                        .into(ivItemImage);
+                
+                ivItemImage.setOnClickListener(v -> {
+                    ArrayList<String> urls = new ArrayList<>();
+                    urls.add(finalUrl);
+                    ItemNavigationUtils.openFullScreenImage(this, urls, 0);
+                });
+            } else {
+                ivItemImage.setImageResource(R.drawable.ic_package);
+                ivItemImage.setOnClickListener(null);
             }
         }
     }

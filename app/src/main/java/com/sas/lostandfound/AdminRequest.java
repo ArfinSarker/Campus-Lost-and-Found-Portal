@@ -6,6 +6,7 @@ import java.util.Locale;
 
 public class AdminRequest {
     private String universityId;
+    private String authId;
     private String fullName;
     private String email;
     private String phoneNumber;
@@ -25,8 +26,9 @@ public class AdminRequest {
         return new SimpleDateFormat("dd-MM-yyyy HH:mm:ss", Locale.getDefault()).format(new Date());
     }
 
-    public AdminRequest(String universityId, String fullName, String email, String phoneNumber, String designation, String verificationCode, String password, String profileImageUrl) {
+    public AdminRequest(String universityId, String authId, String fullName, String email, String phoneNumber, String designation, String verificationCode, String password, String profileImageUrl) {
         this.universityId = universityId;
+        this.authId = authId;
         this.fullName = fullName;
         this.email = email;
         this.phoneNumber = phoneNumber;
@@ -42,6 +44,9 @@ public class AdminRequest {
 
     public String getUniversityId() { return universityId; }
     public void setUniversityId(String universityId) { this.universityId = universityId; }
+
+    public String getAuthId() { return authId; }
+    public void setAuthId(String authId) { this.authId = authId; }
 
     public String getFullName() { return fullName; }
     public void setFullName(String fullName) { this.fullName = fullName; }

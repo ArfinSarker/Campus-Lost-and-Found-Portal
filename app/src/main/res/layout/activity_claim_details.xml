@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/backgroundColor"
@@ -308,14 +309,53 @@
                     android:orientation="vertical"
                     android:padding="16dp">
 
-                    <com.google.android.material.imageview.ShapeableImageView
-                        android:id="@+id/ivItemImage"
+                    <TextView
+                        android:id="@+id/tvReportId"
                         android:layout_width="match_parent"
-                        android:layout_height="180dp"
-                        android:layout_marginBottom="16dp"
-                        android:scaleType="centerCrop"
-                        android:src="@drawable/ic_package"
-                        app:shapeAppearanceOverlay="@style/ShapeAppearance.App.MediumComponent" />
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="8dp"
+                        android:textColor="@color/primaryColor"
+                        android:textSize="16sp"
+                        android:textStyle="bold"
+                        tools:text="#L1" />
+
+                    <FrameLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="200dp"
+                        android:layout_marginBottom="16dp">
+
+                        <androidx.viewpager2.widget.ViewPager2
+                            android:id="@+id/viewPagerImageSlider"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:visibility="gone" />
+
+                        <com.google.android.material.imageview.ShapeableImageView
+                            android:id="@+id/ivItemImage"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:scaleType="centerCrop"
+                            android:src="@drawable/ic_package"
+                            app:shapeAppearanceOverlay="@style/ShapeAppearance.App.MediumComponent" />
+
+                        <com.google.android.material.tabs.TabLayout
+                            android:id="@+id/tabLayoutIndicator"
+                            android:layout_width="wrap_content"
+                            android:layout_height="24dp"
+                            android:layout_gravity="bottom|center_horizontal"
+                            android:layout_marginBottom="8dp"
+                            android:background="@android:color/transparent"
+                            android:visibility="gone"
+                            app:tabBackground="@drawable/slider_indicator_selector"
+                            app:tabGravity="center"
+                            app:tabIndicatorHeight="0dp"
+                            app:tabMaxWidth="14dp"
+                            app:tabMinWidth="14dp"
+                            app:tabPaddingStart="0dp"
+                            app:tabPaddingEnd="0dp"
+                            app:tabMode="fixed"
+                            app:tabRippleColor="@null" />
+                    </FrameLayout>
 
                     <TextView
                         android:id="@+id/tvItemName"

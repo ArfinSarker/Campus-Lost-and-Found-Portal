@@ -22,6 +22,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.activity.OnBackPressedCallback;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
@@ -99,6 +100,14 @@ public class ItemDetailActivity extends AppCompatActivity {
         
         checkUserRoleAndSetupActions();
         startListeningToItemChanges();
+
+        // Ensure back press always exits the activity immediately
+        getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
+            @Override
+            public void handleOnBackPressed() {
+                finish();
+            }
+        });
     }
 
     @Override
@@ -185,21 +194,16 @@ public class ItemDetailActivity extends AppCompatActivity {
                 if (state == ViewPager2.SCROLL_STATE_DRAGGING) {
                     isUserInteracting = true;
                     stopAutoSlide();
+                } else if (state == ViewPager2.SCROLL_STATE_IDLE) {
+                    // Resume auto-slide after a brief delay if user was dragging
+                    if (isUserInteracting) {
+                        isUserInteracting = false;
+                        if (currentItem != null && currentItem.getImageUrls() != null && currentItem.getImageUrls().size() > 1) {
+                            startAutoSlide(currentItem.getImageUrls().size());
+                        }
+                    }
                 }
             }
-        });
-
-        viewPagerImageSlider.getChildAt(0).setOnTouchListener((v, event) -> {
-            if (event.getAction() == MotionEvent.ACTION_DOWN || event.getAction() == MotionEvent.ACTION_MOVE) {
-                isUserInteracting = true;
-                stopAutoSlide();
-            } else if (event.getAction() == MotionEvent.ACTION_UP || event.getAction() == MotionEvent.ACTION_CANCEL) {
-                isUserInteracting = false;
-                if (currentItem != null && currentItem.getImageUrls() != null && currentItem.getImageUrls().size() > 1) {
-                    startAutoSlide(currentItem.getImageUrls().size());
-                }
-            }
-            return false;
         });
 
         // Enable Full Image View on Click inside Detail View
@@ -348,7 +352,7 @@ public class ItemDetailActivity extends AppCompatActivity {
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
                 if (swipeRefreshLayout != null) swipeRefreshLayout.setRefreshing(false);
-                Toast.makeText(ItemDetailActivity.this, "Failed to load data: " + error.getMessage(), Toast.LENGTH_SHORT).show();
+                ErrorHelper.showError(tvItemName, "Failed to load data: " + error.getMessage());
             }
         };
         mDatabase.child(path).child(itemId).addValueEventListener(itemListener);
@@ -433,17 +437,17 @@ public class ItemDetailActivity extends AppCompatActivity {
             boolean isResolved = "Claimed".equalsIgnoreCase(currentAdminStatus) || "Returned".equalsIgnoreCase(currentAdminStatus);
             if (isResolved) {
                 tvStatus.setText(R.string.status_resolved);
-                cardBadge.setCardBackgroundColor(getResources().getColor(R.color.found_bg));
-                tvStatus.setTextColor(getResources().getColor(R.color.statusFound));
+                cardBadge.setCardBackgroundColor(getResources().getColor(R.color.badge_resolved_bg));
+                tvStatus.setTextColor(getResources().getColor(R.color.white));
             } else {
                 if (itemStatus.equalsIgnoreCase("lost")) {
                     tvStatus.setText(getString(R.string.status_lost_label));
-                    cardBadge.setCardBackgroundColor(getResources().getColor(R.color.lost_bg));
-                    tvStatus.setTextColor(getResources().getColor(R.color.statusLost));
+                    cardBadge.setCardBackgroundColor(getResources().getColor(R.color.badge_lost_bg));
+                    tvStatus.setTextColor(getResources().getColor(R.color.white));
                 } else {
                     tvStatus.setText(getString(R.string.status_found_label));
-                    cardBadge.setCardBackgroundColor(getResources().getColor(R.color.found_bg));
-                    tvStatus.setTextColor(getResources().getColor(R.color.statusFound));
+                    cardBadge.setCardBackgroundColor(getResources().getColor(R.color.badge_found_bg));
+                    tvStatus.setTextColor(getResources().getColor(R.color.white));
                 }
             }
         }
@@ -457,7 +461,8 @@ public class ItemDetailActivity extends AppCompatActivity {
             viewPagerImageSlider.setVisibility(View.VISIBLE);
             tabLayoutIndicator.setVisibility(View.VISIBLE);
 
-            ImageSliderAdapter adapter = new ImageSliderAdapter(imageUrls);
+            // Use fitCenter (true) for multiple images to prevent zooming in detail view slider
+            ImageSliderAdapter adapter = new ImageSliderAdapter(imageUrls, true);
             // In Detail View, clicking the slider SHOULD open full screen image
             adapter.setOnImageClickListener(position -> ItemNavigationUtils.openFullScreenImage(this, imageUrls, position));
             
@@ -480,8 +485,15 @@ public class ItemDetailActivity extends AppCompatActivity {
                         .thumbnail(0.1f)
                         .diskCacheStrategy(DiskCacheStrategy.ALL)
                         .into(ivItemImage);
+                
+                ivItemImage.setOnClickListener(v -> {
+                    ArrayList<String> urls = new ArrayList<>();
+                    urls.add(finalUrl);
+                    ItemNavigationUtils.openFullScreenImage(this, urls, 0);
+                });
             } else {
                 ivItemImage.setImageResource(R.drawable.ic_package);
+                ivItemImage.setOnClickListener(null);
             }
         }
     }
@@ -848,7 +860,7 @@ public class ItemDetailActivity extends AppCompatActivity {
             if (!universityId.isEmpty()) {
                 markItemAsClaimed(universityId);
             } else {
-                Toast.makeText(this, "Please enter a University ID", Toast.LENGTH_SHORT).show();
+                ErrorHelper.showError(tvItemName, "Please enter a University ID");
             }
         });
         builder.setNegativeButton(R.string.cancel, (dialog, which) -> dialog.cancel());
@@ -880,7 +892,7 @@ public class ItemDetailActivity extends AppCompatActivity {
             if (!universityId.isEmpty()) {
                 processReturnToOwner(universityId);
             } else {
-                Toast.makeText(this, "Please enter a University ID", Toast.LENGTH_SHORT).show();
+                ErrorHelper.showError(tvItemName, "Please enter a University ID");
             }
         });
         builder.setNegativeButton(R.string.cancel, (dialog, which) -> dialog.cancel());
@@ -892,7 +904,7 @@ public class ItemDetailActivity extends AppCompatActivity {
         if (itemId == null || itemStatus == null) return;
         
         if (universityId.isEmpty()) {
-            Toast.makeText(this, "University ID must not be empty", Toast.LENGTH_SHORT).show();
+            ErrorHelper.showError(tvItemName, "University ID must not be empty");
             return;
         }
 
@@ -905,7 +917,7 @@ public class ItemDetailActivity extends AppCompatActivity {
             @Override
             public void onDataChange(@NonNull DataSnapshot userSnapshot) {
                 if (!userSnapshot.exists()) {
-                    Toast.makeText(ItemDetailActivity.this, "Invalid University ID: User not found", Toast.LENGTH_SHORT).show();
+                    ErrorHelper.showError(tvItemName, "Invalid University ID: User not found");
                     return;
                 }
 
@@ -915,7 +927,7 @@ public class ItemDetailActivity extends AppCompatActivity {
                         final String reporterUnivId = snapshot.exists() ? snapshot.getValue(String.class) : currentUser.getUid();
 
                         if (universityId.equals(reporterUnivId)) {
-                            Toast.makeText(ItemDetailActivity.this, "You cannot mark yourself as the receiver", Toast.LENGTH_SHORT).show();
+                            ErrorHelper.showError(tvItemName, "You cannot mark yourself as the receiver");
                             return;
                         }
 
@@ -935,10 +947,20 @@ public class ItemDetailActivity extends AppCompatActivity {
                                 String notificationId = mDatabase.child("Notifications").child(universityId).push().getKey();
                                 if (notificationId != null) {
                                     String itemName = tvItemName.getText().toString();
-                                    String message = String.format(getString(R.string.msg_item_claimed_notification), reporterName, itemName);
+                                    String message;
+                                    String type;
+                                    
+                                    if ("lost".equalsIgnoreCase(itemStatus)) {
+                                        message = String.format(getString(R.string.msg_item_claimed_notification), reporterName, itemName);
+                                        type = "lost_claimed_confirmed";
+                                    } else {
+                                        message = reporterName + " has marked that they returned ‘" + itemName + "’ to you. (Click to view details)";
+                                        type = "item_returned_confirmed";
+                                    }
+
                                     Notification notification = new Notification(
                                             notificationId, universityId, reporterUnivId, reporterName, reporterPhone, reporterEmail,
-                                            itemId, itemName, message, System.currentTimeMillis(), "lost_claimed_confirmed", ""
+                                            itemId, itemName, message, System.currentTimeMillis(), type, ""
                                     );
                                     mDatabase.child("Notifications").child(universityId).child(notificationId).setValue(notification);
                                 }
@@ -954,7 +976,7 @@ public class ItemDetailActivity extends AppCompatActivity {
 
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
-                Toast.makeText(ItemDetailActivity.this, "Error checking user: " + error.getMessage(), Toast.LENGTH_SHORT).show();
+                ErrorHelper.showError(tvItemName, "Error checking user: " + error.getMessage());
             }
         });
     }
@@ -979,7 +1001,7 @@ public class ItemDetailActivity extends AppCompatActivity {
                         final String reporterUnivId = snapshot.exists() ? snapshot.getValue(String.class) : currentUser.getUid();
 
                         if (ownerUniversityId.equals(reporterUnivId)) {
-                            Toast.makeText(ItemDetailActivity.this, "You cannot enter your own ID", Toast.LENGTH_SHORT).show();
+                            ErrorHelper.showError(tvItemName, "You cannot enter your own ID");
                             return;
                         }
 
@@ -1028,12 +1050,12 @@ public class ItemDetailActivity extends AppCompatActivity {
     private void handleClaim(String itemId, String itemName, String itemStatus, String reporterId) {
         FirebaseUser authUser = mAuth.getCurrentUser();
         if (authUser == null) {
-            Toast.makeText(this, "Please login to claim items", Toast.LENGTH_SHORT).show();
+            ErrorHelper.showError(btnClaim, "Please login to claim items");
             return;
         }
 
         if (reporterId == null || itemId == null) {
-            Toast.makeText(this, "Error: Invalid item or reporter", Toast.LENGTH_SHORT).show();
+            ErrorHelper.showError(btnClaim, "Error: Invalid item or reporter");
             return;
         }
 
@@ -1051,7 +1073,7 @@ public class ItemDetailActivity extends AppCompatActivity {
                         final String recipientId = reporterMapping.exists() ? reporterMapping.getValue(String.class) : reporterId;
 
                         if (senderId.equals(recipientId)) {
-                            Toast.makeText(ItemDetailActivity.this, "You cannot claim your own item", Toast.LENGTH_SHORT).show();
+                            ErrorHelper.showError(btnClaim, "You cannot claim your own item");
                             resetClaimButton(itemStatus);
                             return;
                         }
@@ -1105,10 +1127,10 @@ public class ItemDetailActivity extends AppCompatActivity {
         String message;
         if ("lost".equalsIgnoreCase(itemStatus)) {
             type = "lost_claim";
-            message = itemName + " - This item has been found by " + senderName + ". Click to view details.";
+            message = itemName + " - This item has been found by " + senderName + ". (Click to view details)";
         } else {
             type = "found_claim";
-            message = itemName + " - This item has been claimed by " + senderName + ". Click to view details.";
+            message = itemName + " - This item has been claimed by " + senderName + ". (Click to view details)";
         }
 
         Notification notification = new Notification(
@@ -1124,7 +1146,7 @@ public class ItemDetailActivity extends AppCompatActivity {
                         btnClaim.setText("Request Sent");
                         btnClaim.setEnabled(false);
                     } else {
-                        Toast.makeText(ItemDetailActivity.this, "Failed to send request.", Toast.LENGTH_SHORT).show();
+                        ErrorHelper.showError(btnClaim, "Failed to send request.");
                         resetClaimButton(itemStatus);
                     }
                 });
@@ -1202,7 +1224,7 @@ public class ItemDetailActivity extends AppCompatActivity {
 
                         @Override
                         public void onCancelled(@NonNull DatabaseError error) {
-                            Toast.makeText(ItemDetailActivity.this, "Delete failed: " + error.getMessage(), Toast.LENGTH_SHORT).show();
+                            ErrorHelper.showError(tvItemName, "Delete failed: " + error.getMessage());
                         }
                     });
                 })

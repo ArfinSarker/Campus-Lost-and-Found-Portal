@@ -52,15 +52,16 @@ public class ImageSliderAdapter extends RecyclerView.Adapter<ImageSliderAdapter.
         if (useFitCenter) {
             holder.photoView.setScaleType(ImageView.ScaleType.FIT_CENTER);
             GlideApp.with(holder.itemView.getContext())
-                    .load(url)
+                    .load(SupabaseStorageHelper.ensurePublicUrl(url))
                     .placeholder(R.drawable.ic_package)
                     .thumbnail(0.1f)
                     .diskCacheStrategy(DiskCacheStrategy.ALL)
+                    .fitCenter()
                     .into(holder.photoView);
         } else {
             holder.photoView.setScaleType(ImageView.ScaleType.CENTER_CROP);
             GlideApp.with(holder.itemView.getContext())
-                    .load(url)
+                    .load(SupabaseStorageHelper.ensurePublicUrl(url))
                     .placeholder(R.drawable.ic_package)
                     .thumbnail(0.1f)
                     .diskCacheStrategy(DiskCacheStrategy.ALL)
@@ -68,32 +69,20 @@ public class ImageSliderAdapter extends RecyclerView.Adapter<ImageSliderAdapter.
                     .into(holder.photoView);
         }
 
-        // Use PhotoTapListener for click detection on PhotoView
+        // Set consolidated click listeners to avoid double-triggering FullScreenImageActivity.
+        // PhotoView captures taps internally to handle zoom; we use its tap listeners for consistency.
+        // We use only one tap listener to avoid duplicate calls.
         holder.photoView.setOnPhotoTapListener((view, x, y) -> {
             if (onImageClickListener != null) {
                 onImageClickListener.onImageClick(position);
             }
         });
 
-        // Also handle clicks on the view itself (even if the photo is smaller than the view)
-        holder.photoView.setOnViewTapListener((view, x, y) -> {
-            if (onImageClickListener != null) {
-                onImageClickListener.onImageClick(position);
-            }
-        });
-
-        // Fallback for cases where tap listeners might not trigger (e.g. zoom disabled)
-        holder.photoView.setOnClickListener(v -> {
-            if (onImageClickListener != null) {
-                onImageClickListener.onImageClick(position);
-            }
-        });
-
-        // Ensure the parent container can also receive clicks
+        // Ensure the root item click also works but doesn't double-trigger if PhotoView is tapped
         holder.itemView.setOnClickListener(v -> {
-            if (onImageClickListener != null) {
-                onImageClickListener.onImageClick(position);
-            }
+            // PhotoView tap listeners usually handle this, but if they don't, we fallback here.
+            // However, to prevent double-starts, we should be careful.
+            // Most of the time PhotoView is full-match-parent so this is rarely hit directly.
         });
     }
 

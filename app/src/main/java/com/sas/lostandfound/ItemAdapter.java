@@ -76,15 +76,15 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ViewHolder> {
         if (holder.tvType != null) {
             String adminStatus = item.getAdminStatus();
             if ("Claimed".equalsIgnoreCase(adminStatus) || "Returned".equalsIgnoreCase(adminStatus)) {
-                holder.tvType.setText(R.string.status_claimed_label);
-                holder.tvType.setBackgroundResource(R.drawable.bg_status_badge_found);
+                holder.tvType.setText(R.string.status_resolved);
+                holder.tvType.setBackgroundResource(R.drawable.bg_status_badge_resolved);
                 holder.tvType.setTextColor(ContextCompat.getColor(holder.itemView.getContext(), R.color.white));
             } else if ("lost".equalsIgnoreCase(item.getStatus())) {
                 holder.tvType.setText(R.string.status_lost_label);
                 holder.tvType.setBackgroundResource(R.drawable.bg_status_badge_lost);
                 holder.tvType.setTextColor(ContextCompat.getColor(holder.itemView.getContext(), R.color.white));
             } else {
-                holder.tvType.setText(R.string.chip_found);
+                holder.tvType.setText(R.string.status_found_label);
                 holder.tvType.setBackgroundResource(R.drawable.bg_status_badge_found);
                 holder.tvType.setTextColor(ContextCompat.getColor(holder.itemView.getContext(), R.color.white));
             }
@@ -122,7 +122,8 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ViewHolder> {
             holder.viewPagerSlider.setVisibility(View.VISIBLE);
             if (holder.tabLayoutIndicator != null) holder.tabLayoutIndicator.setVisibility(View.VISIBLE);
             
-            ImageSliderAdapter sliderAdapter = new ImageSliderAdapter(urls);
+            // Use fitCenter (true) for multiple images to prevent zooming in cards
+            ImageSliderAdapter sliderAdapter = new ImageSliderAdapter(urls, true);
             // Image click in slider also leads to details
             sliderAdapter.setOnImageClickListener(pos -> {
                 if (listener != null) {
@@ -163,7 +164,7 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ViewHolder> {
                 holder.ivImage.setVisibility(View.VISIBLE);
                 if (holder.tvEmoji != null) holder.tvEmoji.setVisibility(View.GONE);
                 GlideApp.with(holder.itemView.getContext())
-                        .load(item.getImageUrl())
+                        .load(SupabaseStorageHelper.ensurePublicUrl(item.getImageUrl()))
                         .placeholder(R.drawable.ic_package)
                         .thumbnail(0.1f)
                         .diskCacheStrategy(DiskCacheStrategy.ALL)

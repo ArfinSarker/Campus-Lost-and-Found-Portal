@@ -28,6 +28,7 @@
     <!-- Status Colors -->
     <color name="statusLost">#FF3B30</color>
     <color name="statusFound">#34C759</color>
+    <color name="statusResolved">#2AABEE</color>
     <color name="error">#FF3B30</color>
     <color name="errorColor">#FF3B30</color>
     <color name="success">#34C759</color>
@@ -37,12 +38,13 @@
     <color name="vibrantBlue">#2AABEE</color>
     <color name="darkBlue">#229ED9</color>
     <color name="dividerColor">#E5E7EB</color>
-    <color name="found_bg">#E8F5E9</color>
-    <color name="lost_bg">#FFEBEE</color>
+    <color name="found_bg">#34C759</color>
+    <color name="lost_bg">#FF3B30</color>
 
     <!-- New Badge Colors -->
-    <color name="badge_lost_bg">#A31621</color>
-    <color name="badge_found_bg">#2E7D32</color>
+    <color name="badge_lost_bg">#FF3B30</color>
+    <color name="badge_found_bg">#34C759</color>
+    <color name="badge_resolved_bg">#2AABEE</color>
 
     <!-- Admin Portal Colors -->
     <color name="admin_text_light">#F0F0F0</color>

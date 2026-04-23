@@ -51,9 +51,9 @@ public class NotificationAdapter extends RecyclerView.Adapter<NotificationAdapte
         Notification notification = notifications.get(position);
         
         String fullMsg = notification.getMessage();
-        if (fullMsg != null && fullMsg.contains("Click to view details.")) {
-            int start = fullMsg.indexOf("Click to view details.");
-            int end = start + "Click to view details.".length();
+        if (fullMsg != null && fullMsg.contains("Click to view details")) {
+            int start = fullMsg.indexOf("Click to view details");
+            int end = start + "Click to view details".length();
             SpannableString spannableString = new SpannableString(fullMsg);
             spannableString.setSpan(new UnderlineSpan(), start, end, 0);
             spannableString.setSpan(new ForegroundColorSpan(ContextCompat.getColor(holder.itemView.getContext(), R.color.primaryColor)), start, end, 0);

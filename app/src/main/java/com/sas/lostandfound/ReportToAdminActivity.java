@@ -97,6 +97,10 @@ public class ReportToAdminActivity extends AppCompatActivity {
         ivScreenshot = findViewById(R.id.ivScreenshot);
         tvScreenshotStatus = findViewById(R.id.tvScreenshotStatus);
         toolbar = findViewById(R.id.toolbar);
+
+        ErrorHelper.attachToTextInputLayout(tilReportTitle);
+        ErrorHelper.attachToTextInputLayout(tilReportDescription);
+        ErrorHelper.attachToTextInputLayout(tilReporterName);
     }
 
     private void setupToolbar() {
@@ -208,7 +212,7 @@ public class ReportToAdminActivity extends AppCompatActivity {
             return;
         }
         if (TextUtils.isEmpty(universityId)) {
-            Toast.makeText(this, "University ID is missing. Please log in again.", Toast.LENGTH_SHORT).show();
+            ErrorHelper.showError(btnSubmit, "University ID is missing. Please log in again.");
             return;
         }
 
@@ -246,7 +250,7 @@ public class ReportToAdminActivity extends AppCompatActivity {
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
                 resetButton();
-                Toast.makeText(ReportToAdminActivity.this, "Error generating ID: " + error.getMessage(), Toast.LENGTH_SHORT).show();
+                ErrorHelper.showError(btnSubmit, "Error generating ID: " + error.getMessage());
             }
         });
     }
@@ -325,7 +329,7 @@ public class ReportToAdminActivity extends AppCompatActivity {
                 .addOnFailureListener(e -> {
                     resetButton();
                     Log.e(TAG, "Firebase Error: " + e.getMessage(), e);
-                    Toast.makeText(this, "Error saving report: " + e.getMessage(), Toast.LENGTH_LONG).show();
+                    ErrorHelper.showError(btnSubmit, "Error saving report: " + e.getMessage());
                 });
     }
 

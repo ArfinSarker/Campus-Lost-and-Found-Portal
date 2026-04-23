@@ -48,7 +48,11 @@ public class SupabaseStorageHelper {
             inputStream.close();
 
             // Correct Supabase Storage API URL for uploading
-            String url = SupabaseConfig.SUPABASE_URL + "/storage/v1/object/" + SupabaseConfig.BUCKET_NAME + "/" + folder + "/" + fileName;
+            String baseUrl = SupabaseConfig.SUPABASE_URL;
+            if (baseUrl.endsWith("/")) {
+                baseUrl = baseUrl.substring(0, baseUrl.length() - 1);
+            }
+            String url = baseUrl + "/storage/v1/object/" + SupabaseConfig.BUCKET_NAME + "/" + folder + "/" + fileName;
 
             RequestBody requestBody = RequestBody.create(data, MediaType.parse("image/jpeg"));
 
@@ -69,9 +73,18 @@ public class SupabaseStorageHelper {
                 public void onResponse(Call call, Response response) throws IOException {
                     if (response.isSuccessful() || response.code() == 409) { // 409 means file already exists
                         // Construct the public URL for downloading/viewing
-                        String publicUrl = SupabaseConfig.SUPABASE_URL + "/storage/v1/object/public/" +
+                        String finalBaseUrl = SupabaseConfig.SUPABASE_URL;
+                        if (finalBaseUrl.endsWith("/")) {
+                            finalBaseUrl = finalBaseUrl.substring(0, finalBaseUrl.length() - 1);
+                        }
+                        String publicUrl = finalBaseUrl + "/storage/v1/object/public/" +
                                 SupabaseConfig.BUCKET_NAME + "/" + folder + "/" + fileName;
-                        mainHandler.post(() -> callback.onSuccess(publicUrl));
+                        
+                        // Append API key as a query parameter for public access if needed
+                        publicUrl += "?apikey=" + SupabaseConfig.SUPABASE_KEY;
+                        
+                        final String finalUrl = publicUrl;
+                        mainHandler.post(() -> callback.onSuccess(finalUrl));
                     } else {
                         String errorBody = response.body() != null ? response.body().string() : "Unknown error";
                         mainHandler.post(() -> callback.onFailure(new IOException("Upload failed: " + response.code() + " " + errorBody)));
@@ -82,6 +95,24 @@ public class SupabaseStorageHelper {
         } catch (Exception e) {
             callback.onFailure(e);
         }
+    }
+
+    /**
+     * Ensures that a Supabase URL has the required API key as a query parameter.
+     * If the URL is already a public URL and doesn't have an apikey, it appends it.
+     */
+    public static String ensurePublicUrl(String url) {
+        if (url == null || url.isEmpty()) return url;
+        
+        // Only modify if it's a Supabase URL and doesn't already have an apikey
+        if (url.contains("supabase.co") && !url.contains("apikey=")) {
+            if (url.contains("?")) {
+                return url + "&apikey=" + SupabaseConfig.SUPABASE_KEY;
+            } else {
+                return url + "?apikey=" + SupabaseConfig.SUPABASE_KEY;
+            }
+        }
+        return url;
     }
 
     public static void deleteImage(String publicUrl, DeleteCallback callback) {
@@ -101,7 +132,16 @@ public class SupabaseStorageHelper {
             }
 
             String path = publicUrl.substring(index + searchString.length());
-            String url = SupabaseConfig.SUPABASE_URL + "/storage/v1/object/" + SupabaseConfig.BUCKET_NAME + "/" + path;
+            // Remove query parameters from path if any
+            if (path.contains("?")) {
+                path = path.substring(0, path.indexOf("?"));
+            }
+            
+            String baseUrl = SupabaseConfig.SUPABASE_URL;
+            if (baseUrl.endsWith("/")) {
+                baseUrl = baseUrl.substring(0, baseUrl.length() - 1);
+            }
+            String url = baseUrl + "/storage/v1/object/" + SupabaseConfig.BUCKET_NAME + "/" + path;
 
             Request request = new Request.Builder()
                     .url(url)

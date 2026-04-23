@@ -11,6 +11,7 @@ import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
@@ -69,6 +70,14 @@ public class AllReportedItemsActivity extends AppCompatActivity {
         setupRecyclerView();
         setupSwipeRefresh();
         fetchAllItems();
+
+        // Ensure back press always exits the activity immediately
+        getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
+            @Override
+            public void handleOnBackPressed() {
+                finish();
+            }
+        });
     }
 
     private void initializeViews() {
@@ -256,7 +265,8 @@ public class AllReportedItemsActivity extends AppCompatActivity {
                 holder.viewPagerSlider.setVisibility(View.VISIBLE);
                 holder.tabLayoutIndicator.setVisibility(View.VISIBLE);
 
-                ImageSliderAdapter sliderAdapter = new ImageSliderAdapter(urls);
+                // Use fitCenter (true) for multiple images to prevent zooming in cards
+                ImageSliderAdapter sliderAdapter = new ImageSliderAdapter(urls, true);
                 // Slider clicks lead to details - Use Activity's isAdmin flag
                 sliderAdapter.setOnImageClickListener(pos -> ItemNavigationUtils.navigateToDetail(holder.itemView.getContext(), item, isAdmin));
                 

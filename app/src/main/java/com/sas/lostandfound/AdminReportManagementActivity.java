@@ -13,6 +13,7 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
@@ -63,6 +64,10 @@ public class AdminReportManagementActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        // Ensure only admins can manage reports
+        RoleVerifier.checkAdminAccess(this);
+
         setContentView(R.layout.activity_admin_report_management);
 
         mDatabase = FirebaseDatabase.getInstance(FirebaseConfig.DATABASE_URL).getReference();
@@ -73,6 +78,14 @@ public class AdminReportManagementActivity extends AppCompatActivity {
         setupSearchAndFilter();
         setupSwipeRefresh();
         fetchReports();
+
+        // Ensure back press always exits the activity immediately
+        getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
+            @Override
+            public void handleOnBackPressed() {
+                finish();
+            }
+        });
     }
 
     private void initializeViews() {
@@ -266,7 +279,8 @@ public class AdminReportManagementActivity extends AppCompatActivity {
                 holder.viewPagerSlider.setVisibility(View.VISIBLE);
                 holder.tabLayoutIndicator.setVisibility(View.VISIBLE);
 
-                ImageSliderAdapter sliderAdapter = new ImageSliderAdapter(urls);
+                // Use fitCenter (true) for multiple images to prevent zooming in cards
+                ImageSliderAdapter sliderAdapter = new ImageSliderAdapter(urls, true);
                 holder.viewPagerSlider.setAdapter(sliderAdapter);
                 new TabLayoutMediator(holder.tabLayoutIndicator, holder.viewPagerSlider, (tab, pos) -> {}).attach();
             } else {

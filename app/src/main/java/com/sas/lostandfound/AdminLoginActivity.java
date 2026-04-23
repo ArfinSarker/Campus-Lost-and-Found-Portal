@@ -14,6 +14,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.textfield.TextInputEditText;
+import com.google.android.material.textfield.TextInputLayout;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
@@ -35,6 +36,7 @@ public class AdminLoginActivity extends AppCompatActivity {
 
     private static final String TAG = "AdminLogin";
     private TextInputEditText etAdminId, etAdminPassword;
+    private TextInputLayout tilAdminId, tilAdminPassword;
     private MaterialButton btnAdminSignIn;
     private TextView tvBackToUser;
 
@@ -51,8 +53,13 @@ public class AdminLoginActivity extends AppCompatActivity {
 
         etAdminId = findViewById(R.id.etAdminId);
         etAdminPassword = findViewById(R.id.etAdminPassword);
+        tilAdminId = findViewById(R.id.tilAdminId);
+        tilAdminPassword = findViewById(R.id.tilAdminPassword);
         btnAdminSignIn = findViewById(R.id.btnAdminSignIn);
         tvBackToUser = findViewById(R.id.tvBackToUser);
+
+        ErrorHelper.attachToTextInputLayout(tilAdminId);
+        ErrorHelper.attachToTextInputLayout(tilAdminPassword);
 
         btnAdminSignIn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -74,7 +81,7 @@ public class AdminLoginActivity extends AppCompatActivity {
         final String password = etAdminPassword.getText().toString().trim();
 
         if (TextUtils.isEmpty(adminId) || TextUtils.isEmpty(password)) {
-            Toast.makeText(AdminLoginActivity.this, "University ID and Password required", Toast.LENGTH_SHORT).show();
+            ErrorHelper.showError(btnAdminSignIn, "University ID and Password required");
             return;
         }
 
@@ -101,7 +108,7 @@ public class AdminLoginActivity extends AppCompatActivity {
 
     private void collectResultsAndLogin(List<Object> variations, int index, String password) {
         if (index >= variations.size()) {
-            Toast.makeText(AdminLoginActivity.this, "Account not found.", Toast.LENGTH_SHORT).show();
+            ErrorHelper.showError(btnAdminSignIn, "Account not found.");
             return;
         }
 
@@ -141,7 +148,7 @@ public class AdminLoginActivity extends AppCompatActivity {
                         }
                     } else {
                         String error = task.getException() != null ? task.getException().getMessage() : "Invalid credentials";
-                        Toast.makeText(AdminLoginActivity.this, "Authentication failed: " + error, Toast.LENGTH_SHORT).show();
+                        ErrorHelper.showError(btnAdminSignIn, "Authentication failed: " + error);
                     }
                 });
     }
@@ -153,14 +160,14 @@ public class AdminLoginActivity extends AppCompatActivity {
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 if (snapshot.exists()) {
                     mAuth.signOut();
-                    Toast.makeText(AdminLoginActivity.this, "Access Denied: Request pending.", Toast.LENGTH_LONG).show();
+                    ErrorHelper.showError(btnAdminSignIn, "Access Denied: Request pending.");
                 } else {
                     mDatabase.child("DeniedAdminRequests").child(dbId).addListenerForSingleValueEvent(new ValueEventListener() {
                         @Override
                         public void onDataChange(@NonNull DataSnapshot deniedSnap) {
                             if (deniedSnap.exists()) {
                                 mAuth.signOut();
-                                Toast.makeText(AdminLoginActivity.this, "Access Denied: Admin request rejected.", Toast.LENGTH_LONG).show();
+                                ErrorHelper.showError(btnAdminSignIn, "Access Denied: Admin request rejected.");
                             } else {
                                 validateAdminAccess(uid, dbId);
                             }
@@ -196,24 +203,23 @@ public class AdminLoginActivity extends AppCompatActivity {
                                         loginSuccess(true, dbId);
                                     } else {
                                         mAuth.signOut();
-                                        Toast.makeText(AdminLoginActivity.this,
-                                                "Failed to update admin privileges", Toast.LENGTH_SHORT).show();
+                                        ErrorHelper.showError(btnAdminSignIn, "Failed to update admin privileges");
                                     }
                                 });
                     } else {
                         mAuth.signOut();
-                        Toast.makeText(AdminLoginActivity.this, "Access Denied: Unauthorized.", Toast.LENGTH_SHORT).show();
+                        ErrorHelper.showError(btnAdminSignIn, "Access Denied: Unauthorized.");
                     }
                 } else {
                     mAuth.signOut();
-                    Toast.makeText(AdminLoginActivity.this, "Account details not found.", Toast.LENGTH_SHORT).show();
+                    ErrorHelper.showError(btnAdminSignIn, "Account details not found.");
                 }
             }
 
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
                 mAuth.signOut();
-                Toast.makeText(AdminLoginActivity.this, "Database Error: " + error.getMessage(), Toast.LENGTH_SHORT).show();
+                ErrorHelper.showError(btnAdminSignIn, "Database Error: " + error.getMessage());
             }
         });
     }

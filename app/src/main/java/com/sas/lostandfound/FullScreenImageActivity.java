@@ -2,11 +2,11 @@ package com.sas.lostandfound;
 
 import android.os.Bundle;
 import android.widget.ImageView;
+import androidx.activity.OnBackPressedCallback;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.viewpager2.widget.ViewPager2;
 import com.google.android.material.tabs.TabLayout;
 import com.google.android.material.tabs.TabLayoutMediator;
-import java.util.ArrayList;
 import java.util.List;
 
 public class FullScreenImageActivity extends AppCompatActivity {
@@ -30,6 +30,7 @@ public class FullScreenImageActivity extends AppCompatActivity {
 
         ImageSliderAdapter adapter = new ImageSliderAdapter(imageUrls, true);
         viewPager.setAdapter(adapter);
+        viewPager.setSaveEnabled(false); // Prevent ViewPager2 from saving/restoring page history
         viewPager.setCurrentItem(position, false);
 
         if (imageUrls.size() > 1) {
@@ -39,5 +40,14 @@ public class FullScreenImageActivity extends AppCompatActivity {
         }
 
         btnBack.setOnClickListener(v -> finish());
+
+        // Explicitly handle back navigation to ensure the activity finishes immediately
+        // no matter how many images were swiped through.
+        getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
+            @Override
+            public void handleOnBackPressed() {
+                finish();
+            }
+        });
     }
 }

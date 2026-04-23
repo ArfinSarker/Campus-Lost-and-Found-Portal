@@ -16,6 +16,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.activity.OnBackPressedCallback;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
@@ -74,6 +75,10 @@ public class AdminReportReviewActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        
+        // Ensure only admins can review reports
+        RoleVerifier.checkAdminAccess(this);
+
         setContentView(R.layout.activity_admin_report_review);
 
         reportId = getIntent().getStringExtra("reportId");
@@ -92,6 +97,14 @@ public class AdminReportReviewActivity extends AppCompatActivity {
 
         btnUpdate.setOnClickListener(v -> updateReport());
         btnDelete.setOnClickListener(v -> confirmDelete());
+
+        // Ensure back press always exits the activity immediately
+        getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
+            @Override
+            public void handleOnBackPressed() {
+                finish();
+            }
+        });
     }
 
     @SuppressLint("ClickableViewAccessibility")
@@ -152,22 +165,14 @@ public class AdminReportReviewActivity extends AppCompatActivity {
             if (currentReport != null) {
                 List<String> urls = currentReport.getImageUrls();
                 if (urls != null && !urls.isEmpty()) {
-                    openFullScreenImage(urls, 0);
+                    ItemNavigationUtils.openFullScreenImage(this, urls, 0);
                 } else if (currentReport.getImageUrl() != null) {
                     List<String> singleUrl = new ArrayList<>();
                     singleUrl.add(currentReport.getImageUrl());
-                    openFullScreenImage(singleUrl, 0);
+                    ItemNavigationUtils.openFullScreenImage(this, singleUrl, 0);
                 }
             }
         });
-    }
-
-    private void openFullScreenImage(List<String> imageUrls, int position) {
-        if (imageUrls == null || imageUrls.isEmpty()) return;
-        Intent intent = new Intent(this, FullScreenImageActivity.class);
-        intent.putStringArrayListExtra("imageUrls", new ArrayList<>(imageUrls));
-        intent.putExtra("position", position);
-        startActivity(intent);
     }
 
     private void setupToolbar() {
@@ -253,7 +258,8 @@ public class AdminReportReviewActivity extends AppCompatActivity {
             tabLayoutIndicator.setVisibility(View.VISIBLE);
             cardEvidence.setVisibility(View.VISIBLE);
 
-            ImageSliderAdapter adapter = new ImageSliderAdapter(urls);
+            // Use fitCenter (true) for multiple images to prevent zooming
+            ImageSliderAdapter adapter = new ImageSliderAdapter(urls, true);
             // Default click behavior in ImageSliderAdapter now opens FullScreenImageActivity
             viewPagerEvidence.setAdapter(adapter);
 

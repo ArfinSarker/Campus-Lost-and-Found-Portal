@@ -32,6 +32,10 @@ public class AdminDashboardActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        
+        // Ensure only admins can access this dashboard
+        RoleVerifier.checkAdminAccess(this);
+
         setContentView(R.layout.activity_admin_dashboard);
 
         mDatabase = FirebaseDatabase.getInstance(FirebaseConfig.DATABASE_URL).getReference();

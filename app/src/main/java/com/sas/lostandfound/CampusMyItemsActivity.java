@@ -392,16 +392,16 @@ public class CampusMyItemsActivity extends AppCompatActivity {
                 holder.tvBadge.setText(status.toUpperCase());
                 holder.cardBadge.setCardBackgroundColor(statusColor);
             } else if (isResolved) {
-                holder.statusIndicator.setBackgroundColor(0xFF2E7D32); // Green
-                holder.tvBadge.setText("RESOLVED");
-                holder.cardBadge.setCardBackgroundColor(ContextCompat.getColor(holder.itemView.getContext(), R.color.badge_found_bg));
+                holder.statusIndicator.setBackgroundColor(ContextCompat.getColor(holder.itemView.getContext(), R.color.badge_resolved_bg));
+                holder.tvBadge.setText(R.string.status_resolved);
+                holder.cardBadge.setCardBackgroundColor(ContextCompat.getColor(holder.itemView.getContext(), R.color.badge_resolved_bg));
             } else if ("lost".equals(item.getStatus())) {
-                holder.statusIndicator.setBackgroundColor(0xFFA31621); // Red
-                holder.tvBadge.setText("LOST");
+                holder.statusIndicator.setBackgroundColor(ContextCompat.getColor(holder.itemView.getContext(), R.color.badge_lost_bg));
+                holder.tvBadge.setText(R.string.status_lost_label);
                 holder.cardBadge.setCardBackgroundColor(ContextCompat.getColor(holder.itemView.getContext(), R.color.badge_lost_bg));
             } else {
-                holder.statusIndicator.setBackgroundColor(0xFF2E7D32); // Green
-                holder.tvBadge.setText("FOUND");
+                holder.statusIndicator.setBackgroundColor(ContextCompat.getColor(holder.itemView.getContext(), R.color.badge_found_bg));
+                holder.tvBadge.setText(R.string.status_found_label);
                 holder.cardBadge.setCardBackgroundColor(ContextCompat.getColor(holder.itemView.getContext(), R.color.badge_found_bg));
             }
             holder.tvBadge.setTextColor(ContextCompat.getColor(holder.itemView.getContext(), R.color.white));
@@ -428,7 +428,8 @@ public class CampusMyItemsActivity extends AppCompatActivity {
                 holder.viewPagerSlider.setVisibility(View.VISIBLE);
                 holder.tabLayoutIndicator.setVisibility(View.VISIBLE);
 
-                ImageSliderAdapter sliderAdapter = new ImageSliderAdapter(urls);
+                // Use fitCenter (true) for multiple images to prevent zooming in cards
+                ImageSliderAdapter sliderAdapter = new ImageSliderAdapter(urls, true);
                 // Slider click leads to detail view, not full screen
                 sliderAdapter.setOnImageClickListener(pos -> {
                     if ("admin_report".equals(item.getStatus())) {

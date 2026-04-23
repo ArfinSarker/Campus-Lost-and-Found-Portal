@@ -19,16 +19,27 @@ public class ItemNavigationUtils {
 
     /**
      * Common method to setup image slider or a single image for an item.
+     * Defaults to fitCenter for multi-image sliders to ensure full image visibility.
      */
     public static void setupImageOrSlider(Context context, List<String> urls, String fallbackUrl, 
                                         ImageView ivIcon, ViewPager2 viewPagerSlider, 
                                         TabLayout tabLayoutIndicator) {
+        setupImageOrSlider(context, urls, fallbackUrl, ivIcon, viewPagerSlider, tabLayoutIndicator, true);
+    }
+
+    /**
+     * Common method to setup image slider or a single image for an item with configurable scale type.
+     */
+    public static void setupImageOrSlider(Context context, List<String> urls, String fallbackUrl, 
+                                        ImageView ivIcon, ViewPager2 viewPagerSlider, 
+                                        TabLayout tabLayoutIndicator, boolean useFitCenter) {
         if (urls != null && urls.size() > 1 && viewPagerSlider != null) {
             if (ivIcon != null) ivIcon.setVisibility(View.GONE);
             viewPagerSlider.setVisibility(View.VISIBLE);
             if (tabLayoutIndicator != null) tabLayoutIndicator.setVisibility(View.VISIBLE);
 
-            ImageSliderAdapter sliderAdapter = new ImageSliderAdapter(urls);
+            ImageSliderAdapter sliderAdapter = new ImageSliderAdapter(urls, useFitCenter);
+            sliderAdapter.setOnImageClickListener(pos -> openFullScreenImage(context, urls, pos));
             viewPagerSlider.setAdapter(sliderAdapter);
             if (tabLayoutIndicator != null) {
                 new TabLayoutMediator(tabLayoutIndicator, viewPagerSlider, (tab, pos) -> {}).attach();
@@ -95,12 +106,23 @@ public class ItemNavigationUtils {
         navigateToDetail(context, item, false);
     }
 
+    private static long lastClickTime = 0;
+    private static final long CLICK_THRESHOLD = 500; // ms
+
     /**
      * Opens the FullScreenImageActivity to view images in full screen.
+     * Includes a global debounce to prevent double-launching the activity.
      */
     public static void openFullScreenImage(Context context, List<String> imageUrls, int position) {
         if (context == null || imageUrls == null || imageUrls.isEmpty()) return;
-        
+
+        // Prevent rapid double-clicks from launching the activity twice
+        long currentTime = System.currentTimeMillis();
+        if (currentTime - lastClickTime < CLICK_THRESHOLD) {
+            return;
+        }
+        lastClickTime = currentTime;
+
         Intent intent = new Intent(context, FullScreenImageActivity.class);
         intent.putStringArrayListExtra("imageUrls", new ArrayList<>(imageUrls));
         intent.putExtra("position", position);

@@ -164,6 +164,20 @@ public class CampusReportFoundActivity extends AppCompatActivity {
         ivUploadedImage = findViewById(R.id.ivUploadedImage);
         tvUploadPlaceholder = findViewById(R.id.tvUploadStatus);
         toolbar = findViewById(R.id.toolbar);
+
+        ErrorHelper.attachToTextInputLayout(tilItemName);
+        ErrorHelper.attachToTextInputLayout(tilCategory);
+        ErrorHelper.attachToTextInputLayout(tilDescription);
+        ErrorHelper.attachToTextInputLayout(tilDate);
+        ErrorHelper.attachToTextInputLayout(tilLocation);
+        ErrorHelper.attachToTextInputLayout(tilManualLocation);
+        ErrorHelper.attachToTextInputLayout(tilHandlingStatus);
+        ErrorHelper.attachToTextInputLayout(tilAuthorityName);
+        ErrorHelper.attachToTextInputLayout(tilOfficeRoom);
+        ErrorHelper.attachToTextInputLayout(tilHiddenQuestion);
+        ErrorHelper.attachToTextInputLayout(tilContactName);
+        ErrorHelper.attachToTextInputLayout(tilContactPhone);
+        ErrorHelper.attachToTextInputLayout(tilPreferredContact);
     }
 
     private void loadItemDataForEdit(String itemId) {
@@ -449,7 +463,7 @@ public class CampusReportFoundActivity extends AppCompatActivity {
 
     private void validateAndSubmit() {
         if (mAuth.getCurrentUser() == null) {
-            Toast.makeText(this, "Please log in again to submit", Toast.LENGTH_SHORT).show();
+            ErrorHelper.showError(btnSubmit, "Please log in again to submit");
             return;
         }
 
@@ -486,7 +500,7 @@ public class CampusReportFoundActivity extends AppCompatActivity {
         if (TextUtils.isEmpty(preferredContact)) { tilPreferredContact.setError("Preferred contact is required"); isValid = false; }
 
         if (!cbConfirm.isChecked()) {
-            Toast.makeText(this, "Please confirm the information is accurate", Toast.LENGTH_SHORT).show();
+            ErrorHelper.showError(btnSubmit, "Please confirm the information is accurate");
             isValid = false;
         }
 
@@ -513,14 +527,13 @@ public class CampusReportFoundActivity extends AppCompatActivity {
     private void submitToFirebase(String itemName, String category, String description, String date, String location, String manualLocation, String handlingStatus, String authorityName, String hiddenQuestion, String contactName, String contactPhone, String preferredContact) {
         btnSubmit.setEnabled(false);
         btnSubmit.setText("Submitting report, please wait...");
-        Toast.makeText(this, "Submitting report, please wait...", Toast.LENGTH_SHORT).show();
 
         String reportId = isEditMode ? editItemId : mDatabase.child("FoundItems").push().getKey();
         String userId = currentUniversityId != null ? currentUniversityId : (mAuth.getCurrentUser() != null ? mAuth.getCurrentUser().getUid() : null);
 
         if (reportId == null || userId == null) {
             resetButton();
-            Toast.makeText(this, "Error initializing submission. Try again.", Toast.LENGTH_SHORT).show();
+            ErrorHelper.showError(btnSubmit, "Error initializing submission. Try again.");
             return;
         }
 
@@ -597,7 +610,7 @@ public class CampusReportFoundActivity extends AppCompatActivity {
                 } else {
                     resetButton();
                     String msg = error != null ? error.getMessage() : "Database busy or connection issue.";
-                    Toast.makeText(CampusReportFoundActivity.this, "Failed to generate Report ID: " + msg, Toast.LENGTH_LONG).show();
+                    ErrorHelper.showError(btnSubmit, "Failed to generate Report ID: " + msg);
                 }
             }
         });
@@ -655,7 +668,7 @@ public class CampusReportFoundActivity extends AppCompatActivity {
                 })
                 .addOnFailureListener(e -> {
                     resetButton();
-                    Toast.makeText(this, "Failed to submit report: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                    ErrorHelper.showError(btnSubmit, "Failed to submit report: " + e.getMessage());
                 });
     }
 

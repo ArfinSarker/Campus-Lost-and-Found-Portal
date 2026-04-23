@@ -40,6 +40,10 @@ public class AdminRequestsActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        // Ensure only admins can review admin requests
+        RoleVerifier.checkAdminAccess(this);
+
         setContentView(R.layout.activity_admin_requests);
 
         mDatabase = FirebaseDatabase.getInstance(FirebaseConfig.DATABASE_URL).getReference();
@@ -100,7 +104,7 @@ public class AdminRequestsActivity extends AppCompatActivity {
         if (swipeRefreshLayout == null || !swipeRefreshLayout.isRefreshing()) {
             progressBar.setVisibility(View.VISIBLE);
         }
-        
+
         mDatabase.child("adminRequests").addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
@@ -154,13 +158,11 @@ public class AdminRequestsActivity extends AppCompatActivity {
 
     private void saveAdminToUsers(AdminRequest request) {
         final String universityId = request.getUniversityId();
-        
-        // Use a placeholder authId; it will be updated with the actual Firebase UID during first login.
-        String placeholderAuthId = "PENDING_" + universityId;
+        final String authId = request.getAuthId();
 
         User adminUser = new User(
                 universityId,
-                placeholderAuthId,
+                authId,
                 request.getFullName(),
                 request.getEmail(),
                 request.getPassword(),

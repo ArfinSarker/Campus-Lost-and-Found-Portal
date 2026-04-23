@@ -29,6 +29,7 @@ import com.google.android.material.appbar.AppBarLayout;
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.textfield.TextInputEditText;
+import com.google.android.material.textfield.TextInputLayout;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -39,6 +40,7 @@ import com.google.firebase.database.ValueEventListener;
 public class UserLoginActivity extends AppCompatActivity {
 
     private TextInputEditText etUniversityId, etPassword;
+    private TextInputLayout tilUniversityId, tilPassword, tilUserType;
     private AutoCompleteTextView actvUserType;
     private MaterialButton btnSignIn;
     private ProgressBar progressBar;
@@ -73,6 +75,14 @@ public class UserLoginActivity extends AppCompatActivity {
         actvUserType = findViewById(R.id.actvUserType);
         etUniversityId = findViewById(R.id.etUniversityId);
         etPassword = findViewById(R.id.etPassword);
+        tilUniversityId = findViewById(R.id.tilUniversityId);
+        tilPassword = findViewById(R.id.tilPassword);
+        tilUserType = findViewById(R.id.tilUserType);
+        
+        ErrorHelper.attachToTextInputLayout(tilUniversityId);
+        ErrorHelper.attachToTextInputLayout(tilPassword);
+        ErrorHelper.attachToTextInputLayout(tilUserType);
+
         btnSignIn = findViewById(R.id.btnSignIn);
         progressBar = findViewById(R.id.progressBar);
         tvForgotPassword = findViewById(R.id.tvForgotPassword);
@@ -121,7 +131,7 @@ public class UserLoginActivity extends AppCompatActivity {
 
     private void loginUser() {
         if (!isNetworkAvailable()) {
-            Toast.makeText(this, "No internet connection.", Toast.LENGTH_LONG).show();
+            ErrorHelper.showError(btnSignIn, "No internet connection.");
             return;
         }
 
@@ -130,15 +140,15 @@ public class UserLoginActivity extends AppCompatActivity {
         String password = etPassword.getText().toString().trim();
 
         if (userType.isEmpty()) {
-            Toast.makeText(this, "Please select User Type", Toast.LENGTH_SHORT).show();
+            ErrorHelper.showError(btnSignIn, "Please select User Type");
             return;
         }
         if (id.isEmpty()) {
-            etUniversityId.setError("Required");
+            tilUniversityId.setError("Required");
             return;
         }
         if (password.isEmpty()) {
-            etPassword.setError("Required");
+            tilPassword.setError("Required");
             return;
         }
 
@@ -154,38 +164,32 @@ public class UserLoginActivity extends AppCompatActivity {
                 if (snapshot.exists()) {
                     User user = snapshot.getValue(User.class);
                     if (user != null) {
-                        // Verification: check user role/admin status from DB
+                        // Strict Verification: check user role from DB
                         boolean dbIsAdmin = "admin".equalsIgnoreCase(user.getRole()) || user.isAdmin() || "Admin".equalsIgnoreCase(user.getUserType());
-                        
-                        // Redirect based on DB role, even if user chose wrong type in dropdown (or enforce dropdown)
-                        // Here we prioritize the DB role for redirect, but check for mismatch toast
-                        if (userType.equalsIgnoreCase("Admin") && !dbIsAdmin) {
-                            showLoading(false);
-                            Toast.makeText(UserLoginActivity.this, "Access Denied: You do not have administrator privileges.", Toast.LENGTH_LONG).show();
-                        } else if (userType.equalsIgnoreCase("Student") && dbIsAdmin || userType.equalsIgnoreCase("Staff") && dbIsAdmin) {
-                             // Admin logging in as User - we should still redirect to Admin if they are admin
-                             performFirebaseLogin(user.getEmail(), password, "Admin", true, universityId);
-                        } else if (userType.equalsIgnoreCase(user.getUserType())) {
+                        String actualRoleInDb = dbIsAdmin ? "Admin" : user.getUserType();
+
+                        // The selected role must match the actual role in the database
+                        if (userType.equalsIgnoreCase(actualRoleInDb)) {
                             performFirebaseLogin(user.getEmail(), password, userType, dbIsAdmin, universityId);
                         } else {
-                            // Normal type mismatch
                             showLoading(false);
-                            Toast.makeText(UserLoginActivity.this, "User Type mismatch. Your account is " + user.getUserType(), Toast.LENGTH_LONG).show();
+                            String message = "Invalid role selected. Your account is registered as " + actualRoleInDb + ".";
+                            ErrorHelper.showError(btnSignIn, message);
                         }
                     } else {
                         showLoading(false);
-                        Toast.makeText(UserLoginActivity.this, "Error parsing user data.", Toast.LENGTH_SHORT).show();
+                        ErrorHelper.showError(btnSignIn, "Error parsing user data.");
                     }
                 } else {
                     showLoading(false);
-                    Toast.makeText(UserLoginActivity.this, "No account exists with this University ID. Please register again.", Toast.LENGTH_LONG).show();
+                    ErrorHelper.showError(btnSignIn, "No account exists with this University ID. Please register again.");
                 }
             }
 
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
                 showLoading(false);
-                Toast.makeText(UserLoginActivity.this, "Database error: " + error.getMessage(), Toast.LENGTH_SHORT).show();
+                ErrorHelper.showError(btnSignIn, "Database error: " + error.getMessage());
             }
         });
     }
@@ -210,7 +214,7 @@ public class UserLoginActivity extends AppCompatActivity {
                     } else {
                         showLoading(false);
                         String error = task.getException() != null ? task.getException().getMessage() : "Authentication failed";
-                        Toast.makeText(UserLoginActivity.this, "Login failed: " + error, Toast.LENGTH_SHORT).show();
+                        ErrorHelper.showError(btnSignIn, "Login failed: " + error);
                     }
                 });
     }

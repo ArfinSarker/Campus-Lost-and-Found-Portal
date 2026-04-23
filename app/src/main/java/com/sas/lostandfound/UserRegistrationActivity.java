@@ -23,6 +23,8 @@ import android.text.method.LinkMovementMethod;
 import android.text.style.ClickableSpan;
 import android.text.style.ForegroundColorSpan;
 import android.text.style.StyleSpan;
+import android.util.Log;
+import android.util.Patterns;
 import android.view.View;
 import android.view.ViewTreeObserver;
 import android.widget.ArrayAdapter;
@@ -67,7 +69,8 @@ public class UserRegistrationActivity extends AppCompatActivity {
     private EditText etFullName, etUniversityId, etEmail, etPhone,
             etDepartment, etBatch, etPassword, etConfirmPassword, etDesignation, etAdminCode;
     private AutoCompleteTextView actvLevelTerm, actvUserType;
-    private TextInputLayout tilBatch, tilDepartment, tilLevelTerm, tilDesignation, tilUserType, tilAdminCode, tilUniversityId;
+    private TextInputLayout tilBatch, tilDepartment, tilLevelTerm, tilDesignation, tilUserType, tilAdminCode, tilUniversityId,
+            tilFullName, tilEmail, tilPhone, tilPassword, tilConfirmPassword;
     private MaterialButton btnCreateAccount;
     private ProgressBar progressBar;
     private ImageView ivProfilePicture;
@@ -130,6 +133,24 @@ public class UserRegistrationActivity extends AppCompatActivity {
         tilUserType = findViewById(R.id.tilUserType);
         tilAdminCode = findViewById(R.id.tilAdminCode);
         tilUniversityId = findViewById(R.id.tilUniversityId);
+        tilFullName = findViewById(R.id.tilFullName);
+        tilEmail = findViewById(R.id.tilEmail);
+        tilPhone = findViewById(R.id.tilPhone);
+        tilPassword = findViewById(R.id.tilPassword);
+        tilConfirmPassword = findViewById(R.id.tilConfirmPassword);
+
+        ErrorHelper.attachToTextInputLayout(tilUserType);
+        ErrorHelper.attachToTextInputLayout(tilUniversityId);
+        ErrorHelper.attachToTextInputLayout(tilFullName);
+        ErrorHelper.attachToTextInputLayout(tilEmail);
+        ErrorHelper.attachToTextInputLayout(tilPhone);
+        ErrorHelper.attachToTextInputLayout(tilDesignation);
+        ErrorHelper.attachToTextInputLayout(tilAdminCode);
+        ErrorHelper.attachToTextInputLayout(tilBatch);
+        ErrorHelper.attachToTextInputLayout(tilDepartment);
+        ErrorHelper.attachToTextInputLayout(tilLevelTerm);
+        ErrorHelper.attachToTextInputLayout(tilPassword);
+        ErrorHelper.attachToTextInputLayout(tilConfirmPassword);
 
         btnCreateAccount = findViewById(R.id.btnCreateAccount);
         progressBar = findViewById(R.id.progressBar);
@@ -230,7 +251,7 @@ public class UserRegistrationActivity extends AppCompatActivity {
             if (cbPolicy.isChecked()) {
                 registerUser();
             } else {
-                Toast.makeText(this, "Please agree to the policy first.", Toast.LENGTH_SHORT).show();
+                ErrorHelper.showError(btnCreateAccount, "Please agree to the policy first.");
             }
         });
 
@@ -385,7 +406,7 @@ public class UserRegistrationActivity extends AppCompatActivity {
 
     private void registerUser() {
         if (!isNetworkAvailable()) {
-            Toast.makeText(this, "No internet connection.", Toast.LENGTH_LONG).show();
+            ErrorHelper.showError(btnCreateAccount, "No internet connection.");
             return;
         }
 
@@ -399,25 +420,32 @@ public class UserRegistrationActivity extends AppCompatActivity {
 
         // Clear previous errors
         tilUniversityId.setError(null);
+        tilFullName.setError(null);
+        tilEmail.setError(null);
+        tilPhone.setError(null);
+        tilPassword.setError(null);
+        tilConfirmPassword.setError(null);
+        tilDesignation.setError(null);
+        tilAdminCode.setError(null);
 
-        if (TextUtils.isEmpty(universityId)) { etUniversityId.setError("Required"); return; }
-        if (TextUtils.isEmpty(fullName)) { etFullName.setError("Required"); return; }
+        if (TextUtils.isEmpty(universityId)) { tilUniversityId.setError("Required"); return; }
+        if (TextUtils.isEmpty(fullName)) { tilFullName.setError("Required"); return; }
         if (!TextUtils.isEmpty(email) && !android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
-            etEmail.setError("Valid email required"); return; }
-        if (TextUtils.isEmpty(phone)) { etPhone.setError("Required"); return; }
-        if (password.length() < 6) { etPassword.setError("Minimum 6 characters"); return; }
-        if (!password.equals(confirmPassword)) { etConfirmPassword.setError("Passwords do not match"); return; }
+            tilEmail.setError("Valid email required"); return; }
+        if (TextUtils.isEmpty(phone)) { tilPhone.setError("Required"); return; }
+        if (password.length() < 6) { tilPassword.setError("Minimum 6 characters"); return; }
+        if (!password.equals(confirmPassword)) { tilConfirmPassword.setError("Passwords do not match"); return; }
 
         if ("Staff".equals(userType)) {
             if (TextUtils.isEmpty(etDesignation.getText().toString().trim())) {
-                etDesignation.setError("Required"); return;
+                tilDesignation.setError("Required"); return;
             }
         } else if ("Admin".equals(userType)) {
             if (TextUtils.isEmpty(etDesignation.getText().toString().trim())) {
-                etDesignation.setError("Required"); return;
+                tilDesignation.setError("Required"); return;
             }
             if (TextUtils.isEmpty(etAdminCode.getText().toString().trim())) {
-                etAdminCode.setError("Required"); return;
+                tilAdminCode.setError("Required"); return;
             }
         }
 
@@ -431,32 +459,14 @@ public class UserRegistrationActivity extends AppCompatActivity {
                     etUniversityId.requestFocus();
                     tilUniversityId.setError("An account with this University ID already exists. Please log in.");
                 } else {
-                    if ("Admin".equals(userType)) {
-                        mDatabase.child("adminRequests").child(universityId).addListenerForSingleValueEvent(new ValueEventListener() {
-                            @Override
-                            public void onDataChange(@NonNull DataSnapshot requestSnapshot) {
-                                if (requestSnapshot.exists()) {
-                                    showLoading(false);
-                                    Toast.makeText(UserRegistrationActivity.this, "A request for this ID is already pending.", Toast.LENGTH_LONG).show();
-                                } else {
-                                    submitAdminRequest(universityId, fullName, email, phone, etDesignation.getText().toString().trim(), etAdminCode.getText().toString().trim(), password);
-                                }
-                            }
-                            @Override public void onCancelled(@NonNull DatabaseError error) {
-                                showLoading(false);
-                                Toast.makeText(UserRegistrationActivity.this, "Database error: " + error.getMessage(), Toast.LENGTH_SHORT).show();
-                            }
-                        });
-                    } else {
-                        performAuthRegistration(email, password, universityId, fullName, userType);
-                    }
+                    performAuthRegistration(email, password, universityId, fullName, userType);
                 }
             }
 
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
                 showLoading(false);
-                Toast.makeText(UserRegistrationActivity.this, "Database error: " + error.getMessage(), Toast.LENGTH_SHORT).show();
+                ErrorHelper.showError(btnCreateAccount, "Database error: " + error.getMessage());
             }
         });
     }
@@ -467,37 +477,25 @@ public class UserRegistrationActivity extends AppCompatActivity {
         finish();
     }
 
-    private void submitAdminRequest(String universityId, String fullName, String email, String phone, String designation, String adminCode, String password) {
-        if (profileImageUri != null) {
-            String fileName = universityId + "_req_" + System.currentTimeMillis() + ".jpg";
-            SupabaseStorageHelper.uploadImage(this, profileImageUri, "admin_requests", fileName, new SupabaseStorageHelper.UploadCallback() {
-                @Override
-                public void onSuccess(String publicUrl) {
-                    saveAdminRequest(universityId, fullName, email, phone, designation, adminCode, password, publicUrl);
-                }
+    private void saveAdminRequest(String universityId, String fullName, String email, String phone, String designation, String adminCode, String password, String imageUrl, String authId) {
+        Log.d("UserRegistration", "Saving Admin Request to database for: " + universityId);
+        AdminRequest request = new AdminRequest(universityId, authId, fullName, email, phone, designation, adminCode, password, imageUrl);
 
-                @Override
-                public void onFailure(Exception e) {
-                    saveAdminRequest(universityId, fullName, email, phone, designation, adminCode, password, null);
-                }
-            });
-        } else {
-            saveAdminRequest(universityId, fullName, email, phone, designation, adminCode, password, null);
-        }
-    }
+        java.util.Map<String, Object> updates = new java.util.HashMap<>();
+        updates.put("adminRequests/" + universityId, request);
+        updates.put("UIDToUniversityID/" + authId, universityId);
 
-    private void saveAdminRequest(String universityId, String fullName, String email, String phoneNumber, String designation, String verificationCode, String password, String imageUrl) {
-        AdminRequest request = new AdminRequest(universityId, fullName, email, phoneNumber, designation, verificationCode, password, imageUrl);
-
-        mDatabase.child("adminRequests").child(universityId).setValue(request)
+        mDatabase.updateChildren(updates)
                 .addOnCompleteListener(task -> {
                     showLoading(false);
                     if (task.isSuccessful()) {
-                        Toast.makeText(this, "Your provided information is being verified. Please try to log in after some time.", Toast.LENGTH_LONG).show();
+                        Log.d("UserRegistration", "Admin request submitted successfully");
+                        ErrorHelper.showError(btnCreateAccount, "Admin request submitted. Please wait for approval before logging in.");
                         redirectToLogin();
                     } else {
-                        String error = task.getException() != null ? task.getException().getMessage() : "Unknown Error";
-                        Toast.makeText(this, "Database Error: " + error, Toast.LENGTH_SHORT).show();
+                        String error = task.getException() != null ? task.getException().getMessage() : "Permission denied";
+                        Log.e("UserRegistration", "Admin request failed: " + error);
+                        ErrorHelper.showError(btnCreateAccount, "Database error: " + error);
                     }
                 });
     }
@@ -505,44 +503,65 @@ public class UserRegistrationActivity extends AppCompatActivity {
     private void performAuthRegistration(String email, String password, String universityId, String fullName, String userType) {
         if (TextUtils.isEmpty(email)) {
             showLoading(false);
-            Toast.makeText(this, "Email is required for Student/Staff registration", Toast.LENGTH_SHORT).show();
+            ErrorHelper.showError(btnCreateAccount, "Email is required for Student/Staff registration");
             return;
         }
 
+        Log.d("UserRegistration", "Starting Firebase Auth for: " + email);
         mAuth.createUserWithEmailAndPassword(email, password)
                 .addOnCompleteListener(task -> {
                     if (!task.isSuccessful()) {
                         showLoading(false);
                         String errorMsg = task.getException() != null ? task.getException().getMessage() : "Auth failed";
-                        Toast.makeText(this, "Registration failed: " + errorMsg, Toast.LENGTH_LONG).show();
+                        Log.e("UserRegistration", "Firebase Auth failed: " + errorMsg);
+                        ErrorHelper.showError(btnCreateAccount, "Registration failed: " + errorMsg);
                         return;
                     }
 
                     if (mAuth.getCurrentUser() != null) {
                         String authId = mAuth.getCurrentUser().getUid();
+                        Log.d("UserRegistration", "Firebase Auth success. Auth UID: " + authId);
                         String dbUserId = universityId;
 
                         if (profileImageUri != null) {
                             String fileName = dbUserId + "_" + System.currentTimeMillis() + ".jpg";
-                            SupabaseStorageHelper.uploadImage(this, profileImageUri, "profiles", fileName, new SupabaseStorageHelper.UploadCallback() {
+                            Log.d("UserRegistration", "Uploading profile image: " + fileName);
+                            String folder = "Admin".equals(userType) ? "admin_requests" : "profiles";
+                            SupabaseStorageHelper.uploadImage(this, profileImageUri, folder, fileName, new SupabaseStorageHelper.UploadCallback() {
                                 @Override
                                 public void onSuccess(String publicUrl) {
-                                    saveUser(dbUserId, authId, publicUrl, universityId, fullName, email, password, userType);
+                                    Log.d("UserRegistration", "Profile image upload success: " + publicUrl);
+                                    if ("Admin".equals(userType)) {
+                                        saveAdminRequest(universityId, fullName, email, etPhone.getText().toString().trim(), etDesignation.getText().toString().trim(), etAdminCode.getText().toString().trim(), password, publicUrl, authId);
+                                    } else {
+                                        saveUser(dbUserId, authId, publicUrl, universityId, fullName, email, password, userType);
+                                    }
                                 }
 
                                 @Override
                                 public void onFailure(Exception e) {
-                                    saveUser(dbUserId, authId, null, universityId, fullName, email, password, userType);
+                                    Log.e("UserRegistration", "Profile image upload failed: " + e.getMessage());
+                                    if ("Admin".equals(userType)) {
+                                        saveAdminRequest(universityId, fullName, email, etPhone.getText().toString().trim(), etDesignation.getText().toString().trim(), etAdminCode.getText().toString().trim(), password, null, authId);
+                                    } else {
+                                        saveUser(dbUserId, authId, null, universityId, fullName, email, password, userType);
+                                    }
                                 }
                             });
                         } else {
-                            saveUser(dbUserId, authId, null, universityId, fullName, email, password, userType);
+                            Log.d("UserRegistration", "No profile image, saving user data");
+                            if ("Admin".equals(userType)) {
+                                saveAdminRequest(universityId, fullName, email, etPhone.getText().toString().trim(), etDesignation.getText().toString().trim(), etAdminCode.getText().toString().trim(), password, null, authId);
+                            } else {
+                                saveUser(dbUserId, authId, null, universityId, fullName, email, password, userType);
+                            }
                         }
                     }
                 });
     }
 
     private void saveUser(String universityIdKey, String authId, String imageUrl, String universityId, String fullName, String email, String password, String userType) {
+        Log.d("UserRegistration", "Saving user data. UID: " + authId + ", UnivID: " + universityIdKey + ", Type: " + userType);
         String phone = etPhone.getText().toString().trim();
 
         User user;
@@ -556,19 +575,24 @@ public class UserRegistrationActivity extends AppCompatActivity {
             user = new User(universityId, authId, fullName, email, password, phone, designation, imageUrl, "Not Specified", userType);
         }
 
-        mDatabase.child("Users").child(universityIdKey)
-                .setValue(user)
-                .addOnCompleteListener(task -> {
-                    if (task.isSuccessful()) {
-                        mDatabase.child("UIDToUniversityID").child(authId).setValue(universityIdKey);
+        // Use atomic update to write to both paths and UIDToUniversityID mapping
+        java.util.Map<String, Object> updates = new java.util.HashMap<>();
+        updates.put("Users/" + universityIdKey, user);
+        updates.put("UIDToUniversityID/" + authId, universityIdKey);
 
-                        showLoading(false);
-                        Toast.makeText(this, "Your account has been successfully registered. Please log in.", Toast.LENGTH_LONG).show();
+        Log.d("UserRegistration", "Performing atomic update for paths: Users, UIDToUniversityID");
+
+        mDatabase.updateChildren(updates)
+                .addOnCompleteListener(task -> {
+                    showLoading(false);
+                    if (task.isSuccessful()) {
+                        Log.d("UserRegistration", "Registration data saved successfully");
+                        ErrorHelper.showError(btnCreateAccount, "Your account has been successfully registered. Please log in.");
                         redirectToLogin();
                     } else {
-                        showLoading(false);
                         String error = task.getException() != null ? task.getException().getMessage() : "Permission denied";
-                        Toast.makeText(this, "Database error: " + error, Toast.LENGTH_SHORT).show();
+                        Log.e("UserRegistration", "Database update failed: " + error);
+                        ErrorHelper.showError(btnCreateAccount, "Database error: " + error);
                     }
                 });
     }

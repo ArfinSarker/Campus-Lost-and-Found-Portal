@@ -410,6 +410,19 @@ public class UserProfileActivity extends AppCompatActivity {
         tilConfirmPassword = findViewById(R.id.tilConfirmPassword);
         tilDesignation = findViewById(R.id.tilDesignation);
 
+        ErrorHelper.attachToTextInputLayout(tilFullName);
+        ErrorHelper.attachToTextInputLayout(tilEmail);
+        ErrorHelper.attachToTextInputLayout(tilPhone);
+        ErrorHelper.attachToTextInputLayout(tilDepartment);
+        ErrorHelper.attachToTextInputLayout(tilGender);
+        ErrorHelper.attachToTextInputLayout(tilBatch);
+        ErrorHelper.attachToTextInputLayout(tilLevelTerm);
+        ErrorHelper.attachToTextInputLayout(tilSection);
+        ErrorHelper.attachToTextInputLayout(tilOldPassword);
+        ErrorHelper.attachToTextInputLayout(tilNewPassword);
+        ErrorHelper.attachToTextInputLayout(tilConfirmPassword);
+        ErrorHelper.attachToTextInputLayout(tilDesignation);
+
         etEmail = findViewById(R.id.etEmail);
         etPhone = findViewById(R.id.etPhone);
         etFullName = findViewById(R.id.etFullName);
@@ -765,7 +778,7 @@ public class UserProfileActivity extends AppCompatActivity {
             @Override
             public void onFailure(Exception e) {
                 showLoading(false);
-                Toast.makeText(UserProfileActivity.this, "Upload Failed: " + e.getMessage(), Toast.LENGTH_LONG).show();
+                ErrorHelper.showError(btnSaveChanges, "Upload Failed: " + e.getMessage());
             }
         });
     }
@@ -779,7 +792,7 @@ public class UserProfileActivity extends AppCompatActivity {
                         Snackbar.make(findViewById(android.R.id.content), "Profile updated successfully", Snackbar.LENGTH_LONG).show();
                         loadUserData(currentUniversityId);
                     } else {
-                        Toast.makeText(this, "Update failed", Toast.LENGTH_SHORT).show();
+                        ErrorHelper.showError(btnSaveChanges, "Update failed");
                     }
                 });
     }
@@ -833,7 +846,7 @@ public class UserProfileActivity extends AppCompatActivity {
                             onComplete.run();
                         } else {
                             showLoading(false);
-                            Toast.makeText(this, "Password update failed: " + updateTask.getException().getMessage(), Toast.LENGTH_SHORT).show();
+                            ErrorHelper.showError(btnConfirmPasswordChange, "Password update failed: " + updateTask.getException().getMessage());
                         }
                     });
                 } else {

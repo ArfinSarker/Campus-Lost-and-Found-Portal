@@ -46,6 +46,10 @@ public class AllUsersActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        // Ensure only admins can access user management
+        RoleVerifier.checkAdminAccess(this);
+
         setContentView(R.layout.activity_all_users);
 
         mDatabase = FirebaseDatabase.getInstance(FirebaseConfig.DATABASE_URL).getReference();

@@ -7,17 +7,19 @@
         "email"
       ],
       "$universityId": {
-        ".write": "auth != null && (auth.uid == '1' || root.child('Users').child(root.child('UIDToUniversityID').child(auth.uid).val()).child('role').val() == 'admin' || root.child('Users').child(root.child('UIDToUniversityID').child(auth.uid).val()).child('userType').val() == 'Admin' || !data.exists() || data.child('authId').val() == auth.uid)"
+        ".write": "auth != null && (!data.exists() || data.child('authId').val() == auth.uid || root.child('Users').child(root.child('UIDToUniversityID').child(auth.uid).val()).child('role').val() == 'admin' || root.child('Users').child(root.child('UIDToUniversityID').child(auth.uid).val()).child('userType').val() == 'Admin' || auth.uid == '1')"
       }
     },
     "UIDToUniversityID": {
       ".read": "auth != null",
-      ".write": "auth != null"
+      "$uid": {
+        ".write": "auth != null && (auth.uid == $uid || root.child('Users').child(root.child('UIDToUniversityID').child(auth.uid).val()).child('role').val() == 'admin' || auth.uid == '1')"
+      }
     },
     "adminRequests": {
       ".read": "true",
       "$universityId": {
-        ".write": "auth != null && (auth.uid == '1' || root.child('Users').child(root.child('UIDToUniversityID').child(auth.uid).val()).child('role').val() == 'admin' || !data.exists())"
+        ".write": "auth != null && (!data.exists() || root.child('Users').child(root.child('UIDToUniversityID').child(auth.uid).val()).child('role').val() == 'admin' || auth.uid == '1')"
       }
     },
     "DeniedAdminRequests": {

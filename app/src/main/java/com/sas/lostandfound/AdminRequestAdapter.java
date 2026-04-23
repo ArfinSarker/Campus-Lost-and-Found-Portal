@@ -49,7 +49,7 @@ public class AdminRequestAdapter extends RecyclerView.Adapter<AdminRequestAdapte
 
         if (request.getProfileImageUrl() != null && !request.getProfileImageUrl().isEmpty()) {
             GlideApp.with(holder.itemView.getContext())
-                    .load(request.getProfileImageUrl())
+                    .load(SupabaseStorageHelper.ensurePublicUrl(request.getProfileImageUrl()))
                     .placeholder(R.drawable.ic_user)
                     .thumbnail(0.1f)
                     .diskCacheStrategy(DiskCacheStrategy.ALL)

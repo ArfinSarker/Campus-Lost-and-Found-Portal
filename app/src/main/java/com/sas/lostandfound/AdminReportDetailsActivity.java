@@ -14,6 +14,7 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
@@ -67,6 +68,10 @@ public class AdminReportDetailsActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        
+        // Ensure user is logged in
+        RoleVerifier.checkUserAccess(this);
+
         setContentView(R.layout.activity_admin_report_details);
 
         reportId = getIntent().getStringExtra("reportId");
@@ -81,6 +86,14 @@ public class AdminReportDetailsActivity extends AppCompatActivity {
         initializeViews();
         setupToolbar();
         fetchReportDetails();
+
+        // Ensure back press always exits the activity immediately
+        getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
+            @Override
+            public void handleOnBackPressed() {
+                finish();
+            }
+        });
     }
 
     @SuppressLint("ClickableViewAccessibility")
@@ -118,11 +131,11 @@ public class AdminReportDetailsActivity extends AppCompatActivity {
             if (currentReport != null) {
                 List<String> urls = currentReport.getImageUrls();
                 if (urls != null && !urls.isEmpty()) {
-                    openFullScreenImage(urls, 0);
+                    ItemNavigationUtils.openFullScreenImage(this, urls, 0);
                 } else if (currentReport.getImageUrl() != null) {
                     List<String> singleUrl = new ArrayList<>();
                     singleUrl.add(currentReport.getImageUrl());
-                    openFullScreenImage(singleUrl, 0);
+                    ItemNavigationUtils.openFullScreenImage(this, singleUrl, 0);
                 }
             }
         });
@@ -158,14 +171,6 @@ public class AdminReportDetailsActivity extends AppCompatActivity {
             }
             return false;
         });
-    }
-
-    private void openFullScreenImage(List<String> imageUrls, int position) {
-        if (imageUrls == null || imageUrls.isEmpty()) return;
-        Intent intent = new Intent(this, FullScreenImageActivity.class);
-        intent.putStringArrayListExtra("imageUrls", new ArrayList<>(imageUrls));
-        intent.putExtra("position", position);
-        startActivity(intent);
     }
 
     private void setupToolbar() {
