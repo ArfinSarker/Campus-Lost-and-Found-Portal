@@ -16,58 +16,46 @@ import android.text.style.ClickableSpan;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
-import android.widget.ProgressBar;
+import com.airbnb.lottie.LottieAnimationView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.content.ContextCompat;
-import androidx.core.widget.NestedScrollView;
 
 import com.google.android.material.appbar.AppBarLayout;
-import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
+import com.google.android.material.appbar.MaterialToolbar;
+import com.google.gson.reflect.TypeToken;
+
+import java.util.List;
 
 public class UserLoginActivity extends AppCompatActivity {
 
     private TextInputEditText etUniversityId, etPassword;
     private TextInputLayout tilUniversityId, tilPassword, tilUserType;
     private AutoCompleteTextView actvUserType;
-    private MaterialButton btnSignIn;
-    private ProgressBar progressBar;
+    private MaterialButton btnLogin;
+    private LottieAnimationView loader;
     private TextView tvForgotPassword, tvRegister;
     private MaterialToolbar toolbar;
     private AppBarLayout appBarLayout;
-
-    private FirebaseAuth mAuth;
-    private DatabaseReference mDatabase;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_user_login);
 
-        mAuth = FirebaseAuth.getInstance();
-        mDatabase = FirebaseDatabase.getInstance(FirebaseConfig.DATABASE_URL).getReference();
-
         initializeViews();
         setupUserTypeDropdown();
         setupToolbar();
         setupClickableRegister();
 
-        btnSignIn.setOnClickListener(v -> loginUser());
+        btnLogin.setOnClickListener(v -> loginUser());
 
         tvForgotPassword.setOnClickListener(v ->
-                Toast.makeText(UserLoginActivity.this, "Reset link will be sent to your registered email.", Toast.LENGTH_SHORT).show()
+                SnackbarManager.show(SnackbarManager.Type.PRIMARY, "Reset link will be sent to your registered email.")
         );
     }
 
@@ -78,13 +66,13 @@ public class UserLoginActivity extends AppCompatActivity {
         tilUniversityId = findViewById(R.id.tilUniversityId);
         tilPassword = findViewById(R.id.tilPassword);
         tilUserType = findViewById(R.id.tilUserType);
-        
+
         ErrorHelper.attachToTextInputLayout(tilUniversityId);
         ErrorHelper.attachToTextInputLayout(tilPassword);
         ErrorHelper.attachToTextInputLayout(tilUserType);
 
-        btnSignIn = findViewById(R.id.btnSignIn);
-        progressBar = findViewById(R.id.progressBar);
+        btnLogin = findViewById(R.id.btnLogin);
+        loader = findViewById(R.id.loginLoader);
         tvForgotPassword = findViewById(R.id.tvForgotPassword);
         tvRegister = findViewById(R.id.tvRegister);
         toolbar = findViewById(R.id.toolbar);
@@ -118,20 +106,33 @@ public class UserLoginActivity extends AppCompatActivity {
     }
 
     private boolean isNetworkAvailable() {
-        ConnectivityManager cm = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
-        NetworkInfo ni = cm.getActiveNetworkInfo();
-        return ni != null && ni.isConnected();
+        try {
+            ConnectivityManager cm = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+            NetworkInfo ni = cm.getActiveNetworkInfo();
+            return ni != null && ni.isConnected();
+        } catch (Exception e) {
+            return false;
+        }
     }
 
-    private void showLoading(boolean isLoading) {
-        btnSignIn.setEnabled(!isLoading);
-        progressBar.setVisibility(isLoading ? View.VISIBLE : View.GONE);
-        btnSignIn.setText(isLoading ? "" : getString(R.string.sign_in));
+    private void startLoading() {
+        btnLogin.setEnabled(false);
+        btnLogin.setVisibility(View.INVISIBLE);
+        loader.setVisibility(View.VISIBLE);
+        loader.playAnimation();
+    }
+
+    private void stopLoading() {
+        loader.cancelAnimation();
+        loader.setVisibility(View.GONE);
+        btnLogin.setVisibility(View.VISIBLE);
+        btnLogin.setEnabled(true);
     }
 
     private void loginUser() {
+
         if (!isNetworkAvailable()) {
-            ErrorHelper.showError(btnSignIn, "No internet connection.");
+            ErrorHelper.showError(btnLogin, "No internet connection. Please check your network.");
             return;
         }
 
@@ -140,86 +141,102 @@ public class UserLoginActivity extends AppCompatActivity {
         String password = etPassword.getText().toString().trim();
 
         if (userType.isEmpty()) {
-            ErrorHelper.showError(btnSignIn, "Please select User Type");
+            ErrorHelper.setFieldError(tilUserType, "Please select User Type");
             return;
         }
+
         if (id.isEmpty()) {
-            tilUniversityId.setError("Required");
+            ErrorHelper.setFieldError(tilUniversityId, "University ID is required");
             return;
         }
+
         if (password.isEmpty()) {
-            tilPassword.setError("Required");
+            ErrorHelper.setFieldError(tilPassword, "Password is required");
             return;
         }
 
-        showLoading(true);
-
+        startLoading();
         startLoginFlow(id, password, userType);
     }
 
     private void startLoginFlow(String universityId, String password, String userType) {
-        mDatabase.child("Users").child(universityId).addListenerForSingleValueEvent(new ValueEventListener() {
+        String query = "university_id=eq." + universityId + "&select=*&limit=1";
+        SupabaseDatabaseHelper.select("profiles", query, new TypeToken<List<User>>(){}.getType(), new SupabaseDatabaseHelper.DatabaseCallback<List<User>>() {
             @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                if (snapshot.exists()) {
-                    User user = snapshot.getValue(User.class);
-                    if (user != null) {
-                        // Strict Verification: check user role from DB
-                        boolean dbIsAdmin = "admin".equalsIgnoreCase(user.getRole()) || user.isAdmin() || "Admin".equalsIgnoreCase(user.getUserType());
-                        String actualRoleInDb = dbIsAdmin ? "Admin" : user.getUserType();
+            public void onSuccess(List<User> users) {
+                if (users == null || users.isEmpty()) {
+                    stopLoading();
+                    ErrorHelper.showError(btnLogin, "No account found with this University ID.");
+                    return;
+                }
 
-                        // The selected role must match the actual role in the database
-                        if (userType.equalsIgnoreCase(actualRoleInDb)) {
-                            performFirebaseLogin(user.getEmail(), password, userType, dbIsAdmin, universityId);
-                        } else {
-                            showLoading(false);
-                            String message = "Invalid role selected. Your account is registered as " + actualRoleInDb + ".";
-                            ErrorHelper.showError(btnSignIn, message);
-                        }
-                    } else {
-                        showLoading(false);
-                        ErrorHelper.showError(btnSignIn, "Error parsing user data.");
+                try {
+                    User user = users.get(0);
+
+                    if (user == null || user.getEmail() == null) {
+                        stopLoading();
+                        ErrorHelper.showError(btnLogin, "Invalid user data. Please contact support.");
+                        return;
                     }
-                } else {
-                    showLoading(false);
-                    ErrorHelper.showError(btnSignIn, "No account exists with this University ID. Please register again.");
+
+                    boolean dbIsAdmin =
+                            "admin".equalsIgnoreCase(user.getRole()) ||
+                                    user.isAdmin() ||
+                                    "Admin".equalsIgnoreCase(user.getUserType());
+
+                    String actualRole = dbIsAdmin ? "Admin" : user.getUserType();
+
+                    if (!userType.equalsIgnoreCase(actualRole)) {
+                        stopLoading();
+                        ErrorHelper.showError(btnLogin, "Selected role does not match your account.");
+                        return;
+                    }
+
+                    performSupabaseLogin(user.getEmail(), password, userType, dbIsAdmin, universityId);
+
+                } catch (Exception e) {
+                    stopLoading();
+                    ErrorHelper.showError(btnLogin, "Something went wrong. Please try again.");
                 }
             }
 
             @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-                showLoading(false);
-                ErrorHelper.showError(btnSignIn, "Database error: " + error.getMessage());
+            public void onFailure(String errorMessage) {
+                stopLoading();
+                ErrorHelper.showError(btnLogin, "Database error: " + errorMessage);
             }
         });
     }
 
-    private void performFirebaseLogin(String email, String password, String userType, boolean isMainAdmin, String dbId) {
-        mAuth.signInWithEmailAndPassword(email, password)
-                .addOnCompleteListener(this, task -> {
-                    if (task.isSuccessful()) {
-                        saveLoginState(userType, isMainAdmin, dbId);
-                        Toast.makeText(UserLoginActivity.this, "Login successful", Toast.LENGTH_SHORT).show();
+    private void performSupabaseLogin(String email, String password, String userType, boolean isMainAdmin, String dbId) {
 
-                        Intent intent;
-                        // Correctly verify the user's role and redirect
-                        if ("Admin".equalsIgnoreCase(userType) || isMainAdmin) {
-                            intent = new Intent(this, AdminDashboardActivity.class);
-                        } else {
-                            intent = new Intent(this, CampusDashboardActivity.class);
-                        }
-                        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                        startActivity(intent);
-                        finish();
-                    } else {
-                        showLoading(false);
-                        String error = task.getException() != null ? task.getException().getMessage() : "Authentication failed";
-                        ErrorHelper.showError(btnSignIn, "Login failed: " + error);
-                    }
-                });
+        SupabaseAuthHelper.login(email, password, new SupabaseAuthHelper.AuthCallback() {
+            @Override
+            public void onSuccess(String userId, String accessToken, String refreshToken) {
+                saveLoginState(userType, isMainAdmin, dbId, userId, accessToken, refreshToken);
+                SnackbarManager.show(SnackbarManager.Type.SUCCESS, "Login successful");
+
+                Intent intent;
+                if ("Admin".equalsIgnoreCase(userType) || isMainAdmin) {
+                    intent = new Intent(UserLoginActivity.this, AdminDashboardActivity.class);
+                } else {
+                    intent = new Intent(UserLoginActivity.this, CampusDashboardActivity.class);
+                }
+
+                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                startActivity(intent);
+                finish();
+            }
+
+            @Override
+            public void onFailure(String errorMessage) {
+                stopLoading();
+                ErrorHelper.showError(btnLogin, errorMessage);
+            }
+        });
     }
 
-    private void saveLoginState(String userType, boolean isMainAdmin, String dbId) {
+    private void saveLoginState(String userType, boolean isMainAdmin, String dbId, String authId, String accessToken, String refreshToken) {
         SharedPreferences prefs = getSharedPreferences("MyApp", MODE_PRIVATE);
         prefs.edit()
                 .putString("userType", userType)
@@ -227,33 +244,45 @@ public class UserLoginActivity extends AppCompatActivity {
                 .putBoolean("isMainAdmin", "Admin".equalsIgnoreCase(userType) || isMainAdmin)
                 .putString("universityId", dbId)
                 .putString("adminId", dbId)
+                .putString("authId", authId)
+                .putString("accessToken", accessToken)
+                .putString("refreshToken", refreshToken)
                 .apply();
+        
+        // Update helper with token
+        SupabaseDatabaseHelper.setAuthToken(accessToken);
     }
 
     private void setupClickableRegister() {
         String fullText = getString(R.string.register_link);
         Spanned spanned = Html.fromHtml(fullText, Html.FROM_HTML_MODE_LEGACY);
         SpannableString ss = new SpannableString(spanned);
+
         String registerWord = "Register";
         int start = spanned.toString().indexOf(registerWord);
 
         if (start != -1) {
             int end = start + registerWord.length();
+
             ClickableSpan clickableSpan = new ClickableSpan() {
                 @Override
                 public void onClick(@NonNull View widget) {
-                    startActivity(new Intent(UserLoginActivity.this, UserRegistrationActivity.class));
+                    if (ItemNavigationUtils.canNavigate()) {
+                        startActivity(new Intent(UserLoginActivity.this, UserRegistrationActivity.class));
+                    }
                 }
+
                 @Override
                 public void updateDrawState(@NonNull TextPaint ds) {
-                    super.updateDrawState(ds);
                     ds.setUnderlineText(false);
                     ds.setColor(Color.parseColor("#2196F3"));
                     ds.setFakeBoldText(true);
                 }
             };
+
             ss.setSpan(clickableSpan, start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
         }
+
         tvRegister.setText(ss);
         tvRegister.setMovementMethod(LinkMovementMethod.getInstance());
     }

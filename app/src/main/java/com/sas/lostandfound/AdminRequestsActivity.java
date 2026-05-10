@@ -4,7 +4,6 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -13,12 +12,7 @@ import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
-
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
+import com.google.gson.reflect.TypeToken;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -35,7 +29,7 @@ public class AdminRequestsActivity extends AppCompatActivity {
     private ProgressBar progressBar;
     private LinearLayout llEmptyState;
     private SwipeRefreshLayout swipeRefreshLayout;
-    private DatabaseReference mDatabase;
+    private boolean isFetching = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -45,8 +39,6 @@ public class AdminRequestsActivity extends AppCompatActivity {
         RoleVerifier.checkAdminAccess(this);
 
         setContentView(R.layout.activity_admin_requests);
-
-        mDatabase = FirebaseDatabase.getInstance(FirebaseConfig.DATABASE_URL).getReference();
 
         initializeViews();
         setupToolbar();
@@ -101,30 +93,33 @@ public class AdminRequestsActivity extends AppCompatActivity {
     }
 
     private void fetchAdminRequests() {
+        if (isFetching) return;
+        isFetching = true;
+
         if (swipeRefreshLayout == null || !swipeRefreshLayout.isRefreshing()) {
             progressBar.setVisibility(View.VISIBLE);
         }
 
-        mDatabase.child("adminRequests").addValueEventListener(new ValueEventListener() {
+        SupabaseDatabaseHelper.select("admin_requests", "select=*", new TypeToken<List<AdminRequest>>(){}.getType(), new SupabaseDatabaseHelper.DatabaseCallback<List<AdminRequest>>() {
             @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
+            public void onSuccess(List<AdminRequest> requests) {
                 requestList.clear();
-                for (DataSnapshot data : snapshot.getChildren()) {
-                    AdminRequest request = data.getValue(AdminRequest.class);
-                    if (request != null) {
-                        requestList.add(request);
-                    }
+                if (requests != null) {
+                    requestList.addAll(requests);
                 }
                 adapter.notifyDataSetChanged();
                 progressBar.setVisibility(View.GONE);
                 llEmptyState.setVisibility(requestList.isEmpty() ? View.VISIBLE : View.GONE);
+                
+                isFetching = false;
                 if (swipeRefreshLayout != null) swipeRefreshLayout.setRefreshing(false);
             }
 
             @Override
-            public void onCancelled(@NonNull DatabaseError error) {
+            public void onFailure(String errorMessage) {
+                isFetching = false;
                 progressBar.setVisibility(View.GONE);
-                Toast.makeText(AdminRequestsActivity.this, "Database Error: " + error.getMessage(), Toast.LENGTH_SHORT).show();
+                SnackbarManager.show(SnackbarManager.Type.ERROR, "Database Error: " + errorMessage);
                 if (swipeRefreshLayout != null) swipeRefreshLayout.setRefreshing(false);
             }
         });
@@ -134,24 +129,22 @@ public class AdminRequestsActivity extends AppCompatActivity {
         progressBar.setVisibility(View.VISIBLE);
         final String universityId = request.getUniversityId();
 
-        // Step 1: Check if University ID already exists in the database
-        mDatabase.child("Users").child(universityId).addListenerForSingleValueEvent(new ValueEventListener() {
+        // Step 1: Check if University ID already exists
+        SupabaseDatabaseHelper.select("profiles", "university_id=eq." + universityId, new TypeToken<List<User>>(){}.getType(), new SupabaseDatabaseHelper.DatabaseCallback<List<User>>() {
             @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                if (snapshot.exists()) {
+            public void onSuccess(List<User> users) {
+                if (users != null && !users.isEmpty()) {
                     progressBar.setVisibility(View.GONE);
-                    Toast.makeText(AdminRequestsActivity.this, "An account with this University ID already exists.", Toast.LENGTH_LONG).show();
+                    SnackbarManager.show(SnackbarManager.Type.ERROR, "An account with this University ID already exists.");
                 } else {
-                    // Step 2: Proceed with creating the admin account in database
-                    // Firebase Auth creation is handled during first login to avoid email duplication issues here.
                     saveAdminToUsers(request);
                 }
             }
 
             @Override
-            public void onCancelled(@NonNull DatabaseError error) {
+            public void onFailure(String errorMessage) {
                 progressBar.setVisibility(View.GONE);
-                Toast.makeText(AdminRequestsActivity.this, "Database Error: " + error.getMessage(), Toast.LENGTH_SHORT).show();
+                SnackbarManager.show(SnackbarManager.Type.ERROR, "Database Error: " + errorMessage);
             }
         });
     }
@@ -168,37 +161,61 @@ public class AdminRequestsActivity extends AppCompatActivity {
                 request.getPassword(),
                 request.getPhoneNumber(),
                 request.getDesignation() != null ? request.getDesignation() : "Administration",
+                request.getDepartment() != null ? request.getDepartment() : "Administration",
                 request.getProfileImageUrl(),
                 "Not Specified",
                 "Admin"
         );
         adminUser.setAdmin(true);
         adminUser.setRole("admin");
-        adminUser.setRequestStatus("approved"); // Step 3: Set status as approved
+        adminUser.setRequestStatus("approved");
 
         if (request.getCreated_at() != null) {
             adminUser.setCreated_at(request.getCreated_at());
         }
 
-        mDatabase.child("Users").child(universityId).setValue(adminUser)
-                .addOnCompleteListener(task -> {
-                    if (task.isSuccessful()) {
-                        // Move data from adminRequests -> Users (done by setValue)
-                        mDatabase.child("adminRequests").child(universityId).removeValue();
-                        mDatabase.child("DeniedAdminRequests").child(universityId).removeValue();
-                        Toast.makeText(AdminRequestsActivity.this, "Admin approved successfully.", Toast.LENGTH_SHORT).show();
-                    } else {
-                        Toast.makeText(AdminRequestsActivity.this, "Failed to approve admin account.", Toast.LENGTH_SHORT).show();
+        SupabaseDatabaseHelper.insert("profiles", adminUser, new SupabaseDatabaseHelper.DatabaseCallback<String>() {
+            @Override
+            public void onSuccess(String result) {
+                // Move data from admin_requests -> profiles (done by insert)
+                SupabaseDatabaseHelper.delete("admin_requests", "university_id=eq." + universityId, new SupabaseDatabaseHelper.DatabaseCallback<Void>() {
+                    @Override
+                    public void onSuccess(Void v) {
+                        progressBar.setVisibility(View.GONE);
+                        SnackbarManager.show(SnackbarManager.Type.SUCCESS, "Admin approved successfully.");
+                        fetchAdminRequests();
                     }
-                    progressBar.setVisibility(View.GONE);
+                    @Override public void onFailure(String e) {
+                        progressBar.setVisibility(View.GONE);
+                        SnackbarManager.show(SnackbarManager.Type.SUCCESS, "Admin approved (cleanup failed)");
+                        fetchAdminRequests();
+                    }
                 });
+            }
+
+            @Override
+            public void onFailure(String errorMessage) {
+                progressBar.setVisibility(View.GONE);
+                SnackbarManager.show(SnackbarManager.Type.ERROR, "Failed to approve admin account: " + errorMessage);
+            }
+        });
     }
 
     private void denyAdmin(AdminRequest request) {
-        mDatabase.child("DeniedAdminRequests").child(request.getUniversityId()).setValue(true)
-                .addOnSuccessListener(aVoid -> {
-                    mDatabase.child("adminRequests").child(request.getUniversityId()).removeValue();
-                    Toast.makeText(this, "Request denied.", Toast.LENGTH_SHORT).show();
-                });
+        progressBar.setVisibility(View.VISIBLE);
+        SupabaseDatabaseHelper.delete("admin_requests", "university_id=eq." + request.getUniversityId(), new SupabaseDatabaseHelper.DatabaseCallback<Void>() {
+            @Override
+            public void onSuccess(Void result) {
+                progressBar.setVisibility(View.GONE);
+                SnackbarManager.show(SnackbarManager.Type.GENERAL, "Request denied.");
+                fetchAdminRequests();
+            }
+
+            @Override
+            public void onFailure(String errorMessage) {
+                progressBar.setVisibility(View.GONE);
+                SnackbarManager.show(SnackbarManager.Type.ERROR, "Deny failed: " + errorMessage);
+            }
+        });
     }
 }

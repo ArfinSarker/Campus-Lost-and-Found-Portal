@@ -9,7 +9,6 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -20,12 +19,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
-
+import com.google.gson.reflect.TypeToken;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -41,7 +35,7 @@ public class AllUsersActivity extends AppCompatActivity {
     private ProgressBar progressBar;
     private LinearLayout llEmptyState;
     private SwipeRefreshLayout swipeRefreshLayout;
-    private DatabaseReference mDatabase;
+    private boolean isFetching = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -51,8 +45,6 @@ public class AllUsersActivity extends AppCompatActivity {
         RoleVerifier.checkAdminAccess(this);
 
         setContentView(R.layout.activity_all_users);
-
-        mDatabase = FirebaseDatabase.getInstance(FirebaseConfig.DATABASE_URL).getReference();
 
         initializeViews();
         setupToolbar();
@@ -103,30 +95,33 @@ public class AllUsersActivity extends AppCompatActivity {
     }
 
     private void fetchAllUsers() {
+        if (isFetching) return;
+        isFetching = true;
+
         if (swipeRefreshLayout == null || !swipeRefreshLayout.isRefreshing()) {
             progressBar.setVisibility(View.VISIBLE);
         }
         
-        mDatabase.child("Users").addValueEventListener(new ValueEventListener() {
+        SupabaseDatabaseHelper.select("profiles", "select=*", new TypeToken<List<User>>(){}.getType(), new SupabaseDatabaseHelper.DatabaseCallback<List<User>>() {
             @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
+            public void onSuccess(List<User> users) {
                 userList.clear();
-                for (DataSnapshot data : snapshot.getChildren()) {
-                    User user = data.getValue(User.class);
-                    if (user != null) {
-                        userList.add(user);
-                    }
+                if (users != null) {
+                    userList.addAll(users);
                 }
                 adapter.notifyDataSetChanged();
                 progressBar.setVisibility(View.GONE);
                 llEmptyState.setVisibility(userList.isEmpty() ? View.VISIBLE : View.GONE);
+                
+                isFetching = false;
                 if (swipeRefreshLayout != null) swipeRefreshLayout.setRefreshing(false);
             }
 
             @Override
-            public void onCancelled(@NonNull DatabaseError error) {
+            public void onFailure(String errorMessage) {
+                isFetching = false;
                 progressBar.setVisibility(View.GONE);
-                Toast.makeText(AllUsersActivity.this, "Error: " + error.getMessage(), Toast.LENGTH_SHORT).show();
+                SnackbarManager.show(SnackbarManager.Type.ERROR, "Error: " + errorMessage);
                 if (swipeRefreshLayout != null) swipeRefreshLayout.setRefreshing(false);
             }
         });

@@ -16,7 +16,6 @@ import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.ImageView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -35,14 +34,7 @@ import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 import com.google.android.material.timepicker.MaterialTimePicker;
 import com.google.android.material.timepicker.TimeFormat;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.MutableData;
-import com.google.firebase.database.Transaction;
-import com.google.firebase.database.ValueEventListener;
+import com.google.gson.reflect.TypeToken;
 
 import java.io.File;
 import java.io.IOException;
@@ -62,6 +54,7 @@ public class CampusReportFoundActivity extends AppCompatActivity {
     private TextInputLayout tilItemName, tilCategory, tilDescription, tilDate, tilLocation, tilManualLocation, tilHandlingStatus, tilAuthorityName, tilOfficeRoom, tilHiddenQuestion, tilContactName, tilContactPhone, tilPreferredContact;
     private MaterialCheckBox cbConfirm;
     private MaterialButton btnSubmit;
+    private com.airbnb.lottie.LottieAnimationView loadingAnimation;
     private com.google.android.material.card.MaterialCardView uploadCard;
     private ImageView ivUploadedImage;
     private android.widget.TextView tvUploadPlaceholder;
@@ -75,8 +68,6 @@ public class CampusReportFoundActivity extends AppCompatActivity {
     private Uri cameraImageUri;
     private String currentPhotoPath;
 
-    private DatabaseReference mDatabase;
-    private FirebaseAuth mAuth;
     private String currentUniversityId;
     private User currentUser;
 
@@ -89,12 +80,8 @@ public class CampusReportFoundActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_campus_report_found);
 
-        mAuth = FirebaseAuth.getInstance();
-        mDatabase = FirebaseDatabase.getInstance(FirebaseConfig.DATABASE_URL).getReference();
-
-        if (mAuth.getCurrentUser() != null) {
-            currentUniversityId = mAuth.getCurrentUser().getUid();
-        }
+        android.content.SharedPreferences prefs = getSharedPreferences("MyApp", MODE_PRIVATE);
+        currentUniversityId = prefs.getString("universityId", null);
 
         initViews();
         setupToolbar();
@@ -160,6 +147,7 @@ public class CampusReportFoundActivity extends AppCompatActivity {
 
         cbConfirm = findViewById(R.id.cbConfirm);
         btnSubmit = findViewById(R.id.btnSubmitReport);
+        loadingAnimation = findViewById(R.id.loadingAnimation);
         uploadCard = findViewById(R.id.uploadCard);
         ivUploadedImage = findViewById(R.id.ivUploadedImage);
         tvUploadPlaceholder = findViewById(R.id.tvUploadStatus);
@@ -181,15 +169,21 @@ public class CampusReportFoundActivity extends AppCompatActivity {
     }
 
     private void loadItemDataForEdit(String itemId) {
-        mDatabase.child("FoundItems").child(itemId).addListenerForSingleValueEvent(new ValueEventListener() {
+        SupabaseDatabaseHelper.select("found_reports", "id=eq." + itemId + "&limit=1", new TypeToken<List<Item>>(){}.getType(), new SupabaseDatabaseHelper.DatabaseCallback<List<Item>>() {
             @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                existingItem = snapshot.getValue(Item.class);
-                if (existingItem != null) {
-                    populateFields(existingItem);
+            public void onSuccess(List<Item> items) {
+                if (items != null && !items.isEmpty()) {
+                    existingItem = items.get(0);
+                    if (existingItem != null) {
+                        populateFields(existingItem);
+                    }
                 }
             }
-            @Override public void onCancelled(@NonNull DatabaseError error) {}
+
+            @Override
+            public void onFailure(String errorMessage) {
+                ErrorHelper.showError(btnSubmit, "Failed to load item for edit.");
+            }
         });
     }
 
@@ -242,44 +236,26 @@ public class CampusReportFoundActivity extends AppCompatActivity {
     }
 
     private void setupTextWatchers() {
-        etItemName.addTextChangedListener(new SimpleTextWatcher(tilItemName));
-        etDescription.addTextChangedListener(new SimpleTextWatcher(tilDescription));
-        etManualLocation.addTextChangedListener(new SimpleTextWatcher(tilManualLocation));
-        etAuthorityName.addTextChangedListener(new SimpleTextWatcher(tilAuthorityName));
-        etHiddenQuestion.addTextChangedListener(new SimpleTextWatcher(tilHiddenQuestion));
-        etContactName.addTextChangedListener(new SimpleTextWatcher(tilContactName));
-        etContactPhone.addTextChangedListener(new SimpleTextWatcher(tilContactPhone));
+        // TextWatchers are now handled automatically by ErrorHelper.attachToTextInputLayout
     }
 
     private void fetchCurrentUserData() {
-        if (mAuth.getCurrentUser() == null) return;
-        String authUid = mAuth.getCurrentUser().getUid();
+        if (currentUniversityId == null) return;
 
-        mDatabase.child("UIDToUniversityID").child(authUid).addListenerForSingleValueEvent(new ValueEventListener() {
+        SupabaseDatabaseHelper.select("profiles", "university_id=eq." + currentUniversityId + "&limit=1", new TypeToken<List<User>>(){}.getType(), new SupabaseDatabaseHelper.DatabaseCallback<List<User>>() {
             @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                if (snapshot.exists()) {
-                    currentUniversityId = snapshot.getValue(String.class);
-                    mDatabase.child("Users").child(currentUniversityId).addListenerForSingleValueEvent(new ValueEventListener() {
-                        @Override
-                        public void onDataChange(@NonNull DataSnapshot userSnapshot) {
-                            if (userSnapshot.exists()) {
-                                currentUser = userSnapshot.getValue(User.class);
-                                if (currentUser != null) {
-                                    etContactName.setText(currentUser.getName());
-                                    etContactPhone.setText(currentUser.getPhone());
-                                }
-                            }
-                        }
-                        @Override
-                        public void onCancelled(@NonNull DatabaseError error) {}
-                    });
-                } else {
-                    currentUniversityId = authUid;
+            public void onSuccess(List<User> users) {
+                if (users != null && !users.isEmpty()) {
+                    currentUser = users.get(0);
+                    if (currentUser != null) {
+                        etContactName.setText(currentUser.getName());
+                        etContactPhone.setText(currentUser.getPhone());
+                    }
                 }
             }
+
             @Override
-            public void onCancelled(@NonNull DatabaseError error) {}
+            public void onFailure(String errorMessage) {}
         });
     }
 
@@ -302,19 +278,16 @@ public class CampusReportFoundActivity extends AppCompatActivity {
     private void setupDropdowns() {
         String[] categories = {"Electronics & Gadgets", "ID Cards", "Wallets & Purses", "Bank/Credit Cards", "Bags", "Study Materials", "Eyewear", "Keys & Access Devices", "Clothing & Accessories", "Others"};
         actvCategory.setAdapter(new ArrayAdapter<>(this, R.layout.dropdown_item, categories));
-        actvCategory.setOnItemClickListener((parent, view, position, id) -> tilCategory.setError(null));
 
         String[] locations = {"Academic Building", "Civil Building", "Library", "Cafeteria", "Medical Center", "Playground", "Abbas Uddin Ahmed Hall (AUAH)", "Shaheed Dr. Zikrul Haque Hall", "Bir Protik Taramon Bibi Hall", "Bir Protik Taramon Bibi (New Hall)", "Other"};
         actvLocation.setAdapter(new ArrayAdapter<>(this, R.layout.dropdown_item, locations));
 
         actvLocation.setOnItemClickListener((parent, view, position, id) -> {
-            tilLocation.setError(null);
             if ("Other".equals(locations[position])) {
                 tilManualLocation.setVisibility(View.VISIBLE);
             } else {
                 tilManualLocation.setVisibility(View.GONE);
                 etManualLocation.setText("");
-                tilManualLocation.setError(null);
             }
         });
 
@@ -322,7 +295,6 @@ public class CampusReportFoundActivity extends AppCompatActivity {
         actvHandlingStatus.setAdapter(new ArrayAdapter<>(this, R.layout.dropdown_item, handlingStatuses));
 
         actvHandlingStatus.setOnItemClickListener((parent, view, position, id) -> {
-            tilHandlingStatus.setError(null);
             if (position == 0) {
                 tilAuthorityName.setVisibility(View.VISIBLE);
                 tilOfficeRoom.setVisibility(View.VISIBLE);
@@ -331,13 +303,11 @@ public class CampusReportFoundActivity extends AppCompatActivity {
                 tilOfficeRoom.setVisibility(View.GONE);
                 etAuthorityName.setText("");
                 etOfficeRoom.setText("");
-                tilAuthorityName.setError(null);
             }
         });
 
         String[] contactMethods = {"Phone", "Email", "In-app chat"};
         actvPreferredContact.setAdapter(new ArrayAdapter<>(this, R.layout.dropdown_item, contactMethods));
-        actvPreferredContact.setOnItemClickListener((parent, view, position, id) -> tilPreferredContact.setError(null));
     }
 
     private void setupPickers() {
@@ -407,7 +377,7 @@ public class CampusReportFoundActivity extends AppCompatActivity {
         if (takePictureIntent.resolveActivity(getPackageManager()) != null) {
             File photoFile = null;
             try { photoFile = createImageFile(); }
-            catch (IOException ex) { Toast.makeText(this, "Error creating file", Toast.LENGTH_SHORT).show(); }
+            catch (IOException ex) { SnackbarManager.show(SnackbarManager.Type.ERROR, "Error creating file"); }
             if (photoFile != null) {
                 cameraImageUri = FileProvider.getUriForFile(this, getApplicationContext().getPackageName() + ".fileprovider", photoFile);
                 takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, cameraImageUri);
@@ -462,13 +432,11 @@ public class CampusReportFoundActivity extends AppCompatActivity {
     }
 
     private void validateAndSubmit() {
-        if (mAuth.getCurrentUser() == null) {
+        if (currentUniversityId == null) {
             ErrorHelper.showError(btnSubmit, "Please log in again to submit");
             return;
         }
 
-        clearErrors();
-        
         String itemName = etItemName.getText().toString().trim();
         String category = actvCategory.getText().toString().trim();
         String description = etDescription.getText().toString().trim();
@@ -484,56 +452,41 @@ public class CampusReportFoundActivity extends AppCompatActivity {
 
         boolean isValid = true;
 
-        if (TextUtils.isEmpty(itemName)) { tilItemName.setError("Item name is required"); isValid = false; }
-        if (TextUtils.isEmpty(category)) { tilCategory.setError("Category is required"); isValid = false; }
-        if (TextUtils.isEmpty(description)) { tilDescription.setError("Description is required"); isValid = false; }
-        if (TextUtils.isEmpty(date)) { tilDate.setError("Date is required"); isValid = false; }
-        if (TextUtils.isEmpty(location)) { tilLocation.setError("Location is required"); isValid = false; }
-        else if ("Other".equals(location) && TextUtils.isEmpty(manualLocation)) { tilManualLocation.setError("Please specify location"); isValid = false; }
+        if (TextUtils.isEmpty(itemName)) { ErrorHelper.setFieldError(tilItemName, "Item name is required"); isValid = false; }
+        else if (TextUtils.isEmpty(category)) { ErrorHelper.setFieldError(tilCategory, "Category is required"); isValid = false; }
+        else if (TextUtils.isEmpty(description)) { ErrorHelper.setFieldError(tilDescription, "Description is required"); isValid = false; }
+        else if (TextUtils.isEmpty(date)) { ErrorHelper.setFieldError(tilDate, "Date is required"); isValid = false; }
+        else if (TextUtils.isEmpty(location)) { ErrorHelper.setFieldError(tilLocation, "Location is required"); isValid = false; }
+        else if ("Other".equals(location) && TextUtils.isEmpty(manualLocation)) { ErrorHelper.setFieldError(tilManualLocation, "Please specify location"); isValid = false; }
         
-        if (TextUtils.isEmpty(handlingStatus)) { tilHandlingStatus.setError("Status is required"); isValid = false; }
-        else if (handlingStatus.equals("Handed over to authorities") && TextUtils.isEmpty(authorityName)) { tilAuthorityName.setError("Authority name is required"); isValid = false; }
+        else if (TextUtils.isEmpty(handlingStatus)) { ErrorHelper.setFieldError(tilHandlingStatus, "Status is required"); isValid = false; }
+        else if (handlingStatus.equals("Handed over to authorities") && TextUtils.isEmpty(authorityName)) { ErrorHelper.setFieldError(tilAuthorityName, "Authority name is required"); isValid = false; }
         
-        if (TextUtils.isEmpty(hiddenQuestion)) { tilHiddenQuestion.setError("Security question is required"); isValid = false; }
-        if (TextUtils.isEmpty(contactName)) { tilContactName.setError("Your name is required"); isValid = false; }
-        if (TextUtils.isEmpty(contactPhone)) { tilContactPhone.setError("Contact phone is required"); isValid = false; }
-        if (TextUtils.isEmpty(preferredContact)) { tilPreferredContact.setError("Preferred contact is required"); isValid = false; }
+        else if (TextUtils.isEmpty(hiddenQuestion)) { ErrorHelper.setFieldError(tilHiddenQuestion, "Security question is required"); isValid = false; }
+        else if (TextUtils.isEmpty(contactName)) { ErrorHelper.setFieldError(tilContactName, "Your name is required"); isValid = false; }
+        else if (TextUtils.isEmpty(contactPhone)) { ErrorHelper.setFieldError(tilContactPhone, "Contact phone is required"); isValid = false; }
+        else if (!ValidationUtils.isValidPhone(contactPhone)) { ErrorHelper.setFieldError(tilContactPhone, "Please enter a valid phone number (11 digits)"); isValid = false; }
+        else if (TextUtils.isEmpty(preferredContact)) { ErrorHelper.setFieldError(tilPreferredContact, "Preferred contact is required"); isValid = false; }
 
-        if (!cbConfirm.isChecked()) {
+        if (isValid && !cbConfirm.isChecked()) {
             ErrorHelper.showError(btnSubmit, "Please confirm the information is accurate");
             isValid = false;
         }
 
         if (isValid) {
-            submitToFirebase(itemName, category, description, date, location, manualLocation, handlingStatus, authorityName, hiddenQuestion, contactName, contactPhone, preferredContact);
+            submitReport(itemName, category, description, date, location, manualLocation, handlingStatus, authorityName, hiddenQuestion, contactName, contactPhone, preferredContact);
         }
     }
 
-    private void clearErrors() {
-        tilItemName.setError(null);
-        tilCategory.setError(null);
-        tilDescription.setError(null);
-        tilDate.setError(null);
-        tilLocation.setError(null);
-        tilManualLocation.setError(null);
-        tilHandlingStatus.setError(null);
-        tilAuthorityName.setError(null);
-        tilHiddenQuestion.setError(null);
-        tilContactName.setError(null);
-        tilContactPhone.setError(null);
-        tilPreferredContact.setError(null);
-    }
+    private void submitReport(String itemName, String category, String description, String date, String location, String manualLocation, String handlingStatus, String authorityName, String hiddenQuestion, String contactName, String contactPhone, String preferredContact) {
+        setLoadingState(true);
 
-    private void submitToFirebase(String itemName, String category, String description, String date, String location, String manualLocation, String handlingStatus, String authorityName, String hiddenQuestion, String contactName, String contactPhone, String preferredContact) {
-        btnSubmit.setEnabled(false);
-        btnSubmit.setText("Submitting report, please wait...");
-
-        String reportId = isEditMode ? editItemId : mDatabase.child("FoundItems").push().getKey();
-        String userId = currentUniversityId != null ? currentUniversityId : (mAuth.getCurrentUser() != null ? mAuth.getCurrentUser().getUid() : null);
+        String reportId = isEditMode ? editItemId : java.util.UUID.randomUUID().toString();
+        String userId = currentUniversityId;
 
         if (reportId == null || userId == null) {
             resetButton();
-            ErrorHelper.showError(btnSubmit, "Error initializing submission. Try again.");
+            ErrorHelper.showError(btnSubmit, "Error initializing submission. Please login again.");
             return;
         }
 
@@ -579,39 +532,26 @@ public class CampusReportFoundActivity extends AppCompatActivity {
     }
 
     private void generateDisplayIdAndSave(String reportId, String itemName, String category, String description, String date, String location, String manualLocation, String handlingStatus, String authorityName, String hiddenQuestion, String contactName, String contactPhone, String preferredContact, List<String> imageUrls, String userId) {
-        DatabaseReference counterRef = mDatabase.child("Counters").child("FoundItemsCount");
-        counterRef.runTransaction(new Transaction.Handler() {
-            @NonNull
+        java.util.Map<String, Object> params = new java.util.HashMap<>();
+        params.put("p_counter_name", "found_items");
+        
+        SupabaseDatabaseHelper.rpc("increment_counter", params, new SupabaseDatabaseHelper.DatabaseCallback<String>() {
             @Override
-            public Transaction.Result doTransaction(@NonNull MutableData currentData) {
-                Object val = currentData.getValue();
-                long count = 0;
-                if (val instanceof Long) {
-                    count = (Long) val;
-                } else if (val instanceof Integer) {
-                    count = ((Integer) val).longValue();
-                } else if (val != null) {
-                    try { count = Long.parseLong(val.toString()); } catch (Exception e) {}
+            public void onSuccess(String result) {
+                try {
+                    long count = Long.parseLong(result.trim());
+                    String displayId = "F" + count;
+                    saveReport(reportId, itemName, category, description, date, location, manualLocation, handlingStatus, authorityName, hiddenQuestion, contactName, contactPhone, preferredContact, imageUrls, userId, displayId);
+                } catch (Exception e) {
+                    resetButton();
+                    ErrorHelper.showError(btnSubmit, "Failed to parse Report ID.");
                 }
-                currentData.setValue(count + 1);
-                return Transaction.success(currentData);
             }
 
             @Override
-            public void onComplete(@Nullable DatabaseError error, boolean committed, @Nullable DataSnapshot currentData) {
-                if (committed && currentData != null) {
-                    Object val = currentData.getValue();
-                    long count = 1;
-                    if (val instanceof Long) count = (Long) val;
-                    else if (val instanceof Integer) count = ((Integer) val).longValue();
-                    
-                    String displayId = "F" + count;
-                    saveReport(reportId, itemName, category, description, date, location, manualLocation, handlingStatus, authorityName, hiddenQuestion, contactName, contactPhone, preferredContact, imageUrls, userId, displayId);
-                } else {
-                    resetButton();
-                    String msg = error != null ? error.getMessage() : "Database busy or connection issue.";
-                    ErrorHelper.showError(btnSubmit, "Failed to generate Report ID: " + msg);
-                }
+            public void onFailure(String errorMessage) {
+                resetButton();
+                ErrorHelper.showError(btnSubmit, "Failed to generate Report ID: " + errorMessage);
             }
         });
     }
@@ -648,46 +588,68 @@ public class CampusReportFoundActivity extends AppCompatActivity {
         }
 
         if (currentUser != null) {
+            report.setAuthUserId(currentUser.getAuthId());
             report.setUserEmail(currentUser.getEmail());
             report.setUserUniversityId(currentUser.getUniversityId());
             report.setUserDepartment(currentUser.getDepartment());
+        } else {
+            android.content.SharedPreferences prefs = getSharedPreferences("MyApp", MODE_PRIVATE);
+            report.setAuthUserId(prefs.getString("authId", null));
         }
 
-        mDatabase.child("FoundItems").child(reportId).setValue(report)
-                .addOnSuccessListener(aVoid -> {
-                    if (!isEditMode) {
-                        if (mAuth.getCurrentUser() != null) {
-                            mDatabase.child("UserItems").child(mAuth.getCurrentUser().getUid()).child(reportId).setValue(true);
-                        }
-                    }
-                    Toast.makeText(this, isEditMode ? "Report updated successfully" : getString(R.string.success_report_submitted), Toast.LENGTH_SHORT).show();
+        if (isEditMode) {
+            SupabaseDatabaseHelper.update("found_reports", "id=eq." + reportId, report, new SupabaseDatabaseHelper.DatabaseCallback<String>() {
+                @Override
+                public void onSuccess(String result) {
+                    SnackbarManager.show(SnackbarManager.Type.SUCCESS, "Report updated successfully");
                     finish();
-                })
-                .addOnSuccessListener(aVoid -> {
-                    // Success is already handled above
-                })
-                .addOnFailureListener(e -> {
+                }
+
+                @Override
+                public void onFailure(String errorMessage) {
                     resetButton();
-                    ErrorHelper.showError(btnSubmit, "Failed to submit report: " + e.getMessage());
-                });
+                    ErrorHelper.showError(btnSubmit, "Failed to update report: " + errorMessage);
+                }
+            });
+        } else {
+            SupabaseDatabaseHelper.insert("found_reports", report, new SupabaseDatabaseHelper.DatabaseCallback<String>() {
+                @Override
+                public void onSuccess(String result) {
+                    SnackbarManager.show(SnackbarManager.Type.SUCCESS, getString(R.string.success_report_submitted));
+                    finish();
+                }
+
+                @Override
+                public void onFailure(String errorMessage) {
+                    resetButton();
+                    ErrorHelper.showError(btnSubmit, "Failed to save report: " + errorMessage);
+                }
+            });
+        }
+    }
+
+    private void setLoadingState(boolean isLoading) {
+        if (isLoading) {
+            btnSubmit.setEnabled(false);
+            btnSubmit.setText("");
+            btnSubmit.setBackgroundTintList(android.content.res.ColorStateList.valueOf(android.graphics.Color.WHITE));
+            btnSubmit.setStrokeWidth((int) (2 * getResources().getDisplayMetrics().density));
+            btnSubmit.setStrokeColor(android.content.res.ColorStateList.valueOf(
+                    androidx.core.content.ContextCompat.getColor(this, R.color.primaryColor)));
+            loadingAnimation.setVisibility(View.VISIBLE);
+            loadingAnimation.playAnimation();
+        } else {
+            loadingAnimation.setVisibility(View.GONE);
+            loadingAnimation.pauseAnimation();
+            btnSubmit.setEnabled(true);
+            btnSubmit.setText(isEditMode ? "Save Changes" : "Submit Report");
+            btnSubmit.setBackgroundTintList(android.content.res.ColorStateList.valueOf(
+                    androidx.core.content.ContextCompat.getColor(this, R.color.primaryColor)));
+            btnSubmit.setStrokeWidth(0);
+        }
     }
 
     private void resetButton() {
-        btnSubmit.setEnabled(true);
-        btnSubmit.setText(isEditMode ? "Save Changes" : "Submit Report");
-    }
-
-    private static class SimpleTextWatcher implements android.text.TextWatcher {
-        private final TextInputLayout textInputLayout;
-
-        public SimpleTextWatcher(TextInputLayout textInputLayout) {
-            this.textInputLayout = textInputLayout;
-        }
-
-        @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
-        @Override public void onTextChanged(CharSequence s, int start, int before, int count) {
-            textInputLayout.setError(null);
-        }
-        @Override public void afterTextChanged(Editable s) {}
+        setLoadingState(false);
     }
 }

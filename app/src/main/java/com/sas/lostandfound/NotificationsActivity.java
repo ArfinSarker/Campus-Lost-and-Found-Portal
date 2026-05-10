@@ -2,12 +2,11 @@ package com.sas.lostandfound;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
-import android.widget.Toast;
 
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
@@ -17,13 +16,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.google.android.material.appbar.AppBarLayout;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
+import com.google.gson.reflect.TypeToken;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -39,12 +32,16 @@ public class NotificationsActivity extends AppCompatActivity {
     private LinearLayout llEmptyState;
     private ImageButton btnMarkAllRead;
     private SwipeRefreshLayout swipeRefreshLayout;
-    private DatabaseReference mDatabase;
     private String resolvedUserId;
+    private boolean isFetching = false;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_notifications);
+
+        android.content.SharedPreferences prefs = getSharedPreferences("MyApp", MODE_PRIVATE);
+        resolvedUserId = prefs.getString("universityId", null);
 
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -52,7 +49,7 @@ public class NotificationsActivity extends AppCompatActivity {
             getSupportActionBar().setDisplayShowTitleEnabled(false);
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         }
-        toolbar.setNavigationOnClickListener(v -> onBackPressed());
+        toolbar.setNavigationOnClickListener(v -> finish());
 
         rvNotifications = findViewById(R.id.rvNotifications);
         llEmptyState = findViewById(R.id.llEmptyState);
@@ -64,25 +61,42 @@ public class NotificationsActivity extends AppCompatActivity {
             HeaderColorHelper.setup(this, appBarLayout, toolbar);
         }
         
-        mDatabase = FirebaseDatabase.getInstance(FirebaseConfig.DATABASE_URL).getReference();
-        
         notificationList = new ArrayList<>();
         adapter = new NotificationAdapter(notificationList, 
             notification -> {
-                // Mark as read
-                if (resolvedUserId != null) {
-                    mDatabase.child("Notifications").child(resolvedUserId).child(notification.getId()).child("read").setValue(true);
+                // Instantly update UI for responsiveness
+                if (!notification.isRead()) {
+                    notification.setRead(true);
+                    adapter.notifyDataSetChanged();
+                    // Update Mark All Read button visibility
+                    checkUnreadStatus();
+                    
+                    // Mark as read in DB
+                    Map<String, Object> update = new HashMap<>();
+                    update.put("is_read", true);
+                    SupabaseDatabaseHelper.update("notifications", "id=eq." + notification.getId(), update, new SupabaseDatabaseHelper.DatabaseCallback<>() {
+                        @Override public void onSuccess(String result) {
+                            Log.d("Notifications", "Marked as read in DB: " + notification.getId());
+                        }
+                        @Override public void onFailure(String e) {
+                            Log.e("Notifications", "Failed to mark as read in DB: " + e);
+                            // On failure, we revert the local state to match DB
+                            notification.setRead(false);
+                            adapter.notifyDataSetChanged();
+                            checkUnreadStatus();
+                            SnackbarManager.show(SnackbarManager.Type.ERROR, "Sync failed: status not saved");
+                        }
+                    });
                 }
                 
                 if ("admin_report".equals(notification.getType())) {
-                    // Redirect to Admin Report Details
                     Intent intent = new Intent(this, AdminReportDetailsActivity.class);
                     intent.putExtra("reportId", notification.getItemId());
                     startActivity(intent);
                 } else {
-                    // Redirect to Claim Details
                     Intent intent = new Intent(this, ClaimDetailsActivity.class);
                     intent.putExtra("senderId", notification.getSenderId());
+                    intent.putExtra("claimerId", notification.getClaimerId());
                     intent.putExtra("senderName", notification.getSenderName());
                     intent.putExtra("senderPhone", notification.getSenderPhone());
                     intent.putExtra("senderEmail", notification.getSenderEmail());
@@ -93,10 +107,7 @@ public class NotificationsActivity extends AppCompatActivity {
                     startActivity(intent);
                 }
             },
-            notification -> {
-                // Handle Delete
-                showDeleteConfirmation(notification);
-            }
+            this::showDeleteConfirmation
         );
 
         rvNotifications.setLayoutManager(new LinearLayoutManager(this));
@@ -105,13 +116,21 @@ public class NotificationsActivity extends AppCompatActivity {
         btnMarkAllRead.setOnClickListener(v -> markAllAsRead());
 
         setupSwipeRefresh();
-        resolveUserAndFetchNotifications();
+        
+        if (resolvedUserId != null) {
+            fetchNotifications(resolvedUserId);
+        } else {
+            resolveUserAndFetchNotifications();
+        }
     }
 
     private void setupSwipeRefresh() {
         if (swipeRefreshLayout != null) {
             swipeRefreshLayout.setColorSchemeColors(ContextCompat.getColor(this, R.color.primaryColor));
-            swipeRefreshLayout.setOnRefreshListener(this::resolveUserAndFetchNotifications);
+            swipeRefreshLayout.setOnRefreshListener(() -> {
+                if (resolvedUserId != null) fetchNotifications(resolvedUserId);
+                else resolveUserAndFetchNotifications();
+            });
         }
     }
 
@@ -119,92 +138,128 @@ public class NotificationsActivity extends AppCompatActivity {
         new AlertDialog.Builder(this)
                 .setTitle("Delete Notification")
                 .setMessage("Are you sure you want to delete this notification?")
-                .setPositiveButton("Delete", (dialog, which) -> {
-                    if (resolvedUserId != null) {
-                        mDatabase.child("Notifications").child(resolvedUserId).child(notification.getId()).removeValue()
-                                .addOnSuccessListener(aVoid -> Toast.makeText(this, "Notification deleted", Toast.LENGTH_SHORT).show())
-                                .addOnFailureListener(e -> Toast.makeText(this, "Failed to delete: " + e.getMessage(), Toast.LENGTH_SHORT).show());
+                .setPositiveButton("Delete", (dialog, which) -> SupabaseDatabaseHelper.delete("notifications", "id=eq." + notification.getId(), new SupabaseDatabaseHelper.DatabaseCallback<>() {
+                    @Override
+                    public void onSuccess(Void result) {
+                        if (resolvedUserId != null) fetchNotifications(resolvedUserId);
                     }
-                })
+
+                    @Override
+                    public void onFailure(String errorMessage) {
+                        SnackbarManager.show(SnackbarManager.Type.ERROR, "Failed to delete notification");
+                    }
+                }))
                 .setNegativeButton("Cancel", null)
                 .show();
     }
 
     private void resolveUserAndFetchNotifications() {
-        FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
-        if (currentUser == null) {
+        android.content.SharedPreferences prefs = getSharedPreferences("MyApp", MODE_PRIVATE);
+        String authId = prefs.getString("authId", null);
+        if (authId == null) {
             if (swipeRefreshLayout != null) swipeRefreshLayout.setRefreshing(false);
             return;
         }
 
-        String authUid = currentUser.getUid();
-        // Resolve University ID to match Dashboard behavior
-        mDatabase.child("UIDToUniversityID").child(authUid).addListenerForSingleValueEvent(new ValueEventListener() {
+        SupabaseDatabaseHelper.select("profiles", "auth_id=eq." + authId + "&limit=1", new TypeToken<List<Map<String, String>>>(){}.getType(), new SupabaseDatabaseHelper.DatabaseCallback<List<Map<String, String>>>() {
             @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                if (snapshot.exists()) {
-                    resolvedUserId = snapshot.getValue(String.class);
-                    fetchNotifications(resolvedUserId);
-                } else {
-                    // Fallback to Auth UID if no mapping exists
-                    resolvedUserId = authUid;
-                    fetchNotifications(authUid);
+            public void onSuccess(List<Map<String, String>> result) {
+                if (result != null && !result.isEmpty()) {
+                    resolvedUserId = result.get(0).get("university_id");
+                    if (resolvedUserId != null) {
+                        fetchNotifications(resolvedUserId);
+                    }
                 }
             }
 
             @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-                resolvedUserId = authUid;
-                fetchNotifications(authUid);
+            public void onFailure(String errorMessage) {
+                if (swipeRefreshLayout != null) swipeRefreshLayout.setRefreshing(false);
             }
         });
     }
 
     private void fetchNotifications(String userId) {
-        mDatabase.child("Notifications").child(userId).addValueEventListener(new ValueEventListener() {
+        if (isFetching) return;
+        isFetching = true;
+
+        SupabaseDatabaseHelper.select("notifications", "recipient_id=eq." + userId, new TypeToken<List<Notification>>(){}.getType(), new SupabaseDatabaseHelper.DatabaseCallback<List<Notification>>() {
             @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                notificationList.clear();
-                boolean hasUnread = false;
-                for (DataSnapshot data : snapshot.getChildren()) {
-                    Notification notification = data.getValue(Notification.class);
-                    if (notification != null) {
-                        notificationList.add(notification);
-                        if (!notification.isRead()) {
-                            hasUnread = true;
-                        }
-                    }
+            public void onSuccess(List<Notification> notifications) {
+                List<Notification> temp = new ArrayList<>();
+                if (notifications != null) {
+                    temp.addAll(notifications);
                 }
-                Collections.sort(notificationList, (n1, n2) -> Long.compare(n2.getTimestamp(), n1.getTimestamp()));
+                Collections.sort(temp, (n1, n2) -> Long.compare(n2.getTimestamp(), n1.getTimestamp()));
+                
+                notificationList.clear();
+                notificationList.addAll(temp);
                 adapter.notifyDataSetChanged();
                 
                 llEmptyState.setVisibility(notificationList.isEmpty() ? View.VISIBLE : View.GONE);
                 rvNotifications.setVisibility(notificationList.isEmpty() ? View.GONE : View.VISIBLE);
-                btnMarkAllRead.setVisibility(hasUnread ? View.VISIBLE : View.GONE);
+                checkUnreadStatus();
                 
+                isFetching = false;
                 if (swipeRefreshLayout != null) swipeRefreshLayout.setRefreshing(false);
             }
 
             @Override
-            public void onCancelled(@NonNull DatabaseError error) {
+            public void onFailure(String errorMessage) {
+                isFetching = false;
                 if (swipeRefreshLayout != null) swipeRefreshLayout.setRefreshing(false);
             }
         });
     }
 
-    private void markAllAsRead() {
-        if (resolvedUserId == null || notificationList.isEmpty()) return;
-
-        Map<String, Object> updates = new HashMap<>();
-        for (Notification notification : notificationList) {
-            if (!notification.isRead()) {
-                updates.put(notification.getId() + "/read", true);
+    private void checkUnreadStatus() {
+        boolean hasUnread = false;
+        for (Notification n : notificationList) {
+            if (!n.isRead()) {
+                hasUnread = true;
+                break;
             }
         }
+        btnMarkAllRead.setVisibility(hasUnread ? View.VISIBLE : View.GONE);
+    }
 
-        if (!updates.isEmpty()) {
-            mDatabase.child("Notifications").child(resolvedUserId).updateChildren(updates)
-                    .addOnSuccessListener(aVoid -> Toast.makeText(this, "All notifications marked as read", Toast.LENGTH_SHORT).show());
+    private void markAllAsRead() {
+        if (resolvedUserId == null) return;
+
+        // Keep local reference to unread notifications to revert if necessary
+        List<Notification> unreadBefore = new ArrayList<>();
+        for (Notification n : notificationList) {
+            if (!n.isRead()) {
+                unreadBefore.add(n);
+                n.setRead(true);
+            }
         }
+        
+        if (unreadBefore.isEmpty()) return;
+
+        adapter.notifyDataSetChanged();
+        btnMarkAllRead.setVisibility(View.GONE);
+        SnackbarManager.show(SnackbarManager.Type.SUCCESS, "All marked as read");
+
+        Map<String, Object> updates = new HashMap<>();
+        updates.put("is_read", true);
+
+        // Perform bulk update in background - filter by recipient and only those not yet read
+        SupabaseDatabaseHelper.update("notifications", "recipient_id=eq." + resolvedUserId + "&is_read=eq.false", updates, new SupabaseDatabaseHelper.DatabaseCallback<String>() {
+            @Override
+            public void onSuccess(String result) {
+                Log.d("Notifications", "All marked as read in DB successfully");
+                // Optional: Refresh to be sure
+                fetchNotifications(resolvedUserId);
+            }
+
+            @Override
+            public void onFailure(String errorMessage) {
+                Log.e("Notifications", "Failed bulk update: " + errorMessage);
+                // On failure, refresh the list to show true DB state
+                fetchNotifications(resolvedUserId);
+                SnackbarManager.show(SnackbarManager.Type.ERROR, "Sync failed: " + errorMessage);
+            }
+        });
     }
 }

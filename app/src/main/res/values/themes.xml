@@ -38,11 +38,24 @@
         <item name="shapeAppearanceSmallComponent">@style/ShapeAppearance.App.SmallComponent</item>
         <item name="shapeAppearanceMediumComponent">@style/ShapeAppearance.App.MediumComponent</item>
 
+        <!-- Animation style -->
+        <item name="android:windowAnimationStyle">@style/Animation.App.Activity</item>
+
         <!-- Use materialTimePickerTheme for styling the MaterialTimePicker -->
         <item name="materialTimePickerTheme">@style/ThemeOverlay.App.TimePicker</item>
 
         <!-- Use materialCalendarTheme for styling the MaterialDatePicker -->
         <item name="materialCalendarTheme">@style/ThemeOverlay.App.DatePicker</item>
+
+        <!-- TextInputLayout Style -->
+        <item name="textInputStyle">@style/Widget.App.TextInputLayout</item>
+    </style>
+
+    <style name="Widget.App.TextInputLayout" parent="Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+        <item name="errorTextColor">@color/error_dark</item>
+        <item name="boxStrokeErrorColor">@color/error_dark</item>
+        <item name="errorIconTint">@color/error_dark</item>
+        <item name="hintTextColor">@color/primaryColor</item>
     </style>
 
     <style name="Theme.App.FullScreen" parent="Theme.Material3.DayNight.NoActionBar">
@@ -197,5 +210,13 @@
     <style name="TextAppearance.App.Small" parent="TextAppearance.Material3.BodySmall">
         <item name="android:textSize">12sp</item>
         <item name="android:textColor">@color/textSecondary</item>
+    </style>
+
+    <!-- Activity transition animations -->
+    <style name="Animation.App.Activity" parent="@android:style/Animation.Activity">
+        <item name="android:activityOpenEnterAnimation">@anim/material_shared_axis_z_enter</item>
+        <item name="android:activityOpenExitAnimation">@anim/material_shared_axis_z_exit</item>
+        <item name="android:activityCloseEnterAnimation">@anim/material_shared_axis_z_pop_enter</item>
+        <item name="android:activityCloseExitAnimation">@anim/material_shared_axis_z_pop_exit</item>
     </style>
 </resources>

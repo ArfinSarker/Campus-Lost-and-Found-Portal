@@ -1,15 +1,19 @@
 package com.sas.lostandfound;
 
-import androidx.appcompat.app.AlertDialog;
 import android.content.Context;
+import android.graphics.Color;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.TextView;
 
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
-import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.textfield.TextInputLayout;
+
+import androidx.appcompat.app.AlertDialog;
+import androidx.core.content.ContextCompat;
 
 /**
  * Utility class to improve error message visibility across the app.
@@ -22,11 +26,13 @@ public class ErrorHelper {
      * Use this to replace Toast for error messages.
      */
     public static void showError(View view, String message) {
-        if (view == null || message == null || message.isEmpty()) return;
+        if (message == null || message.isEmpty()) return;
 
-        Snackbar snackbar = Snackbar.make(view, message, Snackbar.LENGTH_LONG);
-        snackbar.setAction("VIEW", v -> showFullErrorDialog(view.getContext(), message));
-        snackbar.show();
+        SnackbarManager.show(SnackbarManager.Type.ERROR, message, "VIEW", () -> {
+            if (view != null) {
+                showFullErrorDialog(view.getContext(), message);
+            }
+        });
     }
 
     /**
@@ -39,17 +45,41 @@ public class ErrorHelper {
     }
 
     /**
+     * Sets an error on a TextInputLayout, changes its background to a light red tint,
+     * and shows a top-sliding snackbar with the error message.
+     */
+    public static void setFieldError(TextInputLayout til, String message) {
+        if (til == null) return;
+        
+        til.setError(message);
+        til.setBoxBackgroundColor(ContextCompat.getColor(til.getContext(), R.color.error_light_bg));
+        
+        // Show top snackbar feedback
+        SnackbarManager.show(SnackbarManager.Type.ERROR, message);
+        
+        // Focus the field for better UX
+        if (til.getEditText() != null) {
+            til.getEditText().requestFocus();
+        }
+    }
+
+    /**
+     * Clears the error from a TextInputLayout and resets its background.
+     */
+    public static void clearFieldError(TextInputLayout til) {
+        if (til == null) return;
+        til.setError(null);
+        til.setBoxBackgroundColor(Color.TRANSPARENT);
+    }
+
+    /**
      * Attaches a click listener to a TextInputLayout so that tapping the error
-     * shows the full error message in a dialog.
+     * shows the full error message in a dialog. Also adds a TextWatcher to
+     * clear the error state when the user starts typing.
      */
     public static void attachToTextInputLayout(TextInputLayout til) {
         if (til == null) return;
 
-        // When the error is shown, we want to make the error view clickable
-        // Unfortunately, TextInputLayout doesn't expose the error view directly easily
-        // But we can listen to error changes or just set a click listener on the TIL itself
-        // or the EditText within it.
-        
         View.OnClickListener clickListener = v -> {
             CharSequence error = til.getError();
             if (error != null && !error.toString().isEmpty()) {
@@ -58,7 +88,6 @@ public class ErrorHelper {
         };
 
         if (til.getEditText() != null) {
-            // Long click on edit text to show error if it exists
             til.getEditText().setOnLongClickListener(v -> {
                 CharSequence error = til.getError();
                 if (error != null && !error.toString().isEmpty()) {
@@ -67,9 +96,19 @@ public class ErrorHelper {
                 }
                 return false;
             });
+
+            // Real-time consistency: Clear error when user starts typing
+            til.getEditText().addTextChangedListener(new TextWatcher() {
+                @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+                @Override public void onTextChanged(CharSequence s, int start, int before, int count) {
+                    if (til.getError() != null) {
+                        clearFieldError(til);
+                    }
+                }
+                @Override public void afterTextChanged(Editable s) {}
+            });
         }
         
-        // Also try to catch clicks on the TIL itself
         til.setOnClickListener(clickListener);
     }
 
@@ -89,10 +128,8 @@ public class ErrorHelper {
                 .setCancelable(true)
                 .create();
 
-        // Ensure background is transparent to show the card's rounded corners
         if (dialog.getWindow() != null) {
             dialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
-            // Apply a smooth animation
             dialog.getWindow().getAttributes().windowAnimations = android.R.style.Animation_Dialog;
         }
 

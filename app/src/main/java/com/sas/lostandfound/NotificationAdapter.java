@@ -8,6 +8,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -50,16 +51,38 @@ public class NotificationAdapter extends RecyclerView.Adapter<NotificationAdapte
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         Notification notification = notifications.get(position);
         
-        String fullMsg = notification.getMessage();
-        if (fullMsg != null && fullMsg.contains("Click to view details")) {
-            int start = fullMsg.indexOf("Click to view details");
-            int end = start + "Click to view details".length();
-            SpannableString spannableString = new SpannableString(fullMsg);
-            spannableString.setSpan(new UnderlineSpan(), start, end, 0);
-            spannableString.setSpan(new ForegroundColorSpan(ContextCompat.getColor(holder.itemView.getContext(), R.color.primaryColor)), start, end, 0);
-            holder.tvMessage.setText(spannableString);
+        String type = notification.getType();
+        if ("lost_claim".equals(type) || "found_claim".equals(type)) {
+            holder.tvMessage.setText(styleClaimNotification(notification, holder.itemView.getContext()));
         } else {
-            holder.tvMessage.setText(fullMsg);
+            String fullMsg = notification.getMessage();
+            if (fullMsg != null && fullMsg.contains("Click to view details")) {
+                int start = fullMsg.indexOf("Click to view details");
+                int end = start + "Click to view details".length();
+                SpannableString spannableString = new SpannableString(fullMsg);
+                spannableString.setSpan(new UnderlineSpan(), start, end, 0);
+                spannableString.setSpan(new ForegroundColorSpan(ContextCompat.getColor(holder.itemView.getContext(), R.color.primaryColor)), start, end, 0);
+                holder.tvMessage.setText(spannableString);
+            } else {
+                holder.tvMessage.setText(fullMsg);
+            }
+        }
+
+        // Load sender image if available, otherwise show default bell
+        if (notification.getSenderImageUrl() != null && !notification.getSenderImageUrl().isEmpty()) {
+            GlideApp.with(holder.itemView.getContext())
+                    .load(notification.getSenderImageUrl())
+                    .placeholder(R.drawable.ic_user)
+                    .circleCrop()
+                    .into(holder.ivIcon);
+            holder.ivIcon.setPadding(0, 0, 0, 0);
+            holder.ivIcon.setBackground(null);
+        } else {
+            holder.ivIcon.setImageResource(R.drawable.ic_bell);
+            holder.ivIcon.setPadding(8, 8, 8, 8);
+            holder.ivIcon.setBackgroundResource(R.drawable.bg_notification_badge);
+            holder.ivIcon.setBackgroundTintList(android.content.res.ColorStateList.valueOf(
+                ContextCompat.getColor(holder.itemView.getContext(), R.color.primaryLightColor)));
         }
 
         SimpleDateFormat sdf = new SimpleDateFormat("dd MMM yyyy, hh:mm a", Locale.getDefault());
@@ -85,6 +108,38 @@ public class NotificationAdapter extends RecyclerView.Adapter<NotificationAdapte
         });
     }
 
+    private SpannableString styleClaimNotification(Notification notification, android.content.Context context) {
+        String claimerName = notification.getSenderName() != null ? notification.getSenderName() : "A user";
+        String itemName = notification.getItemName() != null ? notification.getItemName() : "Unknown Item";
+        String fullText;
+        
+        if ("found_claim".equals(notification.getType())) {
+            // Found Report Claim: {Claimer Name} has claimed ownership of the item ‘{Item Name}’. Review their request and verify before handing over.
+            fullText = claimerName + " has claimed ownership of the item ‘" + itemName + "’. Review their request and verify before handing over.";
+        } else {
+            // Lost Report Claim: {Claimer Name} has claimed they found your lost item ‘{Item Name}’. Check details and verify.
+            fullText = claimerName + " has claimed they found your lost item ‘" + itemName + "’. Check details and verify.";
+        }
+
+        SpannableString spannableString = new SpannableString(fullText);
+        int blueColor = ContextCompat.getColor(context, R.color.primaryColor);
+
+        // Style Claimer Name
+        int nameStart = fullText.indexOf(claimerName);
+        if (nameStart != -1) {
+            spannableString.setSpan(new ForegroundColorSpan(blueColor), nameStart, nameStart + claimerName.length(), 0);
+        }
+
+        // Style Item Name
+        int itemStart = fullText.indexOf("‘" + itemName + "’");
+        if (itemStart != -1) {
+            // Highlight only the name inside quotes
+            spannableString.setSpan(new ForegroundColorSpan(blueColor), itemStart + 1, itemStart + 1 + itemName.length(), 0);
+        }
+
+        return spannableString;
+    }
+
     @Override
     public int getItemCount() {
         return notifications.size();
@@ -94,6 +149,7 @@ public class NotificationAdapter extends RecyclerView.Adapter<NotificationAdapte
         TextView tvMessage, tvTime;
         View viewUnread, llRoot;
         ImageButton btnDelete;
+        ImageView ivIcon;
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -102,6 +158,7 @@ public class NotificationAdapter extends RecyclerView.Adapter<NotificationAdapte
             viewUnread = itemView.findViewById(R.id.viewUnreadIndicator);
             llRoot = itemView.findViewById(R.id.llNotificationRoot);
             btnDelete = itemView.findViewById(R.id.btnDeleteNotification);
+            ivIcon = itemView.findViewById(R.id.ivNotificationIcon);
         }
     }
 }

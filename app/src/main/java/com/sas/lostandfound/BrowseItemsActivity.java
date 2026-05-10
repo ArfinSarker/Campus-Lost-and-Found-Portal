@@ -6,7 +6,6 @@ import android.text.TextWatcher;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
-import android.widget.Toast;
 
 import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.NonNull;
@@ -19,11 +18,7 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.chip.ChipGroup;
 import com.google.android.material.textfield.TextInputEditText;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
+import com.google.gson.reflect.TypeToken;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -37,7 +32,6 @@ public class BrowseItemsActivity extends AppCompatActivity {
     private final List<Item> lostItemsList = new ArrayList<>();
     private final List<Item> foundItemsList = new ArrayList<>();
     private final List<Item> filteredItems = new ArrayList<>();
-    private DatabaseReference mDatabase;
 
     private TextInputEditText etSearch;
     private AutoCompleteTextView actvCategoryFilter;
@@ -45,6 +39,7 @@ public class BrowseItemsActivity extends AppCompatActivity {
     private View layoutEmptyState;
     private MaterialToolbar toolbar;
     private SwipeRefreshLayout swipeRefreshLayout;
+    private boolean isFetching = false;
 
     private String currentSearchQuery = "";
     private String currentCategory = "All Categories";
@@ -55,15 +50,11 @@ public class BrowseItemsActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_browse_items);
 
-        mDatabase = FirebaseDatabase.getInstance(FirebaseConfig.DATABASE_URL).getReference();
-        
         initViews();
         setupToolbar();
         setupRecyclerView();
         setupFilters();
         setupSwipeRefresh();
-
-        loadItems();
 
         // Ensure back press always exits the activity immediately
         getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
@@ -72,6 +63,8 @@ public class BrowseItemsActivity extends AppCompatActivity {
                 finish();
             }
         });
+
+        loadItems();
     }
 
     private void initViews() {
@@ -145,47 +138,44 @@ public class BrowseItemsActivity extends AppCompatActivity {
     }
 
     private void loadItems() {
-        mDatabase.child("LostItems").addValueEventListener(new ValueEventListener() {
+        if (isFetching) return;
+        isFetching = true;
+
+        // Fetch Lost Items
+        SupabaseDatabaseHelper.select("lost_reports", "deleted_by_user=eq.false", new TypeToken<List<Item>>(){}.getType(), new SupabaseDatabaseHelper.DatabaseCallback<List<Item>>() {
             @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                lostItemsList.clear();
-                for (DataSnapshot data : snapshot.getChildren()) {
-                    try {
-                        Item item = data.getValue(Item.class);
-                        if (item != null) lostItemsList.add(item);
-                    } catch (Exception e) { e.printStackTrace(); }
-                }
-                combineAndFilter();
-                if (swipeRefreshLayout != null) swipeRefreshLayout.setRefreshing(false);
+            public void onSuccess(List<Item> lostItems) {
+                // Fetch Found Items
+                SupabaseDatabaseHelper.select("found_reports", "deleted_by_user=eq.false", new TypeToken<List<Item>>(){}.getType(), new SupabaseDatabaseHelper.DatabaseCallback<List<Item>>() {
+                    @Override
+                    public void onSuccess(List<Item> foundItems) {
+                        lostItemsList.clear();
+                        if (lostItems != null) lostItemsList.addAll(lostItems);
+                        
+                        foundItemsList.clear();
+                        if (foundItems != null) foundItemsList.addAll(foundItems);
+                        
+                        combineAndFilter();
+                        isFetching = false;
+                        if (swipeRefreshLayout != null) swipeRefreshLayout.setRefreshing(false);
+                    }
+
+                    @Override
+                    public void onFailure(String errorMessage) {
+                        isFetching = false;
+                        if (!isFinishing()) {
+                            SnackbarManager.show(SnackbarManager.Type.ERROR, "FoundReports Error: " + errorMessage);
+                        }
+                        if (swipeRefreshLayout != null) swipeRefreshLayout.setRefreshing(false);
+                    }
+                });
             }
 
             @Override
-            public void onCancelled(@NonNull DatabaseError error) {
+            public void onFailure(String errorMessage) {
+                isFetching = false;
                 if (!isFinishing()) {
-                    Toast.makeText(BrowseItemsActivity.this, "LostItems Error: " + error.getMessage(), Toast.LENGTH_SHORT).show();
-                }
-                if (swipeRefreshLayout != null) swipeRefreshLayout.setRefreshing(false);
-            }
-        });
-
-        mDatabase.child("FoundItems").addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                foundItemsList.clear();
-                for (DataSnapshot data : snapshot.getChildren()) {
-                    try {
-                        Item item = data.getValue(Item.class);
-                        if (item != null) foundItemsList.add(item);
-                    } catch (Exception e) { e.printStackTrace(); }
-                }
-                combineAndFilter();
-                if (swipeRefreshLayout != null) swipeRefreshLayout.setRefreshing(false);
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-                if (!isFinishing()) {
-                    Toast.makeText(BrowseItemsActivity.this, "FoundItems Error: " + error.getMessage(), Toast.LENGTH_SHORT).show();
+                    SnackbarManager.show(SnackbarManager.Type.ERROR, "LostReports Error: " + errorMessage);
                 }
                 if (swipeRefreshLayout != null) swipeRefreshLayout.setRefreshing(false);
             }
@@ -206,11 +196,13 @@ public class BrowseItemsActivity extends AppCompatActivity {
             String name = item.getName() != null ? item.getName().toLowerCase() : "";
             String desc = item.getDescription() != null ? item.getDescription().toLowerCase() : "";
             String displayId = item.getDisplayId() != null ? item.getDisplayId().toLowerCase() : "";
+            String formattedId = ("#" + displayId);
             
             boolean matchesSearch = currentSearchQuery.isEmpty() || 
                                     name.contains(currentSearchQuery) || 
                                     desc.contains(currentSearchQuery) ||
-                                    displayId.equals(currentSearchQuery);
+                                    displayId.contains(currentSearchQuery) ||
+                                    formattedId.contains(currentSearchQuery);
             
             boolean matchesCategory = currentCategory.equals("All Categories") || 
                                       (item.getCategory() != null && item.getCategory().equals(currentCategory));

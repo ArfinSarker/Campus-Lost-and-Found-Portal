@@ -3,11 +3,13 @@ package com.sas.lostandfound;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
+import android.text.TextUtils;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.activity.OnBackPressedCallback;
@@ -19,14 +21,12 @@ import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.tabs.TabLayout;
 import com.google.android.material.tabs.TabLayoutMediator;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
+import com.google.gson.reflect.TypeToken;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class ClaimDetailsActivity extends AppCompatActivity {
 
@@ -38,33 +38,36 @@ public class ClaimDetailsActivity extends AppCompatActivity {
     private TabLayout tabLayoutIndicator;
     private LinearLayout llSection, llBatch, llLevelTerm, llDesignation, llDepartment, llOwnershipVerification, llFoundSpecifics;
     private MaterialButton btnCall, btnEmail, btnMarkReturned;
-    private DatabaseReference mDatabase;
     private String itemId, senderId, itemStatus, notificationType;
-    private ValueEventListener claimantProfileListener;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_claim_details);
-
-        mDatabase = FirebaseDatabase.getInstance(FirebaseConfig.DATABASE_URL).getReference();
 
         initializeViews();
         setupToolbar();
 
         String itemName = getIntent().getStringExtra("itemName");
         itemId = getIntent().getStringExtra("itemId");
-        senderId = getIntent().getStringExtra("senderId");
+        senderId = getIntent().getStringExtra("claimerId");
+        if (senderId == null) {
+            senderId = getIntent().getStringExtra("senderId");
+        }
+        
         notificationType = getIntent().getStringExtra("type");
 
         setupLabels();
 
         if (senderId != null) {
-            setupRealtimeClaimantProfile(senderId);
+            setupClaimantProfile(senderId);
         }
 
         if (itemId != null) {
             fetchItemDetails(itemId);
         }
+
+        startRealtimeProfileListener();
 
         btnCall.setOnClickListener(v -> {
             String phone = tvPhone.getText().toString();
@@ -87,7 +90,6 @@ public class ClaimDetailsActivity extends AppCompatActivity {
         
         btnMarkReturned.setOnClickListener(v -> markAsReturned());
 
-        // Ensure back press always exits the activity immediately
         getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
             @Override
             public void handleOnBackPressed() {
@@ -135,7 +137,6 @@ public class ClaimDetailsActivity extends AppCompatActivity {
         tvHandlingStatus = findViewById(R.id.tvHandlingStatus);
         tvSecurityQuestion = findViewById(R.id.tvSecurityQuestion);
 
-        // Labels for dynamic text
         tvInformationLabel = findViewById(R.id.tvInformationLabel);
         tvContactLabel = findViewById(R.id.tvContactLabel);
         tvItemHeaderLabel = findViewById(R.id.tvItemHeaderLabel);
@@ -167,7 +168,7 @@ public class ClaimDetailsActivity extends AppCompatActivity {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
             getSupportActionBar().setDisplayShowTitleEnabled(false);
         }
-        toolbar.setNavigationOnClickListener(v -> onBackPressed());
+        toolbar.setNavigationOnClickListener(v -> finish());
 
         com.google.android.material.appbar.AppBarLayout appBarLayout = findViewById(R.id.appBarLayout);
         if (appBarLayout != null) {
@@ -175,54 +176,85 @@ public class ClaimDetailsActivity extends AppCompatActivity {
         }
     }
 
-    private void setupRealtimeClaimantProfile(String claimantId) {
-        claimantProfileListener = new ValueEventListener() {
+    private void setupClaimantProfile(String claimantId) {
+        String query = "university_id=eq." + claimantId + "&select=*&limit=1";
+        SupabaseDatabaseHelper.select("profiles", query, new TypeToken<List<User>>(){}.getType(), new SupabaseDatabaseHelper.DatabaseCallback<List<User>>() {
             @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                if (snapshot.exists()) {
-                    String name = snapshot.child("name").getValue(String.class);
-                    if (name == null) name = snapshot.child("fullName").getValue(String.class);
-                    
-                    String univId = snapshot.child("universityId").getValue(String.class);
-                    String gender = snapshot.child("gender").getValue(String.class);
-                    String designation = snapshot.child("designation").getValue(String.class);
-                    String batch = snapshot.child("batch").getValue(String.class);
-                    String levelTerm = snapshot.child("levelTerm").getValue(String.class);
-                    String dept = snapshot.child("department").getValue(String.class);
-                    String section = snapshot.child("section").getValue(String.class);
-                    String email = snapshot.child("email").getValue(String.class);
-                    String profileImageUrl = snapshot.child("profileImageUrl").getValue(String.class);
+            public void onSuccess(List<User> users) {
+                if (users != null && !users.isEmpty()) {
+                    User user = users.get(0);
+                    if (user != null) {
+                        String name = user.getName();
+                        tvNameHeader.setText(!TextUtils.isEmpty(name) ? name : "Not Specified");
+                        
+                        String uId = user.getUniversityId();
+                        tvUniversityId.setText(!TextUtils.isEmpty(uId) ? uId : "Not Specified");
+                        
+                        String gender = user.getGender();
+                        tvGender.setText(!TextUtils.isEmpty(gender) ? gender : "Not Specified");
+                        
+                        String email = user.getEmail();
+                        tvEmail.setText(!TextUtils.isEmpty(email) ? email : "Not Specified");
+                        
+                        String phone = user.getPhone();
+                        tvPhone.setText(!TextUtils.isEmpty(phone) ? phone : "Not Specified");
 
-                    tvNameHeader.setText(name != null && !name.isEmpty() ? name : "Not Specified");
-                    tvUniversityId.setText(univId != null && !univId.isEmpty() ? univId : "Not Specified");
-                    tvGender.setText(gender != null && !gender.isEmpty() ? gender : "Not Specified");
-                    tvEmail.setText(email != null && !email.isEmpty() ? email : "Not Specified");
+                        String userType = user.getUserType();
+                        boolean isStudent = "Student".equalsIgnoreCase(userType);
+                        boolean isStaffOrAdmin = "Staff".equalsIgnoreCase(userType) || "Admin".equalsIgnoreCase(userType);
 
-                    // Dynamic Visibility based on field existence in profile
-                    updateFieldVisibility(llDesignation, tvDesignation, designation);
-                    updateFieldVisibility(llBatch, tvBatch, batch);
-                    updateFieldVisibility(llLevelTerm, tvLevelTerm, levelTerm);
-                    updateFieldVisibility(llDepartment, tvDepartment, dept);
-                    updateFieldVisibility(llSection, tvSection, section);
+                        // Role-based visibility
+                        llDesignation.setVisibility(isStaffOrAdmin ? View.VISIBLE : View.GONE);
+                        llBatch.setVisibility(isStudent ? View.VISIBLE : View.GONE);
+                        llLevelTerm.setVisibility(isStudent ? View.VISIBLE : View.GONE);
+                        llSection.setVisibility(isStudent ? View.VISIBLE : View.GONE);
+                        llDepartment.setVisibility(View.VISIBLE); // Always show department
 
-                    if (profileImageUrl != null && !profileImageUrl.isEmpty()) {
-                        GlideApp.with(ClaimDetailsActivity.this)
-                                .load(profileImageUrl)
-                                .placeholder(R.drawable.ic_user)
-                                .thumbnail(0.1f)
-                                .diskCacheStrategy(DiskCacheStrategy.ALL)
-                                .circleCrop()
-                                .into(ivClaimantPhoto);
-                    } else {
-                        ivClaimantPhoto.setImageResource(R.drawable.ic_user);
+                        if (isStaffOrAdmin) {
+                            tvDesignation.setText(user.getDesignation() != null ? user.getDesignation() : "Not Specified");
+                        }
+                        if (isStudent) {
+                            tvBatch.setText(user.getBatch() != null ? user.getBatch() : "Not Specified");
+                            tvLevelTerm.setText(user.getLevelTerm() != null ? user.getLevelTerm() : "Not Specified");
+                            tvSection.setText(user.getSection() != null ? user.getSection() : "Not Specified");
+                        }
+                        tvDepartment.setText(user.getDepartment() != null ? user.getDepartment() : "Not Specified");
+
+                        if (user.getProfileImageUrl() != null && !user.getProfileImageUrl().isEmpty()) {
+                            GlideApp.with(ClaimDetailsActivity.this)
+                                    .load(user.getProfileImageUrl())
+                                    .placeholder(R.drawable.ic_user)
+                                    .thumbnail(0.1f)
+                                    .diskCacheStrategy(DiskCacheStrategy.ALL)
+                                    .circleCrop()
+                                    .into(ivClaimantPhoto);
+                        } else {
+                            ivClaimantPhoto.setImageResource(R.drawable.ic_user);
+                        }
                     }
                 }
             }
+            @Override public void onFailure(String e) {
+                ErrorHelper.showError(tvNameHeader, "Failed to load profile: " + e);
+            }
+        });
+    }
 
+    private void startRealtimeProfileListener() {
+        if (senderId == null) return;
+        
+        // Polling as a fallback for real-time since Supabase SDK in this project 
+        // is implemented via OkHttp/REST rather than a persistent WebSocket client.
+        // This ensures the reporter sees updates if they stay on this screen.
+        new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
             @Override
-            public void onCancelled(@NonNull DatabaseError error) {}
-        };
-        mDatabase.child("Users").child(claimantId).addValueEventListener(claimantProfileListener);
+            public void run() {
+                if (!isFinishing() && !isDestroyed()) {
+                    setupClaimantProfile(senderId);
+                    new Handler(Looper.getMainLooper()).postDelayed(this, 10000); // Refresh every 10s
+                }
+            }
+        }, 10000);
     }
 
     private void updateFieldVisibility(LinearLayout layout, TextView textView, String value) {
@@ -235,100 +267,82 @@ public class ClaimDetailsActivity extends AppCompatActivity {
     }
 
     private void fetchItemDetails(String itemId) {
-        // First check FoundItems
-        mDatabase.child("FoundItems").child(itemId).addListenerForSingleValueEvent(new ValueEventListener() {
+        SupabaseDatabaseHelper.select("found_reports", "id=eq." + itemId + "&limit=1", new TypeToken<List<Item>>(){}.getType(), new SupabaseDatabaseHelper.DatabaseCallback<List<Item>>() {
             @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                if (snapshot.exists()) {
+            public void onSuccess(List<Item> items) {
+                if (items != null && !items.isEmpty()) {
                     itemStatus = "found";
-                    displayItem(snapshot);
+                    displayItem(items.get(0));
                 } else {
-                    // Then check LostItems
-                    mDatabase.child("LostItems").child(itemId).addListenerForSingleValueEvent(new ValueEventListener() {
+                    SupabaseDatabaseHelper.select("lost_reports", "id=eq." + itemId + "&limit=1", new TypeToken<List<Item>>(){}.getType(), new SupabaseDatabaseHelper.DatabaseCallback<List<Item>>() {
                         @Override
-                        public void onDataChange(@NonNull DataSnapshot snapshot) {
-                            if (snapshot.exists()) {
+                        public void onSuccess(List<Item> items2) {
+                            if (items2 != null && !items2.isEmpty()) {
                                 itemStatus = "lost";
-                                displayItem(snapshot);
+                                displayItem(items2.get(0));
                             }
                         }
-                        @Override public void onCancelled(@NonNull DatabaseError error) {}
+                        @Override public void onFailure(String e) {}
                     });
                 }
             }
-            @Override public void onCancelled(@NonNull DatabaseError error) {}
+            @Override public void onFailure(String e) {}
         });
     }
 
-    private void displayItem(DataSnapshot snapshot) {
-        Item item = snapshot.getValue(Item.class);
-        if (item != null) {
-            String displayId = item.getDisplayId();
-            if (displayId == null || displayId.isEmpty()) {
-                displayId = item.getReportId();
-            }
-            if (displayId != null && !displayId.isEmpty()) {
-                if (!displayId.startsWith("#")) {
-                    displayId = "#" + displayId;
-                }
-                tvReportId.setText(displayId);
-                tvReportId.setVisibility(View.VISIBLE);
-            } else {
-                tvReportId.setVisibility(View.GONE);
-            }
+    private void displayItem(Item item) {
+        if (item == null) return;
+        String formattedId = ReportIdFormatter.format(item.getDisplayId() != null ? item.getDisplayId() : item.getReportId());
+        
+        if (!formattedId.isEmpty()) {
+            tvReportId.setText(formattedId);
+            tvReportId.setVisibility(View.VISIBLE);
+        } else {
+            tvReportId.setVisibility(View.GONE);
+        }
 
-            tvItemName.setText(item.getName());
-            tvCategory.setText(item.getCategory());
-            tvDescription.setText(item.getDescription());
-            tvPhone.setText(item.getUserPhone() != null && !item.getUserPhone().isEmpty() ? item.getUserPhone() : "Not Specified");
-            tvPreferredContact.setText(item.getPreferredContactMethod() != null && !item.getPreferredContactMethod().isEmpty() ? item.getPreferredContactMethod() : "Not Specified");
+        tvItemName.setText(item.getName());
+        tvCategory.setText(item.getCategory());
+        tvDescription.setText(item.getDescription());
+        tvPhone.setText(item.getUserPhone() != null && !item.getUserPhone().isEmpty() ? item.getUserPhone() : "Not Specified");
+        tvPreferredContact.setText(item.getPreferredContactMethod() != null && !item.getPreferredContactMethod().isEmpty() ? item.getPreferredContactMethod() : "Not Specified");
 
-            String details = "Date: " + item.getDate();
-            if (item.getTime() != null && !item.getTime().isEmpty()) {
-                details += "\nTime: " + item.getTime();
-            }
+        String details = "Date: " + item.getDate();
+        if (item.getTime() != null && !item.getTime().isEmpty()) {
+            details += "\nTime: " + item.getTime();
+        }
+        String formattedLocation = ReportLocationDisplay.formatFullLocation(item.getLocation(), item.getManualLocation(), item.getAdditionalLocationDetails());
+        details += "\nLocation: " + formattedLocation;
+        tvItemDetails.setText(details);
+
+        setupImageSlider(item.getImageUrls(), item.getImageUrl());
+
+        if ("lost".equals(itemStatus)) {
+            llOwnershipVerification.setVisibility(View.VISIBLE);
+            llFoundSpecifics.setVisibility(View.GONE);
+            tvOwnershipVerification.setText(item.getProofOfOwnershipDetail() != null && !item.getProofOfOwnershipDetail().isEmpty() ? item.getProofOfOwnershipDetail() : "Not Specified");
             
-            // Use ReportLocationDisplay for consistent location display
-            String formattedLocation = ReportLocationDisplay.formatFullLocation(
-                    item.getLocation(), 
-                    item.getManualLocation(), 
-                    item.getAdditionalLocationDetails());
-            
-            details += "\nLocation: " + formattedLocation;
-            tvItemDetails.setText(details);
-
-            // Handle Item Image
-            String imageUrl = item.getImageUrl();
-            List<String> imageUrls = item.getImageUrls();
-            setupImageSlider(imageUrls, imageUrl);
-
-            if ("lost".equals(itemStatus)) {
-                llOwnershipVerification.setVisibility(View.VISIBLE);
-                llFoundSpecifics.setVisibility(View.GONE);
-                tvOwnershipVerification.setText(item.getProofOfOwnershipDetail() != null && !item.getProofOfOwnershipDetail().isEmpty() ? item.getProofOfOwnershipDetail() : "Not Specified");
-                
-                if ("Claimed".equalsIgnoreCase(item.getAdminStatus()) || "Returned".equalsIgnoreCase(item.getAdminStatus())) {
-                    btnMarkReturned.setEnabled(false);
-                    btnMarkReturned.setText("Item Already Recovered");
-                    btnMarkReturned.setVisibility("lost_claimed_confirmed".equals(notificationType) || "item_returned_confirmed".equals(notificationType) ? View.GONE : View.VISIBLE);
-                } else {
-                    btnMarkReturned.setVisibility("lost_claimed_confirmed".equals(notificationType) || "item_returned_confirmed".equals(notificationType) ? View.GONE : View.VISIBLE);
-                    btnMarkReturned.setText("Mark as Recovered");
-                }
+            if ("Claimed".equalsIgnoreCase(item.getAdminStatus()) || "Returned".equalsIgnoreCase(item.getAdminStatus())) {
+                btnMarkReturned.setEnabled(false);
+                btnMarkReturned.setText("Item Already Recovered");
+                btnMarkReturned.setVisibility("lost_claimed_confirmed".equals(notificationType) || "item_returned_confirmed".equals(notificationType) ? View.GONE : View.VISIBLE);
             } else {
-                llOwnershipVerification.setVisibility(View.GONE);
-                llFoundSpecifics.setVisibility(View.VISIBLE);
-                tvHandlingStatus.setText(item.getItemHandlingStatus() != null && !item.getItemHandlingStatus().isEmpty() ? item.getItemHandlingStatus() : "Not Specified");
-                tvSecurityQuestion.setText(item.getHiddenIdentificationQuestion() != null && !item.getHiddenIdentificationQuestion().isEmpty() ? item.getHiddenIdentificationQuestion() : "Not Specified");
+                btnMarkReturned.setVisibility("lost_claimed_confirmed".equals(notificationType) || "item_returned_confirmed".equals(notificationType) ? View.GONE : View.VISIBLE);
+                btnMarkReturned.setText("Mark as Recovered");
+            }
+        } else {
+            llOwnershipVerification.setVisibility(View.GONE);
+            llFoundSpecifics.setVisibility(View.VISIBLE);
+            tvHandlingStatus.setText(item.getItemHandlingStatus() != null && !item.getItemHandlingStatus().isEmpty() ? item.getItemHandlingStatus() : "Not Specified");
+            tvSecurityQuestion.setText(item.getHiddenIdentificationQuestion() != null && !item.getHiddenIdentificationQuestion().isEmpty() ? item.getHiddenIdentificationQuestion() : "Not Specified");
 
-                if ("Claimed".equalsIgnoreCase(item.getAdminStatus()) || "Returned".equalsIgnoreCase(item.getAdminStatus())) {
-                    btnMarkReturned.setEnabled(false);
-                    btnMarkReturned.setText("Item Already Returned");
-                    btnMarkReturned.setVisibility("item_returned_confirmed".equals(notificationType) ? View.GONE : View.VISIBLE);
-                } else {
-                    btnMarkReturned.setVisibility("item_returned_confirmed".equals(notificationType) ? View.GONE : View.VISIBLE);
-                    btnMarkReturned.setText("Mark as Returned");
-                }
+            if ("Claimed".equalsIgnoreCase(item.getAdminStatus()) || "Returned".equalsIgnoreCase(item.getAdminStatus())) {
+                btnMarkReturned.setEnabled(false);
+                btnMarkReturned.setText("Item Already Returned");
+                btnMarkReturned.setVisibility("item_returned_confirmed".equals(notificationType) ? View.GONE : View.VISIBLE);
+            } else {
+                btnMarkReturned.setVisibility("item_returned_confirmed".equals(notificationType) ? View.GONE : View.VISIBLE);
+                btnMarkReturned.setText("Mark as Returned");
             }
         }
     }
@@ -338,30 +352,20 @@ public class ClaimDetailsActivity extends AppCompatActivity {
             ivItemImage.setVisibility(View.GONE);
             viewPagerImageSlider.setVisibility(View.VISIBLE);
             tabLayoutIndicator.setVisibility(View.VISIBLE);
-
-            // Use fitCenter (true) for multiple images to prevent zooming
             ImageSliderAdapter adapter = new ImageSliderAdapter(imageUrls, true);
-            adapter.setOnImageClickListener(position -> ItemNavigationUtils.openFullScreenImage(this, imageUrls, position));
-            
+            adapter.setOnImageClickListener(pos -> ItemNavigationUtils.openFullScreenImage(this, imageUrls, pos));
             viewPagerImageSlider.setAdapter(adapter);
-            new TabLayoutMediator(tabLayoutIndicator, viewPagerImageSlider, (tab, position) -> {}).attach();
+            new TabLayoutMediator(tabLayoutIndicator, viewPagerImageSlider, (t, p) -> {}).attach();
         } else {
             viewPagerImageSlider.setVisibility(View.GONE);
             tabLayoutIndicator.setVisibility(View.GONE);
             ivItemImage.setVisibility(View.VISIBLE);
-
-            String finalUrl = (imageUrls != null && !imageUrls.isEmpty()) ? imageUrls.get(0) : fallbackUrl;
-            if (finalUrl != null && !finalUrl.isEmpty()) {
-                GlideApp.with(this)
-                        .load(finalUrl)
-                        .placeholder(R.drawable.ic_package)
-                        .thumbnail(0.1f)
-                        .diskCacheStrategy(DiskCacheStrategy.ALL)
-                        .into(ivItemImage);
-                
+            String url = (imageUrls != null && !imageUrls.isEmpty()) ? imageUrls.get(0) : fallbackUrl;
+            if (url != null && !url.isEmpty()) {
+                GlideApp.with(this).load(url).placeholder(R.drawable.ic_package).thumbnail(0.1f).diskCacheStrategy(DiskCacheStrategy.ALL).into(ivItemImage);
                 ivItemImage.setOnClickListener(v -> {
                     ArrayList<String> urls = new ArrayList<>();
-                    urls.add(finalUrl);
+                    urls.add(url);
                     ItemNavigationUtils.openFullScreenImage(this, urls, 0);
                 });
             } else {
@@ -373,33 +377,27 @@ public class ClaimDetailsActivity extends AppCompatActivity {
 
     private void markAsReturned() {
         if (itemId == null || senderId == null || itemStatus == null) return;
-
         btnMarkReturned.setEnabled(false);
         btnMarkReturned.setText("Updating...");
-
-        String path = "found".equals(itemStatus) ? "FoundItems" : "LostItems";
+        String table = "found".equals(itemStatus) ? "found_reports" : "lost_reports";
         String statusToSet = "found".equals(itemStatus) ? "Returned" : "Claimed";
+        Map<String, Object> updates = new HashMap<>();
+        updates.put("adminStatus", statusToSet);
+        updates.put("claimedByUserId", senderId);
 
-        mDatabase.child(path).child(itemId).child("adminStatus").setValue(statusToSet);
-        mDatabase.child(path).child(itemId).child("claimedByUserId").setValue(senderId)
-                .addOnCompleteListener(task -> {
-                    if (task.isSuccessful()) {
-                        Toast.makeText(this, "Item marked as " + statusToSet.toLowerCase(), Toast.LENGTH_SHORT).show();
-                        btnMarkReturned.setText("Marked as " + statusToSet);
-                        btnMarkReturned.setEnabled(false);
-                    } else {
-                        Toast.makeText(this, "Failed to update status", Toast.LENGTH_SHORT).show();
-                        btnMarkReturned.setEnabled(true);
-                        btnMarkReturned.setText("Mark as Returned");
-                    }
-                });
-    }
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        if (claimantProfileListener != null && senderId != null) {
-            mDatabase.child("Users").child(senderId).removeEventListener(claimantProfileListener);
-        }
+        SupabaseDatabaseHelper.update(table, "id=eq." + itemId, updates, new SupabaseDatabaseHelper.DatabaseCallback<>() {
+            @Override
+            public void onSuccess(String result) {
+                SnackbarManager.show(SnackbarManager.Type.SUCCESS, "Item marked as " + statusToSet.toLowerCase());
+                btnMarkReturned.setText("Marked as " + statusToSet);
+                btnMarkReturned.setEnabled(false);
+            }
+            @Override
+            public void onFailure(String e) {
+                SnackbarManager.show(SnackbarManager.Type.ERROR, "Failed to update status");
+                btnMarkReturned.setEnabled(true);
+                btnMarkReturned.setText("Mark as Returned");
+            }
+        });
     }
 }

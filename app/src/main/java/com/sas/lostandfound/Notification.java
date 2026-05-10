@@ -1,37 +1,111 @@
 package com.sas.lostandfound;
 
+import com.google.gson.annotations.SerializedName;
+
 public class Notification {
+    @SerializedName("id")
     private String id;
+    
+    @SerializedName("recipient_id")
     private String recipientId;
+    
+    @SerializedName("sender_id")
     private String senderId;
-    private String senderName;
-    private String senderPhone;
-    private String senderEmail;
-    private String itemId;
-    private String itemName;
+    
+    @SerializedName("report_id")
+    private String reportId;
+    
+    @SerializedName("message")
     private String message;
-    private long timestamp;
-    private boolean read;
-    private String type; // "lost_claim" or "found_claim"
+    
+    @SerializedName("type")
+    private String type;
+    
+    @SerializedName("is_read")
+    private boolean isRead;
+    
+    @SerializedName("additional_details")
     private String additionalDetails;
+    
+    @SerializedName("created_at")
+    private String createdAt;
+
+    @SerializedName("sender_name")
+    private String senderName;
+
+    @SerializedName("sender_phone")
+    private String senderPhone;
+
+    @SerializedName("sender_email")
+    private String senderEmail;
+
+    @SerializedName("sender_image_url")
+    private String senderImageUrl;
+
+    @SerializedName("item_name")
+    private String itemName;
+
+    @SerializedName("claimer_id")
+    private String claimerId;
+
+    @SerializedName("claimer_name")
+    private String claimerName;
+
+    @SerializedName("item_id")
+    private String itemIdField;
+
+    @SerializedName("claim_type")
+    private String claimType;
+
+    @SerializedName("user_id")
+    private String userId;
+
+    @SerializedName("timestamp")
+    private long timestamp;
 
     public Notification() {
     }
 
-    public Notification(String id, String recipientId, String senderId, String senderName, String senderPhone, String senderEmail, String itemId, String itemName, String message, long timestamp, String type, String additionalDetails) {
+    public Notification(String id, String recipientId, String senderId, String reportId, String message, String type) {
+        this.id = id;
+        this.recipientId = recipientId;
+        this.senderId = senderId;
+        this.reportId = reportId;
+        this.message = message;
+        this.type = type;
+        // is_read defaults to false automatically
+    }
+
+    public Notification(String id, String recipientId, String senderId, String senderName, String senderPhone, String senderEmail, String reportId, String itemName, String message, long timestamp, String type, String additionalDetails) {
         this.id = id;
         this.recipientId = recipientId;
         this.senderId = senderId;
         this.senderName = senderName;
         this.senderPhone = senderPhone;
         this.senderEmail = senderEmail;
-        this.itemId = itemId;
+        this.reportId = reportId;
         this.itemName = itemName;
         this.message = message;
         this.timestamp = timestamp;
-        this.read = false;
         this.type = type;
         this.additionalDetails = additionalDetails;
+        // is_read defaults to false automatically
+        // Automatically populate new fields
+        this.claimerId = senderId;
+        this.claimerName = senderName;
+        this.itemIdField = reportId;
+        this.claimType = type;
+    }
+
+    // Constructor including sender image
+    public Notification(String id, String recipientId, String senderId, String senderName, String senderPhone, String senderEmail, String senderImageUrl, String reportId, String itemName, String message, long timestamp, String type, String additionalDetails) {
+        this(id, recipientId, senderId, senderName, senderPhone, senderEmail, reportId, itemName, message, timestamp, type, additionalDetails);
+        this.senderImageUrl = senderImageUrl;
+        // Automatically populate new fields for claims
+        this.claimerId = senderId;
+        this.claimerName = senderName;
+        this.itemIdField = reportId;
+        this.claimType = type;
     }
 
     public String getId() { return id; }
@@ -43,33 +117,57 @@ public class Notification {
     public String getSenderId() { return senderId; }
     public void setSenderId(String senderId) { this.senderId = senderId; }
 
-    public String getSenderName() { return senderName; }
-    public void setSenderName(String senderName) { this.senderName = senderName; }
-
-    public String getSenderPhone() { return senderPhone; }
-    public void setSenderPhone(String senderPhone) { this.senderPhone = senderPhone; }
-
-    public String getSenderEmail() { return senderEmail; }
-    public void setSenderEmail(String senderEmail) { this.senderEmail = senderEmail; }
-
-    public String getItemId() { return itemId; }
-    public void setItemId(String itemId) { this.itemId = itemId; }
-
-    public String getItemName() { return itemName; }
-    public void setItemName(String itemName) { this.itemName = itemName; }
+    public String getReportId() { return reportId; }
+    public void setReportId(String reportId) { this.reportId = reportId; }
+    
+    public String getItemId() { return reportId; } // Compatibility
+    public void setItemId(String itemId) { this.reportId = itemId; }
 
     public String getMessage() { return message; }
     public void setMessage(String message) { this.message = message; }
 
-    public long getTimestamp() { return timestamp; }
-    public void setTimestamp(long timestamp) { this.timestamp = timestamp; }
-
-    public boolean isRead() { return read; }
-    public void setRead(boolean read) { this.read = read; }
-
     public String getType() { return type; }
     public void setType(String type) { this.type = type; }
 
+    public boolean isRead() { return isRead; }
+    public void setRead(boolean read) { isRead = read; }
+
     public String getAdditionalDetails() { return additionalDetails; }
-    public void setAdditionalDetails(String additionalDetails) { this.additionalDetails = additionalDetails; }
+    public void setAdditionalDetails(String details) { this.additionalDetails = details; }
+
+    public String getCreatedAt() { return createdAt; }
+    public void setCreatedAt(String createdAt) { this.createdAt = createdAt; }
+
+    public String getSenderName() { return senderName; }
+    public void setSenderName(String name) { this.senderName = name; }
+    
+    public String getSenderPhone() { return senderPhone; }
+    public void setSenderPhone(String phone) { this.senderPhone = phone; }
+    
+    public String getSenderEmail() { return senderEmail; }
+    public void setSenderEmail(String email) { this.senderEmail = email; }
+
+    public String getSenderImageUrl() { return senderImageUrl; }
+    public void setSenderImageUrl(String url) { this.senderImageUrl = url; }
+    
+    public String getItemName() { return itemName; }
+    public void setItemName(String name) { this.itemName = name; }
+
+    public String getClaimerId() { return claimerId; }
+    public void setClaimerId(String id) { this.claimerId = id; }
+
+    public String getClaimerName() { return claimerName; }
+    public void setClaimerName(String name) { this.claimerName = name; }
+
+    public String getItemIdField() { return itemIdField; }
+    public void setItemIdField(String id) { this.itemIdField = id; }
+
+    public String getClaimType() { return claimType; }
+    public void setClaimType(String type) { this.claimType = type; }
+
+    public String getUserId() { return userId; }
+    public void setUserId(String id) { this.userId = id; }
+
+    public long getTimestamp() { return timestamp; }
+    public void setTimestamp(long ts) { this.timestamp = ts; }
 }

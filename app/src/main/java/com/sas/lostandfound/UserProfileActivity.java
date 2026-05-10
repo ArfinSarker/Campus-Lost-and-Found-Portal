@@ -19,7 +19,6 @@ import android.widget.AutoCompleteTextView;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.NonNull;
@@ -37,15 +36,7 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
-import com.google.firebase.auth.AuthCredential;
-import com.google.firebase.auth.EmailAuthProvider;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
+import com.google.gson.reflect.TypeToken;
 
 import java.io.File;
 import java.io.IOException;
@@ -56,23 +47,22 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicLong;
 
 public class UserProfileActivity extends AppCompatActivity {
 
     private ImageView ivProfilePicture;
     private FloatingActionButton fabChangePhoto;
-    private TextInputLayout tilEmail, tilPhone, tilDepartment, tilGender, tilBatch, tilLevelTerm, tilSection, tilOldPassword, tilNewPassword, tilConfirmPassword, tilDesignation, tilFullName;
+    private TextInputLayout tilEmail, tilPhone, tilDepartment, tilGender, tilBatch, tilLevelTerm, tilSection, tilOldPassword, tilNewPassword, tilConfirmPassword, tilDesignation, tilFullName, tilUniversityId;
     private TextInputEditText etEmail, etPhone, etFullName, etUniversityId, etBatch, etOldPassword, etNewPassword, etConfirmPassword, etDesignation, etDepartment;
     private AutoCompleteTextView actvGender, actvLevelTerm, actvSection;
     private MaterialButton btnSaveChanges, btnConfirmPasswordChange, btnDeleteUser;
+    private com.airbnb.lottie.LottieAnimationView loadingAnimation;
     private ProgressBar progressBar;
     private Toolbar toolbar;
     private TextView tvHeaderTitle, tvLostReportsCount, tvFoundReportsCount, tvReturnedItemsCount;
     private View changePasswordSection, activitySection;
     private SwipeRefreshLayout swipeRefreshLayout;
-
-    private FirebaseAuth mAuth;
-    private DatabaseReference mDatabase;
 
     private static final int REQUEST_IMAGES_PICK = 2;
     private static final int REQUEST_IMAGE_CAPTURE = 3;
@@ -83,7 +73,7 @@ public class UserProfileActivity extends AppCompatActivity {
     private String currentPhotoPath;
     private String currentUniversityId;
     private String userEmail;
-    
+
     private User originalUser;
     private boolean isDataLoaded = false;
     private boolean isProfilePictureRemoved = false;
@@ -91,16 +81,13 @@ public class UserProfileActivity extends AppCompatActivity {
     private boolean fromDrawer = false;
     private String targetUserId;
 
-    // Real-time listeners for Admin Activity counts
-    private ValueEventListener lostListener, foundListener, itemsListener;
+    // Real-time listeners were removed in favor of Supabase REST calls
+    // private ValueEventListener lostListener, foundListener, itemsListener;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_user_profile);
-
-        mAuth = FirebaseAuth.getInstance();
-        mDatabase = FirebaseDatabase.getInstance(FirebaseConfig.DATABASE_URL).getReference();
 
         isAdminViewing = getIntent().getBooleanExtra("isAdminViewing", false);
         targetUserId = getIntent().getStringExtra("targetUserId");
@@ -108,30 +95,13 @@ public class UserProfileActivity extends AppCompatActivity {
 
         initializeViews();
         setupToolbar();
-        setupDropdowns();
         setupSwipeRefresh();
 
-        if (isAdminViewing && targetUserId != null) {
-            currentUniversityId = targetUserId;
-            loadUserData(targetUserId);
-            setupAdminView();
-            setupRealTimeActivityTracking(targetUserId);
-        } else {
-            FirebaseUser user = mAuth.getCurrentUser();
-            if (user == null) {
-                finish();
-                return;
-            }
-            userEmail = user.getEmail();
-            fetchUniversityIdAndLoadData(user.getUid());
-            
-            fabChangePhoto.setOnClickListener(v -> showImageSourceDialog());
-            ivProfilePicture.setOnClickListener(v -> showImageSourceDialog());
-
-            setupEditableToggles();
-            setupChangeDetection();
-            btnSaveChanges.setOnClickListener(v -> saveAllChanges());
-            setupPasswordChangeLogic();
+        // Initial Role-based UI setup from SharedPreferences for immediate response
+        android.content.SharedPreferences prefs = getSharedPreferences("MyApp", MODE_PRIVATE);
+        String savedUserType = prefs.getString("userType", "Student");
+        if (!isAdminViewing) {
+            ProfileRoleHelper.applyRoleVisibility(savedUserType, tilDesignation, tilBatch, tilLevelTerm, tilDepartment, tilSection);
         }
 
         getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
@@ -140,6 +110,41 @@ public class UserProfileActivity extends AppCompatActivity {
                 handleBackNavigation();
             }
         });
+    }
+
+    @Override
+    public void onEnterAnimationComplete() {
+        super.onEnterAnimationComplete();
+        // Heavy work deferred until after the activity transition animation is complete
+        new android.os.Handler(android.os.Looper.getMainLooper()).postDelayed(() -> {
+            setupDropdowns();
+
+            if (isAdminViewing && targetUserId != null) {
+                currentUniversityId = targetUserId;
+                loadUserData(targetUserId);
+                setupAdminView();
+                setupRealTimeActivityTracking(targetUserId);
+            } else {
+                android.content.SharedPreferences prefs = getSharedPreferences("MyApp", MODE_PRIVATE);
+                currentUniversityId = prefs.getString("universityId", null);
+                userEmail = prefs.getString("email", null);
+                
+                if (currentUniversityId != null) {
+                    loadUserData(currentUniversityId);
+                    setupRealTimeActivityTracking(currentUniversityId);
+                } else {
+                    searchUserByEmail();
+                }
+
+                fabChangePhoto.setOnClickListener(v -> showImageSourceDialog());
+                ivProfilePicture.setOnClickListener(v -> showImageSourceDialog());
+
+                setupEditableToggles();
+                setupChangeDetection();
+                btnSaveChanges.setOnClickListener(v -> saveAllChanges());
+                setupPasswordChangeLogic();
+            }
+        }, 100);
     }
 
     /**
@@ -161,6 +166,7 @@ public class UserProfileActivity extends AppCompatActivity {
         }
         startActivity(intent);
         finish();
+        overridePendingTransition(R.anim.material_shared_axis_z_pop_enter, R.anim.material_shared_axis_z_pop_exit);
     }
 
     private void setupAdminView() {
@@ -219,12 +225,13 @@ public class UserProfileActivity extends AppCompatActivity {
             swipeRefreshLayout.setOnRefreshListener(() -> {
                 if (isAdminViewing && targetUserId != null) {
                     loadUserData(targetUserId);
+                    setupRealTimeActivityTracking(targetUserId);
                 } else {
-                    FirebaseUser user = mAuth.getCurrentUser();
-                    if (user != null) {
-                        fetchUniversityIdAndLoadData(user.getUid());
+                    if (currentUniversityId != null) {
+                        loadUserData(currentUniversityId);
+                        setupRealTimeActivityTracking(currentUniversityId);
                     } else {
-                        swipeRefreshLayout.setRefreshing(false);
+                        searchUserByEmail();
                     }
                 }
             });
@@ -232,55 +239,64 @@ public class UserProfileActivity extends AppCompatActivity {
     }
 
     private void setupRealTimeActivityTracking(String userId) {
-        // 1. Lost Reports Count (Red)
-        lostListener = mDatabase.child("LostItems").orderByChild("userId").equalTo(userId).addValueEventListener(new ValueEventListener() {
+        // 1. Lost Reports Count
+        SupabaseDatabaseHelper.select("lost_reports", "reporter_id=eq." + userId + "&select=count", new TypeToken<List<Map<String, Object>>>(){}.getType(), new SupabaseDatabaseHelper.DatabaseCallback<List<Map<String, Object>>>() {
             @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                long count = snapshot.getChildrenCount();
-                tvLostReportsCount.setText("Lost Reports: " + count);
-                tvLostReportsCount.setTextColor(ContextCompat.getColor(UserProfileActivity.this, R.color.errorColor));
-            }
-            @Override public void onCancelled(@NonNull DatabaseError error) {}
-        });
-
-        // 2. Found Reports Count (Green)
-        foundListener = mDatabase.child("FoundItems").orderByChild("userId").equalTo(userId).addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                long count = snapshot.getChildrenCount();
-                tvFoundReportsCount.setText("Found Reports: " + count);
-                tvFoundReportsCount.setTextColor(0xFF2E7D32); // Dark Green
-            }
-            @Override public void onCancelled(@NonNull DatabaseError error) {}
-        });
-
-        // 3. Returned Items Count (Primary Color)
-        itemsListener = mDatabase.child("UserItems").child(userId).addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                final long[] returnedCount = {0};
-                long totalItems = snapshot.getChildrenCount();
-                if (totalItems == 0) {
-                    updateReturnedUI(0);
-                    return;
+            public void onSuccess(List<Map<String, Object>> result) {
+                if (result != null && !result.isEmpty()) {
+                    Object countObj = result.get(0).get("count");
+                    long count = countObj instanceof Double ? ((Double) countObj).longValue() : (countObj instanceof Long ? (Long) countObj : 0);
+                    tvLostReportsCount.setText("Lost Reports: " + count);
+                    tvLostReportsCount.setTextColor(ContextCompat.getColor(UserProfileActivity.this, R.color.errorColor));
                 }
-                
-                final int[] checkedItems = {0};
-                for (DataSnapshot itemSnap : snapshot.getChildren()) {
-                    String itemId = itemSnap.getKey();
-                    checkItemStatus(itemId, new StatusCallback() {
+            }
+            @Override public void onFailure(String errorMessage) {}
+        });
+
+        // 2. Found Reports Count
+        SupabaseDatabaseHelper.select("found_reports", "reporter_id=eq." + userId + "&select=count", new TypeToken<List<Map<String, Object>>>(){}.getType(), new SupabaseDatabaseHelper.DatabaseCallback<List<Map<String, Object>>>() {
+            @Override
+            public void onSuccess(List<Map<String, Object>> result) {
+                if (result != null && !result.isEmpty()) {
+                    Object countObj = result.get(0).get("count");
+                    long count = countObj instanceof Double ? ((Double) countObj).longValue() : (countObj instanceof Long ? (Long) countObj : 0);
+                    tvFoundReportsCount.setText("Found Reports: " + count);
+                    tvFoundReportsCount.setTextColor(0xFF2E7D32); // Dark Green
+                }
+            }
+            @Override public void onFailure(String errorMessage) {}
+        });
+
+        // 3. Returned Items Count
+        // UserItems was a mapping of itemId -> true. In Supabase, we might have a user_items table or just query lost_reports/found_reports where claimedByUserId = userId.
+        // Based on Item.java, there's a claimedByUserId field.
+        String q = "or=(claimed_by_id.eq." + userId + ",and(reporter_id.eq." + userId + ",admin_status.eq.Returned))";
+        
+        AtomicLong returnedCount = new AtomicLong(0);
+        
+        SupabaseDatabaseHelper.select("lost_reports", q + "&select=count", new TypeToken<List<Map<String, Object>>>(){}.getType(), new SupabaseDatabaseHelper.DatabaseCallback<List<Map<String, Object>>>() {
+            @Override
+            public void onSuccess(List<Map<String, Object>> result) {
+                if (result != null && !result.isEmpty()) {
+                    Object countObj = result.get(0).get("count");
+                    long count = countObj instanceof Double ? ((Double) countObj).longValue() : (countObj instanceof Long ? (Long) countObj : 0);
+                    returnedCount.addAndGet(count);
+                    
+                    SupabaseDatabaseHelper.select("found_reports", q + "&select=count", new TypeToken<List<Map<String, Object>>>(){}.getType(), new SupabaseDatabaseHelper.DatabaseCallback<List<Map<String, Object>>>() {
                         @Override
-                        public void onResult(boolean isReturned) {
-                            if (isReturned) returnedCount[0]++;
-                            checkedItems[0]++;
-                            if (checkedItems[0] == totalItems) {
-                                updateReturnedUI(returnedCount[0]);
+                        public void onSuccess(List<Map<String, Object>> result2) {
+                            if (result2 != null && !result2.isEmpty()) {
+                                Object countObj2 = result2.get(0).get("count");
+                                long count2 = countObj2 instanceof Double ? ((Double) countObj2).longValue() : (countObj2 instanceof Long ? (Long) countObj2 : 0);
+                                returnedCount.addAndGet(count2);
+                                updateReturnedUI(returnedCount.get());
                             }
                         }
+                        @Override public void onFailure(String errorMessage) {}
                     });
                 }
             }
-            @Override public void onCancelled(@NonNull DatabaseError error) {}
+            @Override public void onFailure(String errorMessage) {}
         });
     }
 
@@ -289,29 +305,8 @@ public class UserProfileActivity extends AppCompatActivity {
     }
 
     private void checkItemStatus(String itemId, StatusCallback callback) {
-        mDatabase.child("LostItems").child(itemId).addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot lostSnap) {
-                if (lostSnap.exists()) {
-                    String status = lostSnap.child("adminStatus").getValue(String.class);
-                    callback.onResult("Returned".equalsIgnoreCase(status) || "Claimed".equalsIgnoreCase(status));
-                } else {
-                    mDatabase.child("FoundItems").child(itemId).addListenerForSingleValueEvent(new ValueEventListener() {
-                        @Override
-                        public void onDataChange(@NonNull DataSnapshot foundSnap) {
-                            if (foundSnap.exists()) {
-                                String status = foundSnap.child("adminStatus").getValue(String.class);
-                                callback.onResult("Returned".equalsIgnoreCase(status) || "Claimed".equalsIgnoreCase(status));
-                            } else {
-                                callback.onResult(false);
-                            }
-                        }
-                        @Override public void onCancelled(@NonNull DatabaseError error) { callback.onResult(false); }
-                    });
-                }
-            }
-            @Override public void onCancelled(@NonNull DatabaseError error) { callback.onResult(false); }
-        });
+        // This method was used by itemsListener which is now replaced by a consolidated count query in setupRealTimeActivityTracking
+        callback.onResult(false);
     }
 
     private void updateReturnedUI(long count) {
@@ -331,20 +326,20 @@ public class UserProfileActivity extends AppCompatActivity {
 
     private void deleteUserFromDatabase() {
         showLoading(true);
-        if (originalUser != null && originalUser.getAuthId() != null) {
-            mDatabase.child("UIDToUniversityID").child(originalUser.getAuthId()).removeValue();
-        }
-        
-        mDatabase.child("Users").child(currentUniversityId).removeValue()
-                .addOnCompleteListener(task -> {
-                    showLoading(false);
-                    if (task.isSuccessful()) {
-                        Toast.makeText(this, "User deleted successfully", Toast.LENGTH_LONG).show();
-                        finish();
-                    } else {
-                        Toast.makeText(this, "Failed to delete user", Toast.LENGTH_SHORT).show();
-                    }
-                });
+        SupabaseDatabaseHelper.delete("profiles", "university_id=eq." + currentUniversityId, new SupabaseDatabaseHelper.DatabaseCallback<Void>() {
+            @Override
+            public void onSuccess(Void result) {
+                showLoading(false);
+                SnackbarManager.show(SnackbarManager.Type.SUCCESS, "User deleted successfully");
+                finish();
+            }
+
+            @Override
+            public void onFailure(String errorMessage) {
+                showLoading(false);
+                SnackbarManager.show(SnackbarManager.Type.ERROR, "Failed to delete user: " + errorMessage);
+            }
+        });
     }
 
     private void setupPasswordChangeLogic() {
@@ -354,38 +349,42 @@ public class UserProfileActivity extends AppCompatActivity {
             String confirmPass = etConfirmPassword.getText().toString().trim();
             
             if (TextUtils.isEmpty(oldPass)) {
-                tilOldPassword.setError("Old password required");
+                ErrorHelper.setFieldError(tilOldPassword, "Old password required");
                 return;
             }
-            if (newPass.length() < 6) {
-                tilNewPassword.setError("Min 6 characters required");
+            if (!ValidationUtils.isValidPassword(newPass)) {
+                ErrorHelper.setFieldError(tilNewPassword, ValidationUtils.getPasswordRequirements());
                 return;
             }
             if (!newPass.equals(confirmPass)) {
-                tilConfirmPassword.setError("Passwords do not match");
+                ErrorHelper.setFieldError(tilConfirmPassword, "Passwords do not match");
                 return;
-            } else {
-                tilConfirmPassword.setError(null);
             }
             
             showLoading(true);
             reauthenticateAndChangePassword(oldPass, newPass, () -> {
-                mDatabase.child("Users").child(currentUniversityId).child("password").setValue(newPass)
-                        .addOnCompleteListener(dbTask -> {
-                            showLoading(false);
-                            if (dbTask.isSuccessful()) {
-                                etOldPassword.setText("");
-                                etNewPassword.setText("");
-                                etConfirmPassword.setText("");
-                                tilOldPassword.setError(null);
-                                tilNewPassword.setError(null);
-                                tilConfirmPassword.setError(null);
-                                btnConfirmPasswordChange.setVisibility(View.GONE);
-                                Snackbar.make(findViewById(android.R.id.content), "Password updated successfully", Snackbar.LENGTH_LONG).show();
-                            } else {
-                                Toast.makeText(this, "Database password update failed", Toast.LENGTH_SHORT).show();
-                            }
-                        });
+                Map<String, Object> passUpdate = new HashMap<>();
+                passUpdate.put("password", newPass);
+                SupabaseDatabaseHelper.update("profiles", "university_id=eq." + currentUniversityId, passUpdate, new SupabaseDatabaseHelper.DatabaseCallback<String>() {
+                    @Override
+                    public void onSuccess(String result) {
+                        showLoading(false);
+                        etOldPassword.setText("");
+                        etNewPassword.setText("");
+                        etConfirmPassword.setText("");
+                        ErrorHelper.clearFieldError(tilOldPassword);
+                        ErrorHelper.clearFieldError(tilNewPassword);
+                        ErrorHelper.clearFieldError(tilConfirmPassword);
+                        btnConfirmPasswordChange.setVisibility(View.GONE);
+                        SnackbarManager.show(SnackbarManager.Type.SUCCESS, "Password updated successfully");
+                    }
+
+                    @Override
+                    public void onFailure(String errorMessage) {
+                        showLoading(false);
+                        SnackbarManager.show(SnackbarManager.Type.ERROR, "Database password update failed: " + errorMessage);
+                    }
+                });
             });
         });
     }
@@ -409,6 +408,7 @@ public class UserProfileActivity extends AppCompatActivity {
         tilNewPassword = findViewById(R.id.tilNewPassword);
         tilConfirmPassword = findViewById(R.id.tilConfirmPassword);
         tilDesignation = findViewById(R.id.tilDesignation);
+        tilUniversityId = findViewById(R.id.tilUniversityId);
 
         ErrorHelper.attachToTextInputLayout(tilFullName);
         ErrorHelper.attachToTextInputLayout(tilEmail);
@@ -440,6 +440,7 @@ public class UserProfileActivity extends AppCompatActivity {
         btnSaveChanges = findViewById(R.id.btnSaveChanges);
         btnConfirmPasswordChange = findViewById(R.id.btnConfirmPasswordChange);
         btnDeleteUser = findViewById(R.id.btnDeleteUser);
+        loadingAnimation = findViewById(R.id.loadingAnimation);
         
         changePasswordSection = findViewById(R.id.llChangePasswordSection);
         activitySection = findViewById(R.id.llActivitySection);
@@ -567,14 +568,21 @@ public class UserProfileActivity extends AppCompatActivity {
         String gender = actvGender.getText().toString();
         if (originalUser.getGender() != null && !gender.equals(originalUser.getGender())) changed = true;
         
-        if ("Staff".equals(originalUser.getUserType())) {
+        if ("Staff".equalsIgnoreCase(originalUser.getUserType()) || "Admin".equalsIgnoreCase(originalUser.getUserType())) {
             String designation = etDesignation.getText().toString();
             if (originalUser.getDesignation() != null && !designation.equals(originalUser.getDesignation())) changed = true;
-        } else {
+            
+            String dept = etDepartment.getText().toString();
+            String originalDept = originalUser.getDepartment() != null ? originalUser.getDepartment() : "Not Specified";
+            if (!dept.equals(originalDept)) changed = true;
+        } else if ("Student".equalsIgnoreCase(originalUser.getUserType())) {
             if (!etBatch.getText().toString().equals(originalUser.getBatch())) changed = true;
             if (!actvLevelTerm.getText().toString().equals(originalUser.getLevelTerm())) changed = true;
-            if (!etDepartment.getText().toString().equals(originalUser.getDepartment())) changed = true;
             if (!actvSection.getText().toString().equals(originalUser.getSection())) changed = true;
+            
+            String dept = etDepartment.getText().toString();
+            String originalDept = originalUser.getDepartment() != null ? originalUser.getDepartment() : "Not Specified";
+            if (!dept.equals(originalDept)) changed = true;
         }
         
         boolean imageChanged = false;
@@ -590,82 +598,53 @@ public class UserProfileActivity extends AppCompatActivity {
         btnSaveChanges.setVisibility(changed ? View.VISIBLE : View.GONE);
     }
 
-    private void fetchUniversityIdAndLoadData(String authUid) {
-        if (swipeRefreshLayout == null || !swipeRefreshLayout.isRefreshing()) {
-            showLoading(true);
-        }
-        
-        mDatabase.child("UIDToUniversityID").child(authUid).addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                if (snapshot.exists()) {
-                    currentUniversityId = snapshot.getValue(String.class);
-                    loadUserData(currentUniversityId);
-                } else {
-                    searchUserByEmail();
-                }
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-                searchUserByEmail();
-            }
-        });
-    }
-
     private void searchUserByEmail() {
-        FirebaseUser currentUser = mAuth.getCurrentUser();
-        if (currentUser == null) {
+        if (userEmail == null) {
+            android.content.SharedPreferences prefs = getSharedPreferences("MyApp", MODE_PRIVATE);
+            userEmail = prefs.getString("email", null);
+        }
+
+        if (userEmail == null) {
             showLoading(false);
             if (swipeRefreshLayout != null) swipeRefreshLayout.setRefreshing(false);
             return;
         }
-        
-        String email = currentUser.getEmail();
-        String authUid = currentUser.getUid();
-        
-        if (email != null) {
-            mDatabase.child("Users").orderByChild("email").equalTo(email).addListenerForSingleValueEvent(new ValueEventListener() {
-                @Override
-                public void onDataChange(@NonNull DataSnapshot snapshot) {
-                    if (snapshot.exists()) {
-                        for (DataSnapshot userSnap : snapshot.getChildren()) {
-                            currentUniversityId = userSnap.getKey();
-                            loadUserData(currentUniversityId);
-                            return;
-                        }
-                    } else {
-                        currentUniversityId = authUid;
-                        loadUserData(authUid);
+
+        SupabaseDatabaseHelper.select("profiles", "email=eq." + userEmail + "&select=universityId&limit=1", new TypeToken<List<Map<String, String>>>(){}.getType(), new SupabaseDatabaseHelper.DatabaseCallback<List<Map<String, String>>>() {
+            @Override
+            public void onSuccess(List<Map<String, String>> result) {
+                if (result != null && !result.isEmpty()) {
+                    currentUniversityId = result.get(0).get("universityId");
+                    if (currentUniversityId != null) {
+                        loadUserData(currentUniversityId);
+                        setupRealTimeActivityTracking(currentUniversityId);
                     }
+                } else {
+                    showLoading(false);
                 }
-                @Override
-                public void onCancelled(@NonNull DatabaseError error) {
-                    currentUniversityId = authUid;
-                    loadUserData(authUid);
-                }
-            });
-        } else {
-            currentUniversityId = authUid;
-            loadUserData(authUid);
-        }
+            }
+
+            @Override
+            public void onFailure(String errorMessage) {
+                showLoading(false);
+            }
+        });
     }
 
     private void loadUserData(String userId) {
-        mDatabase.child("Users").child(userId).addListenerForSingleValueEvent(new ValueEventListener() {
+        SupabaseDatabaseHelper.select("profiles", "university_id=eq." + userId + "&select=*&limit=1", new TypeToken<List<User>>(){}.getType(), new SupabaseDatabaseHelper.DatabaseCallback<List<User>>() {
             @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
+            public void onSuccess(List<User> users) {
                 showLoading(false);
-                if (snapshot.exists()) {
-                    originalUser = snapshot.getValue(User.class);
+                if (users != null && !users.isEmpty()) {
+                    originalUser = users.get(0);
                     if (originalUser != null) {
                         isDataLoaded = false;
                         String name = originalUser.getName();
                         if (name == null) name = originalUser.getFullName();
-                        
+
                         etFullName.setText(name);
-                        
-                        // New Behavior: header should show "[User's Name]'s Profile"
+
                         if (isAdminViewing) {
                             tvHeaderTitle.setText(name + "'s Profile");
                         }
@@ -674,26 +653,25 @@ public class UserProfileActivity extends AppCompatActivity {
                         etEmail.setText(originalUser.getEmail());
                         etPhone.setText(originalUser.getPhone());
                         actvGender.setText(originalUser.getGender(), false);
-                        
+
+                        ProfileRoleHelper.applyRoleVisibility(originalUser.getUserType(),
+                                tilDesignation, tilBatch, tilLevelTerm, tilDepartment, tilSection);
+
+                        String dept = originalUser.getDepartment();
+                        if (dept == null || dept.trim().isEmpty()) {
+                            dept = "Not Specified";
+                        }
+
                         if ("Staff".equals(originalUser.getUserType()) || "Admin".equalsIgnoreCase(originalUser.getUserType())) {
-                            tilDesignation.setVisibility(View.VISIBLE);
                             etDesignation.setText(originalUser.getDesignation());
-                            tilBatch.setVisibility(View.GONE);
-                            tilLevelTerm.setVisibility(View.GONE);
-                            tilDepartment.setVisibility(View.GONE);
-                            tilSection.setVisibility(View.GONE);
+                            etDepartment.setText(dept);
                         } else {
-                            tilDesignation.setVisibility(View.GONE);
                             etBatch.setText(originalUser.getBatch());
                             actvLevelTerm.setText(originalUser.getLevelTerm(), false);
-                            etDepartment.setText(originalUser.getDepartment());
+                            etDepartment.setText(dept);
                             actvSection.setText(originalUser.getSection(), false);
-                            tilBatch.setVisibility(View.VISIBLE);
-                            tilLevelTerm.setVisibility(View.VISIBLE);
-                            tilDepartment.setVisibility(View.VISIBLE);
-                            tilSection.setVisibility(View.VISIBLE);
                         }
-                        
+
                         if (originalUser.getProfileImageUrl() != null && !originalUser.getProfileImageUrl().isEmpty()) {
                             GlideApp.with(UserProfileActivity.this)
                                     .load(originalUser.getProfileImageUrl())
@@ -705,10 +683,10 @@ public class UserProfileActivity extends AppCompatActivity {
                         } else {
                             ivProfilePicture.setImageResource(R.drawable.ic_user);
                         }
-                        
+
                         isProfilePictureRemoved = false;
                         isDataLoaded = true;
-                        
+
                         if (isAdminViewing) disableAllFields();
                     }
                 }
@@ -716,10 +694,10 @@ public class UserProfileActivity extends AppCompatActivity {
             }
 
             @Override
-            public void onCancelled(@NonNull DatabaseError error) {
+            public void onFailure(String errorMessage) {
                 showLoading(false);
                 if (swipeRefreshLayout != null) swipeRefreshLayout.setRefreshing(false);
-                Toast.makeText(UserProfileActivity.this, "Failed to load data", Toast.LENGTH_SHORT).show();
+                SnackbarManager.show(SnackbarManager.Type.ERROR, "Failed to load data: " + errorMessage);
             }
         });
     }
@@ -732,27 +710,26 @@ public class UserProfileActivity extends AppCompatActivity {
 
         if (!validateInputs(name, email, phone)) return;
 
-        showLoading(true);
+        setLoadingState(true);
 
         Map<String, Object> updates = new HashMap<>();
-        updates.put("name", name);
-        updates.put("fullName", name);
+        updates.put("full_name", name);
         updates.put("email", email);
-        updates.put("phone", phone);
-        updates.put("phoneNumber", phone);
+        updates.put("phone_number", phone);
         updates.put("gender", gender);
 
-        if ("Staff".equals(originalUser.getUserType()) || "Admin".equalsIgnoreCase(originalUser.getUserType())) {
+        if ("Staff".equalsIgnoreCase(originalUser.getUserType()) || "Admin".equalsIgnoreCase(originalUser.getUserType())) {
             updates.put("designation", etDesignation.getText().toString().trim());
-        } else {
+            updates.put("department", etDepartment.getText().toString().trim());
+        } else if ("Student".equalsIgnoreCase(originalUser.getUserType())) {
             updates.put("batch", etBatch.getText().toString().trim());
-            updates.put("levelTerm", actvLevelTerm.getText().toString().trim());
+            updates.put("level_term", actvLevelTerm.getText().toString().trim());
             updates.put("department", etDepartment.getText().toString().trim());
             updates.put("section", actvSection.getText().toString().trim());
         }
 
         if (isProfilePictureRemoved && profileImageUris.isEmpty()) {
-            updates.put("profileImageUrl", "");
+            updates.put("profile_image_url", "");
         }
 
         if (!profileImageUris.isEmpty()) {
@@ -771,30 +748,34 @@ public class UserProfileActivity extends AppCompatActivity {
         SupabaseStorageHelper.uploadImage(this, uri, "profiles", fileName, new SupabaseStorageHelper.UploadCallback() {
             @Override
             public void onSuccess(String publicUrl) {
-                updates.put("profileImageUrl", publicUrl);
+                updates.put("profile_image_url", publicUrl);
                 finalizeDatabaseUpdate(updates);
             }
 
             @Override
             public void onFailure(Exception e) {
-                showLoading(false);
+                setLoadingState(false);
                 ErrorHelper.showError(btnSaveChanges, "Upload Failed: " + e.getMessage());
             }
         });
     }
 
     private void finalizeDatabaseUpdate(Map<String, Object> updates) {
-        mDatabase.child("Users").child(currentUniversityId).updateChildren(updates)
-                .addOnCompleteListener(task -> {
-                    showLoading(false);
-                    if (task.isSuccessful()) {
-                        resetUIState();
-                        Snackbar.make(findViewById(android.R.id.content), "Profile updated successfully", Snackbar.LENGTH_LONG).show();
-                        loadUserData(currentUniversityId);
-                    } else {
-                        ErrorHelper.showError(btnSaveChanges, "Update failed");
-                    }
-                });
+        SupabaseDatabaseHelper.update("profiles", "university_id=eq." + currentUniversityId, updates, new SupabaseDatabaseHelper.DatabaseCallback<String>() {
+            @Override
+            public void onSuccess(String result) {
+                setLoadingState(false);
+                resetUIState();
+                SnackbarManager.show(SnackbarManager.Type.SUCCESS, "Profile updated successfully");
+                loadUserData(currentUniversityId);
+            }
+
+            @Override
+            public void onFailure(String errorMessage) {
+                setLoadingState(false);
+                ErrorHelper.showError(btnSaveChanges, "Update failed: " + errorMessage);
+            }
+        });
     }
 
     private void resetUIState() {
@@ -818,43 +799,44 @@ public class UserProfileActivity extends AppCompatActivity {
     private boolean validateInputs(String name, String email, String phone) {
         boolean valid = true;
         if (TextUtils.isEmpty(name)) {
-            tilFullName.setError("Name required");
+            ErrorHelper.setFieldError(tilFullName, "Full name is required");
             valid = false;
-        } else tilFullName.setError(null);
+        }
 
-        if (!Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
-            tilEmail.setError("Invalid email");
+        if (!ValidationUtils.isValidEmail(email)) {
+            ErrorHelper.setFieldError(tilEmail, "Please enter a valid email address");
             valid = false;
-        } else tilEmail.setError(null);
+        }
 
-        if (phone.length() < 10) {
-            tilPhone.setError("Invalid phone");
+        if (!ValidationUtils.isValidPhone(phone)) {
+            ErrorHelper.setFieldError(tilPhone, "Please enter a valid phone number (11 digits)");
             valid = false;
-        } else tilPhone.setError(null);
+        }
 
         return valid;
     }
 
     private void reauthenticateAndChangePassword(String oldPass, String newPass, Runnable onComplete) {
-        FirebaseUser user = mAuth.getCurrentUser();
-        if (user != null && userEmail != null) {
-            AuthCredential credential = EmailAuthProvider.getCredential(userEmail, oldPass);
-            user.reauthenticate(credential).addOnCompleteListener(task -> {
-                if (task.isSuccessful()) {
-                    user.updatePassword(newPass).addOnCompleteListener(updateTask -> {
-                        if (updateTask.isSuccessful()) {
-                            onComplete.run();
-                        } else {
-                            showLoading(false);
-                            ErrorHelper.showError(btnConfirmPasswordChange, "Password update failed: " + updateTask.getException().getMessage());
-                        }
-                    });
-                } else {
-                    showLoading(false);
-                    tilOldPassword.setError("Incorrect password");
-                }
-            });
+        if (userEmail == null) {
+            showLoading(false);
+            ErrorHelper.showError(btnConfirmPasswordChange, "Email not found. Please try again.");
+            return;
         }
+        
+        SupabaseAuthHelper.login(userEmail, oldPass, new SupabaseAuthHelper.AuthCallback() {
+            @Override
+            public void onSuccess(String userId, String accessToken, String refreshToken) {
+                // Update helper if needed, though this is just for verification here
+                SupabaseDatabaseHelper.setAuthToken(accessToken);
+                onComplete.run();
+            }
+
+            @Override
+            public void onFailure(String errorMessage) {
+                showLoading(false);
+                ErrorHelper.setFieldError(tilOldPassword, "Incorrect password");
+            }
+        });
     }
 
     private void showImageSourceDialog() {
@@ -907,7 +889,7 @@ public class UserProfileActivity extends AppCompatActivity {
             try {
                 photoFile = createImageFile();
             } catch (IOException ex) {
-                Toast.makeText(this, "Error occurred while creating file", Toast.LENGTH_SHORT).show();
+                SnackbarManager.show(SnackbarManager.Type.ERROR, "Error occurred while creating file");
             }
             if (photoFile != null) {
                 cameraImageUri = FileProvider.getUriForFile(this,
@@ -941,7 +923,7 @@ public class UserProfileActivity extends AppCompatActivity {
             if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 openCamera();
             } else {
-                Toast.makeText(this, "Camera Permission Denied", Toast.LENGTH_SHORT).show();
+                SnackbarManager.show(SnackbarManager.Type.ERROR, "Camera Permission Denied");
             }
         }
     }
@@ -982,12 +964,30 @@ public class UserProfileActivity extends AppCompatActivity {
         if (!isAdminViewing) btnSaveChanges.setEnabled(!show);
     }
 
+    private void setLoadingState(boolean isLoading) {
+        if (isLoading) {
+            btnSaveChanges.setEnabled(false);
+            btnSaveChanges.setText("");
+            btnSaveChanges.setBackgroundTintList(android.content.res.ColorStateList.valueOf(android.graphics.Color.WHITE));
+            btnSaveChanges.setStrokeWidth((int) (2 * getResources().getDisplayMetrics().density));
+            btnSaveChanges.setStrokeColor(android.content.res.ColorStateList.valueOf(
+                    androidx.core.content.ContextCompat.getColor(this, R.color.primaryColor)));
+            loadingAnimation.setVisibility(View.VISIBLE);
+            loadingAnimation.playAnimation();
+        } else {
+            loadingAnimation.setVisibility(View.GONE);
+            loadingAnimation.pauseAnimation();
+            btnSaveChanges.setEnabled(true);
+            btnSaveChanges.setText(R.string.btn_save_changes);
+            btnSaveChanges.setBackgroundTintList(android.content.res.ColorStateList.valueOf(
+                    androidx.core.content.ContextCompat.getColor(this, R.color.primaryColor)));
+            btnSaveChanges.setStrokeWidth(0);
+        }
+    }
+
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        // Remove listeners
-        if (lostListener != null) mDatabase.child("LostItems").removeEventListener(lostListener);
-        if (foundListener != null) mDatabase.child("FoundItems").removeEventListener(foundListener);
-        if (itemsListener != null && targetUserId != null) mDatabase.child("UserItems").child(targetUserId).removeEventListener(itemsListener);
+        // Listeners were removed in favor of Supabase REST calls
     }
 }

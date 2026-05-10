@@ -25,11 +25,7 @@ import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.google.android.material.card.MaterialCardView;
 import com.google.android.material.tabs.TabLayout;
 import com.google.android.material.tabs.TabLayoutMediator;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
+import com.google.gson.reflect.TypeToken;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -51,25 +47,24 @@ public class AllReportedItemsActivity extends AppCompatActivity {
     private String targetUserId;
     private String userName;
     private boolean isAdmin = false;
-
-    private DatabaseReference mDatabase;
+    private boolean isFetching = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_all_reported_items);
 
-        mDatabase = FirebaseDatabase.getInstance(FirebaseConfig.DATABASE_URL).getReference();
         filterStatus = getIntent().getStringExtra("filterStatus");
         targetUserId = getIntent().getStringExtra("targetUserId");
         userName = getIntent().getStringExtra("userName");
-        isAdmin = getIntent().getBooleanExtra("isAdmin", false);
+        
+        android.content.SharedPreferences prefs = getSharedPreferences("MyApp", MODE_PRIVATE);
+        isAdmin = prefs.getBoolean("isAdminLoggedIn", false);
 
         initializeViews();
         setupToolbar();
         setupRecyclerView();
         setupSwipeRefresh();
-        fetchAllItems();
 
         // Ensure back press always exits the activity immediately
         getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
@@ -78,6 +73,8 @@ public class AllReportedItemsActivity extends AppCompatActivity {
                 finish();
             }
         });
+
+        fetchAllItems();
     }
 
     private void initializeViews() {
@@ -133,43 +130,69 @@ public class AllReportedItemsActivity extends AppCompatActivity {
     }
 
     private void fetchAllItems() {
+        if (isFetching) return;
+        isFetching = true;
+
         if (swipeRefreshLayout == null || !swipeRefreshLayout.isRefreshing()) {
             progressBar.setVisibility(View.VISIBLE);
         }
         
-        ValueEventListener itemListener = new ValueEventListener() {
+        List<Item> accumulatedItems = new ArrayList<>();
+
+        // Fetch Lost Items
+        String lostQuery = "deleted_by_user=eq.false";
+        if (targetUserId != null) lostQuery += "&reporter_id=eq." + targetUserId;
+
+        SupabaseDatabaseHelper.select("lost_reports", lostQuery, new TypeToken<List<Item>>(){}.getType(), new SupabaseDatabaseHelper.DatabaseCallback<List<Item>>() {
             @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                for (DataSnapshot data : snapshot.getChildren()) {
-                    Item item = data.getValue(Item.class);
-                    if (item != null) {
-                        updateOrAddItem(item);
+            public void onSuccess(List<Item> lostItems) {
+                if (lostItems != null) accumulatedItems.addAll(lostItems);
+                
+                // Fetch Found Items
+                String foundQuery = "deleted_by_user=eq.false";
+                if (targetUserId != null) foundQuery += "&reporter_id=eq." + targetUserId;
+
+                SupabaseDatabaseHelper.select("found_reports", foundQuery, new TypeToken<List<Item>>(){}.getType(), new SupabaseDatabaseHelper.DatabaseCallback<List<Item>>() {
+                    @Override
+                    public void onSuccess(List<Item> foundItems) {
+                        if (foundItems != null) {
+                            for (Item item : foundItems) {
+                                boolean exists = false;
+                                for (Item existing : accumulatedItems) {
+                                    if (existing.getId().equals(item.getId())) {
+                                        exists = true;
+                                        break;
+                                    }
+                                }
+                                if (!exists) accumulatedItems.add(item);
+                            }
+                        }
+                        
+                        itemList.clear();
+                        itemList.addAll(accumulatedItems);
+                        applyFilter();
+                        
+                        isFetching = false;
+                        progressBar.setVisibility(View.GONE);
+                        if (swipeRefreshLayout != null) swipeRefreshLayout.setRefreshing(false);
                     }
-                }
-                applyFilter();
-                progressBar.setVisibility(View.GONE);
-                if (swipeRefreshLayout != null) swipeRefreshLayout.setRefreshing(false);
+
+                    @Override
+                    public void onFailure(String e) {
+                        isFetching = false;
+                        progressBar.setVisibility(View.GONE);
+                        if (swipeRefreshLayout != null) swipeRefreshLayout.setRefreshing(false);
+                    }
+                });
             }
 
             @Override
-            public void onCancelled(@NonNull DatabaseError error) {
+            public void onFailure(String errorMessage) {
+                isFetching = false;
                 progressBar.setVisibility(View.GONE);
                 if (swipeRefreshLayout != null) swipeRefreshLayout.setRefreshing(false);
             }
-        };
-
-        mDatabase.child("LostItems").addValueEventListener(itemListener);
-        mDatabase.child("FoundItems").addValueEventListener(itemListener);
-    }
-
-    private synchronized void updateOrAddItem(Item item) {
-        for (int i = 0; i < itemList.size(); i++) {
-            if (itemList.get(i).getId().equals(item.getId())) {
-                itemList.set(i, item);
-                return;
-            }
-        }
-        itemList.add(item);
+        });
     }
 
     private void applyFilter() {
@@ -227,11 +250,9 @@ public class AllReportedItemsActivity extends AppCompatActivity {
                     displayId = item.getReportId();
                 }
 
-                if (displayId != null && !displayId.isEmpty()) {
-                    if (!displayId.startsWith("#")) {
-                        displayId = "#" + displayId;
-                    }
-                    holder.tvReportId.setText(displayId);
+                String formattedId = ReportIdFormatter.format(displayId);
+                if (!formattedId.isEmpty()) {
+                    holder.tvReportId.setText(formattedId);
                     View parent = (View) holder.tvReportId.getParent();
                     if (parent != null) parent.setVisibility(View.VISIBLE);
                 } else {

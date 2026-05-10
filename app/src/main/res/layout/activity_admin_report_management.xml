@@ -54,15 +54,18 @@
                 <GridLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:columnCount="2"
+                    android:columnCount="3"
                     android:alignmentMode="alignMargins">
 
                     <com.google.android.material.card.MaterialCardView
+                        android:id="@+id/cardTotal"
                         style="@style/Widget.App.Card"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_columnWeight="1"
-                        android:layout_margin="4dp">
+                        android:layout_margin="4dp"
+                        android:clickable="true"
+                        android:focusable="true">
                         <LinearLayout
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
@@ -74,21 +77,28 @@
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:text="0"
+                                android:textColor="@color/primaryColor"
                                 style="@style/TextAppearance.App.Headline" />
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:text="@string/stat_total_reports"
+                                android:textColor="@color/primaryColor"
+                                android:textStyle="bold"
+                                android:gravity="center"
                                 style="@style/TextAppearance.App.Small" />
                         </LinearLayout>
                     </com.google.android.material.card.MaterialCardView>
 
                     <com.google.android.material.card.MaterialCardView
+                        android:id="@+id/cardPending"
                         style="@style/Widget.App.Card"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_columnWeight="1"
-                        android:layout_margin="4dp">
+                        android:layout_margin="4dp"
+                        android:clickable="true"
+                        android:focusable="true">
                         <LinearLayout
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
@@ -100,22 +110,28 @@
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:text="0"
-                                android:textColor="@color/textSecondary"
+                                android:textColor="@color/error"
                                 style="@style/TextAppearance.App.Headline" />
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:text="@string/stat_pending_reports"
+                                android:textColor="@color/lightRed"
+                                android:textStyle="bold"
+                                android:gravity="center"
                                 style="@style/TextAppearance.App.Small" />
                         </LinearLayout>
                     </com.google.android.material.card.MaterialCardView>
 
                     <com.google.android.material.card.MaterialCardView
+                        android:id="@+id/cardReviewed"
                         style="@style/Widget.App.Card"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_columnWeight="1"
-                        android:layout_margin="4dp">
+                        android:layout_margin="4dp"
+                        android:clickable="true"
+                        android:focusable="true">
                         <LinearLayout
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
@@ -127,39 +143,15 @@
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:text="0"
-                                android:textColor="@color/primaryColor"
-                                style="@style/TextAppearance.App.Headline" />
-                            <TextView
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:text="@string/stat_reviewed_reports"
-                                style="@style/TextAppearance.App.Small" />
-                        </LinearLayout>
-                    </com.google.android.material.card.MaterialCardView>
-
-                    <com.google.android.material.card.MaterialCardView
-                        style="@style/Widget.App.Card"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_columnWeight="1"
-                        android:layout_margin="4dp">
-                        <LinearLayout
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:orientation="vertical"
-                            android:padding="12dp"
-                            android:gravity="center">
-                            <TextView
-                                android:id="@+id/tvStatResolved"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:text="0"
                                 android:textColor="@color/success"
                                 style="@style/TextAppearance.App.Headline" />
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:text="@string/stat_resolved_reports"
+                                android:text="@string/stat_reviewed_reports"
+                                android:textColor="@color/vibrantGreen"
+                                android:textStyle="bold"
+                                android:gravity="center"
                                 style="@style/TextAppearance.App.Small" />
                         </LinearLayout>
                     </com.google.android.material.card.MaterialCardView>
@@ -172,7 +164,7 @@
                     style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="16dp"
+                    android:layout_marginTop="8dp"
                     android:hint="@string/hint_search_reports"
                     app:startIconDrawable="@drawable/ic_search"
                     app:shapeAppearanceOverlay="@style/ShapeAppearance.App.SmallComponent">
@@ -213,12 +205,6 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="Reviewed" />
-                        <com.google.android.material.chip.Chip
-                            android:id="@+id/chipResolved"
-                            style="@style/Widget.Material3.Chip.Filter"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="Resolved" />
                     </com.google.android.material.chip.ChipGroup>
                 </HorizontalScrollView>
 

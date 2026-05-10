@@ -17,7 +17,6 @@ import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -36,14 +35,7 @@ import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 import com.google.android.material.timepicker.MaterialTimePicker;
 import com.google.android.material.timepicker.TimeFormat;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.MutableData;
-import com.google.firebase.database.Transaction;
-import com.google.firebase.database.ValueEventListener;
+import com.google.gson.reflect.TypeToken;
 
 import java.io.File;
 import java.io.IOException;
@@ -63,6 +55,7 @@ public class CampusReportLostActivity extends AppCompatActivity {
     private TextInputLayout tilItemName, tilCategory, tilDescription, tilDate, tilTime, tilLocation, tilManualLocation, tilContactName, tilContactPhone, tilPreferredContact;
     private MaterialCheckBox cbConfirm;
     private MaterialButton btnSubmit;
+    private com.airbnb.lottie.LottieAnimationView loadingAnimation;
     private com.google.android.material.card.MaterialCardView uploadCard;
     private ImageView ivUploadedImage;
     private TextView tvUploadStatus;
@@ -76,9 +69,6 @@ public class CampusReportLostActivity extends AppCompatActivity {
     private Uri cameraImageUri;
     private String currentPhotoPath;
 
-    private FirebaseAuth mAuth;
-    private DatabaseReference mDatabase;
-
     private String currentUniversityId;
     private User currentUser;
 
@@ -91,12 +81,8 @@ public class CampusReportLostActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_campus_report_lost);
 
-        mAuth = FirebaseAuth.getInstance();
-        mDatabase = FirebaseDatabase.getInstance(FirebaseConfig.DATABASE_URL).getReference();
-
-        if (mAuth.getCurrentUser() != null) {
-            currentUniversityId = mAuth.getCurrentUser().getUid();
-        }
+        android.content.SharedPreferences prefs = getSharedPreferences("MyApp", MODE_PRIVATE);
+        currentUniversityId = prefs.getString("universityId", null);
 
         initializeViews();
         setupToolbar();
@@ -152,6 +138,7 @@ public class CampusReportLostActivity extends AppCompatActivity {
 
         cbConfirm = findViewById(R.id.cbConfirm);
         btnSubmit = findViewById(R.id.btnSubmitReport);
+        loadingAnimation = findViewById(R.id.loadingAnimation);
         uploadCard = findViewById(R.id.uploadCard);
         ivUploadedImage = findViewById(R.id.ivUploadedImage);
         tvUploadStatus = findViewById(R.id.tvUploadStatus);
@@ -170,15 +157,21 @@ public class CampusReportLostActivity extends AppCompatActivity {
     }
 
     private void loadItemDataForEdit(String itemId) {
-        mDatabase.child("LostItems").child(itemId).addListenerForSingleValueEvent(new ValueEventListener() {
+        SupabaseDatabaseHelper.select("lost_reports", "id=eq." + itemId + "&limit=1", new TypeToken<List<Item>>(){}.getType(), new SupabaseDatabaseHelper.DatabaseCallback<List<Item>>() {
             @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                existingItem = snapshot.getValue(Item.class);
-                if (existingItem != null) {
-                    populateFields(existingItem);
+            public void onSuccess(List<Item> items) {
+                if (items != null && !items.isEmpty()) {
+                    existingItem = items.get(0);
+                    if (existingItem != null) {
+                        populateFields(existingItem);
+                    }
                 }
             }
-            @Override public void onCancelled(@NonNull DatabaseError error) {}
+
+            @Override
+            public void onFailure(String errorMessage) {
+                ErrorHelper.showError(btnSubmit, "Failed to load item for edit.");
+            }
         });
     }
 
@@ -222,11 +215,7 @@ public class CampusReportLostActivity extends AppCompatActivity {
     }
 
     private void setupTextWatchers() {
-        etItemName.addTextChangedListener(new SimpleTextWatcher(tilItemName));
-        etDescription.addTextChangedListener(new SimpleTextWatcher(tilDescription));
-        etManualLocation.addTextChangedListener(new SimpleTextWatcher(tilManualLocation));
-        etContactName.addTextChangedListener(new SimpleTextWatcher(tilContactName));
-        etContactPhone.addTextChangedListener(new SimpleTextWatcher(tilContactPhone));
+        // TextWatchers are now handled automatically by ErrorHelper.attachToTextInputLayout
     }
 
     private void setupToolbar() {
@@ -246,58 +235,42 @@ public class CampusReportLostActivity extends AppCompatActivity {
     }
 
     private void fetchCurrentUserData() {
-        if (mAuth.getCurrentUser() == null) return;
-        String authUid = mAuth.getCurrentUser().getUid();
+        if (currentUniversityId == null) return;
 
-        mDatabase.child("UIDToUniversityID").child(authUid).addListenerForSingleValueEvent(new ValueEventListener() {
+        SupabaseDatabaseHelper.select("profiles", "university_id=eq." + currentUniversityId + "&limit=1", new TypeToken<List<User>>(){}.getType(), new SupabaseDatabaseHelper.DatabaseCallback<List<User>>() {
             @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                if (snapshot.exists()) {
-                    currentUniversityId = snapshot.getValue(String.class);
-                    mDatabase.child("Users").child(currentUniversityId).addListenerForSingleValueEvent(new ValueEventListener() {
-                        @Override
-                        public void onDataChange(@NonNull DataSnapshot userSnapshot) {
-                            if (userSnapshot.exists()) {
-                                currentUser = userSnapshot.getValue(User.class);
-                                if (currentUser != null) {
-                                    etContactName.setText(currentUser.getName());
-                                    etContactPhone.setText(currentUser.getPhone());
-                                }
-                            }
-                        }
-                        @Override
-                        public void onCancelled(@NonNull DatabaseError error) {}
-                    });
-                } else {
-                    currentUniversityId = authUid;
+            public void onSuccess(List<User> users) {
+                if (users != null && !users.isEmpty()) {
+                    currentUser = users.get(0);
+                    if (currentUser != null) {
+                        etContactName.setText(currentUser.getName());
+                        etContactPhone.setText(currentUser.getPhone());
+                    }
                 }
             }
+
             @Override
-            public void onCancelled(@NonNull DatabaseError error) {}
+            public void onFailure(String errorMessage) {}
         });
     }
 
     private void setupDropdowns() {
         String[] categories = {"Electronics & Gadgets", "ID Cards", "Wallets & Purses", "Bank/Credit Cards", "Bags", "Study Materials", "Eyewear", "Keys & Access Devices", "Clothing & Accessories", "Others"};
         actvCategory.setAdapter(new ArrayAdapter<>(this, R.layout.dropdown_item, categories));
-        actvCategory.setOnItemClickListener((parent, view, position, id) -> tilCategory.setError(null));
 
         String[] locations = {"Academic Building", "Civil Building", "Library", "Cafeteria", "Medical Center", "Playground", "Abbas Uddin Ahmed Hall (AUAH)", "Shaheed Dr. Zikrul Haque Hall", "Bir Protik Taramon Bibi Hall", "Bir Protik Taramon Bibi (New Hall)", "Other"};
         actvLocation.setAdapter(new ArrayAdapter<>(this, R.layout.dropdown_item, locations));
         actvLocation.setOnItemClickListener((parent, view, position, id) -> {
-            tilLocation.setError(null);
             if (locations[position].equals("Other")) {
                 tilManualLocation.setVisibility(View.VISIBLE);
             } else {
                 tilManualLocation.setVisibility(View.GONE);
                 etManualLocation.setText("");
-                tilManualLocation.setError(null);
             }
         });
 
         String[] contactMethods = {"Phone", "Email", "In-app chat"};
         actvPreferredContact.setAdapter(new ArrayAdapter<>(this, R.layout.dropdown_item, contactMethods));
-        actvPreferredContact.setOnItemClickListener((parent, view, position, id) -> tilPreferredContact.setError(null));
     }
 
     private void setupPickers() {
@@ -367,7 +340,7 @@ public class CampusReportLostActivity extends AppCompatActivity {
         if (takePictureIntent.resolveActivity(getPackageManager()) != null) {
             File photoFile = null;
             try { photoFile = createImageFile(); }
-            catch (IOException ex) { Toast.makeText(this, "Error creating file", Toast.LENGTH_SHORT).show(); }
+            catch (IOException ex) { SnackbarManager.show(SnackbarManager.Type.ERROR, "Error creating file"); }
             if (photoFile != null) {
                 cameraImageUri = FileProvider.getUriForFile(this, getApplicationContext().getPackageName() + ".fileprovider", photoFile);
                 takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, cameraImageUri);
@@ -423,13 +396,11 @@ public class CampusReportLostActivity extends AppCompatActivity {
     }
 
     private void validateAndSubmit() {
-        if (mAuth.getCurrentUser() == null) {
+        if (currentUniversityId == null) {
             ErrorHelper.showError(btnSubmit, "Please log in again to submit");
             return;
         }
 
-        clearErrors();
-        
         String name = etItemName.getText().toString().trim();
         String category = actvCategory.getText().toString().trim();
         String description = etDescription.getText().toString().trim();
@@ -442,18 +413,19 @@ public class CampusReportLostActivity extends AppCompatActivity {
 
         boolean isValid = true;
 
-        if (TextUtils.isEmpty(name)) { tilItemName.setError("Item name is required"); isValid = false; }
-        if (TextUtils.isEmpty(category)) { tilCategory.setError("Category is required"); isValid = false; }
-        if (TextUtils.isEmpty(description)) { tilDescription.setError("Description is required"); isValid = false; }
-        if (TextUtils.isEmpty(date)) { tilDate.setError("Date is required"); isValid = false; }
-        if (TextUtils.isEmpty(location)) { tilLocation.setError("Location is required"); isValid = false; }
-        else if (location.equals("Other") && TextUtils.isEmpty(manualLocation)) { tilManualLocation.setError("Please specify location"); isValid = false; }
+        if (TextUtils.isEmpty(name)) { ErrorHelper.setFieldError(tilItemName, "Item name is required"); isValid = false; }
+        else if (TextUtils.isEmpty(category)) { ErrorHelper.setFieldError(tilCategory, "Category is required"); isValid = false; }
+        else if (TextUtils.isEmpty(description)) { ErrorHelper.setFieldError(tilDescription, "Description is required"); isValid = false; }
+        else if (TextUtils.isEmpty(date)) { ErrorHelper.setFieldError(tilDate, "Date is required"); isValid = false; }
+        else if (TextUtils.isEmpty(location)) { ErrorHelper.setFieldError(tilLocation, "Location is required"); isValid = false; }
+        else if (location.equals("Other") && TextUtils.isEmpty(manualLocation)) { ErrorHelper.setFieldError(tilManualLocation, "Please specify location"); isValid = false; }
         
-        if (TextUtils.isEmpty(contactName)) { tilContactName.setError("Your name is required"); isValid = false; }
-        if (TextUtils.isEmpty(contactPhone)) { tilContactPhone.setError("Contact phone is required"); isValid = false; }
-        if (TextUtils.isEmpty(preferredContact)) { tilPreferredContact.setError("Preferred contact is required"); isValid = false; }
+        else if (TextUtils.isEmpty(contactName)) { ErrorHelper.setFieldError(tilContactName, "Your name is required"); isValid = false; }
+        else if (TextUtils.isEmpty(contactPhone)) { ErrorHelper.setFieldError(tilContactPhone, "Contact phone is required"); isValid = false; }
+        else if (!ValidationUtils.isValidPhone(contactPhone)) { ErrorHelper.setFieldError(tilContactPhone, "Please enter a valid phone number (10-14 digits)"); isValid = false; }
+        else if (TextUtils.isEmpty(preferredContact)) { ErrorHelper.setFieldError(tilPreferredContact, "Preferred contact is required"); isValid = false; }
 
-        if (!cbConfirm.isChecked()) {
+        if (isValid && !cbConfirm.isChecked()) {
             ErrorHelper.showError(btnSubmit, "Please confirm the information is accurate");
             isValid = false;
         }
@@ -476,15 +448,14 @@ public class CampusReportLostActivity extends AppCompatActivity {
     }
 
     private void submitReport(String name, String category, String description, String date, String location, String manualLocation, String contactName, String contactPhone, String preferredContact) {
-        btnSubmit.setEnabled(false);
-        btnSubmit.setText("Submitting report, please wait...");
+        setLoadingState(true);
 
-        String itemId = isEditMode ? editItemId : mDatabase.child("LostItems").push().getKey();
-        String userId = currentUniversityId != null ? currentUniversityId : (mAuth.getCurrentUser() != null ? mAuth.getCurrentUser().getUid() : null);
+        String itemId = isEditMode ? editItemId : java.util.UUID.randomUUID().toString();
+        String userId = currentUniversityId;
 
         if (itemId == null || userId == null) {
             resetButton();
-            ErrorHelper.showError(btnSubmit, "Failed to initialize submission. Try again.");
+            ErrorHelper.showError(btnSubmit, "Failed to initialize submission. Please login again.");
             return;
         }
 
@@ -530,39 +501,26 @@ public class CampusReportLostActivity extends AppCompatActivity {
     }
 
     private void generateDisplayIdAndSave(String itemId, String name, String category, String description, String date, String location, String manualLocation, String contactName, String contactPhone, String preferredContact, List<String> imageUrls, String userId) {
-        DatabaseReference counterRef = mDatabase.child("Counters").child("LostItemsCount");
-        counterRef.runTransaction(new Transaction.Handler() {
-            @NonNull
+        java.util.Map<String, Object> params = new java.util.HashMap<>();
+        params.put("p_counter_name", "lost_items");
+        
+        SupabaseDatabaseHelper.rpc("increment_counter", params, new SupabaseDatabaseHelper.DatabaseCallback<String>() {
             @Override
-            public Transaction.Result doTransaction(@NonNull MutableData currentData) {
-                Object val = currentData.getValue();
-                long count = 0;
-                if (val instanceof Long) {
-                    count = (Long) val;
-                } else if (val instanceof Integer) {
-                    count = ((Integer) val).longValue();
-                } else if (val != null) {
-                    try { count = Long.parseLong(val.toString()); } catch (Exception e) {}
+            public void onSuccess(String result) {
+                try {
+                    long count = Long.parseLong(result.trim());
+                    String displayId = "L" + count;
+                    saveToDatabase(itemId, name, category, description, date, location, manualLocation, contactName, contactPhone, preferredContact, imageUrls, userId, displayId);
+                } catch (Exception e) {
+                    resetButton();
+                    ErrorHelper.showError(btnSubmit, "Failed to parse Report ID.");
                 }
-                currentData.setValue(count + 1);
-                return Transaction.success(currentData);
             }
 
             @Override
-            public void onComplete(@Nullable DatabaseError error, boolean committed, @Nullable DataSnapshot currentData) {
-                if (committed && currentData != null) {
-                    Object val = currentData.getValue();
-                    long count = 1;
-                    if (val instanceof Long) count = (Long) val;
-                    else if (val instanceof Integer) count = ((Integer) val).longValue();
-                    
-                    String displayId = "L" + count;
-                    saveToDatabase(itemId, name, category, description, date, location, manualLocation, contactName, contactPhone, preferredContact, imageUrls, userId, displayId);
-                } else {
-                    resetButton();
-                    String msg = error != null ? error.getMessage() : "Database busy or connection issue.";
-                    ErrorHelper.showError(btnSubmit, "Failed to generate Report ID: " + msg);
-                }
+            public void onFailure(String errorMessage) {
+                resetButton();
+                ErrorHelper.showError(btnSubmit, "Failed to generate Report ID: " + errorMessage);
             }
         });
     }
@@ -596,44 +554,68 @@ public class CampusReportLostActivity extends AppCompatActivity {
         item.setUserPhone(contactPhone);
 
         if (currentUser != null) {
+            item.setAuthUserId(currentUser.getAuthId());
             item.setUserEmail(currentUser.getEmail());
             item.setUserUniversityId(currentUser.getUniversityId());
             item.setUserDepartment(currentUser.getDepartment());
+        } else {
+            android.content.SharedPreferences prefs = getSharedPreferences("MyApp", MODE_PRIVATE);
+            item.setAuthUserId(prefs.getString("authId", null));
         }
 
-        mDatabase.child("LostItems").child(itemId).setValue(item).addOnCompleteListener(task -> {
-            if (task.isSuccessful()) {
-                if (!isEditMode) {
-                    if (mAuth.getCurrentUser() != null) {
-                        mDatabase.child("UserItems").child(mAuth.getCurrentUser().getUid()).child(itemId).setValue(true);
-                    }
+        if (isEditMode) {
+            SupabaseDatabaseHelper.update("lost_reports", "id=eq." + itemId, item, new SupabaseDatabaseHelper.DatabaseCallback<String>() {
+                @Override
+                public void onSuccess(String result) {
+                    SnackbarManager.show(SnackbarManager.Type.SUCCESS, "Report updated successfully");
+                    finish();
                 }
-                Toast.makeText(this, isEditMode ? "Report updated successfully" : getString(R.string.success_report_submitted), Toast.LENGTH_SHORT).show();
-                finish();
-            } else {
-                resetButton();
-                String error = task.getException() != null ? task.getException().getMessage() : "Unknown database error";
-                ErrorHelper.showError(btnSubmit, "Failed to save report: " + error);
-            }
-        });
+
+                @Override
+                public void onFailure(String errorMessage) {
+                    resetButton();
+                    ErrorHelper.showError(btnSubmit, "Failed to update report: " + errorMessage);
+                }
+            });
+        } else {
+            SupabaseDatabaseHelper.insert("lost_reports", item, new SupabaseDatabaseHelper.DatabaseCallback<String>() {
+                @Override
+                public void onSuccess(String result) {
+                    SnackbarManager.show(SnackbarManager.Type.SUCCESS, getString(R.string.success_report_submitted));
+                    finish();
+                }
+
+                @Override
+                public void onFailure(String errorMessage) {
+                    resetButton();
+                    ErrorHelper.showError(btnSubmit, "Failed to save report: " + errorMessage);
+                }
+            });
+        }
+    }
+
+    private void setLoadingState(boolean isLoading) {
+        if (isLoading) {
+            btnSubmit.setEnabled(false);
+            btnSubmit.setText("");
+            btnSubmit.setBackgroundTintList(android.content.res.ColorStateList.valueOf(android.graphics.Color.WHITE));
+            btnSubmit.setStrokeWidth((int) (2 * getResources().getDisplayMetrics().density));
+            btnSubmit.setStrokeColor(android.content.res.ColorStateList.valueOf(
+                    androidx.core.content.ContextCompat.getColor(this, R.color.primaryColor)));
+            loadingAnimation.setVisibility(View.VISIBLE);
+            loadingAnimation.playAnimation();
+        } else {
+            loadingAnimation.setVisibility(View.GONE);
+            loadingAnimation.pauseAnimation();
+            btnSubmit.setEnabled(true);
+            btnSubmit.setText(isEditMode ? "Save Changes" : "Submit Report");
+            btnSubmit.setBackgroundTintList(android.content.res.ColorStateList.valueOf(
+                    androidx.core.content.ContextCompat.getColor(this, R.color.primaryColor)));
+            btnSubmit.setStrokeWidth(0);
+        }
     }
 
     private void resetButton() {
-        btnSubmit.setEnabled(true);
-        btnSubmit.setText(isEditMode ? "Save Changes" : "Submit Report");
-    }
-
-    private static class SimpleTextWatcher implements TextWatcher {
-        private final TextInputLayout textInputLayout;
-
-        public SimpleTextWatcher(TextInputLayout textInputLayout) {
-            this.textInputLayout = textInputLayout;
-        }
-
-        @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
-        @Override public void onTextChanged(CharSequence s, int start, int before, int count) {
-            textInputLayout.setError(null);
-        }
-        @Override public void afterTextChanged(Editable s) {}
+        setLoadingState(false);
     }
 }

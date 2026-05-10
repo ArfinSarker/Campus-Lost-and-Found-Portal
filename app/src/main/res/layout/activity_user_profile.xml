@@ -115,7 +115,7 @@
                             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:layout_marginBottom="16dp"
+                            android:layout_marginBottom="4dp"
                             android:hint="@string/hint_full_name"
                             app:endIconDrawable="@drawable/ic_edit"
                             app:endIconMode="custom"
@@ -132,10 +132,11 @@
 
                         <!-- University ID (Not Changeable) -->
                         <com.google.android.material.textfield.TextInputLayout
+                            android:id="@+id/tilUniversityId"
                             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:layout_marginBottom="16dp"
+                            android:layout_marginBottom="4dp"
                             android:enabled="false"
                             android:hint="@string/hint_university_id"
                             app:helperText="@string/label_not_changeable"
@@ -155,7 +156,7 @@
                             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:layout_marginBottom="16dp"
+                            android:layout_marginBottom="4dp"
                             android:hint="@string/hint_gender"
                             app:endIconDrawable="@drawable/ic_edit"
                             app:endIconMode="custom"
@@ -177,7 +178,7 @@
                             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:layout_marginBottom="16dp"
+                            android:layout_marginBottom="4dp"
                             android:hint="Designation"
                             android:visibility="gone"
                             app:endIconDrawable="@drawable/ic_edit"
@@ -194,13 +195,35 @@
                                 android:textColor="@color/black" />
                         </com.google.android.material.textfield.TextInputLayout>
 
+                        <!-- Department (Editable) -->
+                        <com.google.android.material.textfield.TextInputLayout
+                            android:id="@+id/tilDepartment"
+                            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginBottom="4dp"
+                            android:hint="@string/hint_department"
+                            app:endIconDrawable="@drawable/ic_edit"
+                            app:endIconMode="custom"
+                            app:startIconDrawable="@drawable/ic_building"
+                            app:startIconTint="@color/primaryColor">
+
+                            <com.google.android.material.textfield.TextInputEditText
+                                android:id="@+id/etDepartment"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:enabled="false"
+                                android:inputType="text"
+                                android:textColor="@color/black" />
+                        </com.google.android.material.textfield.TextInputLayout>
+
                         <!-- Batch (Student Only, Editable) -->
                         <com.google.android.material.textfield.TextInputLayout
                             android:id="@+id/tilBatch"
                             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:layout_marginBottom="16dp"
+                            android:layout_marginBottom="4dp"
                             android:hint="@string/hint_batch"
                             app:endIconDrawable="@drawable/ic_edit"
                             app:endIconMode="custom"
@@ -222,7 +245,7 @@
                             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:layout_marginBottom="16dp"
+                            android:layout_marginBottom="4dp"
                             android:hint="@string/label_level_term"
                             app:endIconDrawable="@drawable/ic_edit"
                             app:endIconMode="custom"
@@ -235,28 +258,6 @@
                                 android:layout_height="wrap_content"
                                 android:enabled="false"
                                 android:inputType="none"
-                                android:textColor="@color/black" />
-                        </com.google.android.material.textfield.TextInputLayout>
-
-                        <!-- Department (Student Only, Editable) -->
-                        <com.google.android.material.textfield.TextInputLayout
-                            android:id="@+id/tilDepartment"
-                            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:layout_marginBottom="16dp"
-                            android:hint="@string/hint_department"
-                            app:endIconDrawable="@drawable/ic_edit"
-                            app:endIconMode="custom"
-                            app:startIconDrawable="@drawable/ic_building"
-                            app:startIconTint="@color/primaryColor">
-
-                            <com.google.android.material.textfield.TextInputEditText
-                                android:id="@+id/etDepartment"
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content"
-                                android:enabled="false"
-                                android:inputType="text"
                                 android:textColor="@color/black" />
                         </com.google.android.material.textfield.TextInputLayout>
 
@@ -311,7 +312,7 @@
                             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:layout_marginBottom="16dp"
+                            android:layout_marginBottom="4dp"
                             android:hint="@string/hint_email"
                             app:endIconDrawable="@drawable/ic_edit"
                             app:endIconMode="custom"
@@ -440,7 +441,7 @@
                                 style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
-                                android:layout_marginBottom="16dp"
+                                android:layout_marginBottom="4dp"
                                 android:hint="@string/label_old_password"
                                 app:passwordToggleEnabled="true"
                                 app:passwordToggleTint="@color/primaryColor"
@@ -460,7 +461,7 @@
                                 style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
-                                android:layout_marginBottom="16dp"
+                                android:layout_marginBottom="4dp"
                                 android:hint="@string/hint_new_password"
                                 app:passwordToggleEnabled="true"
                                 app:passwordToggleTint="@color/primaryColor"
@@ -480,7 +481,7 @@
                                 style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
-                                android:layout_marginBottom="16dp"
+                                android:layout_marginBottom="8dp"
                                 android:hint="@string/hint_confirm_password"
                                 app:passwordToggleEnabled="true"
                                 app:passwordToggleTint="@color/primaryColor"
@@ -524,17 +525,32 @@
                     app:iconTint="@color/white" />
 
                 <!-- Save Changes Button -->
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/btnSaveChanges"
+                <FrameLayout
                     android:layout_width="match_parent"
-                    android:layout_height="56dp"
+                    android:layout_height="wrap_content"
                     android:layout_marginTop="8dp"
-                    android:layout_marginBottom="32dp"
-                    android:text="@string/btn_save_changes"
-                    android:visibility="gone"
-                    app:cornerRadius="8dp"
-                    app:icon="@drawable/ic_check"
-                    app:iconGravity="textStart" />
+                    android:layout_marginBottom="32dp">
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btnSaveChanges"
+                        android:layout_width="match_parent"
+                        android:layout_height="56dp"
+                        android:text="@string/btn_save_changes"
+                        android:visibility="gone"
+                        app:cornerRadius="8dp"
+                        app:icon="@drawable/ic_check"
+                        app:iconGravity="textStart" />
+
+                    <com.airbnb.lottie.LottieAnimationView
+                        android:id="@+id/loadingAnimation"
+                        android:layout_width="55dp"
+                        android:layout_height="55dp"
+                        android:layout_gravity="center"
+                        android:visibility="gone"
+                        app:lottie_autoPlay="true"
+                        app:lottie_loop="true"
+                        app:lottie_rawRes="@raw/submit_loader" />
+                </FrameLayout>
 
             </LinearLayout>
         </androidx.core.widget.NestedScrollView>

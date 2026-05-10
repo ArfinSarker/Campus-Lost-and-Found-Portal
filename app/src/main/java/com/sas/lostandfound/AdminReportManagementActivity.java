@@ -24,15 +24,12 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.google.android.material.button.MaterialButton;
+import com.google.android.material.card.MaterialCardView;
 import com.google.android.material.chip.ChipGroup;
 import com.google.android.material.tabs.TabLayout;
 import com.google.android.material.tabs.TabLayoutMediator;
 import com.google.android.material.textfield.TextInputEditText;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
+import com.google.gson.reflect.TypeToken;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -49,7 +46,8 @@ public class AdminReportManagementActivity extends AppCompatActivity {
     private RecyclerView rvAdminReports;
     private ProgressBar progressBar;
     private TextView tvEmptyState;
-    private TextView tvStatTotal, tvStatPending, tvStatReviewed, tvStatResolved;
+    private TextView tvStatTotal, tvStatPending, tvStatReviewed;
+    private View cardTotal, cardPending, cardReviewed;
     private TextInputEditText etSearch;
     private ChipGroup chipGroupFilter;
     private Toolbar toolbar;
@@ -58,8 +56,7 @@ public class AdminReportManagementActivity extends AppCompatActivity {
     private ReportAdapter adapter;
     private List<AdminReport> allReports;
     private List<AdminReport> filteredReports;
-
-    private DatabaseReference mDatabase;
+    private boolean isFetching = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -70,14 +67,11 @@ public class AdminReportManagementActivity extends AppCompatActivity {
 
         setContentView(R.layout.activity_admin_report_management);
 
-        mDatabase = FirebaseDatabase.getInstance(FirebaseConfig.DATABASE_URL).getReference();
-
         initializeViews();
         setupToolbar();
         setupRecyclerView();
         setupSearchAndFilter();
         setupSwipeRefresh();
-        fetchReports();
 
         // Ensure back press always exits the activity immediately
         getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
@@ -86,6 +80,8 @@ public class AdminReportManagementActivity extends AppCompatActivity {
                 finish();
             }
         });
+
+        fetchReports();
     }
 
     private void initializeViews() {
@@ -95,7 +91,9 @@ public class AdminReportManagementActivity extends AppCompatActivity {
         tvStatTotal = findViewById(R.id.tvStatTotal);
         tvStatPending = findViewById(R.id.tvStatPending);
         tvStatReviewed = findViewById(R.id.tvStatReviewed);
-        tvStatResolved = findViewById(R.id.tvStatResolved);
+        cardTotal = findViewById(R.id.cardTotal);
+        cardPending = findViewById(R.id.cardPending);
+        cardReviewed = findViewById(R.id.cardReviewed);
         etSearch = findViewById(R.id.etSearch);
         chipGroupFilter = findViewById(R.id.chipGroupFilter);
         toolbar = findViewById(R.id.toolbar);
@@ -139,6 +137,10 @@ public class AdminReportManagementActivity extends AppCompatActivity {
         });
 
         chipGroupFilter.setOnCheckedChangeListener((group, checkedId) -> applyFilters());
+
+        if (cardTotal != null) cardTotal.setOnClickListener(v -> chipGroupFilter.check(R.id.chipAll));
+        if (cardPending != null) cardPending.setOnClickListener(v -> chipGroupFilter.check(R.id.chipPending));
+        if (cardReviewed != null) cardReviewed.setOnClickListener(v -> chipGroupFilter.check(R.id.chipReviewed));
     }
 
     private void setupSwipeRefresh() {
@@ -149,47 +151,47 @@ public class AdminReportManagementActivity extends AppCompatActivity {
     }
 
     private void fetchReports() {
+        if (isFetching) return;
+        isFetching = true;
+
         if (swipeRefreshLayout == null || !swipeRefreshLayout.isRefreshing()) {
             progressBar.setVisibility(View.VISIBLE);
         }
         
-        mDatabase.child("AdminReports").addValueEventListener(new ValueEventListener() {
+        SupabaseDatabaseHelper.select("admin_reports", "select=*", new TypeToken<List<AdminReport>>(){}.getType(), new SupabaseDatabaseHelper.DatabaseCallback<List<AdminReport>>() {
             @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                allReports.clear();
-                int total = 0, pending = 0, reviewed = 0, resolved = 0;
+            public void onSuccess(List<AdminReport> reports) {
+                List<AdminReport> tempReports = new ArrayList<>();
+                int total = 0, pending = 0, reviewed = 0;
                 
-                if (snapshot.exists()) {
-                    for (DataSnapshot data : snapshot.getChildren()) {
-                        try {
-                            AdminReport report = data.getValue(AdminReport.class);
-                            if (report != null) {
-                                allReports.add(report);
-                                total++;
-                                String status = report.getStatus();
-                                if ("Pending".equalsIgnoreCase(status)) pending++;
-                                else if ("Reviewed".equalsIgnoreCase(status)) reviewed++;
-                                else if ("Resolved".equalsIgnoreCase(status)) resolved++;
-                            }
-                        } catch (Exception e) {
-                            Log.e(TAG, "Error parsing report", e);
-                        }
+                if (reports != null) {
+                    for (AdminReport report : reports) {
+                        tempReports.add(report);
+                        total++;
+                        String status = report.getStatus();
+                        if ("Pending".equalsIgnoreCase(status)) pending++;
+                        else if ("Reviewed".equalsIgnoreCase(status)) reviewed++;
                     }
                 }
                 
                 tvStatTotal.setText(String.valueOf(total));
                 tvStatPending.setText(String.valueOf(pending));
                 tvStatReviewed.setText(String.valueOf(reviewed));
-                tvStatResolved.setText(String.valueOf(resolved));
                 
-                Collections.sort(allReports, (o1, o2) -> Long.compare(o2.getTimestamp(), o1.getTimestamp()));
+                Collections.sort(tempReports, (o1, o2) -> Long.compare(o2.getTimestamp(), o1.getTimestamp()));
+                
+                allReports.clear();
+                allReports.addAll(tempReports);
                 applyFilters();
+                
+                isFetching = false;
                 progressBar.setVisibility(View.GONE);
                 if (swipeRefreshLayout != null) swipeRefreshLayout.setRefreshing(false);
             }
 
             @Override
-            public void onCancelled(@NonNull DatabaseError error) {
+            public void onFailure(String errorMessage) {
+                isFetching = false;
                 progressBar.setVisibility(View.GONE);
                 if (swipeRefreshLayout != null) swipeRefreshLayout.setRefreshing(false);
             }
@@ -203,19 +205,24 @@ public class AdminReportManagementActivity extends AppCompatActivity {
         filteredReports.clear();
         for (AdminReport report : allReports) {
             String displayId = report.getDisplayId() != null ? report.getDisplayId().toLowerCase() : "";
+            String formattedId = "#" + displayId;
             String reporterName = report.getReporterName() != null ? report.getReporterName().toLowerCase() : "";
             String title = report.getTitle() != null ? report.getTitle().toLowerCase() : "";
+            String category = report.getCategory() != null ? report.getCategory().toLowerCase() : "";
             String relatedId = report.getRelatedId() != null ? report.getRelatedId().toLowerCase() : "";
+            String internalId = report.getId() != null ? report.getId().toLowerCase() : "";
 
             boolean matchesSearch = displayId.contains(query) ||
+                    formattedId.contains(query) ||
                     reporterName.contains(query) ||
                     relatedId.contains(query) ||
+                    category.contains(query) ||
+                    internalId.contains(query) ||
                     title.contains(query);
             
             boolean matchesStatus = true;
             if (checkedChipId == R.id.chipPending) matchesStatus = "Pending".equalsIgnoreCase(report.getStatus());
             else if (checkedChipId == R.id.chipReviewed) matchesStatus = "Reviewed".equalsIgnoreCase(report.getStatus());
-            else if (checkedChipId == R.id.chipResolved) matchesStatus = "Resolved".equalsIgnoreCase(report.getStatus());
             
             if (matchesSearch && matchesStatus) {
                 filteredReports.add(report);
@@ -243,33 +250,48 @@ public class AdminReportManagementActivity extends AppCompatActivity {
         public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
             AdminReport report = reports.get(position);
             
-            String displayId = report.getDisplayId() != null ? report.getDisplayId() : "N/A";
-            if (!displayId.startsWith("#")) displayId = "#" + displayId;
-            holder.tvDisplayId.setText(displayId);
+            holder.tvDisplayId.setText(ReportIdFormatter.format(report.getDisplayId()));
             
             holder.tvTitle.setText(report.getTitle());
             holder.tvCategory.setText("Category: " + report.getCategory());
             holder.tvReporterInfo.setText("Submitted By: " + report.getReporterName());
-            holder.tvStatus.setText(report.getStatus().toUpperCase());
+            
+            String status = report.getStatus() != null ? report.getStatus() : "Pending";
+            holder.tvStatus.setText(status.toUpperCase());
 
             int statusColor;
-            String status = report.getStatus();
-            if ("Pending".equalsIgnoreCase(status)) statusColor = 0xFF757575; // Gray
-            else if ("Reviewed".equalsIgnoreCase(status)) statusColor = 0xFF1976D2; // Blue
-            else statusColor = 0xFF2E7D32; // Green
-            
-            holder.tvStatus.setBackgroundTintList(android.content.res.ColorStateList.valueOf(statusColor));
+            if ("Pending".equalsIgnoreCase(status)) {
+                statusColor = 0xFFFF9800; // Orange
+            } else if ("Reviewed".equalsIgnoreCase(status)) {
+                statusColor = 0xFF2AABEE; // Blue
+            } else {
+                statusColor = 0xFF757575; // Gray fallback
+            }
+            holder.cardStatusBadge.setCardBackgroundColor(statusColor);
 
             SimpleDateFormat sdf = new SimpleDateFormat("dd MMM, hh:mm a", Locale.getDefault());
             holder.tvTimestamp.setText(sdf.format(new Date(report.getTimestamp())));
 
             setupImageOrSlider(holder, report);
 
-            holder.itemView.setOnClickListener(v -> {
+            View.OnClickListener navigateToDetails = v -> {
                 Intent intent = new Intent(AdminReportManagementActivity.this, AdminReportReviewActivity.class);
                 intent.putExtra("reportId", report.getReportId());
                 startActivity(intent);
-            });
+            };
+
+            holder.itemView.setOnClickListener(navigateToDetails);
+            // Ensure child components that might intercept clicks also navigate to details
+            holder.ivIcon.setOnClickListener(navigateToDetails);
+            
+            // For ViewPager2, we need to set the click listener on the adapter
+            if (holder.viewPagerSlider.getAdapter() instanceof ImageSliderAdapter) {
+                ((ImageSliderAdapter) holder.viewPagerSlider.getAdapter()).setOnImageClickListener(pos -> {
+                    Intent intent = new Intent(AdminReportManagementActivity.this, AdminReportReviewActivity.class);
+                    intent.putExtra("reportId", report.getReportId());
+                    startActivity(intent);
+                });
+            }
         }
 
         private void setupImageOrSlider(ViewHolder holder, AdminReport report) {
@@ -299,22 +321,12 @@ public class AdminReportManagementActivity extends AppCompatActivity {
                             .thumbnail(0.1f)
                             .diskCacheStrategy(DiskCacheStrategy.ALL)
                             .into(holder.ivIcon);
-
-                    holder.ivIcon.setOnClickListener(v -> {
-                        Intent intent = new Intent(v.getContext(), FullScreenImageActivity.class);
-                        ArrayList<String> singleUrl = new ArrayList<>();
-                        singleUrl.add(imageUrl);
-                        intent.putStringArrayListExtra("imageUrls", singleUrl);
-                        intent.putExtra("position", 0);
-                        v.getContext().startActivity(intent);
-                    });
                 } else {
                     holder.ivIcon.setScaleType(ImageView.ScaleType.CENTER_INSIDE);
                     holder.ivIcon.setPadding(48, 48, 48, 48);
                     holder.ivIcon.setImageResource(R.drawable.ic_shield);
                     holder.ivIcon.setImageTintList(android.content.res.ColorStateList.valueOf(
                             ContextCompat.getColor(AdminReportManagementActivity.this, R.color.primaryColor)));
-                    holder.ivIcon.setOnClickListener(null);
                 }
             }
         }
@@ -329,6 +341,7 @@ public class AdminReportManagementActivity extends AppCompatActivity {
             ImageView ivIcon;
             ViewPager2 viewPagerSlider;
             TabLayout tabLayoutIndicator;
+            MaterialCardView cardStatusBadge;
 
             public ViewHolder(@NonNull View itemView) {
                 super(itemView);
@@ -341,6 +354,7 @@ public class AdminReportManagementActivity extends AppCompatActivity {
                 ivIcon = itemView.findViewById(R.id.ivReportIcon);
                 viewPagerSlider = itemView.findViewById(R.id.viewPagerSlider);
                 tabLayoutIndicator = itemView.findViewById(R.id.tabLayoutIndicator);
+                cardStatusBadge = itemView.findViewById(R.id.cardStatusBadge);
             }
         }
     }

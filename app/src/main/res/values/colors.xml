@@ -31,6 +31,8 @@
     <color name="statusResolved">#2AABEE</color>
     <color name="error">#FF3B30</color>
     <color name="errorColor">#FF3B30</color>
+    <color name="error_dark">#FF3B30</color>
+    <color name="error_light_bg">#FFEFEF</color>
     <color name="success">#34C759</color>
     <color name="badgeColor">#FF3B30</color>
 
@@ -78,6 +80,10 @@
 
 
 
+
+    <color name="warningColor">#FF9800</color>
+    <color name="infoColor">#2196F3</color>
+    <color name="generalColor">#424242</color>
 
     <!-- Standard Colors -->
     <color name="white">#FFFFFF</color>

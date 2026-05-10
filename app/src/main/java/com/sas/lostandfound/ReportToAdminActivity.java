@@ -12,7 +12,6 @@ import android.widget.AutoCompleteTextView;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -24,16 +23,13 @@ import com.google.android.material.button.MaterialButton;
 import com.google.android.material.card.MaterialCardView;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
+import com.google.gson.reflect.TypeToken;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -44,14 +40,11 @@ public class ReportToAdminActivity extends AppCompatActivity {
     private AutoCompleteTextView actvReportCategory, actvPriority;
     private TextInputLayout tilReportTitle, tilReportDescription, tilReporterName;
     private MaterialButton btnSubmit;
-    private ProgressBar progressBar;
+    private com.airbnb.lottie.LottieAnimationView loadingAnimation;
     private MaterialCardView uploadScreenshotCard;
     private ImageView ivScreenshot;
     private TextView tvScreenshotStatus;
     private Toolbar toolbar;
-
-    private FirebaseAuth mAuth;
-    private DatabaseReference mDatabase;
 
     private List<Uri> selectedImageUris = new ArrayList<>();
     private String currentUniversityId;
@@ -63,12 +56,9 @@ public class ReportToAdminActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_report_to_admin);
 
-        mAuth = FirebaseAuth.getInstance();
-        mDatabase = FirebaseDatabase.getInstance(FirebaseConfig.DATABASE_URL).getReference();
-
-        if (mAuth.getCurrentUser() != null) {
-            currentAuthId = mAuth.getCurrentUser().getUid();
-        }
+        android.content.SharedPreferences prefs = getSharedPreferences("MyApp", MODE_PRIVATE);
+        currentUniversityId = prefs.getString("universityId", null);
+        currentAuthId = prefs.getString("authId", null);
 
         initializeViews();
         setupToolbar();
@@ -92,7 +82,7 @@ public class ReportToAdminActivity extends AppCompatActivity {
         tilReportDescription = findViewById(R.id.tilReportDescription);
         tilReporterName = findViewById(R.id.tilReporterName);
         btnSubmit = findViewById(R.id.btnSubmitReportAdmin);
-        progressBar = findViewById(R.id.progressBar);
+        loadingAnimation = findViewById(R.id.loadingAnimation);
         uploadScreenshotCard = findViewById(R.id.uploadScreenshotCard);
         ivScreenshot = findViewById(R.id.ivScreenshot);
         tvScreenshotStatus = findViewById(R.id.tvScreenshotStatus);
@@ -110,7 +100,7 @@ public class ReportToAdminActivity extends AppCompatActivity {
                 getSupportActionBar().setDisplayShowTitleEnabled(false);
                 getSupportActionBar().setDisplayHomeAsUpEnabled(true);
             }
-            toolbar.setNavigationOnClickListener(v -> onBackPressed());
+            toolbar.setNavigationOnClickListener(v -> finish());
 
             com.google.android.material.appbar.AppBarLayout appBarLayout = findViewById(R.id.appBarLayout);
             if (appBarLayout != null) {
@@ -129,35 +119,23 @@ public class ReportToAdminActivity extends AppCompatActivity {
     }
 
     private void fetchUserData() {
-        if (mAuth.getCurrentUser() == null) return;
-        String authUid = mAuth.getCurrentUser().getUid();
+        if (currentUniversityId == null) return;
 
-        mDatabase.child("UIDToUniversityID").child(authUid).addListenerForSingleValueEvent(new ValueEventListener() {
+        SupabaseDatabaseHelper.select("profiles", "university_id=eq." + currentUniversityId + "&limit=1", new TypeToken<List<User>>(){}.getType(), new SupabaseDatabaseHelper.DatabaseCallback<List<User>>() {
             @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                if (snapshot.exists()) {
-                    currentUniversityId = snapshot.getValue(String.class);
-                    etUniversityId.setText(currentUniversityId);
-                    
-                    mDatabase.child("Users").child(currentUniversityId).addListenerForSingleValueEvent(new ValueEventListener() {
-                        @Override
-                        public void onDataChange(@NonNull DataSnapshot userSnapshot) {
-                            if (userSnapshot.exists()) {
-                                User user = userSnapshot.getValue(User.class);
-                                if (user != null) {
-                                    etReporterName.setText(user.getName());
-                                    etReporterPhone.setText(user.getPhone());
-                                }
-                            }
-                        }
-                        @Override public void onCancelled(@NonNull DatabaseError error) {}
-                    });
-                } else {
-                    currentUniversityId = authUid;
-                    etUniversityId.setText(currentUniversityId);
+            public void onSuccess(List<User> users) {
+                if (users != null && !users.isEmpty()) {
+                    User user = users.get(0);
+                    if (user != null) {
+                        etReporterName.setText(user.getName());
+                        etUniversityId.setText(user.getUniversityId());
+                        etReporterPhone.setText(user.getPhone());
+                    }
                 }
             }
-            @Override public void onCancelled(@NonNull DatabaseError error) {}
+
+            @Override
+            public void onFailure(String errorMessage) {}
         });
     }
 
@@ -199,143 +177,124 @@ public class ReportToAdminActivity extends AppCompatActivity {
         String phone = etReporterPhone.getText().toString().trim();
         String priority = actvPriority.getText().toString();
 
-        if (TextUtils.isEmpty(title)) {
-            tilReportTitle.setError("Required");
-            return;
-        }
-        if (TextUtils.isEmpty(description)) {
-            tilReportDescription.setError("Required");
-            return;
-        }
-        if (TextUtils.isEmpty(reporterName)) {
-            tilReporterName.setError("Required");
-            return;
-        }
+        if (TextUtils.isEmpty(title)) { ErrorHelper.setFieldError(tilReportTitle, "Report title is required"); return; }
+        if (TextUtils.isEmpty(description)) { ErrorHelper.setFieldError(tilReportDescription, "Report description is required"); return; }
+        if (TextUtils.isEmpty(reporterName)) { ErrorHelper.setFieldError(tilReporterName, "Reporter name is required"); return; }
         if (TextUtils.isEmpty(universityId)) {
             ErrorHelper.showError(btnSubmit, "University ID is missing. Please log in again.");
             return;
         }
 
-        btnSubmit.setEnabled(false);
-        btnSubmit.setText(R.string.submitting_report);
-        progressBar.setVisibility(View.VISIBLE);
+        if (phone != null && !phone.isEmpty() && !ValidationUtils.isValidPhone(phone)) {
+            ErrorHelper.setFieldError(etReporterPhone.getParent() instanceof com.google.android.material.textfield.TextInputLayout ? (com.google.android.material.textfield.TextInputLayout) etReporterPhone.getParent() : null, "Please enter a valid phone number (10-14 digits)");
+            return;
+        }
+
+        setLoadingState(true);
 
         generateDisplayIdAndSubmit(title, category, description, relatedId, reporterName, universityId, phone, priority);
     }
 
     private void generateDisplayIdAndSubmit(String title, String category, String description, String relatedId, String reporterName, String universityId, String phone, String priority) {
-        mDatabase.child("Counters").child("AdminReportCounter").addListenerForSingleValueEvent(new ValueEventListener() {
+        Map<String, Object> params = new HashMap<>();
+        params.put("p_counter_name", "admin_reports");
+        
+        SupabaseDatabaseHelper.rpc("increment_counter", params, new SupabaseDatabaseHelper.DatabaseCallback<String>() {
             @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                long count = 0;
-                if (snapshot.exists()) {
-                    Object val = snapshot.getValue();
-                    if (val instanceof Long) count = (Long) val;
-                    else if (val instanceof Integer) count = ((Integer) val).longValue();
-                    else if (val != null) {
-                        try { count = Long.parseLong(val.toString()); } catch (Exception e) { count = 0; }
-                    }
-                }
-                count++;
-                final String displayId = "R" + count;
-                final long newCount = count;
-
-                if (!selectedImageUris.isEmpty()) {
-                    uploadImagesAndReport(displayId, newCount, title, category, description, relatedId, reporterName, universityId, phone, priority);
-                } else {
-                    submitReportToFirebase(displayId, newCount, title, category, description, relatedId, reporterName, universityId, phone, null, priority);
+            public void onSuccess(String result) {
+                try {
+                    long newCount = Long.parseLong(result.trim());
+                    String displayId = "R" + newCount;
+                    uploadImagesAndReport(displayId, title, category, description, relatedId, reporterName, universityId, phone, priority);
+                } catch (Exception e) {
+                    resetButton();
+                    ErrorHelper.showError(btnSubmit, "Failed to parse Report ID.");
                 }
             }
 
             @Override
-            public void onCancelled(@NonNull DatabaseError error) {
+            public void onFailure(String errorMessage) {
                 resetButton();
-                ErrorHelper.showError(btnSubmit, "Error generating ID: " + error.getMessage());
+                ErrorHelper.showError(btnSubmit, "Failed to generate Report ID: " + errorMessage);
             }
         });
     }
 
-    private void uploadImagesAndReport(String displayId, long newCount, String title, String category, String description, String relatedId, String reporterName, String universityId, String phone, String priority) {
-        List<String> imageUrlStrings = Collections.synchronizedList(new ArrayList<>());
-        AtomicInteger remaining = new AtomicInteger(selectedImageUris.size());
+    private void uploadImagesAndReport(String displayId, String title, String category, String description, String relatedId, String reporterName, String universityId, String phone, String priority) {
+        if (!selectedImageUris.isEmpty()) {
+            List<String> imageUrlStrings = Collections.synchronizedList(new ArrayList<>());
+            AtomicInteger remaining = new AtomicInteger(selectedImageUris.size());
 
-        for (int i = 0; i < selectedImageUris.size(); i++) {
-            String fileName = UUID.randomUUID().toString() + "_" + i + ".jpg";
-            SupabaseStorageHelper.uploadImage(this, selectedImageUris.get(i), "AdminReports", fileName, new SupabaseStorageHelper.UploadCallback() {
-                @Override
-                public void onSuccess(String publicUrl) {
-                    imageUrlStrings.add(publicUrl);
-                    if (remaining.decrementAndGet() == 0) {
-                        submitReportToFirebase(displayId, newCount, title, category, description, relatedId, reporterName, universityId, phone, imageUrlStrings, priority);
-                    }
-                }
-
-                @Override
-                public void onFailure(Exception e) {
-                    if (remaining.decrementAndGet() == 0) {
-                        if (imageUrlStrings.isEmpty()) {
-                            showUploadFailedDialog(displayId, newCount, title, category, description, relatedId, reporterName, universityId, phone, priority, e.getMessage());
-                        } else {
-                            submitReportToFirebase(displayId, newCount, title, category, description, relatedId, reporterName, universityId, phone, imageUrlStrings, priority);
+            for (int i = 0; i < selectedImageUris.size(); i++) {
+                String fileName = "admin_report_" + System.currentTimeMillis() + "_" + i + ".jpg";
+                SupabaseStorageHelper.uploadImage(this, selectedImageUris.get(i), "admin_reports", fileName, new SupabaseStorageHelper.UploadCallback() {
+                    @Override
+                    public void onSuccess(String publicUrl) {
+                        imageUrlStrings.add(publicUrl);
+                        if (remaining.decrementAndGet() == 0) {
+                            submitReport(displayId, title, category, description, relatedId, reporterName, universityId, phone, imageUrlStrings, priority);
                         }
                     }
-                }
-            });
+
+                    @Override
+                    public void onFailure(Exception e) {
+                        if (remaining.decrementAndGet() == 0) {
+                            submitReport(displayId, title, category, description, relatedId, reporterName, universityId, phone, imageUrlStrings, priority);
+                        }
+                    }
+                });
+            }
+        } else {
+            submitReport(displayId, title, category, description, relatedId, reporterName, universityId, phone, new ArrayList<>(), priority);
         }
     }
 
-    private void showUploadFailedDialog(String displayId, long newCount, String title, String category, String description, String relatedId, String reporterName, String universityId, String phone, String priority, String error) {
-        progressBar.setVisibility(View.GONE);
-        new AlertDialog.Builder(this)
-                .setTitle("Image Upload Failed")
-                .setMessage("Error: " + error + "\n\nWould you like to submit the report without an image?")
-                .setPositiveButton("Submit Anyway", (dialog, which) -> {
-                    progressBar.setVisibility(View.VISIBLE);
-                    submitReportToFirebase(displayId, newCount, title, category, description, relatedId, reporterName, universityId, phone, null, priority);
-                })
-                .setNegativeButton("Retry", (dialog, which) -> {
-                    progressBar.setVisibility(View.VISIBLE);
-                    uploadImagesAndReport(displayId, newCount, title, category, description, relatedId, reporterName, universityId, phone, priority);
-                })
-                .setNeutralButton("Cancel", (dialog, which) -> resetButton())
-                .setCancelable(false)
-                .show();
-    }
-
-    private void submitReportToFirebase(String displayId, long newCount, String title, String category, String description, String relatedId, String reporterName, String universityId, String phone, List<String> imageUrls, String priority) {
-        String reportId = mDatabase.child("AdminReports").push().getKey();
-        if (reportId == null) {
-            resetButton();
-            return;
-        }
-
-        if (currentAuthId == null && mAuth.getCurrentUser() != null) {
-            currentAuthId = mAuth.getCurrentUser().getUid();
-        }
-
+    private void submitReport(String displayId, String title, String category, String description, String relatedId, String reporterName, String universityId, String phone, List<String> imageUrls, String priority) {
+        String reportId = UUID.randomUUID().toString();
         String firstImage = (imageUrls != null && !imageUrls.isEmpty()) ? imageUrls.get(0) : null;
         AdminReport report = new AdminReport(
                 reportId, displayId, title, category, description, relatedId, reporterName, universityId, currentAuthId, phone, firstImage, priority, "Pending", System.currentTimeMillis()
         );
         report.setImageUrls(imageUrls != null ? imageUrls : new ArrayList<>());
 
-        mDatabase.child("AdminReports").child(reportId).setValue(report)
-                .addOnSuccessListener(aVoid -> {
-                    mDatabase.child("Counters").child("AdminReportCounter").setValue(newCount);
-                    progressBar.setVisibility(View.GONE);
-                    Toast.makeText(this, R.string.report_submitted_success, Toast.LENGTH_LONG).show();
-                    finish();
-                })
-                .addOnFailureListener(e -> {
-                    resetButton();
-                    Log.e(TAG, "Firebase Error: " + e.getMessage(), e);
-                    ErrorHelper.showError(btnSubmit, "Error saving report: " + e.getMessage());
-                });
+        SupabaseDatabaseHelper.insert("admin_reports", report, new SupabaseDatabaseHelper.DatabaseCallback<String>() {
+            @Override
+            public void onSuccess(String result) {
+                setLoadingState(false);
+                SnackbarManager.show(SnackbarManager.Type.SUCCESS, getString(R.string.report_submitted_success));
+                finish();
+            }
+
+            @Override
+            public void onFailure(String errorMessage) {
+                resetButton();
+                ErrorHelper.showError(btnSubmit, "Error saving report: " + errorMessage);
+            }
+        });
+    }
+
+    private void setLoadingState(boolean isLoading) {
+        if (isLoading) {
+            btnSubmit.setEnabled(false);
+            btnSubmit.setText("");
+            btnSubmit.setBackgroundTintList(android.content.res.ColorStateList.valueOf(android.graphics.Color.WHITE));
+            btnSubmit.setStrokeWidth((int) (2 * getResources().getDisplayMetrics().density));
+            btnSubmit.setStrokeColor(android.content.res.ColorStateList.valueOf(
+                    androidx.core.content.ContextCompat.getColor(this, R.color.primaryColor)));
+            loadingAnimation.setVisibility(View.VISIBLE);
+            loadingAnimation.playAnimation();
+        } else {
+            loadingAnimation.setVisibility(View.GONE);
+            loadingAnimation.pauseAnimation();
+            btnSubmit.setEnabled(true);
+            btnSubmit.setText(R.string.btn_submit_report_admin);
+            btnSubmit.setBackgroundTintList(android.content.res.ColorStateList.valueOf(
+                    androidx.core.content.ContextCompat.getColor(this, R.color.primaryColor)));
+            btnSubmit.setStrokeWidth(0);
+        }
     }
 
     private void resetButton() {
-        progressBar.setVisibility(View.GONE);
-        btnSubmit.setEnabled(true);
-        btnSubmit.setText(R.string.btn_submit_report_admin);
+        setLoadingState(false);
     }
 }

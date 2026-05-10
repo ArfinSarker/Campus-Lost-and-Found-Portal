@@ -18,6 +18,7 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.content.ContextCompat;
+import androidx.recyclerview.widget.DiffUtil;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
@@ -27,13 +28,7 @@ import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.google.android.material.card.MaterialCardView;
 import com.google.android.material.tabs.TabLayout;
 import com.google.android.material.tabs.TabLayoutMediator;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.Query;
-import com.google.firebase.database.ValueEventListener;
+import com.google.gson.reflect.TypeToken;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -54,12 +49,10 @@ public class CampusMyItemsActivity extends AppCompatActivity {
     private Toolbar toolbar;
     private SwipeRefreshLayout swipeRefreshLayout;
     private boolean fromDrawer = false;
+    private boolean isFetching = false;
 
-    private FirebaseAuth mAuth;
-    private DatabaseReference mDatabase;
-
-    private ValueEventListener lostItemsListener, foundItemsListener, adminReportsListener;
-    private Query lostItemsQuery, foundItemsQuery, adminReportsQuery;
+    private String currentUniversityId;
+    private String currentAuthId;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -71,8 +64,9 @@ public class CampusMyItemsActivity extends AppCompatActivity {
 
         fromDrawer = getIntent().getBooleanExtra("fromDrawer", false);
 
-        mAuth = FirebaseAuth.getInstance();
-        mDatabase = FirebaseDatabase.getInstance(FirebaseConfig.DATABASE_URL).getReference();
+        android.content.SharedPreferences prefs = getSharedPreferences("MyApp", MODE_PRIVATE);
+        currentUniversityId = prefs.getString("universityId", null);
+        currentAuthId = prefs.getString("authId", null);
 
         rvMyItems = findViewById(R.id.rvMyItems);
         tvHeaderTitle = findViewById(R.id.tvHeaderTitle);
@@ -87,7 +81,7 @@ public class CampusMyItemsActivity extends AppCompatActivity {
         setupBackNavigation();
         setupTitle();
         setupSwipeRefresh();
-        
+
         com.google.android.material.appbar.AppBarLayout appBarLayout = findViewById(R.id.appBarLayout);
         if (appBarLayout != null) {
             HeaderColorHelper.setup(this, appBarLayout, toolbar);
@@ -97,8 +91,15 @@ public class CampusMyItemsActivity extends AppCompatActivity {
         adapter = new MyItemsAdapter(itemList);
         rvMyItems.setLayoutManager(new LinearLayoutManager(this));
         rvMyItems.setAdapter(adapter);
+        rvMyItems.setHasFixedSize(true);
 
         fetchMyItems();
+    }
+
+    @Override
+    public void onEnterAnimationComplete() {
+        super.onEnterAnimationComplete();
+        // UI refinement after activity transition
     }
 
     /**
@@ -116,6 +117,7 @@ public class CampusMyItemsActivity extends AppCompatActivity {
             }
             startActivity(intent);
             finish();
+            overridePendingTransition(R.anim.material_shared_axis_z_pop_enter, R.anim.material_shared_axis_z_pop_exit);
         };
 
         if (toolbar != null) {
@@ -169,107 +171,127 @@ public class CampusMyItemsActivity extends AppCompatActivity {
     }
 
     private void fetchMyItems() {
-        if (mAuth.getCurrentUser() == null) {
+        if (currentUniversityId == null) {
             if (swipeRefreshLayout != null) swipeRefreshLayout.setRefreshing(false);
+            SnackbarManager.show(SnackbarManager.Type.ERROR, "User session not found. Please login again.");
             return;
         }
-        String authUid = mAuth.getCurrentUser().getUid();
 
-        mDatabase.child("UIDToUniversityID").child(authUid).addListenerForSingleValueEvent(new ValueEventListener() {
+        if (swipeRefreshLayout != null) swipeRefreshLayout.setRefreshing(true);
+        loadItems(currentUniversityId);
+    }
+
+    private void removeListeners() {
+        // Listeners were removed in favor of Supabase REST calls
+    }
+
+    private void loadItems(String universityId) {
+        if (isFetching) return;
+        isFetching = true;
+
+        List<Item> accumulatedItems = new ArrayList<>();
+
+        if ("admin_reports".equals(filterType)) {
+            fetchAdminReportsInternal(universityId, currentAuthId, accumulatedItems);
+        } else if ("resolved".equals(filterType)) {
+            fetchResolvedItems(universityId, currentAuthId, accumulatedItems);
+        } else {
+            String table = "reported".equals(filterType) ? "found_reports" : "lost_reports";
+            String type = "reported".equals(filterType) ? "found" : "lost";
+
+            // Use OR filter for better compatibility
+            String query = "or=(reporter_id.eq." + universityId + (currentAuthId != null ? ",user_id.eq." + currentAuthId : "") + ")";
+
+            SupabaseDatabaseHelper.select(table, query, new TypeToken<List<Item>>(){}.getType(), new SupabaseDatabaseHelper.DatabaseCallback<List<Item>>() {
+                @Override
+                public void onSuccess(List<Item> items) {
+                    if (items != null) {
+                        for (Item item : items) {
+                            item.setType(type);
+                            if (shouldInclude(item, universityId, currentAuthId)) accumulatedItems.add(item);
+                        }
+                    }
+                    finalizeAndDisplay(accumulatedItems);
+                }
+
+                @Override
+                public void onFailure(String e) {
+                    finalizeAndDisplay(accumulatedItems);
+                }
+            });
+        }
+    }
+
+    private void fetchResolvedItems(String universityId, String authId, List<Item> accumulatedItems) {
+        fetchLostResolved(universityId, authId, accumulatedItems);
+    }
+
+    private void fetchLostResolved(String universityId, String authId, List<Item> accumulatedItems) {
+        String filter = "or=(reporter_id.eq." + universityId + ",claimed_by_id.eq." + universityId + (authId != null ? ",user_id.eq." + authId : "") + ")";
+        SupabaseDatabaseHelper.select("lost_reports", filter, new TypeToken<List<Item>>(){}.getType(), new SupabaseDatabaseHelper.DatabaseCallback<List<Item>>() {
             @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                final String resolvedUserId = snapshot.exists() ? snapshot.getValue(String.class) : authUid;
-                loadItems(resolvedUserId, authUid);
+            public void onSuccess(List<Item> items) {
+                if (items != null) {
+                    for (Item item : items) {
+                        item.setType("lost");
+                        if (shouldInclude(item, universityId, authId)) accumulatedItems.add(item);
+                    }
+                }
+                fetchFoundResolved(universityId, authId, accumulatedItems);
+            }
+            @Override public void onFailure(String e) { fetchFoundResolved(universityId, authId, accumulatedItems); }
+        });
+    }
+
+    private void fetchFoundResolved(String universityId, String authId, List<Item> accumulatedItems) {
+        String filter = "or=(reporter_id.eq." + universityId + ",claimed_by_id.eq." + universityId + (authId != null ? ",user_id.eq." + authId : "") + ")";
+        SupabaseDatabaseHelper.select("found_reports", filter, new TypeToken<List<Item>>(){}.getType(), new SupabaseDatabaseHelper.DatabaseCallback<List<Item>>() {
+            @Override
+            public void onSuccess(List<Item> items) {
+                if (items != null) {
+                    for (Item item : items) {
+                        item.setType("found");
+                        if (shouldInclude(item, universityId, authId)) accumulatedItems.add(item);
+                    }
+                }
+                finalizeAndDisplay(accumulatedItems);
+            }
+            @Override public void onFailure(String e) { finalizeAndDisplay(accumulatedItems); }
+        });
+    }
+
+    private void fetchAdminReportsInternal(String universityId, String authId, List<Item> accumulatedItems) {
+        String filter = "or=(reporter_id.eq." + universityId + (authId != null ? ",reporter_auth_id.eq." + authId : "") + ")";
+        SupabaseDatabaseHelper.select("admin_reports", filter, new TypeToken<List<AdminReport>>(){}.getType(), new SupabaseDatabaseHelper.DatabaseCallback<List<AdminReport>>() {
+            @Override
+            public void onSuccess(List<AdminReport> reports) {
+                if (reports != null) {
+                    for (AdminReport report : reports) {
+                        if (!report.isDeletedByUser()) {
+                            Item item = convertToItem(report);
+                            if (shouldInclude(item, universityId, authId)) accumulatedItems.add(item);
+                        }
+                    }
+                }
+                finalizeAndDisplay(accumulatedItems);
             }
 
             @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-                loadItems(authUid, authUid);
+            public void onFailure(String errorMessage) {
+                finalizeAndDisplay(accumulatedItems);
             }
         });
     }
 
-    private void removeListeners() {
-        if (lostItemsQuery != null && lostItemsListener != null) {
-            lostItemsQuery.removeEventListener(lostItemsListener);
-        }
-        if (foundItemsQuery != null && foundItemsListener != null) {
-            foundItemsQuery.removeEventListener(foundItemsListener);
-        }
-        if (adminReportsQuery != null && adminReportsListener != null) {
-            adminReportsQuery.removeEventListener(adminReportsListener);
-        }
-    }
-
-    private void loadItems(String universityId, String authUid) {
-        removeListeners();
-        itemList.clear(); 
-        adapter.notifyDataSetChanged();
+    private void finalizeAndDisplay(List<Item> accumulatedItems) {
+        accumulatedItems.sort((o1, o2) -> Long.compare(o2.getTimestamp(), o1.getTimestamp()));
         
-        ValueEventListener itemListener = new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                for (DataSnapshot data : snapshot.getChildren()) {
-                    Item item = data.getValue(Item.class);
-                    if (item != null) {
-                        if (shouldInclude(item, universityId)) {
-                            updateOrAddItem(item);
-                        }
-                    }
-                }
-                adapter.notifyDataSetChanged();
-                if (swipeRefreshLayout != null) swipeRefreshLayout.setRefreshing(false);
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-                if (swipeRefreshLayout != null) swipeRefreshLayout.setRefreshing(false);
-            }
-        };
-
-        lostItemsListener = itemListener;
-        foundItemsListener = itemListener;
-
-        if (!"admin_reports".equals(filterType)) {
-            lostItemsQuery = mDatabase.child("LostItems").orderByChild("userId").equalTo(universityId);
-            foundItemsQuery = mDatabase.child("FoundItems").orderByChild("userId").equalTo(universityId);
-            
-            lostItemsQuery.addValueEventListener(lostItemsListener);
-            foundItemsQuery.addValueEventListener(foundItemsListener);
-            
-            if ("resolved".equals(filterType)) {
-                mDatabase.child("LostItems").orderByChild("claimedByUserId").equalTo(universityId).addValueEventListener(itemListener);
-                mDatabase.child("FoundItems").orderByChild("claimedByUserId").equalTo(universityId).addValueEventListener(itemListener);
-            }
-        }
-
-        adminReportsListener = new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                for (DataSnapshot data : snapshot.getChildren()) {
-                    AdminReport report = data.getValue(AdminReport.class);
-                    if (report != null) {
-                        if (!report.isDeletedByUser()) {
-                            Item item = convertToItem(report);
-                            if (shouldInclude(item, universityId)) {
-                                updateOrAddItem(item);
-                            }
-                        }
-                    }
-                }
-                adapter.notifyDataSetChanged();
-                if (swipeRefreshLayout != null) swipeRefreshLayout.setRefreshing(false);
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-                Log.e(TAG, "Error fetching admin reports: " + error.getMessage());
-                if (swipeRefreshLayout != null) swipeRefreshLayout.setRefreshing(false);
-            }
-        };
+        adapter.updateItems(new ArrayList<>(accumulatedItems));
+        itemList.clear();
+        itemList.addAll(accumulatedItems);
         
-        adminReportsQuery = mDatabase.child("AdminReports").orderByChild("reporterAuthId").equalTo(authUid);
-        adminReportsQuery.addValueEventListener(adminReportsListener);
+        isFetching = false;
+        if (swipeRefreshLayout != null) swipeRefreshLayout.setRefreshing(false);
     }
 
     private Item convertToItem(AdminReport report) {
@@ -279,7 +301,8 @@ public class CampusMyItemsActivity extends AppCompatActivity {
         item.setName(report.getTitle());
         item.setDescription(report.getDescription());
         item.setCategory(report.getCategory());
-        item.setUserId(report.getReporterAuthId());
+        item.setUserId(report.getUniversityId()); // sets reporterId
+        item.setAuthUserId(report.getReporterAuthId());
         item.setStatus("admin_report");
         item.setAdminStatus(report.getStatus());
         item.setTimestamp(report.getTimestamp());
@@ -288,6 +311,7 @@ public class CampusMyItemsActivity extends AppCompatActivity {
         item.setUserName(report.getReporterName());
         item.setUserPhone(report.getPhone());
         item.setLocation("Reported to Admin");
+        item.setDeletedByUser(report.isDeletedByUser());
         
         SimpleDateFormat sdf = new SimpleDateFormat("dd MMM yyyy", Locale.getDefault());
         item.setDate(sdf.format(new Date(report.getTimestamp())));
@@ -295,34 +319,32 @@ public class CampusMyItemsActivity extends AppCompatActivity {
         return item;
     }
 
-    private boolean shouldInclude(Item item, String userId) {
-        boolean isResolved = "Claimed".equalsIgnoreCase(item.getAdminStatus()) || "Returned".equalsIgnoreCase(item.getAdminStatus());
+    private boolean shouldInclude(Item item, String userId, String authId) {
+        if (item.isDeletedByUser()) return false;
 
+        // Admin Reports ONLY appear in Admin Reports section
         if ("admin_report".equals(item.getStatus())) {
             return "admin_reports".equals(filterType);
         }
 
+        boolean isResolved = "Claimed".equalsIgnoreCase(item.getAdminStatus()) || 
+                            "Returned".equalsIgnoreCase(item.getAdminStatus());
+
+        boolean isOwner = (userId != null && userId.equalsIgnoreCase(item.getUserId())) ||
+                         (authId != null && authId.equalsIgnoreCase(item.getAuthUserId()));
+
         switch (filterType) {
             case "reported":
-                return "found".equals(item.getStatus()) && userId.equals(item.getUserId());
+                return "found".equals(item.getStatus()) && isOwner;
             case "find":
-                return "lost".equals(item.getStatus()) && userId.equals(item.getUserId());
+                return "lost".equals(item.getStatus()) && isOwner;
             case "resolved":
-                return isResolved && (userId.equals(item.getUserId()) || userId.equals(item.getClaimedByUserId()));
+                boolean isClaimer = (userId != null && userId.equalsIgnoreCase(item.getClaimedByUserId())) ||
+                                   (authId != null && authId.equalsIgnoreCase(item.getClaimedByUserId()));
+                return isResolved && (isOwner || isClaimer);
             default:
                 return false;
         }
-    }
-
-    private synchronized void updateOrAddItem(Item item) {
-        for (int i = 0; i < itemList.size(); i++) {
-            if (itemList.get(i).getId().equals(item.getId())) {
-                itemList.set(i, item);
-                return;
-            }
-        }
-        itemList.add(item);
-        itemList.sort((o1, o2) -> Long.compare(o2.getTimestamp(), o1.getTimestamp()));
     }
 
     @Override
@@ -338,6 +360,15 @@ public class CampusMyItemsActivity extends AppCompatActivity {
 
         public MyItemsAdapter(List<Item> items) {
             this.items = items;
+        }
+
+        public void updateItems(List<Item> newItems) {
+            // Take a copy of current items as the old list for DiffUtil
+            List<Item> oldItems = new ArrayList<>(this.items);
+            DiffUtil.DiffResult diffResult = DiffUtil.calculateDiff(new ItemDiffCallback(oldItems, newItems));
+            this.items.clear();
+            this.items.addAll(newItems);
+            diffResult.dispatchUpdatesTo(this);
         }
 
         @NonNull
@@ -360,16 +391,14 @@ public class CampusMyItemsActivity extends AppCompatActivity {
             holder.tvTime.setText(item.getDate());
             
             if (holder.tvReportId != null) {
-                String displayId = item.getDisplayId();
-                if (displayId == null || displayId.isEmpty()) {
-                    displayId = item.getReportId();
+                String dId = item.getDisplayId();
+                if (dId == null || dId.isEmpty()) {
+                    dId = item.getReportId();
                 }
 
-                if (displayId != null && !displayId.isEmpty()) {
-                    if (!displayId.startsWith("#")) {
-                        displayId = "#" + displayId;
-                    }
-                    holder.tvReportId.setText(displayId);
+                String formattedId = ReportIdFormatter.format(dId);
+                if (!formattedId.isEmpty()) {
+                    holder.tvReportId.setText(formattedId);
                     View parent = (View) holder.tvReportId.getParent();
                     if (parent != null) parent.setVisibility(View.VISIBLE);
                 } else {
@@ -379,14 +408,24 @@ public class CampusMyItemsActivity extends AppCompatActivity {
                 }
             }
 
-            boolean isResolved = "Claimed".equalsIgnoreCase(item.getAdminStatus()) || "Returned".equalsIgnoreCase(item.getAdminStatus());
+            boolean isResolved = "Claimed".equalsIgnoreCase(item.getAdminStatus()) || 
+                                "Returned".equalsIgnoreCase(item.getAdminStatus()) ||
+                                "Reviewed".equalsIgnoreCase(item.getAdminStatus());
 
-            if ("admin_report".equals(item.getStatus())) {
-                String status = item.getAdminStatus();
+            if (isResolved && "resolved".equals(filterType)) {
+                holder.statusIndicator.setBackgroundColor(ContextCompat.getColor(holder.itemView.getContext(), R.color.badge_resolved_bg));
+                holder.tvBadge.setText(R.string.status_resolved);
+                holder.cardBadge.setCardBackgroundColor(ContextCompat.getColor(holder.itemView.getContext(), R.color.badge_resolved_bg));
+            } else if ("admin_report".equals(item.getStatus())) {
+                String status = item.getAdminStatus() != null ? item.getAdminStatus() : "Pending";
                 int statusColor;
-                if ("Pending".equalsIgnoreCase(status)) statusColor = 0xFF757575; // Gray
-                else if ("Reviewed".equalsIgnoreCase(status)) statusColor = 0xFF1976D2; // Blue
-                else statusColor = 0xFF2E7D32; // Green
+                if ("Pending".equalsIgnoreCase(status)) {
+                    statusColor = 0xFFFF9800; // Orange
+                } else if ("Reviewed".equalsIgnoreCase(status)) {
+                    statusColor = 0xFF2AABEE; // Blue
+                } else {
+                    statusColor = 0xFF757575; // Gray fallback
+                }
                 
                 holder.statusIndicator.setBackgroundColor(statusColor);
                 holder.tvBadge.setText(status.toUpperCase());
@@ -445,25 +484,6 @@ public class CampusMyItemsActivity extends AppCompatActivity {
                 holder.viewPagerSlider.setUserInputEnabled(true);
 
                 new TabLayoutMediator(holder.tabLayoutIndicator, holder.viewPagerSlider, (tab, pos) -> {}).attach();
-
-                holder.viewPagerSlider.registerOnPageChangeCallback(new ViewPager2.OnPageChangeCallback() {
-                    @Override
-                    public void onPageScrollStateChanged(int state) {
-                        super.onPageScrollStateChanged(state);
-                        if (state == ViewPager2.SCROLL_STATE_DRAGGING) {
-                            stopSlider(position);
-                        }
-                    }
-                });
-
-                holder.viewPagerSlider.getChildAt(0).setOnTouchListener((v, event) -> {
-                    if (event.getAction() == MotionEvent.ACTION_DOWN || event.getAction() == MotionEvent.ACTION_MOVE) {
-                        stopSlider(position);
-                    } else if (event.getAction() == MotionEvent.ACTION_UP || event.getAction() == MotionEvent.ACTION_CANCEL) {
-                        startSlider(holder, urls, position);
-                    }
-                    return false;
-                });
 
                 startSlider(holder, urls, position);
             } else {
@@ -563,7 +583,80 @@ public class CampusMyItemsActivity extends AppCompatActivity {
                 viewPagerSlider = itemView.findViewById(R.id.viewPagerSlider);
                 tabLayoutIndicator = itemView.findViewById(R.id.tabLayoutIndicator);
                 tvReportId = itemView.findViewById(R.id.tvReportId);
+
+                // Move listeners to ViewHolder to avoid redundant object creation in onBind
+                if (viewPagerSlider != null) {
+                    viewPagerSlider.registerOnPageChangeCallback(new ViewPager2.OnPageChangeCallback() {
+                        @Override
+                        public void onPageScrollStateChanged(int state) {
+                            super.onPageScrollStateChanged(state);
+                            if (state == ViewPager2.SCROLL_STATE_DRAGGING) {
+                                // Use bindingAdapterPosition to stop the correct slider
+                                int pos = getBindingAdapterPosition();
+                                if (pos != RecyclerView.NO_POSITION) {
+                                    stopSlider(pos);
+                                }
+                            }
+                        }
+                    });
+
+                    // The first child of ViewPager2 is the RecyclerView that handles scrolling
+                    viewPagerSlider.post(() -> {
+                        if (viewPagerSlider.getChildCount() > 0) {
+                            viewPagerSlider.getChildAt(0).setOnTouchListener((v, event) -> {
+                                int pos = getBindingAdapterPosition();
+                                if (pos == RecyclerView.NO_POSITION) return false;
+                                
+                                if (event.getAction() == MotionEvent.ACTION_DOWN || event.getAction() == MotionEvent.ACTION_MOVE) {
+                                    stopSlider(pos);
+                                }
+                                return false;
+                            });
+                        }
+                    });
+                }
             }
+        }
+    }
+
+    private static class ItemDiffCallback extends DiffUtil.Callback {
+        private final List<Item> oldList;
+        private final List<Item> newList;
+
+        public ItemDiffCallback(List<Item> oldList, List<Item> newList) {
+            this.oldList = oldList;
+            this.newList = newList;
+        }
+
+        @Override
+        public int getOldListSize() {
+            return oldList.size();
+        }
+
+        @Override
+        public int getNewListSize() {
+            return newList.size();
+        }
+
+        @Override
+        public boolean areItemsTheSame(int oldItemPosition, int newItemPosition) {
+            return oldList.get(oldItemPosition).getId().equals(newList.get(newItemPosition).getId());
+        }
+
+        @Override
+        public boolean areContentsTheSame(int oldItemPosition, int newItemPosition) {
+            Item oldItem = oldList.get(oldItemPosition);
+            Item newItem = newList.get(newItemPosition);
+            
+            // Handle potential nulls in admin status or name
+            String oldStatus = oldItem.getAdminStatus() != null ? oldItem.getAdminStatus() : "";
+            String newStatus = newItem.getAdminStatus() != null ? newItem.getAdminStatus() : "";
+            String oldName = oldItem.getName() != null ? oldItem.getName() : "";
+            String newName = newItem.getName() != null ? newItem.getName() : "";
+
+            return oldItem.getTimestamp() == newItem.getTimestamp() &&
+                   oldStatus.equals(newStatus) &&
+                   oldName.equals(newName);
         }
     }
 }

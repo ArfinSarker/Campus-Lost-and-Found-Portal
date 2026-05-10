@@ -4,9 +4,6 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.widget.Toast;
-
-import com.google.firebase.auth.FirebaseAuth;
 
 /**
  * Utility class to enforce role-based access control throughout the application.
@@ -19,16 +16,18 @@ public class RoleVerifier {
      * If not, redirects to the appropriate dashboard or login screen.
      */
     public static void checkAdminAccess(Activity activity) {
-        if (FirebaseAuth.getInstance().getCurrentUser() == null) {
+        SharedPreferences prefs = activity.getSharedPreferences("MyApp", Context.MODE_PRIVATE);
+        String universityId = prefs.getString("universityId", null);
+        
+        if (universityId == null) {
             redirectToLogin(activity);
             return;
         }
 
-        SharedPreferences prefs = activity.getSharedPreferences("MyApp", Context.MODE_PRIVATE);
         boolean isAdmin = prefs.getBoolean("isAdminLoggedIn", false);
         
         if (!isAdmin) {
-            Toast.makeText(activity, "Access Denied: Admin privileges required.", Toast.LENGTH_LONG).show();
+            SnackbarManager.show(SnackbarManager.Type.ERROR, "Access Denied: Admin privileges required.");
             Intent intent = new Intent(activity, CampusDashboardActivity.class);
             intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
             activity.startActivity(intent);
@@ -40,7 +39,8 @@ public class RoleVerifier {
      * Checks if a user is logged in. Redirects to login if not.
      */
     public static void checkUserAccess(Activity activity) {
-        if (FirebaseAuth.getInstance().getCurrentUser() == null) {
+        SharedPreferences prefs = activity.getSharedPreferences("MyApp", Context.MODE_PRIVATE);
+        if (prefs.getString("universityId", null) == null) {
             redirectToLogin(activity);
         }
     }

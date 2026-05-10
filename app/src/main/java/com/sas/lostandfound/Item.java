@@ -1,166 +1,225 @@
 package com.sas.lostandfound;
 
-import com.google.firebase.database.IgnoreExtraProperties;
+import com.google.gson.annotations.SerializedName;
 import java.util.ArrayList;
 import java.util.List;
 
-@IgnoreExtraProperties
 public class Item {
+    @SerializedName("id")
     private String id;
-    private String displayId; // L1, F1, etc.
-    private String reportId; // Same as displayId, for convenience
-    private String name;
+    
+    @SerializedName("display_id")
+    private String displayId;
+    
+    @SerializedName("type")
+    private String type; // "lost" or "found" (virtual field)
+    
+    @SerializedName("reporter_id")
+    private String reporterId;
+    
+    @SerializedName("item_name")
+    private String itemName;
+    
+    @SerializedName("category")
     private String category;
+    
+    @SerializedName("description")
     private String description;
+    
+    @SerializedName("location")
     private String location;
+    
+    @SerializedName("manual_location")
     private String manualLocation;
-    private String date;
-    private String time;
+    
+    @SerializedName("additional_location_details")
     private String additionalLocationDetails;
-    private String imageUrl; // Kept for backward compatibility
+    
+    @SerializedName("date_occurred")
+    private String dateOccurred; // Format: YYYY-MM-DD
+    
+    @SerializedName("time_occurred")
+    private String timeOccurred;
+    
+    @SerializedName("image_urls")
     private List<String> imageUrls;
-    private String status; // "lost" or "found" or "resolved"
-    private String userId;
-    private String userName;
-    private String userEmail;
-    private String userPhone;
-    private String userUniversityId;
-    private String userDepartment;
-    
-    // Contact Info (Report-specific, allows overrides during submission)
-    private String contactName;
-    private String contactPhone;
 
-    // Second user details (for resolved items)
-    private String secondUserId;
-    private String secondUserName;
-
-    // Lost Item Specific
-    private String proofOfOwnershipUrl;
-    private List<String> proofOfOwnershipUrls;
-    private String proofOfOwnershipDetail; // Textual proof
-    private String confidentialIdentificationDetail; // Hidden field
+    @SerializedName("image_url")
+    private String imageUrl;
     
-    // Found Item Specific
-    private String itemHandlingStatus; 
+    @SerializedName("status")
+    private String status; // "active", "resolved", "deleted"
+    
+    @SerializedName("admin_status")
+    private String adminStatus; // "Pending", "Claimed", etc.
+    
+    @SerializedName("claimed_by_id")
+    private String claimedById;
+    
+    @SerializedName("proof_of_ownership_detail")
+    private String proofOfOwnershipDetail;
+    
+    @SerializedName("hidden_identification_question")
+    private String hiddenIdentificationQuestion;
+    
+    @SerializedName("item_handling_status")
+    private String itemHandlingStatus;
+    
+    @SerializedName("authority_name")
     private String authorityName;
+    
+    @SerializedName("office_room_number")
     private String officeRoomNumber;
-    private String hiddenIdentificationQuestion; // Hidden field
-    private String verificationMethod; // Admin or Direct
-    private boolean isBlurred;
-
-    // Common
+    
+    @SerializedName("preferred_contact_method")
     private String preferredContactMethod;
-    private String adminStatus; // Pending, Matched, Returned, Claimed, etc.
-    private String claimedByUserId; // The user who claimed/received the item
-    private long timestamp;
+    
+    @SerializedName("is_edited")
     private boolean isEdited;
+
+    @SerializedName("timestamp")
+    private long timestamp;
+
+    @SerializedName("deleted_by_user")
     private boolean deletedByUser;
+
+    @SerializedName("user_id")
+    private String authUserId;
+
+    // Transient fields for backward compatibility in UI (should be fetched from profiles)
+    private transient String userName;
+    private transient String userEmail;
+    private transient String userPhone;
+    private transient String userUniversityId;
+    private transient String userDepartment;
 
     public Item() {
         this.imageUrls = new ArrayList<>();
-        this.proofOfOwnershipUrls = new ArrayList<>();
     }
 
-    public Item(String id, String name, String category, String description, String location, String date, String status, String userId) {
+    public Item(String id, String name, String category, String description, String location, String date, String type, String reporterId) {
         this.id = id;
-        this.name = name;
+        this.itemName = name;
         this.category = category;
         this.description = description;
         this.location = location;
-        this.date = date;
-        this.status = status;
-        this.userId = userId;
+        this.dateOccurred = date;
+        this.type = type;
+        this.reporterId = reporterId;
+        this.status = "active";
         this.adminStatus = "Pending";
-        this.timestamp = System.currentTimeMillis();
         this.imageUrls = new ArrayList<>();
-        this.proofOfOwnershipUrls = new ArrayList<>();
-        this.isEdited = false;
-        this.deletedByUser = false;
+        this.timestamp = System.currentTimeMillis();
     }
 
-    // Getters and Setters
+    // Getters and Setters with compatibility mapping
     public String getId() { return id; }
     public void setId(String id) { this.id = id; }
+
     public String getDisplayId() { return displayId; }
-    public void setDisplayId(String displayId) { this.displayId = displayId; this.reportId = displayId; }
-    public String getReportId() { return reportId; }
-    public void setReportId(String reportId) { this.reportId = reportId; this.displayId = reportId; }
-    public String getName() { return name; }
-    public void setName(String name) { this.name = name; }
+    public void setDisplayId(String displayId) { this.displayId = displayId; }
+
+    public String getReportId() { return displayId; } // Compatibility
+    public void setReportId(String reportId) { this.displayId = reportId; }
+
+    public String getName() { return itemName; }
+    public void setName(String name) { this.itemName = name; }
+
     public String getCategory() { return category; }
     public void setCategory(String category) { this.category = category; }
+
     public String getDescription() { return description; }
     public void setDescription(String description) { this.description = description; }
+
     public String getLocation() { return location; }
     public void setLocation(String location) { this.location = location; }
+
     public String getManualLocation() { return manualLocation; }
     public void setManualLocation(String manualLocation) { this.manualLocation = manualLocation; }
-    public String getDate() { return date; }
-    public void setDate(String date) { this.date = date; }
-    public String getTime() { return time; }
-    public void setTime(String time) { this.time = time; }
+
+    public String getDate() { return dateOccurred; }
+    public void setDate(String date) { this.dateOccurred = date; }
+
+    public String getTime() { return timeOccurred; }
+    public void setTime(String time) { this.timeOccurred = time; }
+
     public String getAdditionalLocationDetails() { return additionalLocationDetails; }
-    public void setAdditionalLocationDetails(String additionalLocationDetails) { this.additionalLocationDetails = additionalLocationDetails; }
-    public String getImageUrl() { return imageUrl; }
-    public void setImageUrl(String imageUrl) { this.imageUrl = imageUrl; }
+    public void setAdditionalLocationDetails(String details) { this.additionalLocationDetails = details; }
+
     public List<String> getImageUrls() { return imageUrls; }
     public void setImageUrls(List<String> imageUrls) { this.imageUrls = imageUrls; }
-    public String getStatus() { return status; }
+
+    public String getImageUrl() { 
+        if (imageUrl != null) return imageUrl;
+        return (imageUrls != null && !imageUrls.isEmpty()) ? imageUrls.get(0) : null; 
+    }
+    public void setImageUrl(String url) { 
+        this.imageUrl = url;
+        if (imageUrls == null) imageUrls = new ArrayList<>();
+        if (url != null && !imageUrls.contains(url)) imageUrls.add(0, url);
+    }
+
+    public String getStatus() { return type != null ? type : status; } // UI expects 'lost'/'found'
     public void setStatus(String status) { this.status = status; }
-    public String getUserId() { return userId; }
-    public void setUserId(String userId) { this.userId = userId; }
-    public String getUserName() { return userName; }
-    public void setUserName(String userName) { this.userName = userName; }
-    public String getUserEmail() { return userEmail; }
-    public void setUserEmail(String userEmail) { this.userEmail = userEmail; }
-    public String getUserPhone() { return userPhone; }
-    public void setUserPhone(String userPhone) { this.userPhone = userPhone; }
-    public String getUserUniversityId() { return userUniversityId; }
-    public void setUserUniversityId(String userUniversityId) { this.userUniversityId = userUniversityId; }
-    public String getUserDepartment() { return userDepartment; }
-    public void setUserDepartment(String userDepartment) { this.userDepartment = userDepartment; }
     
-    public String getContactName() { return contactName; }
-    public void setContactName(String contactName) { this.contactName = contactName; }
-    public String getContactPhone() { return contactPhone; }
-    public void setContactPhone(String contactPhone) { this.contactPhone = contactPhone; }
+    public String getType() { return type; }
+    public void setType(String type) { this.type = type; }
 
-    public String getSecondUserId() { return secondUserId; }
-    public void setSecondUserId(String secondUserId) { this.secondUserId = secondUserId; }
-    public String getSecondUserName() { return secondUserName; }
-    public void setSecondUserName(String secondUserName) { this.secondUserName = secondUserName; }
+    public String getUserId() { return reporterId; }
+    public void setUserId(String userId) { this.reporterId = userId; }
 
-    public String getProofOfOwnershipUrl() { return proofOfOwnershipUrl; }
-    public void setProofOfOwnershipUrl(String proofOfOwnershipUrl) { this.proofOfOwnershipUrl = proofOfOwnershipUrl; }
-    public List<String> getProofOfOwnershipUrls() { return proofOfOwnershipUrls; }
-    public void setProofOfOwnershipUrls(List<String> proofOfOwnershipUrls) { this.proofOfOwnershipUrls = proofOfOwnershipUrls; }
-    public String getProofOfOwnershipDetail() { return proofOfOwnershipDetail; }
-    public void setProofOfOwnershipDetail(String proofOfOwnershipDetail) { this.proofOfOwnershipDetail = proofOfOwnershipDetail; }
-    public String getConfidentialIdentificationDetail() { return confidentialIdentificationDetail; }
-    public void setConfidentialIdentificationDetail(String confidentialIdentificationDetail) { this.confidentialIdentificationDetail = confidentialIdentificationDetail; }
-    public String getItemHandlingStatus() { return itemHandlingStatus; }
-    public void setItemHandlingStatus(String itemHandlingStatus) { this.itemHandlingStatus = itemHandlingStatus; }
-    public String getAuthorityName() { return authorityName; }
-    public void setAuthorityName(String authorityName) { this.authorityName = authorityName; }
-    public String getOfficeRoomNumber() { return officeRoomNumber; }
-    public void setOfficeRoomNumber(String officeRoomNumber) { this.officeRoomNumber = officeRoomNumber; }
-    public String getHiddenIdentificationQuestion() { return hiddenIdentificationQuestion; }
-    public void setHiddenIdentificationQuestion(String hiddenIdentificationQuestion) { this.hiddenIdentificationQuestion = hiddenIdentificationQuestion; }
-    public String getVerificationMethod() { return verificationMethod; }
-    public void setVerificationMethod(String verificationMethod) { this.verificationMethod = verificationMethod; }
-    public boolean isBlurred() { return isBlurred; }
-    public void setBlurred(boolean blurred) { isBlurred = blurred; }
-    public String getPreferredContactMethod() { return preferredContactMethod; }
-    public void setPreferredContactMethod(String preferredContactMethod) { this.preferredContactMethod = preferredContactMethod; }
+    public String getReporterId() { return reporterId; }
+    public void setReporterId(String reporterId) { this.reporterId = reporterId; }
+
     public String getAdminStatus() { return adminStatus; }
     public void setAdminStatus(String adminStatus) { this.adminStatus = adminStatus; }
-    public String getClaimedByUserId() { return claimedByUserId; }
-    public void setClaimedByUserId(String claimedByUserId) { this.claimedByUserId = claimedByUserId; }
+
+    public String getClaimedById() { return claimedById; }
+    public void setClaimedById(String claimedById) { this.claimedById = claimedById; }
+    
+    public String getClaimedByUserId() { return claimedById; } // Compatibility
+    public void setClaimedByUserId(String id) { this.claimedById = id; }
+
+    public String getProofOfOwnershipDetail() { return proofOfOwnershipDetail; }
+    public void setProofOfOwnershipDetail(String detail) { this.proofOfOwnershipDetail = detail; }
+
+    public String getHiddenIdentificationQuestion() { return hiddenIdentificationQuestion; }
+    public void setHiddenIdentificationQuestion(String question) { this.hiddenIdentificationQuestion = question; }
+
+    public String getItemHandlingStatus() { return itemHandlingStatus; }
+    public void setItemHandlingStatus(String status) { this.itemHandlingStatus = status; }
+
+    public String getAuthorityName() { return authorityName; }
+    public void setAuthorityName(String name) { this.authorityName = name; }
+
+    public String getOfficeRoomNumber() { return officeRoomNumber; }
+    public void setOfficeRoomNumber(String num) { this.officeRoomNumber = num; }
+
+    public String getPreferredContactMethod() { return preferredContactMethod; }
+    public void setPreferredContactMethod(String method) { this.preferredContactMethod = method; }
+
+    public boolean isEdited() { return isEdited; }
+    public void setEdited(boolean edited) { isEdited = edited; }
+
     public long getTimestamp() { return timestamp; }
     public void setTimestamp(long timestamp) { this.timestamp = timestamp; }
-    public boolean isEdited() { return isEdited; }
-    public void setEdited(boolean edited) { this.isEdited = edited; }
+
     public boolean isDeletedByUser() { return deletedByUser; }
     public void setDeletedByUser(boolean deletedByUser) { this.deletedByUser = deletedByUser; }
+
+    public String getAuthUserId() { return authUserId; }
+    public void setAuthUserId(String authUserId) { this.authUserId = authUserId; }
+
+    // Compatibility Getters for UI
+    public String getUserName() { return userName; }
+    public void setUserName(String name) { this.userName = name; }
+    public String getUserEmail() { return userEmail; }
+    public void setUserEmail(String email) { this.userEmail = email; }
+    public String getUserPhone() { return userPhone; }
+    public void setUserPhone(String phone) { this.userPhone = phone; }
+    public String getUserUniversityId() { return userUniversityId; }
+    public void setUserUniversityId(String id) { this.userUniversityId = id; }
+
+    public String getUserDepartment() { return userDepartment; }
+    public void setUserDepartment(String department) { this.userDepartment = department; }
 }

@@ -3,7 +3,6 @@ import java.io.FileInputStream
 
 plugins {
     alias(libs.plugins.android.application)
-    id("com.google.gms.google-services")
 }
 
 fun getLocalProperty(key: String): String? {
@@ -28,7 +27,6 @@ android {
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
         // Enable BuildConfig generation
-        buildConfigField("String", "FIREBASE_DATABASE_URL", "\"${getLocalProperty("FIREBASE_DATABASE_URL") ?: ""}\"")
         buildConfigField("String", "SUPABASE_URL", "\"${getLocalProperty("SUPABASE_URL") ?: ""}\"")
         buildConfigField("String", "SUPABASE_KEY", "\"${getLocalProperty("SUPABASE_KEY") ?: ""}\"")
     }
@@ -68,24 +66,18 @@ dependencies {
     implementation(libs.activity)
     implementation(libs.constraintlayout)
     implementation(libs.swiperefreshlayout)
+    implementation(libs.lottie)
 
-    // Import the Firebase BoM
-    implementation(platform("com.google.firebase:firebase-bom:34.9.0"))
-
-
-    // TODO: Add the dependencies for Firebase products you want to use
-    // When using the BoM, don't specify versions in Firebase dependencies
-    implementation("com.google.firebase:firebase-analytics")
-    implementation("com.google.firebase:firebase-auth")
-    implementation("com.google.firebase:firebase-database")
-    implementation("com.google.firebase:firebase-storage")
-    
     // OkHttp for Supabase
     implementation("com.squareup.okhttp3:okhttp:4.12.0")
 
     // Glide for image loading
     implementation("com.github.bumptech.glide:glide:4.16.0")
     annotationProcessor("com.github.bumptech.glide:compiler:4.16.0")
+    implementation("com.airbnb.android:lottie:6.0.0")
+
+    // Gson for JSON parsing
+    implementation("com.google.code.gson:gson:2.14.0")
 
     // PhotoView for zoom
     implementation("com.github.chrisbanes:PhotoView:2.3.0")

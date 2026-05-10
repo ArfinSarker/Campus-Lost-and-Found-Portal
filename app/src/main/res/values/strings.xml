@@ -417,9 +417,9 @@
     <string name="report_submitted_success">Your report has been submitted to admin</string>
 
     <!-- Admin Report Dashboard Strings -->
-    <string name="stat_total_reports">Total Reports</string>
-    <string name="stat_pending_reports">Pending Reports</string>
-    <string name="stat_reviewed_reports">Reviewed Reports</string>
+    <string name="stat_total_reports">Total\nReports</string>
+    <string name="stat_pending_reports">Pending\nReports</string>
+    <string name="stat_reviewed_reports">Reviewed\nReports</string>
     <string name="stat_resolved_reports">Resolved Reports</string>
     <string name="hint_search_reports">Search by ID, User or Item ID...</string>
     <string name="label_admin_note">Admin Note</string>
@@ -431,4 +431,6 @@
     <string name="label_admin_actions">⚙️ Admin Actions</string>
     <string name="allUsers">All Users</string>
 
+    <string name="label_status_icon">Status Icon</string>
+    <string name="label_close">Close</string>
 </resources>

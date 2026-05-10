@@ -75,6 +75,7 @@ public class ItemNavigationUtils {
      * This version includes an isAdmin flag for role-based UI rendering.
      */
     public static void navigateToDetail(Context context, Item item, boolean isAdmin) {
+        if (!canNavigate()) return;
         if (context == null || item == null) return;
         
         Intent intent = new Intent(context, ItemDetailActivity.class);
@@ -95,8 +96,11 @@ public class ItemNavigationUtils {
         intent.putExtra("userId", item.getUserId());
         intent.putExtra("itemReportId", item.getDisplayId());
         intent.putExtra("isAdmin", isAdmin);
-        
+
         context.startActivity(intent);
+        if (context instanceof android.app.Activity) {
+            ((android.app.Activity) context).overridePendingTransition(R.anim.material_shared_axis_z_enter, R.anim.material_shared_axis_z_exit);
+        }
     }
 
     /**
@@ -114,18 +118,28 @@ public class ItemNavigationUtils {
      * Includes a global debounce to prevent double-launching the activity.
      */
     public static void openFullScreenImage(Context context, List<String> imageUrls, int position) {
+        if (!canNavigate()) return;
         if (context == null || imageUrls == null || imageUrls.isEmpty()) return;
-
-        // Prevent rapid double-clicks from launching the activity twice
-        long currentTime = System.currentTimeMillis();
-        if (currentTime - lastClickTime < CLICK_THRESHOLD) {
-            return;
-        }
-        lastClickTime = currentTime;
 
         Intent intent = new Intent(context, FullScreenImageActivity.class);
         intent.putStringArrayListExtra("imageUrls", new ArrayList<>(imageUrls));
         intent.putExtra("position", position);
         context.startActivity(intent);
+        if (context instanceof android.app.Activity) {
+            ((android.app.Activity) context).overridePendingTransition(R.anim.material_shared_axis_z_enter, R.anim.material_shared_axis_z_exit);
+        }
+    }
+
+    /**
+     * Global navigation debounce check.
+     * Returns true if navigation is allowed, false otherwise.
+     */
+    public static boolean canNavigate() {
+        long currentTime = System.currentTimeMillis();
+        if (currentTime - lastClickTime < CLICK_THRESHOLD) {
+            return false;
+        }
+        lastClickTime = currentTime;
+        return true;
     }
 }
