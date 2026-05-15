@@ -93,6 +93,17 @@ public class NotificationsActivity extends AppCompatActivity {
                     Intent intent = new Intent(this, AdminReportDetailsActivity.class);
                     intent.putExtra("reportId", notification.getItemId());
                     startActivity(intent);
+                } else if ("item_claimed".equals(notification.getType()) || "item_return".equals(notification.getType())) {
+                    Intent intent = new Intent(this, ClaimDetailsActivity.class);
+                    intent.putExtra("senderId", notification.getSenderId());
+                    intent.putExtra("claimerId", notification.getClaimerId());
+                    intent.putExtra("senderName", notification.getSenderName());
+                    intent.putExtra("senderPhone", notification.getSenderPhone());
+                    intent.putExtra("senderEmail", notification.getSenderEmail());
+                    intent.putExtra("itemId", notification.getItemId());
+                    intent.putExtra("itemName", notification.getItemName());
+                    intent.putExtra("type", notification.getType());
+                    startActivity(intent);
                 } else {
                     Intent intent = new Intent(this, ClaimDetailsActivity.class);
                     intent.putExtra("senderId", notification.getSenderId());
@@ -183,6 +194,7 @@ public class NotificationsActivity extends AppCompatActivity {
         if (isFetching) return;
         isFetching = true;
 
+        // Query by recipient_id (University ID) as used in the DB
         SupabaseDatabaseHelper.select("notifications", "recipient_id=eq." + userId, new TypeToken<List<Notification>>(){}.getType(), new SupabaseDatabaseHelper.DatabaseCallback<List<Notification>>() {
             @Override
             public void onSuccess(List<Notification> notifications) {

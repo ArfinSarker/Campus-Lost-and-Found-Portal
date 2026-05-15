@@ -2,10 +2,13 @@ package com.sas.lostandfound;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.util.Log;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
@@ -53,6 +56,15 @@ public class CampusDashboardActivity extends AppCompatActivity {
     private int currentLimit = 5;
     private String currentUniversityId;
     private boolean isFetchingItems = false;
+
+    private Handler badgeHandler = new Handler(Looper.getMainLooper());
+    private Runnable badgeRunnable = new Runnable() {
+        @Override
+        public void run() {
+            listenForNotifications();
+            badgeHandler.postDelayed(this, 10000); // Refresh every 10 seconds
+        }
+    };
 
     private Intent pendingIntent;
 
@@ -153,16 +165,18 @@ public class CampusDashboardActivity extends AppCompatActivity {
         // Refresh data whenever user returns to dashboard
         fetchUserData();
         fetchRecentItems();
+        badgeHandler.post(badgeRunnable);
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        badgeHandler.removeCallbacks(badgeRunnable);
     }
 
     private void checkSessionAndRedirect() {
-        SharedPreferences prefs = getSharedPreferences("MyApp", MODE_PRIVATE);
-        boolean isAdminLoggedIn = prefs.getBoolean("isAdminLoggedIn", false);
-        String userType = prefs.getString("userType", "");
-        if (isAdminLoggedIn || "Admin".equalsIgnoreCase(userType)) {
-            startActivity(new Intent(this, AdminDashboardActivity.class));
-            finish();
-        }
+        // Admins are now allowed to use the normal user dashboard.
+        // They can access the Admin Dashboard via the navigation drawer.
     }
 
     @Override
@@ -279,6 +293,14 @@ public class CampusDashboardActivity extends AppCompatActivity {
 
     private void setupNavigationView() {
         if (navigationView != null) {
+            SharedPreferences prefs = getSharedPreferences("MyApp", MODE_PRIVATE);
+            boolean isAdmin = prefs.getBoolean("isAdminLoggedIn", false);
+            Menu menu = navigationView.getMenu();
+            MenuItem adminDashboardItem = menu.findItem(R.id.nav_admin_dashboard);
+            if (adminDashboardItem != null) {
+                adminDashboardItem.setVisible(isAdmin);
+            }
+
             navigationView.setNavigationItemSelectedListener(item -> {
                 if (!ItemNavigationUtils.canNavigate()) return false;
                 int id = item.getItemId();
@@ -301,6 +323,9 @@ public class CampusDashboardActivity extends AppCompatActivity {
                     pendingIntent = new Intent(this, CampusMyItemsActivity.class);
                     pendingIntent.putExtra("filterType", "admin_reports");
                     pendingIntent.putExtra("fromDrawer", true);
+                } else if (id == R.id.nav_admin_dashboard) {
+                    pendingIntent = new Intent(this, AdminDashboardActivity.class);
+                    pendingIntent.putExtra("fromDrawer", true);
                 } else if (id == R.id.nav_logout) {
                     SupabaseAuthHelper.signOut();
                     getSharedPreferences("MyApp", MODE_PRIVATE).edit().clear().apply();
@@ -322,7 +347,7 @@ public class CampusDashboardActivity extends AppCompatActivity {
                 @Override
                 public void onTabSelected(TabLayout.Tab tab) {
                     String tabText = tab.getText() != null ? tab.getText().toString() : "";
-                    if ("Browse Items".equals(tabText) || "Browse".equals(tabText)) {
+                    if ("Search Items".equals(tabText) || "Search".equals(tabText)) {
                         startActivity(new Intent(CampusDashboardActivity.this, BrowseItemsActivity.class));
                     } else if ("Report".equals(tabText)) {
                         startActivity(new Intent(CampusDashboardActivity.this, ReportToAdminActivity.class));
@@ -449,14 +474,18 @@ public class CampusDashboardActivity extends AppCompatActivity {
         if (isFetchingItems) return;
         isFetchingItems = true;
 
+        Log.d("Dashboard", "Fetching recent lost reports...");
         SupabaseDatabaseHelper.select("lost_reports", "deleted_by_user=eq.false&order=timestamp.desc&limit=10", new TypeToken<List<Item>>(){}.getType(), new SupabaseDatabaseHelper.DatabaseCallback<List<Item>>() {
             @Override public void onSuccess(List<Item> lostItems) {
+                Log.d("Dashboard", "Lost reports fetched: " + (lostItems != null ? lostItems.size() : 0));
                 SupabaseDatabaseHelper.select("found_reports", "deleted_by_user=eq.false&order=timestamp.desc&limit=10", new TypeToken<List<Item>>(){}.getType(), new SupabaseDatabaseHelper.DatabaseCallback<List<Item>>() {
                     @Override public void onSuccess(List<Item> foundItems) {
+                        Log.d("Dashboard", "Found reports fetched: " + (foundItems != null ? foundItems.size() : 0));
                         List<Item> combined = new ArrayList<>();
                         if (lostItems != null) combined.addAll(lostItems);
                         if (foundItems != null) combined.addAll(foundItems);
                         
+                        // Robust sorting by timestamp
                         combined.sort((o1, o2) -> Long.compare(o2.getTimestamp(), o1.getTimestamp()));
                         
                         fullItemList.clear();
@@ -467,12 +496,14 @@ public class CampusDashboardActivity extends AppCompatActivity {
                         if (swipeRefreshLayout != null) swipeRefreshLayout.setRefreshing(false);
                     }
                     @Override public void onFailure(String e) {
+                        Log.e("Dashboard", "Failed to fetch found reports: " + e);
                         isFetchingItems = false;
                         if (swipeRefreshLayout != null) swipeRefreshLayout.setRefreshing(false);
                     }
                 });
             }
             @Override public void onFailure(String e) {
+                Log.e("Dashboard", "Failed to fetch lost reports: " + e);
                 isFetchingItems = false;
                 if (swipeRefreshLayout != null) swipeRefreshLayout.setRefreshing(false);
             }
@@ -501,7 +532,13 @@ public class CampusDashboardActivity extends AppCompatActivity {
             holder.tvTitle.setText(item.getName());
             holder.tvLocation.setText(ReportLocationDisplay.formatFullLocation(item.getLocation(), item.getManualLocation(), item.getAdditionalLocationDetails()));
             holder.tvTime.setText(item.getDate());
-            holder.tvReportId.setText(ReportIdFormatter.format(item.getDisplayId()));
+            
+            String displayId = item.getDisplayId();
+            if (displayId == null || displayId.isEmpty()) {
+                displayId = item.getReportId();
+            }
+            holder.tvReportId.setText(ReportIdFormatter.format(displayId));
+
             boolean res = "Claimed".equalsIgnoreCase(item.getAdminStatus()) || "Returned".equalsIgnoreCase(item.getAdminStatus());
             int color = ContextCompat.getColor(holder.itemView.getContext(), res ? R.color.badge_resolved_bg : ("lost".equals(item.getStatus()) ? R.color.badge_lost_bg : R.color.badge_found_bg));
             holder.statusIndicator.setBackgroundColor(color);

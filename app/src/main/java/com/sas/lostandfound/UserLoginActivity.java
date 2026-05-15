@@ -165,8 +165,12 @@ public class UserLoginActivity extends AppCompatActivity {
             @Override
             public void onSuccess(List<User> users) {
                 if (users == null || users.isEmpty()) {
-                    stopLoading();
-                    ErrorHelper.showError(btnLogin, "No account found with this University ID.");
+                    if ("Admin".equalsIgnoreCase(userType)) {
+                        checkPendingAdminRequest(universityId);
+                    } else {
+                        stopLoading();
+                        ErrorHelper.showError(btnLogin, "No account found with this University ID.");
+                    }
                     return;
                 }
 
@@ -208,6 +212,27 @@ public class UserLoginActivity extends AppCompatActivity {
         });
     }
 
+    private void checkPendingAdminRequest(String universityId) {
+        String query = "university_id=eq." + universityId + "&select=*&limit=1";
+        SupabaseDatabaseHelper.select("admin_requests", query, new TypeToken<List<AdminRequest>>(){}.getType(), new SupabaseDatabaseHelper.DatabaseCallback<List<AdminRequest>>() {
+            @Override
+            public void onSuccess(List<AdminRequest> requests) {
+                stopLoading();
+                if (requests != null && !requests.isEmpty()) {
+                    ErrorHelper.showError(btnLogin, "Your account request is still pending approval. Please try again later.");
+                } else {
+                    ErrorHelper.showError(btnLogin, "No account found with this University ID.");
+                }
+            }
+
+            @Override
+            public void onFailure(String errorMessage) {
+                stopLoading();
+                ErrorHelper.showError(btnLogin, "Database error: " + errorMessage);
+            }
+        });
+    }
+
     private void performSupabaseLogin(String email, String password, String userType, boolean isMainAdmin, String dbId) {
 
         SupabaseAuthHelper.login(email, password, new SupabaseAuthHelper.AuthCallback() {
@@ -216,13 +241,7 @@ public class UserLoginActivity extends AppCompatActivity {
                 saveLoginState(userType, isMainAdmin, dbId, userId, accessToken, refreshToken);
                 SnackbarManager.show(SnackbarManager.Type.SUCCESS, "Login successful");
 
-                Intent intent;
-                if ("Admin".equalsIgnoreCase(userType) || isMainAdmin) {
-                    intent = new Intent(UserLoginActivity.this, AdminDashboardActivity.class);
-                } else {
-                    intent = new Intent(UserLoginActivity.this, CampusDashboardActivity.class);
-                }
-
+                Intent intent = new Intent(UserLoginActivity.this, CampusDashboardActivity.class);
                 intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
                 startActivity(intent);
                 finish();

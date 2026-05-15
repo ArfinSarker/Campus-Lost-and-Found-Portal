@@ -225,7 +225,8 @@
                 android:text="Contact"
                 android:textColor="@color/primaryColor"
                 android:textSize="16sp"
-                android:textStyle="bold" />
+                android:textStyle="bold"
+                android:visibility="gone" />
 
             <com.google.android.material.card.MaterialCardView
                 android:layout_width="match_parent"
@@ -493,7 +494,8 @@
                 android:text="Call Claimant"
                 app:cornerRadius="8dp"
                 app:icon="@drawable/ic_phone"
-                app:iconGravity="textStart" />
+                app:iconGravity="textStart"
+                android:visibility="gone" />
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnEmail"
@@ -505,7 +507,8 @@
                 android:textSize="24dp"
                 app:cornerRadius="8dp"
                 app:icon="@drawable/ic_envelope"
-                app:iconGravity="textStart" />
+                app:iconGravity="textStart"
+                android:visibility="gone" />
 
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>

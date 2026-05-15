@@ -38,7 +38,7 @@ public class ClaimDetailsActivity extends AppCompatActivity {
     private TabLayout tabLayoutIndicator;
     private LinearLayout llSection, llBatch, llLevelTerm, llDesignation, llDepartment, llOwnershipVerification, llFoundSpecifics;
     private MaterialButton btnCall, btnEmail, btnMarkReturned;
-    private String itemId, senderId, itemStatus, notificationType;
+    private String itemId, senderId, itemStatus, notificationType, currentUnivId;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -47,6 +47,9 @@ public class ClaimDetailsActivity extends AppCompatActivity {
 
         initializeViews();
         setupToolbar();
+
+        android.content.SharedPreferences prefs = getSharedPreferences("MyApp", MODE_PRIVATE);
+        currentUnivId = prefs.getString("universityId", null);
 
         String itemName = getIntent().getStringExtra("itemName");
         itemId = getIntent().getStringExtra("itemId");
@@ -58,6 +61,13 @@ public class ClaimDetailsActivity extends AppCompatActivity {
         notificationType = getIntent().getStringExtra("type");
 
         setupLabels();
+
+        // Immediate visibility check to prevent flicker
+        if (senderId != null && senderId.equals(currentUnivId)) {
+            tvContactLabel.setVisibility(View.GONE);
+            btnCall.setVisibility(View.GONE);
+            btnEmail.setVisibility(View.GONE);
+        }
 
         if (senderId != null) {
             setupClaimantProfile(senderId);
@@ -220,6 +230,17 @@ public class ClaimDetailsActivity extends AppCompatActivity {
                         }
                         tvDepartment.setText(user.getDepartment() != null ? user.getDepartment() : "Not Specified");
 
+                        // Contact visibility check
+                        if (currentUnivId != null && currentUnivId.equals(claimantId)) {
+                            tvContactLabel.setVisibility(View.GONE);
+                            btnCall.setVisibility(View.GONE);
+                            btnEmail.setVisibility(View.GONE);
+                        } else {
+                            tvContactLabel.setVisibility(View.VISIBLE);
+                            btnCall.setVisibility(View.VISIBLE);
+                            btnEmail.setVisibility(View.VISIBLE);
+                        }
+
                         if (user.getProfileImageUrl() != null && !user.getProfileImageUrl().isEmpty()) {
                             GlideApp.with(ClaimDetailsActivity.this)
                                     .load(user.getProfileImageUrl())
@@ -376,22 +397,72 @@ public class ClaimDetailsActivity extends AppCompatActivity {
     }
 
     private void markAsReturned() {
-        if (itemId == null || senderId == null || itemStatus == null) return;
+        if (itemId == null || senderId == null || itemStatus == null || currentUnivId == null) return;
         btnMarkReturned.setEnabled(false);
         btnMarkReturned.setText("Updating...");
         String table = "found".equals(itemStatus) ? "found_reports" : "lost_reports";
         String statusToSet = "found".equals(itemStatus) ? "Returned" : "Claimed";
+        
         Map<String, Object> updates = new HashMap<>();
-        updates.put("adminStatus", statusToSet);
-        updates.put("claimedByUserId", senderId);
+        updates.put("admin_status", statusToSet);
+        updates.put("claimed_by_id", senderId);
+        updates.put("status", "resolved");
 
-        SupabaseDatabaseHelper.update(table, "id=eq." + itemId, updates, new SupabaseDatabaseHelper.DatabaseCallback<>() {
+        SupabaseDatabaseHelper.update(table, "id=eq." + itemId, updates, new SupabaseDatabaseHelper.DatabaseCallback<String>() {
             @Override
             public void onSuccess(String result) {
-                SnackbarManager.show(SnackbarManager.Type.SUCCESS, "Item marked as " + statusToSet.toLowerCase());
-                btnMarkReturned.setText("Marked as " + statusToSet);
-                btnMarkReturned.setEnabled(false);
+                // Fetch reporter details to send in confirmation notification
+                SupabaseDatabaseHelper.select("profiles", "university_id=eq." + currentUnivId + "&limit=1", new TypeToken<List<User>>(){}.getType(), new SupabaseDatabaseHelper.DatabaseCallback<List<User>>() {
+                    @Override
+                    public void onSuccess(List<User> reporters) {
+                        User reporter = (reporters != null && !reporters.isEmpty()) ? reporters.get(0) : null;
+                        String reporterName = (reporter != null) ? reporter.getName() : "A user";
+                        
+                        // Fetch recipient (the person who found/claimed) profile for their auth_id (RLS)
+                        SupabaseDatabaseHelper.select("profiles", "university_id=eq." + senderId + "&limit=1", new TypeToken<List<User>>(){}.getType(), new SupabaseDatabaseHelper.DatabaseCallback<List<User>>() {
+                            @Override
+                            public void onSuccess(List<User> recipients) {
+                                if (recipients != null && !recipients.isEmpty()) {
+                                    User recipient = recipients.get(0);
+                                    String recipientAuthId = recipient.getAuthId();
+                                    
+                                    String notificationId = java.util.UUID.randomUUID().toString();
+                                    String itemName = tvItemName.getText().toString();
+                                    String type = "lost".equals(itemStatus) ? "item_claimed" : "item_return";
+                                    String message = "lost".equals(itemStatus) 
+                                        ? String.format("\"%s\" has marked that they received \"%s\" from you. Click to view details.", reporterName, itemName)
+                                        : String.format("\"%s\" has marked that they returned \"%s\" from you. Click to view details.", reporterName, itemName);
+
+                                    Notification notification = new Notification(notificationId, senderId, currentUnivId, 
+                                        reporterName, reporter != null ? reporter.getPhone() : "", 
+                                        reporter != null ? reporter.getEmail() : "", 
+                                        reporter != null ? reporter.getProfileImageUrl() : "", 
+                                        itemId, itemName, message, System.currentTimeMillis(), type, "");
+                                    notification.setItemName(itemName); // Ensure itemName is explicitly set
+                                    notification.setUserId(recipientAuthId);
+
+                                    SupabaseDatabaseHelper.insert("notifications", notification, new SupabaseDatabaseHelper.DatabaseCallback<String>() {
+                                        @Override
+                                        public void onSuccess(String r) {
+                                            finishWithSuccess(statusToSet);
+                                        }
+                                        @Override
+                                        public void onFailure(String e) {
+                                            SnackbarManager.show(SnackbarManager.Type.ERROR, "Status updated, but notification failed: " + e);
+                                            finishWithSuccess(statusToSet);
+                                        }
+                                    });
+                                } else {
+                                    finishWithSuccess(statusToSet);
+                                }
+                            }
+                            @Override public void onFailure(String e) { finishWithSuccess(statusToSet); }
+                        });
+                    }
+                    @Override public void onFailure(String e) { finishWithSuccess(statusToSet); }
+                });
             }
+
             @Override
             public void onFailure(String e) {
                 SnackbarManager.show(SnackbarManager.Type.ERROR, "Failed to update status");
@@ -399,5 +470,13 @@ public class ClaimDetailsActivity extends AppCompatActivity {
                 btnMarkReturned.setText("Mark as Returned");
             }
         });
+    }
+
+    private void finishWithSuccess(String statusToSet) {
+        SnackbarManager.show(SnackbarManager.Type.SUCCESS, "Item marked as " + statusToSet.toLowerCase());
+        btnMarkReturned.setText("Marked as " + statusToSet);
+        btnMarkReturned.setEnabled(false);
+        // Refresh item details to show updated state
+        fetchItemDetails(itemId);
     }
 }

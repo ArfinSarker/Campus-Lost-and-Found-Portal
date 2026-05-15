@@ -84,6 +84,15 @@ public class AdminReportManagementActivity extends AppCompatActivity {
         fetchReports();
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        // Refresh when returning from review screen in case it was deleted or updated
+        if (allReports != null && !allReports.isEmpty()) {
+            fetchReports();
+        }
+    }
+
     private void initializeViews() {
         rvAdminReports = findViewById(R.id.rvAdminReports);
         progressBar = findViewById(R.id.progressBar);

@@ -24,6 +24,11 @@
             android:id="@+id/nav_admin_reports"
             android:icon="@drawable/ic_note"
             android:title="My Admin Reports" />
+        <item
+            android:id="@+id/nav_admin_dashboard"
+            android:icon="@drawable/ic_layers"
+            android:title="@string/menu_admin_dashboard"
+            android:visible="false" />
     </group>
 
     <item android:title="Other">

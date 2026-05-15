@@ -70,7 +70,11 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ViewHolder> {
         if (holder.tvDate != null) holder.tvDate.setText(item.getDate());
         
         if (holder.tvReportId != null) {
-            holder.tvReportId.setText(ReportIdFormatter.format(item.getDisplayId()));
+            String displayId = item.getDisplayId();
+            if (displayId == null || displayId.isEmpty()) {
+                displayId = item.getReportId();
+            }
+            holder.tvReportId.setText(ReportIdFormatter.format(displayId));
         }
 
         if (holder.tvType != null) {

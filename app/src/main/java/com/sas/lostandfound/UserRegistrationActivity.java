@@ -502,6 +502,7 @@ public class UserRegistrationActivity extends AppCompatActivity {
 
         showLoading(true);
 
+        // Step 1: Check if University ID exists in profiles
         SupabaseDatabaseHelper.select("profiles", "university_id=eq." + universityId, new TypeToken<List<User>>(){}.getType(), new SupabaseDatabaseHelper.DatabaseCallback<List<User>>() {
             @Override
             public void onSuccess(List<User> users) {
@@ -510,7 +511,8 @@ public class UserRegistrationActivity extends AppCompatActivity {
                     etUniversityId.requestFocus();
                     tilUniversityId.setError("An account with this University ID already exists. Please log in.");
                 } else {
-                    performAuthRegistration(email, password, universityId, fullName, userType);
+                    // Step 2: Check if University ID exists in admin_requests
+                    checkAdminRequestExists(universityId, email, password, fullName, userType);
                 }
             }
 
@@ -518,6 +520,27 @@ public class UserRegistrationActivity extends AppCompatActivity {
             public void onFailure(String errorMessage) {
                 showLoading(false);
                 ErrorHelper.showError(btnCreateAccount, "Database error: " + errorMessage);
+            }
+        });
+    }
+
+    private void checkAdminRequestExists(String universityId, String email, String password, String fullName, String userType) {
+        SupabaseDatabaseHelper.select("admin_requests", "university_id=eq." + universityId, new TypeToken<List<AdminRequest>>(){}.getType(), new SupabaseDatabaseHelper.DatabaseCallback<List<AdminRequest>>() {
+            @Override
+            public void onSuccess(List<AdminRequest> requests) {
+                if (requests != null && !requests.isEmpty()) {
+                    showLoading(false);
+                    etUniversityId.requestFocus();
+                    tilUniversityId.setError("An admin request for this ID is already pending. Please wait for approval.");
+                } else {
+                    performAuthRegistration(email, password, universityId, fullName, userType);
+                }
+            }
+
+            @Override
+            public void onFailure(String errorMessage) {
+                showLoading(false);
+                ErrorHelper.showError(btnCreateAccount, "Database error checking requests: " + errorMessage);
             }
         });
     }
@@ -537,7 +560,7 @@ public class UserRegistrationActivity extends AppCompatActivity {
             public void onSuccess(String result) {
                 showLoading(false);
                 Log.d("UserRegistration", "Admin request submitted successfully");
-                SnackbarManager.show(SnackbarManager.Type.SUCCESS, "Admin request submitted. Please wait for approval before logging in.");
+                SnackbarManager.show(SnackbarManager.Type.SUCCESS, "Your request has been sent to the Main Admin. Please wait for verification and try logging in later.");
                 redirectToLogin();
             }
 
@@ -562,6 +585,12 @@ public class UserRegistrationActivity extends AppCompatActivity {
             @Override
             public void onSuccess(String authId, String accessToken, String refreshToken) {
                 Log.d("UserRegistration", "Supabase Auth success. Auth UID: " + authId);
+                
+                // Set the token immediately so subsequent database calls are authenticated
+                if (accessToken != null && !accessToken.isEmpty()) {
+                    SupabaseDatabaseHelper.setAuthToken(accessToken);
+                }
+
                 String dbUserId = universityId;
 
                 if (profileImageUri != null) {

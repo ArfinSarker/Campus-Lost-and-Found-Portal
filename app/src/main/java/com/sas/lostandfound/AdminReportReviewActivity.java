@@ -396,14 +396,12 @@ public class AdminReportReviewActivity extends AppCompatActivity {
     private void confirmDelete() {
         new AlertDialog.Builder(this)
                 .setTitle("Delete Report")
-                .setMessage("Are you sure you want to delete this report for both you and the reporter?")
+                .setMessage("Are you sure you want to permanently delete this report?")
                 .setPositiveButton("Delete", (dialog, which) -> {
                     progressBar.setVisibility(View.VISIBLE);
-                    Map<String, Object> update = new HashMap<>();
-                    update.put("deleted_by_user", true);
-                    SupabaseDatabaseHelper.update("admin_reports", "id=eq." + reportId, update, new SupabaseDatabaseHelper.DatabaseCallback<String>() {
+                    SupabaseDatabaseHelper.delete("admin_reports", "id=eq." + reportId, new SupabaseDatabaseHelper.DatabaseCallback<Void>() {
                         @Override
-                        public void onSuccess(String result) {
+                        public void onSuccess(Void result) {
                             progressBar.setVisibility(View.GONE);
                             finish();
                         }
@@ -434,6 +432,13 @@ public class AdminReportReviewActivity extends AppCompatActivity {
             public void onSuccess(String result) {
                 progressBar.setVisibility(View.GONE);
                 SnackbarManager.show(SnackbarManager.Type.SUCCESS, "Report updated successfully");
+                
+                // Refresh local report data to get the latest title etc.
+                if (currentReport != null) {
+                    currentReport.setStatus(newStatus);
+                    currentReport.setAdminNote(adminNote);
+                }
+                
                 sendNotificationToUser(currentReport.getUniversityId(), newStatus);
             }
 
@@ -446,28 +451,42 @@ public class AdminReportReviewActivity extends AppCompatActivity {
     }
 
     private void sendNotificationToUser(String userId, String status) {
-        if (userId == null || "Pending".equalsIgnoreCase(status)) return;
+        if (userId == null || !"Reviewed".equalsIgnoreCase(status)) return;
         
-        // Fetch recipient's Auth ID for RLS
-        SupabaseDatabaseHelper.select("profiles", "university_id=eq." + userId + "&limit=1", new TypeToken<List<User>>(){}.getType(), new SupabaseDatabaseHelper.DatabaseCallback<List<User>>() {
-            @Override
-            public void onSuccess(List<User> recipients) {
-                if (recipients == null || recipients.isEmpty()) return;
-                String recipientAuthId = recipients.get(0).getAuthId();
+        // Use reporterAuthId directly from currentReport for RLS if available
+        String recipientAuthId = currentReport.getReporterAuthId();
+        
+        if (recipientAuthId != null && !recipientAuthId.isEmpty()) {
+            performNotificationInsert(userId, recipientAuthId);
+        } else {
+            // Fallback to fetch recipient's Auth ID from profiles if missing in report
+            SupabaseDatabaseHelper.select("profiles", "university_id=eq." + userId + "&limit=1", new TypeToken<List<User>>(){}.getType(), new SupabaseDatabaseHelper.DatabaseCallback<List<User>>() {
+                @Override
+                public void onSuccess(List<User> recipients) {
+                    if (recipients != null && !recipients.isEmpty()) {
+                        performNotificationInsert(userId, recipients.get(0).getAuthId());
+                    }
+                }
+                @Override public void onFailure(String e) {}
+            });
+        }
+    }
 
-                String message = "Your report \"" + currentReport.getTitle() + "\" has been reviewed by the admin.";
-                String notificationId = UUID.randomUUID().toString();
-                
-                Notification notification = new Notification(notificationId, userId, "admin", "Admin", "", "", 
-                    currentReport.getReportId(), currentReport.getTitle(), message, System.currentTimeMillis(), "admin_report", "");
-                notification.setUserId(recipientAuthId); // Set for RLS
-                
-                SupabaseDatabaseHelper.insert("notifications", notification, new SupabaseDatabaseHelper.DatabaseCallback<String>() {
-                    @Override public void onSuccess(String r) {}
-                    @Override public void onFailure(String e) {}
-                });
+    private void performNotificationInsert(String userId, String recipientAuthId) {
+        // Required format: Your report "<Report Name>" has been reviewed. Click to see details.
+        String reportTitle = currentReport.getTitle() != null ? currentReport.getTitle() : "Report";
+        String message = "Your report \"" + reportTitle + "\" has been reviewed. Click to see details.";
+        String notificationId = UUID.randomUUID().toString();
+        
+        Notification notification = new Notification(notificationId, userId, "admin", "Admin", "", "", 
+            currentReport.getId(), reportTitle, message, System.currentTimeMillis(), "admin_report", "");
+        notification.setUserId(recipientAuthId); // Set for RLS
+        
+        SupabaseDatabaseHelper.insert("notifications", notification, new SupabaseDatabaseHelper.DatabaseCallback<String>() {
+            @Override public void onSuccess(String r) {}
+            @Override public void onFailure(String e) {
+                android.util.Log.e("AdminReportReview", "Failed to send notification: " + e);
             }
-            @Override public void onFailure(String e) {}
         });
     }
 

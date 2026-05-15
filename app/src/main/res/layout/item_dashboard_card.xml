@@ -67,6 +67,30 @@
                 android:layout_height="4dp"
                 android:layout_gravity="bottom"
                 android:background="@color/primaryColor" />
+
+            <!-- Unique ID Badge Overlay (Top Right) -->
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/cardReportId"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="8dp"
+                android:layout_gravity="top|end"
+                app:cardCornerRadius="6dp"
+                app:cardElevation="4dp"
+                app:cardBackgroundColor="@color/primaryDarkColor"
+                app:strokeWidth="0dp">
+
+                <TextView
+                    android:id="@+id/tvReportId"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:paddingHorizontal="8dp"
+                    android:paddingVertical="3dp"
+                    android:textColor="@color/white"
+                    android:textSize="10sp"
+                    android:textStyle="bold"
+                    tools:text="L1" />
+            </com.google.android.material.card.MaterialCardView>
         </FrameLayout>
 
         <LinearLayout

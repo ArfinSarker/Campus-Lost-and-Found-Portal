@@ -120,7 +120,9 @@ public class Notification {
     public String getReportId() { return reportId; }
     public void setReportId(String reportId) { this.reportId = reportId; }
     
-    public String getItemId() { return reportId; } // Compatibility
+    public String getItemId() { 
+        return (itemIdField != null && !itemIdField.isEmpty()) ? itemIdField : reportId; 
+    } // Compatibility
     public void setItemId(String itemId) { this.reportId = itemId; }
 
     public String getMessage() { return message; }

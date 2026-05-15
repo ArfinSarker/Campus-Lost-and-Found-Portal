@@ -97,6 +97,12 @@ public class CampusMyItemsActivity extends AppCompatActivity {
     }
 
     @Override
+    protected void onResume() {
+        super.onResume();
+        fetchMyItems();
+    }
+
+    @Override
     public void onEnterAnimationComplete() {
         super.onEnterAnimationComplete();
         // UI refinement after activity transition
@@ -261,16 +267,29 @@ public class CampusMyItemsActivity extends AppCompatActivity {
     }
 
     private void fetchAdminReportsInternal(String universityId, String authId, List<Item> accumulatedItems) {
-        String filter = "or=(reporter_id.eq." + universityId + (authId != null ? ",reporter_auth_id.eq." + authId : "") + ")";
+        StringBuilder filterBuilder = new StringBuilder();
+        filterBuilder.append("or=(");
+        boolean hasFilter = false;
+        if (universityId != null && !universityId.isEmpty()) {
+            filterBuilder.append("reporter_id.eq.").append(universityId);
+            hasFilter = true;
+        }
+        if (authId != null && !authId.isEmpty()) {
+            if (hasFilter) filterBuilder.append(",");
+            filterBuilder.append("reporter_auth_id.eq.").append(authId);
+            hasFilter = true;
+        }
+        filterBuilder.append(")");
+
+        String filter = hasFilter ? filterBuilder.toString() : "id=not.is.null";
+
         SupabaseDatabaseHelper.select("admin_reports", filter, new TypeToken<List<AdminReport>>(){}.getType(), new SupabaseDatabaseHelper.DatabaseCallback<List<AdminReport>>() {
             @Override
             public void onSuccess(List<AdminReport> reports) {
                 if (reports != null) {
                     for (AdminReport report : reports) {
-                        if (!report.isDeletedByUser()) {
-                            Item item = convertToItem(report);
-                            if (shouldInclude(item, universityId, authId)) accumulatedItems.add(item);
-                        }
+                        Item item = convertToItem(report);
+                        if (shouldInclude(item, universityId, authId)) accumulatedItems.add(item);
                     }
                 }
                 finalizeAndDisplay(accumulatedItems);

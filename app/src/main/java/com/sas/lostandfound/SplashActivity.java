@@ -135,12 +135,7 @@ public class SplashActivity extends AppCompatActivity {
     private void proceedToDashboard(User user) {
         Intent intent;
         if (user != null) {
-            boolean dbIsAdmin = "admin".equalsIgnoreCase(user.getRole()) || user.isAdmin() || "Admin".equalsIgnoreCase(user.getUserType());
-            if (dbIsAdmin) {
-                intent = new Intent(SplashActivity.this, AdminDashboardActivity.class);
-            } else {
-                intent = new Intent(SplashActivity.this, CampusDashboardActivity.class);
-            }
+            intent = new Intent(SplashActivity.this, CampusDashboardActivity.class);
         } else {
             intent = new Intent(SplashActivity.this, DashboardActivity.class);
         }
@@ -150,12 +145,9 @@ public class SplashActivity extends AppCompatActivity {
 
     private void fallbackRedirect(SharedPreferences prefs) {
         String userType = prefs.getString("userType", "");
-        boolean isAdminLoggedIn = prefs.getBoolean("isAdminLoggedIn", false);
         
         Intent intent;
-        if (isAdminLoggedIn || "Admin".equalsIgnoreCase(userType)) {
-            intent = new Intent(SplashActivity.this, AdminDashboardActivity.class);
-        } else if ("Student".equalsIgnoreCase(userType) || "Staff".equalsIgnoreCase(userType)) {
+        if (!userType.isEmpty()) {
             intent = new Intent(SplashActivity.this, CampusDashboardActivity.class);
         } else {
             intent = new Intent(SplashActivity.this, DashboardActivity.class);

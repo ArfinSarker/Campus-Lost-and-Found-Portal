@@ -33,10 +33,17 @@ public class AdminRequest {
     @SerializedName("created_at")
     private String createdAt;
 
-    // Transient for backward compatibility or temporary logic
-    private transient String password;
-    private transient String userType;
-    private transient String verificationCode;
+    @SerializedName("verification_code")
+    private String verificationCode;
+
+    @SerializedName("display_name")
+    private String displayName;
+
+    @SerializedName("password")
+    private String password;
+
+    @SerializedName("user_type")
+    private String userType;
 
     public AdminRequest() {
     }
@@ -54,6 +61,7 @@ public class AdminRequest {
         this.profileImageUrl = profileImageUrl;
         this.userType = "Admin";
         this.requestStatus = "pending";
+        this.displayName = fullName;
     }
 
     public String getUniversityId() { return universityId; }
@@ -63,7 +71,10 @@ public class AdminRequest {
     public void setAuthId(String id) { this.authId = id; }
 
     public String getFullName() { return fullName; }
-    public void setFullName(String name) { this.fullName = name; }
+    public void setFullName(String name) { 
+        this.fullName = name; 
+        this.displayName = name;
+    }
 
     public String getEmail() { return email; }
     public void setEmail(String email) { this.email = email; }
@@ -94,4 +105,7 @@ public class AdminRequest {
 
     public String getCreated_at() { return createdAt; }
     public void setCreated_at(String date) { this.createdAt = date; }
+
+    public String getDisplayName() { return displayName; }
+    public void setDisplayName(String displayName) { this.displayName = displayName; }
 }

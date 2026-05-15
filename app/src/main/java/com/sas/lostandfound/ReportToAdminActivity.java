@@ -256,6 +256,7 @@ public class ReportToAdminActivity extends AppCompatActivity {
                 reportId, displayId, title, category, description, relatedId, reporterName, universityId, currentAuthId, phone, firstImage, priority, "Pending", System.currentTimeMillis()
         );
         report.setImageUrls(imageUrls != null ? imageUrls : new ArrayList<>());
+        report.setUpdatedAt(System.currentTimeMillis());
 
         SupabaseDatabaseHelper.insert("admin_reports", report, new SupabaseDatabaseHelper.DatabaseCallback<String>() {
             @Override

@@ -61,6 +61,8 @@ public class AdminReport {
 
     public AdminReport() {
         this.imageUrls = new ArrayList<>();
+        this.timestamp = System.currentTimeMillis();
+        this.updatedAt = System.currentTimeMillis();
     }
 
     public AdminReport(String id, String title, String category, String description, String relatedId, String reporterAuthId, String priority) {

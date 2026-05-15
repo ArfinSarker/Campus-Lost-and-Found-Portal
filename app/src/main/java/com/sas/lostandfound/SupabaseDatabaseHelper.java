@@ -1,5 +1,7 @@
 package com.sas.lostandfound;
 
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.Handler;
 import android.os.Looper;
 
@@ -16,6 +18,7 @@ import java.util.concurrent.TimeUnit;
 
 import okhttp3.Call;
 import okhttp3.Callback;
+import okhttp3.Interceptor;
 import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -28,12 +31,77 @@ public class SupabaseDatabaseHelper {
             .connectTimeout(30, TimeUnit.SECONDS)
             .writeTimeout(30, TimeUnit.SECONDS)
             .readTimeout(30, TimeUnit.SECONDS)
+            .addInterceptor(new Interceptor() {
+                @Override
+                public Response intercept(Chain chain) throws IOException {
+                    Request request = chain.request();
+                    Response response = chain.proceed(request);
+
+                    // If unauthorized, try to refresh token
+                    if (response.code() == 401) {
+                        String body = response.peekBody(2048).string();
+                        if (body.contains("JWT expired") || body.contains("PGRST301") || body.contains("JWT invalid")) {
+                            synchronized (SupabaseDatabaseHelper.class) {
+                                // Check if token was already updated by another thread
+                                SharedPreferences prefs = LostAndFoundApplication.getContext().getSharedPreferences("MyApp", Context.MODE_PRIVATE);
+                                String currentToken = prefs.getString("accessToken", "");
+                                String refreshToken = prefs.getString("refreshToken", "");
+
+                                String requestToken = request.header("Authorization");
+                                if (requestToken != null && requestToken.equals("Bearer " + currentToken)) {
+                                    // Token in request is the same as current, so we really need a refresh
+                                    if (!refreshToken.isEmpty()) {
+                                        String refreshResponse = SupabaseAuthHelper.refreshSessionSync(refreshToken);
+                                        if (refreshResponse != null) {
+                                            try {
+                                                JSONObject json = new JSONObject(refreshResponse);
+                                                String newAccessToken = json.getString("access_token");
+                                                String newRefreshToken = json.optString("refresh_token", refreshToken);
+
+                                                // Save new tokens
+                                                prefs.edit()
+                                                        .putString("accessToken", newAccessToken)
+                                                        .putString("refreshToken", newRefreshToken)
+                                                        .apply();
+
+                                                setAuthToken(newAccessToken);
+
+                                                // Retry request with new token
+                                                response.close(); // Close the 401 response
+                                                Request newRequest = request.newBuilder()
+                                                        .header("Authorization", "Bearer " + newAccessToken)
+                                                        .build();
+                                                return chain.proceed(newRequest);
+                                            } catch (Exception e) {
+                                                e.printStackTrace();
+                                            }
+                                        }
+                                    }
+                                } else if (!currentToken.isEmpty()) {
+                                    // Token was already refreshed by another thread, just retry
+                                    response.close();
+                                    Request newRequest = request.newBuilder()
+                                            .header("Authorization", "Bearer " + currentToken)
+                                            .build();
+                                    return chain.proceed(newRequest);
+                                }
+                            }
+                        }
+                    }
+                    return response;
+                }
+            })
             .build();
 
     private static final Handler mainHandler = new Handler(Looper.getMainLooper());
     private static final MediaType JSON = MediaType.get("application/json; charset=utf-8");
     private static final Gson gson = new Gson();
     private static String authToken = null;
+
+    public static void init(Context context) {
+        SharedPreferences prefs = context.getSharedPreferences("MyApp", Context.MODE_PRIVATE);
+        authToken = prefs.getString("accessToken", null);
+    }
 
     public static void setAuthToken(String token) {
         authToken = token;
@@ -86,7 +154,8 @@ public class SupabaseDatabaseHelper {
                         T result = gson.fromJson(body, type);
                         mainHandler.post(() -> callback.onSuccess(result));
                     } else {
-                        mainHandler.post(() -> callback.onFailure("Server error: " + response.code() + " " + body));
+                        String errorMessage = parseDatabaseError(response.code(), body);
+                        mainHandler.post(() -> callback.onFailure(errorMessage));
                     }
                 } catch (Exception e) {
                     mainHandler.post(() -> callback.onFailure("Parsing error: " + e.getMessage()));
@@ -95,6 +164,22 @@ public class SupabaseDatabaseHelper {
                 }
             }
         });
+    }
+
+    private static String parseDatabaseError(int code, String body) {
+        try {
+            if (body != null && !body.isEmpty()) {
+                JSONObject json = new JSONObject(body);
+                if (json.has("message")) {
+                    String msg = json.getString("message");
+                    if (json.has("details") && !json.isNull("details") && !json.getString("details").isEmpty()) {
+                        return msg + " (" + json.getString("details") + ")";
+                    }
+                    return msg;
+                }
+            }
+        } catch (Exception ignored) {}
+        return "Server error: " + code + (body != null && !body.isEmpty() ? " " + body : "");
     }
 
     /**
@@ -125,7 +210,8 @@ public class SupabaseDatabaseHelper {
                     if (response.isSuccessful()) {
                         mainHandler.post(() -> callback.onSuccess(body));
                     } else {
-                        mainHandler.post(() -> callback.onFailure("Server error: " + response.code() + " " + body));
+                        String errorMessage = parseDatabaseError(response.code(), body);
+                        mainHandler.post(() -> callback.onFailure(errorMessage));
                     }
                 } catch (Exception e) {
                     mainHandler.post(() -> callback.onFailure("Parsing error: " + e.getMessage()));
@@ -164,7 +250,8 @@ public class SupabaseDatabaseHelper {
                     if (response.isSuccessful()) {
                         mainHandler.post(() -> callback.onSuccess(body));
                     } else {
-                        mainHandler.post(() -> callback.onFailure("Server error: " + response.code() + " " + body));
+                        String errorMessage = parseDatabaseError(response.code(), body);
+                        mainHandler.post(() -> callback.onFailure(errorMessage));
                     }
                 } catch (Exception e) {
                     mainHandler.post(() -> callback.onFailure("Parsing error: " + e.getMessage()));
@@ -200,7 +287,8 @@ public class SupabaseDatabaseHelper {
                     mainHandler.post(() -> callback.onSuccess(null));
                 } else {
                     String body = response.body() != null ? response.body().string() : "";
-                    mainHandler.post(() -> callback.onFailure("Server error: " + response.code() + " " + body));
+                    String errorMessage = parseDatabaseError(response.code(), body);
+                    mainHandler.post(() -> callback.onFailure(errorMessage));
                 }
                 if (response.body() != null) response.close();
             }
@@ -234,7 +322,8 @@ public class SupabaseDatabaseHelper {
                     if (response.isSuccessful()) {
                         mainHandler.post(() -> callback.onSuccess(body));
                     } else {
-                        mainHandler.post(() -> callback.onFailure("Server error: " + response.code() + " " + body));
+                        String errorMessage = parseDatabaseError(response.code(), body);
+                        mainHandler.post(() -> callback.onFailure(errorMessage));
                     }
                 } catch (Exception e) {
                     mainHandler.post(() -> callback.onFailure("Parsing error: " + e.getMessage()));

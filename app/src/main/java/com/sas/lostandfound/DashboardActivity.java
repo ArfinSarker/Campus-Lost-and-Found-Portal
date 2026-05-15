@@ -116,13 +116,7 @@ public class DashboardActivity extends AppCompatActivity {
                     if (users != null && !users.isEmpty()) {
                         User user = users.get(0);
                         if (user != null) {
-                            boolean dbIsAdmin = "admin".equalsIgnoreCase(user.getRole()) || user.isAdmin() || "Admin".equalsIgnoreCase(user.getUserType());
-                            Intent intent;
-                            if (dbIsAdmin) {
-                                intent = new Intent(DashboardActivity.this, AdminDashboardActivity.class);
-                            } else {
-                                intent = new Intent(DashboardActivity.this, CampusDashboardActivity.class);
-                            }
+                            Intent intent = new Intent(DashboardActivity.this, CampusDashboardActivity.class);
                             intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
                             startActivity(intent);
                             finish();
@@ -132,10 +126,12 @@ public class DashboardActivity extends AppCompatActivity {
                 @Override public void onFailure(String e) {}
             });
         } else {
-            boolean isAdminLoggedIn = prefs.getBoolean("isAdminLoggedIn", false);
-            String userType = prefs.getString("userType", "");
-            if (isAdminLoggedIn || "Admin".equalsIgnoreCase(userType)) {
-                startActivity(new Intent(this, AdminDashboardActivity.class));
+            // Already handled in CampusDashboardActivity for logged in users.
+            // If they reach here, it might be an old session or something.
+            // For safety, redirect to CampusDashboardActivity which will then handle role-based navigation.
+            SharedPreferences prefs1 = getSharedPreferences("MyApp", MODE_PRIVATE);
+            if (!prefs1.getString("universityId", "").isEmpty()) {
+                startActivity(new Intent(this, CampusDashboardActivity.class));
                 finish();
             }
         }

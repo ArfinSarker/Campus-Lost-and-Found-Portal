@@ -271,13 +271,21 @@ public class AdminReportDetailsActivity extends AppCompatActivity {
     private void stopAutoSlide() { if (sliderRunnable != null) sliderHandler.removeCallbacks(sliderRunnable); }
 
     private void confirmDeleteForUser() {
-        new AlertDialog.Builder(this).setTitle("Delete Report").setMessage("Remove this report from your history?").setPositiveButton("Delete", (dialog, which) -> {
+        new AlertDialog.Builder(this).setTitle("Delete Report").setMessage("Permanently remove this report?").setPositiveButton("Delete", (dialog, which) -> {
             if (progressBar != null) progressBar.setVisibility(View.VISIBLE);
-            Map<String, Object> update = new HashMap<>();
-            update.put("deleted_by_user", true);
-            SupabaseDatabaseHelper.update("admin_reports", "id=eq." + reportId, update, new SupabaseDatabaseHelper.DatabaseCallback<>() {
-                @Override public void onSuccess(String r) { if (progressBar != null) progressBar.setVisibility(View.GONE); finish(); }
-                @Override public void onFailure(String e) { if (progressBar != null) progressBar.setVisibility(View.GONE); ErrorHelper.showError(tvTitle, "Failed to delete"); }
+            
+            SupabaseDatabaseHelper.delete("admin_reports", "id=eq." + reportId, new SupabaseDatabaseHelper.DatabaseCallback<Void>() {
+                @Override
+                public void onSuccess(Void result) {
+                    if (progressBar != null) progressBar.setVisibility(View.GONE);
+                    finish();
+                }
+
+                @Override
+                public void onFailure(String errorMessage) {
+                    if (progressBar != null) progressBar.setVisibility(View.GONE);
+                    ErrorHelper.showError(tvTitle, "Failed to delete: " + errorMessage);
+                }
             });
         }).setNegativeButton("Cancel", null).show();
     }

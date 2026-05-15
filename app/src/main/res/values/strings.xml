@@ -13,7 +13,7 @@
     <string name="stat_found_items">Found Items</string>
     <string name="stat_resolved">Resolved</string>
     <string name="recently_reported_items">Recently reported items</string>
-    <string name="browse_all_arrow">Browse all →</string>
+    <string name="browse_all_arrow">Search all →</string>
     <string name="contact_us">Contact Us</string>
     <string name="view_more">View More</string>
     <string name="login_to_view_more">Login to view more</string>
@@ -82,6 +82,7 @@
     <!-- Profile Dropdown -->
     <string name="user_role_student">Student</string>
     <string name="user_role_staff">Staff</string>
+    <string name="menu_admin_dashboard">Admin Dashboard</string>
     <string name="menu_settings">Settings</string>
     <string name="btn_log_out">Log Out</string>
 
@@ -126,7 +127,7 @@
     <string name="dashboard_title">Dashboard</string>
     <string name="logout">Logout</string>
     <string name="tab_home">Home</string>
-    <string name="tab_browse">Browse</string>
+    <string name="tab_browse">Search</string>
     <string name="tab_report">Report</string>
     <string name="welcomeUser">Welcome, %1$s!</string>
     <string name="need_help">Need Help?</string>
@@ -207,7 +208,7 @@
     <string name="modal_text_2">Designed with a clean SaaS dashboard look, ensuring consistency across all screens.</string>
 
     <!-- Browse Items Strings -->
-    <string name="title_browse_items">Browse Items</string>
+    <string name="title_browse_items">Search Items</string>
     <string name="hint_search_items">Search lost or found items...</string>
     <string name="chip_all">All</string>
     <string name="chip_lost">Lost</string>

@@ -42,7 +42,7 @@
                     style="@style/TextAppearance.App.SectionTitle"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    tools:text="John Doe" />
+                    tools:text="Md. Shamsul Arfin Sarker" />
 
                 <TextView
                     android:id="@+id/tvRequestDesignation"
@@ -51,7 +51,7 @@
                     android:layout_height="wrap_content"
                     android:textColor="@color/primaryColor"
                     android:textStyle="bold"
-                    tools:text="Lecturer" />
+                    tools:text="Main Admin" />
 
                 <TextView
                     android:id="@+id/tvRequestId"
@@ -76,8 +76,8 @@
             app:drawableStartCompat="@drawable/ic_envelope"
             android:drawablePadding="8dp"
             android:gravity="center_vertical"
-            app:drawableTint="@color/primaryColor"
-            tools:text="email@example.com" />
+            app:drawableTint="@color/lightRed"
+            tools:text="m.shamsularfinsarkernayan@gmail.com" />
 
         <TextView
             android:id="@+id/tvRequestPhone"
@@ -88,8 +88,8 @@
             app:drawableStartCompat="@drawable/ic_phone"
             android:drawablePadding="8dp"
             android:gravity="center_vertical"
-            app:drawableTint="@color/primaryColor"
-            tools:text="+880123456789" />
+            app:drawableTint="@color/vibrantGreen"
+            tools:text="+8801819966626" />
 
         <TextView
             android:id="@+id/tvVerificationCode"
@@ -97,12 +97,12 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="12dp"
-            android:background="@color/badge_found_bg"
+            android:background="@drawable/bg_orange"
             android:paddingHorizontal="12dp"
             android:paddingVertical="4dp"
             android:textStyle="bold"
             android:textColor="@color/white"
-            tools:text="Code: ADMIN123" />
+            tools:text="Code: ArfinSarker" />
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -119,7 +119,10 @@
                 android:layout_weight="1"
                 android:text="@string/btn_deny"
                 android:textColor="@color/statusLost"
-                app:strokeColor="@color/statusLost" />
+                app:strokeColor="@color/statusLost"
+                android:paddingVertical="9dp"
+                app:cornerRadius="10dp"
+                app:strokeWidth="1.5dp"/>
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnAccept"

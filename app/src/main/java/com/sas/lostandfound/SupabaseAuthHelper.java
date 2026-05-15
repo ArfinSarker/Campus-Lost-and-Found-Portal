@@ -83,6 +83,36 @@ public class SupabaseAuthHelper {
         }
     }
 
+    /**
+     * Synchronous version of refreshSession for use in OkHttp Interceptors.
+     * Returns a JSON string containing the new tokens or null if failed.
+     */
+    public static String refreshSessionSync(String refreshToken) {
+        String baseUrl = sanitizeUrl(SupabaseConfig.SUPABASE_URL);
+        String url = baseUrl + "/auth/v1/token?grant_type=refresh_token";
+
+        try {
+            JSONObject json = new JSONObject();
+            json.put("refresh_token", refreshToken);
+
+            Request request = new Request.Builder()
+                    .url(url)
+                    .addHeader("apikey", SupabaseConfig.SUPABASE_KEY)
+                    .addHeader("Content-Type", "application/json")
+                    .post(RequestBody.create(json.toString(), JSON))
+                    .build();
+
+            try (Response response = client.newCall(request).execute()) {
+                if (response.isSuccessful() && response.body() != null) {
+                    return response.body().string();
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
     public static void signUp(String email, String password, AuthCallback callback) {
         String baseUrl = sanitizeUrl(SupabaseConfig.SUPABASE_URL);
         String url = baseUrl + "/auth/v1/signup";

@@ -78,6 +78,7 @@ public class UserProfileActivity extends AppCompatActivity {
     private boolean isDataLoaded = false;
     private boolean isProfilePictureRemoved = false;
     private boolean isAdminViewing = false;
+    private boolean isViewOnly = false;
     private boolean fromDrawer = false;
     private String targetUserId;
 
@@ -90,6 +91,7 @@ public class UserProfileActivity extends AppCompatActivity {
         setContentView(R.layout.activity_user_profile);
 
         isAdminViewing = getIntent().getBooleanExtra("isAdminViewing", false);
+        isViewOnly = getIntent().getBooleanExtra("isViewOnly", false);
         targetUserId = getIntent().getStringExtra("targetUserId");
         fromDrawer = getIntent().getBooleanExtra("fromDrawer", false);
 
@@ -100,7 +102,7 @@ public class UserProfileActivity extends AppCompatActivity {
         // Initial Role-based UI setup from SharedPreferences for immediate response
         android.content.SharedPreferences prefs = getSharedPreferences("MyApp", MODE_PRIVATE);
         String savedUserType = prefs.getString("userType", "Student");
-        if (!isAdminViewing) {
+        if (!isAdminViewing && !isViewOnly) {
             ProfileRoleHelper.applyRoleVisibility(savedUserType, tilDesignation, tilBatch, tilLevelTerm, tilDepartment, tilSection);
         }
 
@@ -119,7 +121,7 @@ public class UserProfileActivity extends AppCompatActivity {
         new android.os.Handler(android.os.Looper.getMainLooper()).postDelayed(() -> {
             setupDropdowns();
 
-            if (isAdminViewing && targetUserId != null) {
+            if ((isAdminViewing || isViewOnly) && targetUserId != null) {
                 currentUniversityId = targetUserId;
                 loadUserData(targetUserId);
                 setupAdminView();
@@ -137,7 +139,6 @@ public class UserProfileActivity extends AppCompatActivity {
                 }
 
                 fabChangePhoto.setOnClickListener(v -> showImageSourceDialog());
-                ivProfilePicture.setOnClickListener(v -> showImageSourceDialog());
 
                 setupEditableToggles();
                 setupChangeDetection();
@@ -153,7 +154,7 @@ public class UserProfileActivity extends AppCompatActivity {
      * and the correct item is highlighted when returning to the dashboard.
      */
     private void handleBackNavigation() {
-        if (isAdminViewing) {
+        if (isAdminViewing || isViewOnly) {
             finish();
             return;
         }
@@ -171,21 +172,27 @@ public class UserProfileActivity extends AppCompatActivity {
 
     private void setupAdminView() {
         // Initial title, will be updated in loadUserData
-        tvHeaderTitle.setText("User Profile");
+        tvHeaderTitle.setText(isViewOnly ? "Profile Information" : "User Profile");
         fabChangePhoto.setVisibility(View.GONE);
         if (changePasswordSection != null) changePasswordSection.setVisibility(View.GONE);
-        if (activitySection != null) activitySection.setVisibility(View.VISIBLE);
-        if (btnDeleteUser != null) {
-            btnDeleteUser.setVisibility(View.VISIBLE);
-            btnDeleteUser.setOnClickListener(v -> confirmDeleteUser());
-        }
         
-        // Setup click listeners for activity sections
-        tvLostReportsCount.setOnClickListener(v -> openFilteredItemList("lost"));
-        tvFoundReportsCount.setOnClickListener(v -> openFilteredItemList("found"));
-        tvReturnedItemsCount.setOnClickListener(v -> openFilteredItemList("returned"));
+        if (isViewOnly) {
+            if (activitySection != null) activitySection.setVisibility(View.GONE);
+            if (btnDeleteUser != null) btnDeleteUser.setVisibility(View.GONE);
+        } else {
+            if (activitySection != null) activitySection.setVisibility(View.VISIBLE);
+            if (btnDeleteUser != null) {
+                btnDeleteUser.setVisibility(View.VISIBLE);
+                btnDeleteUser.setOnClickListener(v -> confirmDeleteUser());
+            }
+            
+            // Setup click listeners for activity sections
+            tvLostReportsCount.setOnClickListener(v -> openFilteredItemList("lost"));
+            tvFoundReportsCount.setOnClickListener(v -> openFilteredItemList("found"));
+            tvReturnedItemsCount.setOnClickListener(v -> openFilteredItemList("returned"));
+        }
 
-        // Disable editing for Admin viewing mode
+        // Disable editing for Admin viewing or View Only mode
         disableAllFields();
     }
 
@@ -223,7 +230,7 @@ public class UserProfileActivity extends AppCompatActivity {
         if (swipeRefreshLayout != null) {
             swipeRefreshLayout.setColorSchemeColors(ContextCompat.getColor(this, R.color.primaryColor));
             swipeRefreshLayout.setOnRefreshListener(() -> {
-                if (isAdminViewing && targetUserId != null) {
+                if ((isAdminViewing || isViewOnly) && targetUserId != null) {
                     loadUserData(targetUserId);
                     setupRealTimeActivityTracking(targetUserId);
                 } else {
@@ -448,6 +455,18 @@ public class UserProfileActivity extends AppCompatActivity {
         tvFoundReportsCount = findViewById(R.id.tvFoundReportsCount);
         tvReturnedItemsCount = findViewById(R.id.tvReturnedItemsCount);
         swipeRefreshLayout = findViewById(R.id.swipeRefreshLayout);
+
+        // Ensure fields are initially non-focusable to prevent immediate edit mode on click
+        etFullName.setFocusable(false);
+        etEmail.setFocusable(false);
+        etPhone.setFocusable(false);
+        actvGender.setFocusable(false);
+        etBatch.setFocusable(false);
+        actvLevelTerm.setFocusable(false);
+        etDepartment.setFocusable(false);
+        actvSection.setFocusable(false);
+        etDesignation.setFocusable(false);
+        etUniversityId.setFocusable(false);
     }
 
     private void setupToolbar() {
@@ -505,9 +524,22 @@ public class UserProfileActivity extends AppCompatActivity {
         if (til == null || field == null) return;
         til.setEndIconOnClickListener(v -> {
             boolean isEnabled = field.isEnabled();
-            field.setEnabled(!isEnabled);
-            if (!isEnabled) {
+            boolean newState = !isEnabled;
+            field.setEnabled(newState);
+            field.setFocusable(newState);
+            field.setFocusableInTouchMode(newState);
+            
+            if (newState) {
                 field.requestFocus();
+                
+                // Position cursor at the end of the text
+                if (field instanceof android.widget.EditText) {
+                    android.widget.EditText editText = (android.widget.EditText) field;
+                    if (editText.getText() != null) {
+                        editText.setSelection(editText.getText().length());
+                    }
+                }
+
                 if (field instanceof AutoCompleteTextView) {
                     ((AutoCompleteTextView) field).showDropDown();
                 }
@@ -557,7 +589,7 @@ public class UserProfileActivity extends AppCompatActivity {
     }
 
     private void checkForChanges() {
-        if (originalUser == null || isAdminViewing) return;
+        if (originalUser == null || (isAdminViewing && targetUserId != null)) return;
 
         boolean changed = false;
         
@@ -566,11 +598,13 @@ public class UserProfileActivity extends AppCompatActivity {
         if (!etPhone.getText().toString().equals(originalUser.getPhone())) changed = true;
         
         String gender = actvGender.getText().toString();
-        if (originalUser.getGender() != null && !gender.equals(originalUser.getGender())) changed = true;
+        String originalGender = originalUser.getGender() != null ? originalUser.getGender() : "";
+        if (!gender.equals(originalGender)) changed = true;
         
         if ("Staff".equalsIgnoreCase(originalUser.getUserType()) || "Admin".equalsIgnoreCase(originalUser.getUserType())) {
             String designation = etDesignation.getText().toString();
-            if (originalUser.getDesignation() != null && !designation.equals(originalUser.getDesignation())) changed = true;
+            String originalDesignation = originalUser.getDesignation() != null ? originalUser.getDesignation() : "";
+            if (!designation.equals(originalDesignation)) changed = true;
             
             String dept = etDepartment.getText().toString();
             String originalDept = originalUser.getDepartment() != null ? originalUser.getDepartment() : "Not Specified";
@@ -645,7 +679,7 @@ public class UserProfileActivity extends AppCompatActivity {
 
                         etFullName.setText(name);
 
-                        if (isAdminViewing) {
+                        if (isAdminViewing && targetUserId != null) {
                             tvHeaderTitle.setText(name + "'s Profile");
                         }
 
@@ -687,7 +721,7 @@ public class UserProfileActivity extends AppCompatActivity {
                         isProfilePictureRemoved = false;
                         isDataLoaded = true;
 
-                        if (isAdminViewing) disableAllFields();
+                        if ((isAdminViewing || isViewOnly) && targetUserId != null) disableAllFields();
                     }
                 }
                 if (swipeRefreshLayout != null) swipeRefreshLayout.setRefreshing(false);
@@ -714,6 +748,7 @@ public class UserProfileActivity extends AppCompatActivity {
 
         Map<String, Object> updates = new HashMap<>();
         updates.put("full_name", name);
+        updates.put("display_name", name);
         updates.put("email", email);
         updates.put("phone_number", phone);
         updates.put("gender", gender);
@@ -764,6 +799,18 @@ public class UserProfileActivity extends AppCompatActivity {
         SupabaseDatabaseHelper.update("profiles", "university_id=eq." + currentUniversityId, updates, new SupabaseDatabaseHelper.DatabaseCallback<String>() {
             @Override
             public void onSuccess(String result) {
+                // Update local session data if email changed
+                if (updates.containsKey("email")) {
+                    String newEmail = (String) updates.get("email");
+                    userEmail = newEmail;
+                    
+                    // Update SharedPreferences if it was being used to cache email
+                    android.content.SharedPreferences prefs = getSharedPreferences("MyApp", MODE_PRIVATE);
+                    if (prefs.contains("email")) {
+                        prefs.edit().putString("email", newEmail).apply();
+                    }
+                }
+
                 setLoadingState(false);
                 resetUIState();
                 SnackbarManager.show(SnackbarManager.Type.SUCCESS, "Profile updated successfully");

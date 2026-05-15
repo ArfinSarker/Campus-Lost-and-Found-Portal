@@ -1,6 +1,7 @@
 package com.sas.lostandfound;
 
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
@@ -153,6 +154,8 @@ public class AdminRequestsActivity extends AppCompatActivity {
         final String universityId = request.getUniversityId();
         final String authId = request.getAuthId();
 
+        Log.d("AdminRequests", "Approving admin: " + universityId + ", Password exists: " + (request.getPassword() != null));
+
         User adminUser = new User(
                 universityId,
                 authId,
@@ -177,17 +180,20 @@ public class AdminRequestsActivity extends AppCompatActivity {
         SupabaseDatabaseHelper.insert("profiles", adminUser, new SupabaseDatabaseHelper.DatabaseCallback<String>() {
             @Override
             public void onSuccess(String result) {
+                Log.d("AdminRequests", "Profile created for: " + universityId + ". Now deleting request.");
                 // Move data from admin_requests -> profiles (done by insert)
                 SupabaseDatabaseHelper.delete("admin_requests", "university_id=eq." + universityId, new SupabaseDatabaseHelper.DatabaseCallback<Void>() {
                     @Override
                     public void onSuccess(Void v) {
                         progressBar.setVisibility(View.GONE);
+                        Log.d("AdminRequests", "Admin request deleted: " + universityId);
                         SnackbarManager.show(SnackbarManager.Type.SUCCESS, "Admin approved successfully.");
                         fetchAdminRequests();
                     }
                     @Override public void onFailure(String e) {
                         progressBar.setVisibility(View.GONE);
-                        SnackbarManager.show(SnackbarManager.Type.SUCCESS, "Admin approved (cleanup failed)");
+                        Log.e("AdminRequests", "Cleanup failed for: " + universityId + ", error: " + e);
+                        SnackbarManager.show(SnackbarManager.Type.WARNING, "Admin profile created, but request cleanup failed: " + e);
                         fetchAdminRequests();
                     }
                 });
@@ -196,6 +202,7 @@ public class AdminRequestsActivity extends AppCompatActivity {
             @Override
             public void onFailure(String errorMessage) {
                 progressBar.setVisibility(View.GONE);
+                Log.e("AdminRequests", "Failed to create profile for: " + universityId + ", error: " + errorMessage);
                 SnackbarManager.show(SnackbarManager.Type.ERROR, "Failed to approve admin account: " + errorMessage);
             }
         });

@@ -13,7 +13,7 @@ public class User {
     
     @SerializedName("full_name")
     private String fullName;
-    
+
     @SerializedName("email")
     private String email;
     
@@ -46,17 +46,22 @@ public class User {
     
     @SerializedName("section")
     private String section;
-    
+
     @SerializedName("request_status")
     private String requestStatus;
     
     @SerializedName("created_at")
     private String createdAt;
 
+    @SerializedName("display_name")
+    private String displayName;
+
+    @SerializedName("password")
+    private String password;
+
     // Derived or UI-specific fields (not in DB but kept for compatibility or temporary use)
     private transient String name;
     private transient String phone;
-    private transient String password;
     private transient boolean isAdmin;
 
     public User() {
@@ -80,6 +85,7 @@ public class User {
         this.userType = "Student";
         this.role = "user";
         this.isAdmin = false;
+        this.displayName = fullName;
     }
 
     // Constructor for Staff/Admin with gender and department
@@ -98,6 +104,7 @@ public class User {
         this.userType = userType;
         this.isAdmin = "Admin".equalsIgnoreCase(userType);
         this.role = this.isAdmin ? "admin" : "user";
+        this.displayName = fullName;
     }
 
     // Getters and Setters with backward compatibility logic
@@ -111,7 +118,11 @@ public class User {
     public void setAuthId(String authId) { this.authId = authId; }
 
     public String getFullName() { return fullName; }
-    public void setFullName(String fullName) { this.fullName = fullName; this.name = fullName; }
+    public void setFullName(String fullName) { 
+        this.fullName = fullName; 
+        this.name = fullName;
+        this.displayName = fullName;
+    }
 
     public String getName() { 
         if (fullName != null && !fullName.trim().isEmpty()) return fullName;
@@ -172,6 +183,9 @@ public class User {
 
     public String getCreated_at() { return createdAt; }
     public void setCreated_at(String createdAt) { this.createdAt = createdAt; }
+
+    public String getDisplayName() { return displayName; }
+    public void setDisplayName(String displayName) { this.displayName = displayName; }
 
     public boolean isAdmin() { return "admin".equalsIgnoreCase(role) || isAdmin; }
     public void setAdmin(boolean admin) { 

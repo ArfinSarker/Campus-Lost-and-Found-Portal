@@ -78,9 +78,7 @@
     <color name="mutedBlueGrey">#546E7A</color>
 
 
-
-
-
+    <color name="orange">#FFA500</color>
     <color name="warningColor">#FF9800</color>
     <color name="infoColor">#2196F3</color>
     <color name="generalColor">#424242</color>
