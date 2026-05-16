@@ -29,7 +29,7 @@ public class AdminReport {
     @SerializedName("reporter_id")
     private String universityId;
     
-    @SerializedName("reporter_auth_id")
+    @SerializedName("user_id")
     private String reporterAuthId;
     
     @SerializedName("phone")
@@ -53,7 +53,7 @@ public class AdminReport {
     @SerializedName("timestamp")
     private long timestamp;
     
-    @SerializedName("updated_at")
+    @SerializedName("updated_at_timestamp")
     private long updatedAt;
 
     @SerializedName("deleted_by_user")

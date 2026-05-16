@@ -21,10 +21,21 @@ import java.util.Map;
 public class AdminDashboardActivity extends AppCompatActivity {
 
     private static final String TAG = "AdminDashboard";
-    private TextView tvTotalAdminRequests, tvTotalAdminReports, tvAdminTitle;
+    private TextView tvTotalAdminRequests, tvTotalAdminReports, tvAdminTitle, tvNotificationBadge;
     private MaterialCardView cardAdminRequests, cardAdminReports;
     private MaterialButton btnManageItems, btnLogout, btnAdminRequests, btnManageUsers, btnAdminReports;
+    private View btnNotifications;
     private SwipeRefreshLayout swipeRefreshLayout;
+    private String currentUniversityId;
+
+    private android.os.Handler badgeHandler = new android.os.Handler(android.os.Looper.getMainLooper());
+    private Runnable badgeRunnable = new Runnable() {
+        @Override
+        public void run() {
+            listenForAdminNotifications();
+            badgeHandler.postDelayed(this, 10000);
+        }
+    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -41,11 +52,10 @@ public class AdminDashboardActivity extends AppCompatActivity {
         setupClickListeners();
         setupSwipeRefresh();
 
-        // Defer heavy operations to improve transition smoothness
-        new android.os.Handler(android.os.Looper.getMainLooper()).postDelayed(() -> {
-            loadStats();
-            setupAdminDashboard();
-        }, 150);
+        setupAdminDashboard();
+
+        // Refresh all data immediately on creation
+        refreshAllData();
 
         com.google.android.material.appbar.AppBarLayout appBarLayout = findViewById(R.id.appBarLayout);
         if (appBarLayout != null) {
@@ -56,8 +66,26 @@ public class AdminDashboardActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        // Refresh stats whenever admin returns to dashboard
+        // Switch to Admin Mode for moderation and management controls
+        ModeManager.setMode(this, ModeManager.MODE_ADMIN);
+        
+        // Refresh all data whenever admin returns to dashboard
+        refreshAllData();
+        badgeHandler.post(badgeRunnable);
+    }
+
+    private void refreshAllData() {
+        android.content.SharedPreferences prefs = getSharedPreferences("MyApp", MODE_PRIVATE);
+        currentUniversityId = prefs.getString("universityId", null);
+        
         loadStats();
+        listenForAdminNotifications();
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        badgeHandler.removeCallbacks(badgeRunnable);
     }
 
     private void initializeViews() {
@@ -73,7 +101,12 @@ public class AdminDashboardActivity extends AppCompatActivity {
         btnManageItems = findViewById(R.id.btnManageItems);
         btnManageUsers = findViewById(R.id.btnManageUsers);
         btnLogout = findViewById(R.id.btnLogout);
+        btnNotifications = findViewById(R.id.btnNotifications);
+        tvNotificationBadge = findViewById(R.id.tvNotificationBadge);
         swipeRefreshLayout = findViewById(R.id.swipeRefreshLayout);
+
+        android.content.SharedPreferences prefs = getSharedPreferences("MyApp", MODE_PRIVATE);
+        currentUniversityId = prefs.getString("universityId", null);
     }
 
     private void setupAdminDashboard() {
@@ -155,6 +188,14 @@ public class AdminDashboardActivity extends AppCompatActivity {
             overridePendingTransition(R.anim.material_shared_axis_z_pop_enter, R.anim.material_shared_axis_z_pop_exit);
         });
 
+        btnNotifications.setOnClickListener(v -> {
+            if (ItemNavigationUtils.canNavigate()) {
+                Intent intent = new Intent(this, NotificationsActivity.class);
+                intent.putExtra("isAdminMode", true);
+                startActivity(intent);
+            }
+        });
+
     }
 
     private void loadStats() {
@@ -194,6 +235,26 @@ public class AdminDashboardActivity extends AppCompatActivity {
 
             @Override
             public void onFailure(String errorMessage) {
+            }
+        });
+    }
+
+    private void listenForAdminNotifications() {
+        if (currentUniversityId == null) return;
+        // Filter for admin types only: admin_report_new, admin_request
+        String filter = "recipient_id=eq." + currentUniversityId + "&is_read=eq.false&type=in.(admin_report_new,admin_request)&select=count";
+        SupabaseDatabaseHelper.select("notifications", filter, new TypeToken<List<Map<String, Object>>>(){}.getType(), new SupabaseDatabaseHelper.DatabaseCallback<List<Map<String, Object>>>() {
+            @Override public void onSuccess(List<Map<String, Object>> res) {
+                if (res != null && !res.isEmpty() && res.get(0).get("count") != null) {
+                    long count = ((Number) res.get(0).get("count")).longValue();
+                    if (tvNotificationBadge != null) {
+                        tvNotificationBadge.setVisibility(count > 0 ? View.VISIBLE : View.GONE);
+                        tvNotificationBadge.setText(String.valueOf(count));
+                    }
+                }
+            }
+            @Override public void onFailure(String e) {
+                Log.e(TAG, "Failed to fetch admin notification count: " + e);
             }
         });
     }

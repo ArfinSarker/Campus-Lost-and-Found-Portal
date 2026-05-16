@@ -34,6 +34,7 @@ public class NotificationsActivity extends AppCompatActivity {
     private SwipeRefreshLayout swipeRefreshLayout;
     private String resolvedUserId;
     private boolean isFetching = false;
+    private boolean isAdminMode = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -42,6 +43,7 @@ public class NotificationsActivity extends AppCompatActivity {
 
         android.content.SharedPreferences prefs = getSharedPreferences("MyApp", MODE_PRIVATE);
         resolvedUserId = prefs.getString("universityId", null);
+        isAdminMode = getIntent().getBooleanExtra("isAdminMode", false);
 
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -91,6 +93,10 @@ public class NotificationsActivity extends AppCompatActivity {
                 
                 if ("admin_report".equals(notification.getType())) {
                     Intent intent = new Intent(this, AdminReportDetailsActivity.class);
+                    intent.putExtra("reportId", notification.getItemId());
+                    startActivity(intent);
+                } else if ("admin_report_new".equals(notification.getType())) {
+                    Intent intent = new Intent(this, AdminReportReviewActivity.class);
                     intent.putExtra("reportId", notification.getItemId());
                     startActivity(intent);
                 } else if ("item_claimed".equals(notification.getType()) || "item_return".equals(notification.getType())) {
@@ -195,7 +201,14 @@ public class NotificationsActivity extends AppCompatActivity {
         isFetching = true;
 
         // Query by recipient_id (University ID) as used in the DB
-        SupabaseDatabaseHelper.select("notifications", "recipient_id=eq." + userId, new TypeToken<List<Notification>>(){}.getType(), new SupabaseDatabaseHelper.DatabaseCallback<List<Notification>>() {
+        String typeFilter;
+        if (isAdminMode) {
+            typeFilter = "type=in.(admin_report_new,admin_request)";
+        } else {
+            typeFilter = "type=in.(lost_item,found_item,item_claimed,item_return,admin_report)";
+        }
+        
+        SupabaseDatabaseHelper.select("notifications", "recipient_id=eq." + userId + "&" + typeFilter, new TypeToken<List<Notification>>(){}.getType(), new SupabaseDatabaseHelper.DatabaseCallback<List<Notification>>() {
             @Override
             public void onSuccess(List<Notification> notifications) {
                 List<Notification> temp = new ArrayList<>();
@@ -256,8 +269,15 @@ public class NotificationsActivity extends AppCompatActivity {
         Map<String, Object> updates = new HashMap<>();
         updates.put("is_read", true);
 
-        // Perform bulk update in background - filter by recipient and only those not yet read
-        SupabaseDatabaseHelper.update("notifications", "recipient_id=eq." + resolvedUserId + "&is_read=eq.false", updates, new SupabaseDatabaseHelper.DatabaseCallback<String>() {
+        String typeFilter;
+        if (isAdminMode) {
+            typeFilter = "type=in.(admin_report_new,admin_request)";
+        } else {
+            typeFilter = "type=in.(lost_item,found_item,item_claimed,item_return,admin_report)";
+        }
+
+        // Perform bulk update in background - filter by recipient, types, and only those not yet read
+        SupabaseDatabaseHelper.update("notifications", "recipient_id=eq." + resolvedUserId + "&is_read=eq.false&" + typeFilter, updates, new SupabaseDatabaseHelper.DatabaseCallback<String>() {
             @Override
             public void onSuccess(String result) {
                 Log.d("Notifications", "All marked as read in DB successfully");

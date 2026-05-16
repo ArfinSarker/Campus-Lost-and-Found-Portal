@@ -2,6 +2,10 @@ package com.sas.lostandfound;
 
 import com.google.gson.annotations.SerializedName;
 
+/**
+ * Notification model representing a system or user-to-user notification.
+ * Fields match the standardized notifications table in Supabase.
+ */
 public class Notification {
     @SerializedName("id")
     private String id;
@@ -45,6 +49,14 @@ public class Notification {
     @SerializedName("item_name")
     private String itemName;
 
+    @SerializedName("timestamp")
+    private long timestamp;
+
+    @SerializedName("user_id")
+    private String userId; // Recipient's Auth ID for RLS
+
+    // --- COMPATIBILITY FIELDS (Stored in DB for adapter/legacy support) ---
+    
     @SerializedName("claimer_id")
     private String claimerId;
 
@@ -57,57 +69,36 @@ public class Notification {
     @SerializedName("claim_type")
     private String claimType;
 
-    @SerializedName("user_id")
-    private String userId;
-
-    @SerializedName("timestamp")
-    private long timestamp;
-
     public Notification() {
     }
 
-    public Notification(String id, String recipientId, String senderId, String reportId, String message, String type) {
-        this.id = id;
-        this.recipientId = recipientId;
-        this.senderId = senderId;
-        this.reportId = reportId;
-        this.message = message;
-        this.type = type;
-        // is_read defaults to false automatically
-    }
-
-    public Notification(String id, String recipientId, String senderId, String senderName, String senderPhone, String senderEmail, String reportId, String itemName, String message, long timestamp, String type, String additionalDetails) {
+    /**
+     * Standard constructor for most notifications.
+     */
+    public Notification(String id, String recipientId, String senderId, String senderName, String senderPhone, String senderEmail, String senderImageUrl, String reportId, String itemName, String message, long timestamp, String type, String additionalDetails) {
         this.id = id;
         this.recipientId = recipientId;
         this.senderId = senderId;
         this.senderName = senderName;
         this.senderPhone = senderPhone;
         this.senderEmail = senderEmail;
+        this.senderImageUrl = senderImageUrl;
         this.reportId = reportId;
         this.itemName = itemName;
         this.message = message;
         this.timestamp = timestamp;
         this.type = type;
         this.additionalDetails = additionalDetails;
-        // is_read defaults to false automatically
-        // Automatically populate new fields
+        this.isRead = false;
+        
+        // Populate compatibility fields for the adapter/legacy flows
         this.claimerId = senderId;
         this.claimerName = senderName;
         this.itemIdField = reportId;
         this.claimType = type;
     }
 
-    // Constructor including sender image
-    public Notification(String id, String recipientId, String senderId, String senderName, String senderPhone, String senderEmail, String senderImageUrl, String reportId, String itemName, String message, long timestamp, String type, String additionalDetails) {
-        this(id, recipientId, senderId, senderName, senderPhone, senderEmail, reportId, itemName, message, timestamp, type, additionalDetails);
-        this.senderImageUrl = senderImageUrl;
-        // Automatically populate new fields for claims
-        this.claimerId = senderId;
-        this.claimerName = senderName;
-        this.itemIdField = reportId;
-        this.claimType = type;
-    }
-
+    // Getters and Setters
     public String getId() { return id; }
     public void setId(String id) { this.id = id; }
 
@@ -120,10 +111,13 @@ public class Notification {
     public String getReportId() { return reportId; }
     public void setReportId(String reportId) { this.reportId = reportId; }
     
+    /**
+     * Helper for adapter compatibility. Returns itemIdField if available, else reportId.
+     */
     public String getItemId() { 
         return (itemIdField != null && !itemIdField.isEmpty()) ? itemIdField : reportId; 
-    } // Compatibility
-    public void setItemId(String itemId) { this.reportId = itemId; }
+    }
+    public void setItemId(String itemId) { this.reportId = itemId; this.itemIdField = itemId; }
 
     public String getMessage() { return message; }
     public void setMessage(String message) { this.message = message; }
@@ -141,7 +135,7 @@ public class Notification {
     public void setCreatedAt(String createdAt) { this.createdAt = createdAt; }
 
     public String getSenderName() { return senderName; }
-    public void setSenderName(String name) { this.senderName = name; }
+    public void setSenderName(String name) { this.senderName = name; this.claimerName = name; }
     
     public String getSenderPhone() { return senderPhone; }
     public void setSenderPhone(String phone) { this.senderPhone = phone; }

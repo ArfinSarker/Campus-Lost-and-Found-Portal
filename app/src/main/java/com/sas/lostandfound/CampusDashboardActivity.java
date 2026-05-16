@@ -461,7 +461,9 @@ public class CampusDashboardActivity extends AppCompatActivity {
 
     private void listenForNotifications() {
         if (currentUniversityId == null) return;
-        SupabaseDatabaseHelper.select("notifications", "recipient_id=eq." + currentUniversityId + "&is_read=eq.false&select=count", new TypeToken<List<Map<String, Object>>>(){}.getType(), new SupabaseDatabaseHelper.DatabaseCallback<List<Map<String, Object>>>() {
+        // Filter for user types only
+        String filter = "recipient_id=eq." + currentUniversityId + "&is_read=eq.false&type=in.(lost_item,found_item,item_claimed,item_return,admin_report)&select=count";
+        SupabaseDatabaseHelper.select("notifications", filter, new TypeToken<List<Map<String, Object>>>(){}.getType(), new SupabaseDatabaseHelper.DatabaseCallback<List<Map<String, Object>>>() {
             @Override public void onSuccess(List<Map<String, Object>> res) {
                 if (res != null && !res.isEmpty() && res.get(0).get("count") != null) {
                     long count = ((Number) res.get(0).get("count")).longValue();

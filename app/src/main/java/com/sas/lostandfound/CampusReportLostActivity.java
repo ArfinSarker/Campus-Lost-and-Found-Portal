@@ -431,7 +431,8 @@ public class CampusReportLostActivity extends AppCompatActivity {
         }
 
         if (isValid) {
-            submitReport(name, category, description, date, location, manualLocation, contactName, contactPhone, preferredContact);
+            String finalManualLocation = TextUtils.isEmpty(manualLocation) ? null : manualLocation;
+            submitReport(name, category, description, date, location, finalManualLocation, contactName, contactPhone, preferredContact);
         }
     }
 

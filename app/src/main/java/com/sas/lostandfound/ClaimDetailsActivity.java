@@ -343,12 +343,16 @@ public class ClaimDetailsActivity extends AppCompatActivity {
             llFoundSpecifics.setVisibility(View.GONE);
             tvOwnershipVerification.setText(item.getProofOfOwnershipDetail() != null && !item.getProofOfOwnershipDetail().isEmpty() ? item.getProofOfOwnershipDetail() : "Not Specified");
             
+            boolean isResolvedNotification = "lost_claimed_confirmed".equals(notificationType) 
+                    || "item_returned_confirmed".equals(notificationType)
+                    || "item_claimed".equals(notificationType);
+                    
             if ("Claimed".equalsIgnoreCase(item.getAdminStatus()) || "Returned".equalsIgnoreCase(item.getAdminStatus())) {
                 btnMarkReturned.setEnabled(false);
                 btnMarkReturned.setText("Item Already Recovered");
-                btnMarkReturned.setVisibility("lost_claimed_confirmed".equals(notificationType) || "item_returned_confirmed".equals(notificationType) ? View.GONE : View.VISIBLE);
+                btnMarkReturned.setVisibility(isResolvedNotification ? View.GONE : View.VISIBLE);
             } else {
-                btnMarkReturned.setVisibility("lost_claimed_confirmed".equals(notificationType) || "item_returned_confirmed".equals(notificationType) ? View.GONE : View.VISIBLE);
+                btnMarkReturned.setVisibility(isResolvedNotification ? View.GONE : View.VISIBLE);
                 btnMarkReturned.setText("Mark as Recovered");
             }
         } else {
@@ -357,12 +361,15 @@ public class ClaimDetailsActivity extends AppCompatActivity {
             tvHandlingStatus.setText(item.getItemHandlingStatus() != null && !item.getItemHandlingStatus().isEmpty() ? item.getItemHandlingStatus() : "Not Specified");
             tvSecurityQuestion.setText(item.getHiddenIdentificationQuestion() != null && !item.getHiddenIdentificationQuestion().isEmpty() ? item.getHiddenIdentificationQuestion() : "Not Specified");
 
+            boolean isResolvedNotification = "item_returned_confirmed".equals(notificationType) 
+                    || "item_return".equals(notificationType);
+
             if ("Claimed".equalsIgnoreCase(item.getAdminStatus()) || "Returned".equalsIgnoreCase(item.getAdminStatus())) {
                 btnMarkReturned.setEnabled(false);
                 btnMarkReturned.setText("Item Already Returned");
-                btnMarkReturned.setVisibility("item_returned_confirmed".equals(notificationType) ? View.GONE : View.VISIBLE);
+                btnMarkReturned.setVisibility(isResolvedNotification ? View.GONE : View.VISIBLE);
             } else {
-                btnMarkReturned.setVisibility("item_returned_confirmed".equals(notificationType) ? View.GONE : View.VISIBLE);
+                btnMarkReturned.setVisibility(isResolvedNotification ? View.GONE : View.VISIBLE);
                 btnMarkReturned.setText("Mark as Returned");
             }
         }

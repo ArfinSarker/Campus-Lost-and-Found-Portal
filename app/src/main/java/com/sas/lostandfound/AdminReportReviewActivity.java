@@ -56,6 +56,8 @@ public class AdminReportReviewActivity extends AppCompatActivity {
     private View cardEvidence;
     
     private AutoCompleteTextView actvUpdateStatus;
+    private View tilUpdateStatus;
+    private TextView tvReviewedStatus;
     private TextInputEditText etAdminNote;
     private MaterialButton btnUpdate, btnDelete;
     
@@ -71,12 +73,17 @@ public class AdminReportReviewActivity extends AppCompatActivity {
     private Runnable sliderRunnable;
     private boolean isUserInteracting = false;
 
+    private String currentAdminUnivId;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         
         // Ensure only admins can review reports
         RoleVerifier.checkAdminAccess(this);
+
+        android.content.SharedPreferences prefs = getSharedPreferences("MyApp", MODE_PRIVATE);
+        currentAdminUnivId = prefs.getString("universityId", "admin");
 
         setContentView(R.layout.activity_admin_report_review);
 
@@ -122,6 +129,8 @@ public class AdminReportReviewActivity extends AppCompatActivity {
         cardEvidence = findViewById(R.id.cardEvidence);
         
         actvUpdateStatus = findViewById(R.id.actvUpdateStatus);
+        tilUpdateStatus = findViewById(R.id.tilUpdateStatus);
+        tvReviewedStatus = findViewById(R.id.tvReviewedStatus);
         etAdminNote = findViewById(R.id.etAdminNote);
         btnUpdate = findViewById(R.id.btnUpdateReport);
         btnDelete = findViewById(R.id.btnDeleteReport);
@@ -264,6 +273,26 @@ public class AdminReportReviewActivity extends AppCompatActivity {
         setupEvidenceSlider(report.getImageUrls(), report.getImageUrl());
 
         // Action section
+        boolean isReviewed = "Reviewed".equalsIgnoreCase(report.getStatus());
+        
+        if (isReviewed) {
+            tilUpdateStatus.setVisibility(View.GONE);
+            tvReviewedStatus.setVisibility(View.VISIBLE);
+            btnUpdate.setVisibility(View.GONE);
+            etAdminNote.setEnabled(false);
+            etAdminNote.setFocusable(false);
+            etAdminNote.setCursorVisible(false);
+            etAdminNote.setAlpha(0.8f);
+        } else {
+            tilUpdateStatus.setVisibility(View.VISIBLE);
+            tvReviewedStatus.setVisibility(View.GONE);
+            btnUpdate.setVisibility(View.VISIBLE);
+            etAdminNote.setEnabled(true);
+            etAdminNote.setFocusableInTouchMode(true);
+            etAdminNote.setCursorVisible(true);
+            etAdminNote.setAlpha(1.0f);
+        }
+
         actvUpdateStatus.setText(report.getStatus(), false);
         etAdminNote.setText(report.getAdminNote());
     }
@@ -416,13 +445,19 @@ public class AdminReportReviewActivity extends AppCompatActivity {
 
     private void updateReport() {
         String newStatus = actvUpdateStatus.getText().toString();
-        String adminNote = etAdminNote.getText().toString().trim();
+        // If it was Pending and admin is saving, it should transition to Reviewed
+        if ("Pending".equalsIgnoreCase(newStatus)) {
+            newStatus = "Reviewed";
+        }
+        
+        final String finalStatus = newStatus;
+        final String finalAdminNote = etAdminNote.getText().toString().trim();
         progressBar.setVisibility(View.VISIBLE);
         
         Map<String, Object> updates = new HashMap<>();
-        updates.put("status", newStatus);
-        updates.put("admin_note", adminNote);
-        updates.put("updated_at", System.currentTimeMillis());
+        updates.put("status", finalStatus);
+        updates.put("admin_note", finalAdminNote);
+        updates.put("updated_at_timestamp", System.currentTimeMillis());
 
         SupabaseDatabaseHelper.update("admin_reports", "id=eq." + reportId, updates, new SupabaseDatabaseHelper.DatabaseCallback<String>() {
             @Override
@@ -432,11 +467,12 @@ public class AdminReportReviewActivity extends AppCompatActivity {
                 
                 // Refresh local report data to get the latest title etc.
                 if (currentReport != null) {
-                    currentReport.setStatus(newStatus);
-                    currentReport.setAdminNote(adminNote);
+                    currentReport.setStatus(finalStatus);
+                    currentReport.setAdminNote(finalAdminNote);
+                    displayReportDetails(currentReport); // Refresh UI state immediately
                 }
                 
-                sendNotificationToUser(currentReport.getUniversityId(), newStatus);
+                sendNotificationToUser(currentReport.getUniversityId(), finalStatus);
             }
 
             @Override
@@ -448,41 +484,35 @@ public class AdminReportReviewActivity extends AppCompatActivity {
     }
 
     private void sendNotificationToUser(String userId, String status) {
-        if (userId == null || !"Reviewed".equalsIgnoreCase(status)) return;
+        if (userId == null) return;
         
-        // Use reporterAuthId directly from currentReport for RLS if available
-        String recipientAuthId = currentReport.getReporterAuthId();
+        // We always attempt to send. If recipientAuthId is null here, 
+        // the database trigger 'fn_populate_notification_user_id' will 
+        // automatically resolve it server-side using the University ID.
+        String recipientAuthId = currentReport != null ? currentReport.getReporterAuthId() : null;
         
-        if (recipientAuthId != null && !recipientAuthId.isEmpty()) {
-            performNotificationInsert(userId, recipientAuthId);
-        } else {
-            // Fallback to fetch recipient's Auth ID from profiles if missing in report
-            SupabaseDatabaseHelper.select("profiles", "university_id=eq." + userId + "&limit=1", new TypeToken<List<User>>(){}.getType(), new SupabaseDatabaseHelper.DatabaseCallback<List<User>>() {
-                @Override
-                public void onSuccess(List<User> recipients) {
-                    if (recipients != null && !recipients.isEmpty()) {
-                        performNotificationInsert(userId, recipients.get(0).getAuthId());
-                    }
-                }
-                @Override public void onFailure(String e) {}
-            });
-        }
+        android.util.Log.d("AdminReportReview", "Preparing notification for User: " + userId + " (AuthID: " + recipientAuthId + ")");
+        performNotificationInsert(userId, recipientAuthId);
     }
 
     private void performNotificationInsert(String userId, String recipientAuthId) {
-        // Required format: Your report "<Report Name>" has been reviewed. Click to see details.
+        // Format: "Admin" has reviewed your "report name". Click to view details.
         String reportTitle = currentReport.getTitle() != null ? currentReport.getTitle() : "Report";
-        String message = "Your report \"" + reportTitle + "\" has been reviewed. Click to see details.";
+        String message = "Admin has reviewed your \"" + reportTitle + "\". Click to view details";
         String notificationId = UUID.randomUUID().toString();
         
-        Notification notification = new Notification(notificationId, userId, "admin", "Admin", "", "", 
+        Notification notification = new Notification(notificationId, userId, currentAdminUnivId, "Admin", "", "", "", 
             currentReport.getId(), reportTitle, message, System.currentTimeMillis(), "admin_report", "");
         notification.setUserId(recipientAuthId); // Set for RLS
         
         SupabaseDatabaseHelper.insert("notifications", notification, new SupabaseDatabaseHelper.DatabaseCallback<String>() {
-            @Override public void onSuccess(String r) {}
+            @Override public void onSuccess(String r) {
+                android.util.Log.d("AdminReportReview", "Notification sent successfully");
+            }
             @Override public void onFailure(String e) {
                 android.util.Log.e("AdminReportReview", "Failed to send notification: " + e);
+                // Show error to admin so they know delivery failed
+                SnackbarManager.show(SnackbarManager.Type.ERROR, "Status updated, but notification failed: " + e);
             }
         });
     }

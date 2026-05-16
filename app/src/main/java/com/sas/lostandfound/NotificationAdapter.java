@@ -1,6 +1,7 @@
 package com.sas.lostandfound;
 
 import android.content.Intent;
+import android.graphics.Color;
 import android.graphics.Typeface;
 import android.text.SpannableString;
 import android.text.Spanned;
@@ -69,7 +70,7 @@ public class NotificationAdapter extends RecyclerView.Adapter<NotificationAdapte
         } else if ("lost_claim".equals(type) || "found_claim".equals(type)) {
             holder.tvMessage.setText(styleClaimNotification(notification, holder.itemView.getContext()));
             holder.itemView.setOnClickListener(null);
-        } else if ("admin_report".equals(type)) {
+        } else if ("admin_report".equals(type) || "admin_report_new".equals(type)) {
             holder.tvMessage.setText(styleAdminReportNotification(notification, holder.itemView.getContext()));
             holder.itemView.setOnClickListener(null);
         } else {
@@ -212,35 +213,56 @@ public class NotificationAdapter extends RecyclerView.Adapter<NotificationAdapte
 
     private SpannableString styleAdminReportNotification(Notification notification, android.content.Context context) {
         String reportName = notification.getItemName() != null ? notification.getItemName() : "Report";
-        String clickText = "Click to see details";
-        // Format: Your report "<Report Name>" has been reviewed. Click to see details.
-        String fullText = "Your report \"" + reportName + "\" has been reviewed. " + clickText + ".";
+        String clickText = "Click to view details";
+        String fullText = notification.getMessage();
+
+        if (fullText == null || fullText.isEmpty()) {
+            // Fallback for old/legacy notifications
+            fullText = "Admin has reviewed your \"" + reportName + "\". Click to view details";
+        } else if (!fullText.contains(clickText)) {
+            // Append click text if missing
+            fullText += " " + clickText;
+        }
 
         SpannableString spannableString = new SpannableString(fullText);
-        int blueColor = ContextCompat.getColor(context, R.color.primaryColor);
+        
+        // Colors from requirements
+        int orangeColor = Color.parseColor("#FF9800");   // Admin
+        int neonGreenColor = Color.parseColor("#39FF14"); // Report Name
+        int blueColor = Color.parseColor("#2AABEE");     // Click to view
 
-        // ClickableSpan for Report Name
+        // 1. Style "Admin"
+        int adminStart = fullText.indexOf("Admin");
+        if (adminStart != -1) {
+            spannableString.setSpan(new ForegroundColorSpan(orangeColor), adminStart, adminStart + 5, 0);
+            spannableString.setSpan(new android.text.style.StyleSpan(android.graphics.Typeface.BOLD), adminStart, adminStart + 5, 0);
+        }
+
+        // 2. Style Report Name (inside quotes)
         int nameStart = fullText.indexOf("\"" + reportName + "\"");
         if (nameStart != -1) {
-            // Include quotes in the clickable area
             int nameEnd = nameStart + reportName.length() + 2;
+            spannableString.setSpan(new ForegroundColorSpan(neonGreenColor), nameStart, nameEnd, 0);
+            spannableString.setSpan(new android.text.style.StyleSpan(android.graphics.Typeface.BOLD), nameStart, nameEnd, 0);
+            
+            // Make report name clickable
             spannableString.setSpan(new ClickableSpan() {
-                @Override
-                public void onClick(@NonNull View widget) {
-                    if (listener != null) listener.onNotificationClick(notification);
-                }
-                @Override
-                public void updateDrawState(@NonNull android.text.TextPaint ds) {
-                    super.updateDrawState(ds);
-                    ds.setUnderlineText(false);
-                    ds.setColor(blueColor);
-                    ds.setFakeBoldText(true);
-                }
+                @Override public void onClick(@NonNull View widget) { if (listener != null) listener.onNotificationClick(notification); }
+                @Override public void updateDrawState(@NonNull android.text.TextPaint ds) { ds.setUnderlineText(false); ds.setColor(neonGreenColor); }
             }, nameStart, nameEnd, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
         }
 
-        // ClickableSpan for "Click to see details"
-        styleClickToViewDetails(spannableString, fullText, clickText, notification, blueColor);
+        // 3. Style "Click to view details"
+        int clickStart = fullText.indexOf(clickText);
+        if (clickStart != -1) {
+            spannableString.setSpan(new ForegroundColorSpan(blueColor), clickStart, clickStart + clickText.length(), 0);
+            spannableString.setSpan(new android.text.style.UnderlineSpan(), clickStart, clickStart + clickText.length(), 0);
+            
+            spannableString.setSpan(new ClickableSpan() {
+                @Override public void onClick(@NonNull View widget) { if (listener != null) listener.onNotificationClick(notification); }
+                @Override public void updateDrawState(@NonNull android.text.TextPaint ds) { ds.setUnderlineText(true); ds.setColor(blueColor); }
+            }, clickStart, clickStart + clickText.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+        }
 
         return spannableString;
     }

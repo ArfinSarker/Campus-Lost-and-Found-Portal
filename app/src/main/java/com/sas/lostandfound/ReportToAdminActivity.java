@@ -263,6 +263,10 @@ public class ReportToAdminActivity extends AppCompatActivity {
             public void onSuccess(String result) {
                 setLoadingState(false);
                 SnackbarManager.show(SnackbarManager.Type.SUCCESS, getString(R.string.report_submitted_success));
+                
+                // Notify all admins about this new report
+                notifyAdmins(report);
+                
                 finish();
             }
 
@@ -270,6 +274,65 @@ public class ReportToAdminActivity extends AppCompatActivity {
             public void onFailure(String errorMessage) {
                 resetButton();
                 ErrorHelper.showError(btnSubmit, "Error saving report: " + errorMessage);
+            }
+        });
+    }
+
+    private void notifyAdmins(AdminReport report) {
+        Log.d(TAG, "Attempting to notify admins about report: " + report.getDisplayId());
+        
+        // Fetch all profiles with role 'admin'
+        SupabaseDatabaseHelper.select("profiles", "role=eq.admin", new TypeToken<List<User>>(){}.getType(), new SupabaseDatabaseHelper.DatabaseCallback<List<User>>() {
+            @Override
+            public void onSuccess(List<User> admins) {
+                if (admins == null || admins.isEmpty()) {
+                    Log.w(TAG, "No admins found in the database to notify!");
+                    return;
+                }
+
+                Log.d(TAG, "Found " + admins.size() + " admin(s) to notify.");
+                String reporterName = report.getReporterName() != null ? report.getReporterName() : "A user";
+                String message = String.format("\"%s\" has submitted a new report for review: \"%s\"", reporterName, report.getTitle());
+                
+                for (User admin : admins) {
+                    Log.d(TAG, "Preparing notification for Admin: " + admin.getUniversityId() + " (AuthID: " + admin.getAuthId() + ")");
+
+                    String notificationId = UUID.randomUUID().toString();
+                    Notification notification = new Notification(
+                        notificationId,
+                        admin.getUniversityId(),
+                        currentUniversityId != null ? currentUniversityId : "system",
+                        reporterName,
+                        report.getPhone(),
+                        "", // Email
+                        "", // Image
+                        report.getId(),
+                        report.getTitle(),
+                        message,
+                        System.currentTimeMillis(),
+                        "admin_report_new",
+                        ""
+                    );
+                    
+                    // CRITICAL: Ensure the Auth ID is set so the admin can see it via RLS
+                    if (admin.getAuthId() != null) {
+                        notification.setUserId(admin.getAuthId());
+                    }
+
+                    SupabaseDatabaseHelper.insert("notifications", notification, new SupabaseDatabaseHelper.DatabaseCallback<String>() {
+                        @Override public void onSuccess(String r) {
+                            Log.d(TAG, "Notification successfully sent to admin: " + admin.getUniversityId());
+                        }
+                        @Override public void onFailure(String e) {
+                            Log.e(TAG, "Failed to insert notification for admin " + admin.getUniversityId() + ": " + e);
+                        }
+                    });
+                }
+            }
+
+            @Override
+            public void onFailure(String errorMessage) {
+                Log.e(TAG, "Failed to fetch admins from profiles table: " + errorMessage);
             }
         });
     }

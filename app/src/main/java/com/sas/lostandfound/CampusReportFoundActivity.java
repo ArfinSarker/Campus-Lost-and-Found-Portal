@@ -474,7 +474,8 @@ public class CampusReportFoundActivity extends AppCompatActivity {
         }
 
         if (isValid) {
-            submitReport(itemName, category, description, date, location, manualLocation, handlingStatus, authorityName, hiddenQuestion, contactName, contactPhone, preferredContact);
+            String finalManualLocation = TextUtils.isEmpty(manualLocation) ? null : manualLocation;
+            submitReport(itemName, category, description, date, location, finalManualLocation, handlingStatus, authorityName, hiddenQuestion, contactName, contactPhone, preferredContact);
         }
     }
 
@@ -579,6 +580,7 @@ public class CampusReportFoundActivity extends AppCompatActivity {
         report.setAuthorityName(authorityName);
         report.setOfficeRoomNumber(etOfficeRoom.getText().toString().trim());
         report.setHiddenIdentificationQuestion(hiddenQuestion);
+        report.setProofOfOwnershipDetail(hiddenQuestion); // Map hidden question to proof of ownership detail for consistency
         report.setUserName(contactName);
         report.setUserPhone(contactPhone);
         report.setPreferredContactMethod(preferredContact);

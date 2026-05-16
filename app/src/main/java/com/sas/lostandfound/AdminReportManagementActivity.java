@@ -287,6 +287,14 @@ public class AdminReportManagementActivity extends AppCompatActivity {
             SimpleDateFormat sdf = new SimpleDateFormat("dd MMM, hh:mm a", Locale.getDefault());
             holder.tvTimestamp.setText(sdf.format(new Date(report.getTimestamp())));
 
+            // Handle card click to open details
+            holder.itemView.setOnClickListener(v -> {
+                if (!ItemNavigationUtils.canNavigate()) return;
+                Intent intent = new Intent(AdminReportManagementActivity.this, AdminReportReviewActivity.class);
+                intent.putExtra("reportId", report.getReportId());
+                startActivity(intent);
+            });
+
             setupImageOrSlider(holder, report, position);
         }
 
