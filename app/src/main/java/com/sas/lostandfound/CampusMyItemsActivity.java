@@ -341,7 +341,7 @@ public class CampusMyItemsActivity extends AppCompatActivity {
     private boolean shouldInclude(Item item, String userId, String authId) {
         if (item.isDeletedByUser()) return false;
 
-        // Admin Reports ONLY appear in Admin Reports section
+        // User Reports ONLY appear in User Reports section
         if ("admin_report".equals(item.getStatus())) {
             return "admin_reports".equals(filterType);
         }

@@ -21,8 +21,8 @@ import java.util.Map;
 public class AdminDashboardActivity extends AppCompatActivity {
 
     private static final String TAG = "AdminDashboard";
-    private TextView tvTotalLost, tvTotalFound, tvTotalUsers, tvTotalAdminRequests, tvTotalAdminReports, tvAdminTitle;
-    private MaterialCardView cardLostItems, cardFoundItems, cardTotalUsers, cardAdminRequests, cardAdminReports;
+    private TextView tvTotalAdminRequests, tvTotalAdminReports, tvAdminTitle;
+    private MaterialCardView cardAdminRequests, cardAdminReports;
     private MaterialButton btnManageItems, btnLogout, btnAdminRequests, btnManageUsers, btnAdminReports;
     private SwipeRefreshLayout swipeRefreshLayout;
 
@@ -32,12 +32,15 @@ public class AdminDashboardActivity extends AppCompatActivity {
         // Ensure only admins can access this dashboard
         RoleVerifier.checkAdminAccess(this);
 
+        // Switch to Admin Mode for moderation and management controls
+        ModeManager.setMode(this, ModeManager.MODE_ADMIN);
+
         setContentView(R.layout.activity_admin_dashboard);
 
         initializeViews();
         setupClickListeners();
         setupSwipeRefresh();
-        
+
         // Defer heavy operations to improve transition smoothness
         new android.os.Handler(android.os.Looper.getMainLooper()).postDelayed(() -> {
             loadStats();
@@ -58,19 +61,13 @@ public class AdminDashboardActivity extends AppCompatActivity {
     }
 
     private void initializeViews() {
-        tvTotalLost = findViewById(R.id.tvTotalLost);
-        tvTotalFound = findViewById(R.id.tvTotalFound);
-        tvTotalUsers = findViewById(R.id.tvTotalUsers);
+        tvAdminTitle = findViewById(R.id.tvAdminTitle);
         tvTotalAdminRequests = findViewById(R.id.tvTotalAdminRequests);
         tvTotalAdminReports = findViewById(R.id.tvTotalAdminReports);
-        tvAdminTitle = findViewById(R.id.tvAdminTitle);
-        
-        cardLostItems = findViewById(R.id.cardLostItems);
-        cardFoundItems = findViewById(R.id.cardFoundItems);
-        cardTotalUsers = findViewById(R.id.cardTotalUsers);
+
         cardAdminRequests = findViewById(R.id.cardAdminRequests);
         cardAdminReports = findViewById(R.id.cardAdminReports);
-        
+
         btnAdminRequests = findViewById(R.id.btnAdminRequests);
         btnAdminReports = findViewById(R.id.btnAdminReports);
         btnManageItems = findViewById(R.id.btnManageItems);
@@ -80,7 +77,8 @@ public class AdminDashboardActivity extends AppCompatActivity {
     }
 
     private void setupAdminDashboard() {
-        if (tvAdminTitle != null) tvAdminTitle.setText("Admin Dashboard");
+        if (tvAdminTitle != null)
+            tvAdminTitle.setText(R.string.title_admin_dashboard);
     }
 
     private void setupSwipeRefresh() {
@@ -88,8 +86,8 @@ public class AdminDashboardActivity extends AppCompatActivity {
             swipeRefreshLayout.setColorSchemeResources(R.color.primaryColor);
             swipeRefreshLayout.setOnRefreshListener(() -> {
                 loadStats();
-                // Since we use addValueEventListener, it might already be fresh, 
-                // but this triggers a re-fetch. We'll stop refreshing after a short delay 
+                // Since we use addValueEventListener, it might already be fresh,
+                // but this triggers a re-fetch. We'll stop refreshing after a short delay
                 // or when the first listener completes.
                 new android.os.Handler().postDelayed(() -> {
                     if (swipeRefreshLayout.isRefreshing()) {
@@ -101,157 +99,109 @@ public class AdminDashboardActivity extends AppCompatActivity {
     }
 
     private void setupClickListeners() {
-        cardLostItems.setOnClickListener(v -> {
-            if (!ItemNavigationUtils.canNavigate()) return;
-            Intent intent = new Intent(this, AllReportedItemsActivity.class);
-            intent.putExtra("isAdmin", true);
-            intent.putExtra("filterStatus", "lost");
-            startActivity(intent);
-            overridePendingTransition(R.anim.material_shared_axis_z_enter, R.anim.material_shared_axis_z_exit);
-        });
-
-        cardFoundItems.setOnClickListener(v -> {
-            if (!ItemNavigationUtils.canNavigate()) return;
-            Intent intent = new Intent(this, AllReportedItemsActivity.class);
-            intent.putExtra("isAdmin", true);
-            intent.putExtra("filterStatus", "found");
-            startActivity(intent);
-            overridePendingTransition(R.anim.material_shared_axis_z_enter, R.anim.material_shared_axis_z_exit);
-        });
-
-        cardTotalUsers.setOnClickListener(v -> {
-            if (!ItemNavigationUtils.canNavigate()) return;
-            startActivity(new Intent(this, AllUsersActivity.class));
-            overridePendingTransition(R.anim.material_shared_axis_z_enter, R.anim.material_shared_axis_z_exit);
-        });
-
         cardAdminRequests.setOnClickListener(v -> {
-            if (!ItemNavigationUtils.canNavigate()) return;
+            if (!ItemNavigationUtils.canNavigate())
+                return;
             startActivity(new Intent(this, AdminRequestsActivity.class));
             overridePendingTransition(R.anim.material_shared_axis_z_enter, R.anim.material_shared_axis_z_exit);
         });
 
         cardAdminReports.setOnClickListener(v -> {
-            if (!ItemNavigationUtils.canNavigate()) return;
+            if (!ItemNavigationUtils.canNavigate())
+                return;
             startActivity(new Intent(this, AdminReportManagementActivity.class));
             overridePendingTransition(R.anim.material_shared_axis_z_enter, R.anim.material_shared_axis_z_exit);
         });
 
         btnAdminRequests.setOnClickListener(v -> {
-            if (!ItemNavigationUtils.canNavigate()) return;
+            if (!ItemNavigationUtils.canNavigate())
+                return;
             startActivity(new Intent(this, AdminRequestsActivity.class));
             overridePendingTransition(R.anim.material_shared_axis_z_enter, R.anim.material_shared_axis_z_exit);
         });
 
         btnAdminReports.setOnClickListener(v -> {
-            if (!ItemNavigationUtils.canNavigate()) return;
+            if (!ItemNavigationUtils.canNavigate())
+                return;
             startActivity(new Intent(this, AdminReportManagementActivity.class));
             overridePendingTransition(R.anim.material_shared_axis_z_enter, R.anim.material_shared_axis_z_exit);
         });
 
         btnManageItems.setOnClickListener(v -> {
-            if (!ItemNavigationUtils.canNavigate()) return;
-            Intent intent = new Intent(this, AllReportedItemsActivity.class);
-            intent.putExtra("isAdmin", true);
-            startActivity(intent);
+            if (!ItemNavigationUtils.canNavigate())
+                return;
+            startActivity(new Intent(this, ManageItemsActivity.class));
             overridePendingTransition(R.anim.material_shared_axis_z_enter, R.anim.material_shared_axis_z_exit);
         });
 
         btnManageUsers.setOnClickListener(v -> {
-            if (!ItemNavigationUtils.canNavigate()) return;
+            if (!ItemNavigationUtils.canNavigate())
+                return;
             startActivity(new Intent(this, AllUsersActivity.class));
             overridePendingTransition(R.anim.material_shared_axis_z_enter, R.anim.material_shared_axis_z_exit);
         });
 
         btnLogout.setOnClickListener(v -> {
-            if (!ItemNavigationUtils.canNavigate()) return;
-            SupabaseAuthHelper.signOut();
-            getSharedPreferences("MyApp", MODE_PRIVATE).edit().clear().apply();
-            Intent intent = new Intent(this, UserLoginActivity.class);
+            if (!ItemNavigationUtils.canNavigate())
+                return;
+            
+            // Switch back to User Mode instead of logging out
+            ModeManager.setMode(this, ModeManager.MODE_USER);
+            
+            Intent intent = new Intent(this, CampusDashboardActivity.class);
             intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
             startActivity(intent);
             finish();
+            overridePendingTransition(R.anim.material_shared_axis_z_pop_enter, R.anim.material_shared_axis_z_pop_exit);
         });
 
-        View btnBack = findViewById(R.id.btnBack);
-        if (btnBack != null) {
-            btnBack.setOnClickListener(v -> {
-                if (ItemNavigationUtils.canNavigate()) {
-                    onBackPressed();
-                }
-            });
-        }
     }
 
     private void loadStats() {
-        // Fetch stats using select count queries
-        
-        // 1. Lost Items Count
-        SupabaseDatabaseHelper.select("lost_reports", "select=count", new TypeToken<List<Map<String, Object>>>(){}.getType(), new SupabaseDatabaseHelper.DatabaseCallback<List<Map<String, Object>>>() {
-            @Override
-            public void onSuccess(List<Map<String, Object>> result) {
-                if (result != null && !result.isEmpty()) {
-                    Object countObj = result.get(0).get("count");
-                    long count = countObj instanceof Double ? ((Double) countObj).longValue() : (countObj instanceof Long ? (Long) countObj : 0);
-                    tvTotalLost.setText(String.valueOf(count));
-                }
-                if (swipeRefreshLayout != null) swipeRefreshLayout.setRefreshing(false);
-            }
-            @Override public void onFailure(String errorMessage) {
-                if (swipeRefreshLayout != null) swipeRefreshLayout.setRefreshing(false);
-            }
-        });
+        if (swipeRefreshLayout != null)
+            swipeRefreshLayout.setRefreshing(true);
 
-        // 2. Found Items Count
-        SupabaseDatabaseHelper.select("found_reports", "select=count", new TypeToken<List<Map<String, Object>>>(){}.getType(), new SupabaseDatabaseHelper.DatabaseCallback<List<Map<String, Object>>>() {
+        // 1. Parallel Admin Requests Count
+        SupabaseDatabaseHelper.select("admin_requests", "select=count", new TypeToken<List<Map<String, Object>>>() {
+        }.getType(), new SupabaseDatabaseHelper.DatabaseCallback<List<Map<String, Object>>>() {
             @Override
             public void onSuccess(List<Map<String, Object>> result) {
                 if (result != null && !result.isEmpty()) {
                     Object countObj = result.get(0).get("count");
-                    long count = countObj instanceof Double ? ((Double) countObj).longValue() : (countObj instanceof Long ? (Long) countObj : 0);
-                    tvTotalFound.setText(String.valueOf(count));
-                }
-            }
-            @Override public void onFailure(String errorMessage) {}
-        });
-
-        // 3. Users Count
-        SupabaseDatabaseHelper.select("profiles", "select=count", new TypeToken<List<Map<String, Object>>>(){}.getType(), new SupabaseDatabaseHelper.DatabaseCallback<List<Map<String, Object>>>() {
-            @Override
-            public void onSuccess(List<Map<String, Object>> result) {
-                if (result != null && !result.isEmpty()) {
-                    Object countObj = result.get(0).get("count");
-                    long count = countObj instanceof Double ? ((Double) countObj).longValue() : (countObj instanceof Long ? (Long) countObj : 0);
-                    tvTotalUsers.setText(String.valueOf(count));
-                }
-            }
-            @Override public void onFailure(String errorMessage) {}
-        });
-
-        // 4. Admin Requests Count
-        SupabaseDatabaseHelper.select("admin_requests", "select=count", new TypeToken<List<Map<String, Object>>>(){}.getType(), new SupabaseDatabaseHelper.DatabaseCallback<List<Map<String, Object>>>() {
-            @Override
-            public void onSuccess(List<Map<String, Object>> result) {
-                if (result != null && !result.isEmpty()) {
-                    Object countObj = result.get(0).get("count");
-                    long count = countObj instanceof Double ? ((Double) countObj).longValue() : (countObj instanceof Long ? (Long) countObj : 0);
+                    long count = (countObj instanceof Number) ? ((Number) countObj).longValue() : 0;
                     tvTotalAdminRequests.setText(String.valueOf(count));
                 }
+                checkRefreshStatus();
             }
-            @Override public void onFailure(String errorMessage) {}
+
+            @Override
+            public void onFailure(String errorMessage) {
+                checkRefreshStatus();
+            }
         });
 
-        // 5. Admin Reports Count
-        SupabaseDatabaseHelper.select("admin_reports", "select=count", new TypeToken<List<Map<String, Object>>>(){}.getType(), new SupabaseDatabaseHelper.DatabaseCallback<List<Map<String, Object>>>() {
+        // 2. Parallel User Reports Count
+        SupabaseDatabaseHelper.select("admin_reports", "select=count", new TypeToken<List<Map<String, Object>>>() {
+        }.getType(), new SupabaseDatabaseHelper.DatabaseCallback<List<Map<String, Object>>>() {
             @Override
             public void onSuccess(List<Map<String, Object>> result) {
                 if (result != null && !result.isEmpty()) {
                     Object countObj = result.get(0).get("count");
-                    long count = countObj instanceof Double ? ((Double) countObj).longValue() : (countObj instanceof Long ? (Long) countObj : 0);
+                    long count = (countObj instanceof Number) ? ((Number) countObj).longValue() : 0;
                     tvTotalAdminReports.setText(String.valueOf(count));
                 }
             }
-            @Override public void onFailure(String errorMessage) {}
+
+            @Override
+            public void onFailure(String errorMessage) {
+            }
         });
     }
+
+    private void checkRefreshStatus() {
+        if (swipeRefreshLayout != null && swipeRefreshLayout.isRefreshing()) {
+            swipeRefreshLayout.setRefreshing(false);
+        }
+    }
+
 }

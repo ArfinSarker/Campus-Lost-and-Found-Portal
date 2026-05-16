@@ -58,8 +58,7 @@ public class AllReportedItemsActivity extends AppCompatActivity {
         targetUserId = getIntent().getStringExtra("targetUserId");
         userName = getIntent().getStringExtra("userName");
         
-        android.content.SharedPreferences prefs = getSharedPreferences("MyApp", MODE_PRIVATE);
-        isAdmin = prefs.getBoolean("isAdminLoggedIn", false);
+        isAdmin = ModeManager.isAdminMode(this);
 
         initializeViews();
         setupToolbar();
@@ -95,8 +94,8 @@ public class AllReportedItemsActivity extends AppCompatActivity {
             tvHeaderTitle.setText(prefix + "Lost Reports");
         } else if ("found".equalsIgnoreCase(filterStatus)) {
             tvHeaderTitle.setText(prefix + "Found Reports");
-        } else if ("returned".equalsIgnoreCase(filterStatus)) {
-            tvHeaderTitle.setText(prefix + "Returned Items");
+        } else if ("returned".equalsIgnoreCase(filterStatus) || "resolved".equalsIgnoreCase(filterStatus)) {
+            tvHeaderTitle.setText(prefix + "Resolved Items");
         } else {
             tvHeaderTitle.setText("All Reported Items");
         }
@@ -143,56 +142,65 @@ public class AllReportedItemsActivity extends AppCompatActivity {
         String lostQuery = "deleted_by_user=eq.false";
         if (targetUserId != null) lostQuery += "&reporter_id=eq." + targetUserId;
 
-        SupabaseDatabaseHelper.select("lost_reports", lostQuery, new TypeToken<List<Item>>(){}.getType(), new SupabaseDatabaseHelper.DatabaseCallback<List<Item>>() {
+        String foundQuery = "deleted_by_user=eq.false";
+        if (targetUserId != null) foundQuery += "&reporter_id=eq." + targetUserId;
+
+        final int[] completedCount = {0};
+        final List<Item> lostList = new ArrayList<>();
+        final List<Item> foundList = new ArrayList<>();
+
+        SupabaseDatabaseHelper.DatabaseCallback<List<Item>> lostCallback = new SupabaseDatabaseHelper.DatabaseCallback<List<Item>>() {
             @Override
-            public void onSuccess(List<Item> lostItems) {
-                if (lostItems != null) accumulatedItems.addAll(lostItems);
-                
-                // Fetch Found Items
-                String foundQuery = "deleted_by_user=eq.false";
-                if (targetUserId != null) foundQuery += "&reporter_id=eq." + targetUserId;
-
-                SupabaseDatabaseHelper.select("found_reports", foundQuery, new TypeToken<List<Item>>(){}.getType(), new SupabaseDatabaseHelper.DatabaseCallback<List<Item>>() {
-                    @Override
-                    public void onSuccess(List<Item> foundItems) {
-                        if (foundItems != null) {
-                            for (Item item : foundItems) {
-                                boolean exists = false;
-                                for (Item existing : accumulatedItems) {
-                                    if (existing.getId().equals(item.getId())) {
-                                        exists = true;
-                                        break;
-                                    }
-                                }
-                                if (!exists) accumulatedItems.add(item);
-                            }
-                        }
-                        
-                        itemList.clear();
-                        itemList.addAll(accumulatedItems);
-                        applyFilter();
-                        
-                        isFetching = false;
-                        progressBar.setVisibility(View.GONE);
-                        if (swipeRefreshLayout != null) swipeRefreshLayout.setRefreshing(false);
-                    }
-
-                    @Override
-                    public void onFailure(String e) {
-                        isFetching = false;
-                        progressBar.setVisibility(View.GONE);
-                        if (swipeRefreshLayout != null) swipeRefreshLayout.setRefreshing(false);
-                    }
-                });
+            public void onSuccess(List<Item> items) {
+                if (items != null) lostList.addAll(items);
+                checkCompletion();
             }
+            @Override public void onFailure(String e) { checkCompletion(); }
 
+            private void checkCompletion() {
+                completedCount[0]++;
+                if (completedCount[0] == 2) finalizeList(lostList, foundList);
+            }
+        };
+
+        SupabaseDatabaseHelper.DatabaseCallback<List<Item>> foundCallback = new SupabaseDatabaseHelper.DatabaseCallback<List<Item>>() {
             @Override
-            public void onFailure(String errorMessage) {
-                isFetching = false;
-                progressBar.setVisibility(View.GONE);
-                if (swipeRefreshLayout != null) swipeRefreshLayout.setRefreshing(false);
+            public void onSuccess(List<Item> items) {
+                if (items != null) foundList.addAll(items);
+                checkCompletion();
             }
-        });
+            @Override public void onFailure(String e) { checkCompletion(); }
+
+            private void checkCompletion() {
+                completedCount[0]++;
+                if (completedCount[0] == 2) finalizeList(lostList, foundList);
+            }
+        };
+
+        SupabaseDatabaseHelper.select("lost_reports", lostQuery, new TypeToken<List<Item>>(){}.getType(), lostCallback);
+        SupabaseDatabaseHelper.select("found_reports", foundQuery, new TypeToken<List<Item>>(){}.getType(), foundCallback);
+    }
+
+    private void finalizeList(List<Item> lostList, List<Item> foundList) {
+        itemList.clear();
+        itemList.addAll(lostList);
+        
+        for (Item item : foundList) {
+            boolean exists = false;
+            for (Item existing : lostList) {
+                if (existing.getId().equals(item.getId())) {
+                    exists = true;
+                    break;
+                }
+            }
+            if (!exists) itemList.add(item);
+        }
+
+        applyFilter();
+        
+        isFetching = false;
+        progressBar.setVisibility(View.GONE);
+        if (swipeRefreshLayout != null) swipeRefreshLayout.setRefreshing(false);
     }
 
     private void applyFilter() {
@@ -203,7 +211,7 @@ public class AllReportedItemsActivity extends AppCompatActivity {
 
             if (filterStatus == null) {
                 filteredList.add(item);
-            } else if ("returned".equalsIgnoreCase(filterStatus)) {
+            } else if ("returned".equalsIgnoreCase(filterStatus) || "resolved".equalsIgnoreCase(filterStatus)) {
                 String status = item.getAdminStatus();
                 if ("Returned".equalsIgnoreCase(status) || "Claimed".equalsIgnoreCase(status)) {
                     filteredList.add(item);
@@ -263,11 +271,11 @@ public class AllReportedItemsActivity extends AppCompatActivity {
             }
 
             if ("lost".equals(item.getStatus())) {
-                holder.statusIndicator.setBackgroundColor(0xFFA31621);
+                holder.statusIndicator.setBackgroundColor(ContextCompat.getColor(holder.itemView.getContext(), R.color.statusLost));
                 holder.tvBadge.setText("LOST");
                 holder.cardBadge.setCardBackgroundColor(ContextCompat.getColor(holder.itemView.getContext(), R.color.badge_lost_bg));
             } else {
-                holder.statusIndicator.setBackgroundColor(0xFF2E7D32);
+                holder.statusIndicator.setBackgroundColor(ContextCompat.getColor(holder.itemView.getContext(), R.color.statusFound));
                 holder.tvBadge.setText("FOUND");
                 holder.cardBadge.setCardBackgroundColor(ContextCompat.getColor(holder.itemView.getContext(), R.color.badge_found_bg));
             }

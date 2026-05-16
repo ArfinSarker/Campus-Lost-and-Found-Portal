@@ -2,6 +2,8 @@ package com.sas.lostandfound;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -12,30 +14,41 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
 import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
+import com.google.android.material.chip.ChipGroup;
+import com.google.android.material.textfield.TextInputEditText;
 import com.google.gson.reflect.TypeToken;
+
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 /**
  * Activity for Admins to manage all registered users.
- * Displays a list of users in a social-media style (similar to Facebook's friend list).
+ * Displays a list of users with stats, search, and filtering capabilities.
  */
 public class AllUsersActivity extends AppCompatActivity {
 
     private RecyclerView rvAllUsers;
     private UserAdapter adapter;
-    private List<User> userList;
+    private List<User> fullUserList = new ArrayList<>();
+    private List<User> filteredUserList = new ArrayList<>();
     private ProgressBar progressBar;
     private LinearLayout llEmptyState;
     private SwipeRefreshLayout swipeRefreshLayout;
+    private TextInputEditText etSearch;
+    private ChipGroup chipGroupFilter;
+    
+    private TextView tvStatTotalUsers, tvStatStudents, tvStatStaffs, tvStatAdmins;
+    
     private boolean isFetching = false;
+    private String currentRoleFilter = "All";
+    private String currentSearchQuery = "";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -50,6 +63,8 @@ public class AllUsersActivity extends AppCompatActivity {
         setupToolbar();
         setupRecyclerView();
         setupSwipeRefresh();
+        setupSearchAndFilter();
+        
         fetchAllUsers();
     }
 
@@ -58,17 +73,17 @@ public class AllUsersActivity extends AppCompatActivity {
         progressBar = findViewById(R.id.progressBar);
         llEmptyState = findViewById(R.id.llEmptyState);
         swipeRefreshLayout = findViewById(R.id.swipeRefreshLayout);
+        etSearch = findViewById(R.id.etSearch);
+        chipGroupFilter = findViewById(R.id.chipGroupFilter);
+        
+        tvStatTotalUsers = findViewById(R.id.tvStatTotalUsers);
+        tvStatStudents = findViewById(R.id.tvStatStudents);
+        tvStatStaffs = findViewById(R.id.tvStatStaffs);
+        tvStatAdmins = findViewById(R.id.tvStatAdmins);
     }
 
     private void setupToolbar() {
-        Toolbar toolbar = findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
-        if (getSupportActionBar() != null) {
-            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-            getSupportActionBar().setTitle("Manage All Users");
-        }
-        
-        // Handle custom back button if present in layout
+        // Handle custom back button in the ConstraintLayout header
         View btnBack = findViewById(R.id.btnBack);
         if (btnBack != null) {
             btnBack.setOnClickListener(v -> onBackPressed());
@@ -76,13 +91,12 @@ public class AllUsersActivity extends AppCompatActivity {
 
         com.google.android.material.appbar.AppBarLayout appBarLayout = findViewById(R.id.appBarLayout);
         if (appBarLayout != null) {
-            HeaderColorHelper.setup(this, appBarLayout, toolbar);
+            HeaderColorHelper.setup(this, appBarLayout);
         }
     }
 
     private void setupRecyclerView() {
-        userList = new ArrayList<>();
-        adapter = new UserAdapter(userList);
+        adapter = new UserAdapter(filteredUserList);
         rvAllUsers.setLayoutManager(new LinearLayoutManager(this));
         rvAllUsers.setAdapter(adapter);
     }
@@ -94,6 +108,36 @@ public class AllUsersActivity extends AppCompatActivity {
         }
     }
 
+    private void setupSearchAndFilter() {
+        etSearch.addTextChangedListener(new TextWatcher() {
+            @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+            @Override public void onTextChanged(CharSequence s, int start, int before, int count) {
+                currentSearchQuery = s.toString().toLowerCase(Locale.getDefault()).trim();
+                applyFilter();
+            }
+            @Override public void afterTextChanged(Editable s) {}
+        });
+
+        chipGroupFilter.setOnCheckedStateChangeListener((group, checkedIds) -> {
+            if (checkedIds.isEmpty()) {
+                currentRoleFilter = "All";
+            } else {
+                int id = checkedIds.get(0);
+                if (id == R.id.chipStudents) currentRoleFilter = "Student";
+                else if (id == R.id.chipStaffs) currentRoleFilter = "Staff";
+                else if (id == R.id.chipAdmins) currentRoleFilter = "Admin";
+                else currentRoleFilter = "All";
+            }
+            applyFilter();
+        });
+
+        // Statistics Card Click Listeners for quick filtering
+        findViewById(R.id.cardTotalUsers).setOnClickListener(v -> chipGroupFilter.check(R.id.chipAll));
+        findViewById(R.id.cardStudents).setOnClickListener(v -> chipGroupFilter.check(R.id.chipStudents));
+        findViewById(R.id.cardStaffs).setOnClickListener(v -> chipGroupFilter.check(R.id.chipStaffs));
+        findViewById(R.id.cardAdmins).setOnClickListener(v -> chipGroupFilter.check(R.id.chipAdmins));
+    }
+
     private void fetchAllUsers() {
         if (isFetching) return;
         isFetching = true;
@@ -102,17 +146,20 @@ public class AllUsersActivity extends AppCompatActivity {
             progressBar.setVisibility(View.VISIBLE);
         }
         
-        SupabaseDatabaseHelper.select("profiles", "select=*", new TypeToken<List<User>>(){}.getType(), new SupabaseDatabaseHelper.DatabaseCallback<List<User>>() {
+        // Optimized: Fetch only essential columns for the management list
+        String columns = "university_id,full_name,user_type,profile_image_url";
+        SupabaseDatabaseHelper.select("profiles", "select=" + columns, new TypeToken<List<User>>(){}.getType(), new SupabaseDatabaseHelper.DatabaseCallback<List<User>>() {
             @Override
             public void onSuccess(List<User> users) {
-                userList.clear();
+                fullUserList.clear();
                 if (users != null) {
-                    userList.addAll(users);
+                    fullUserList.addAll(users);
                 }
-                adapter.notifyDataSetChanged();
-                progressBar.setVisibility(View.GONE);
-                llEmptyState.setVisibility(userList.isEmpty() ? View.VISIBLE : View.GONE);
                 
+                updateStats();
+                applyFilter();
+                
+                progressBar.setVisibility(View.GONE);
                 isFetching = false;
                 if (swipeRefreshLayout != null) swipeRefreshLayout.setRefreshing(false);
             }
@@ -125,6 +172,47 @@ public class AllUsersActivity extends AppCompatActivity {
                 if (swipeRefreshLayout != null) swipeRefreshLayout.setRefreshing(false);
             }
         });
+    }
+
+    private void updateStats() {
+        int total = fullUserList.size();
+        int students = 0;
+        int staffs = 0;
+        int admins = 0;
+        
+        for (User user : fullUserList) {
+            String role = user.getUserType();
+            if ("Student".equalsIgnoreCase(role)) students++;
+            else if ("Staff".equalsIgnoreCase(role)) staffs++;
+            else if ("Admin".equalsIgnoreCase(role)) admins++;
+        }
+        
+        tvStatTotalUsers.setText(String.valueOf(total));
+        tvStatStudents.setText(String.valueOf(students));
+        tvStatStaffs.setText(String.valueOf(staffs));
+        tvStatAdmins.setText(String.valueOf(admins));
+    }
+
+    private void applyFilter() {
+        filteredUserList.clear();
+        for (User user : fullUserList) {
+            boolean matchesRole = "All".equalsIgnoreCase(currentRoleFilter) || 
+                                 user.getUserType().equalsIgnoreCase(currentRoleFilter);
+            
+            if (!matchesRole) continue;
+            
+            boolean matchesSearch = currentSearchQuery.isEmpty() || 
+                                   (user.getFullName() != null && user.getFullName().toLowerCase().contains(currentSearchQuery)) ||
+                                   (user.getName() != null && user.getName().toLowerCase().contains(currentSearchQuery)) ||
+                                   (user.getUniversityId() != null && user.getUniversityId().toLowerCase().contains(currentSearchQuery));
+            
+            if (matchesSearch) {
+                filteredUserList.add(user);
+            }
+        }
+        
+        adapter.notifyDataSetChanged();
+        llEmptyState.setVisibility(filteredUserList.isEmpty() ? View.VISIBLE : View.GONE);
     }
 
     /**
@@ -148,7 +236,6 @@ public class AllUsersActivity extends AppCompatActivity {
         public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
             User user = users.get(position);
             holder.tvName.setText(user.getFullName() != null ? user.getFullName() : user.getName());
-            holder.tvType.setText(user.getUserType());
             holder.tvUnivId.setText(user.getUniversityId());
 
             if (user.getProfileImageUrl() != null && !user.getProfileImageUrl().isEmpty()) {
@@ -178,13 +265,12 @@ public class AllUsersActivity extends AppCompatActivity {
         }
 
         class ViewHolder extends RecyclerView.ViewHolder {
-            TextView tvName, tvType, tvUnivId;
+            TextView tvName, tvUnivId;
             ImageView ivProfile;
 
             public ViewHolder(@NonNull View itemView) {
                 super(itemView);
                 tvName = itemView.findViewById(R.id.tvUserName);
-                tvType = itemView.findViewById(R.id.tvUserType);
                 tvUnivId = itemView.findViewById(R.id.tvUserUniversityId);
                 ivProfile = itemView.findViewById(R.id.ivUserProfile);
             }

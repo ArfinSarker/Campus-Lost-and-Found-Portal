@@ -60,7 +60,7 @@ public class UserProfileActivity extends AppCompatActivity {
     private com.airbnb.lottie.LottieAnimationView loadingAnimation;
     private ProgressBar progressBar;
     private Toolbar toolbar;
-    private TextView tvHeaderTitle, tvLostReportsCount, tvFoundReportsCount, tvReturnedItemsCount;
+    private TextView tvHeaderTitle, tvLostReportsCount, tvFoundReportsCount, tvResolvedItemsCount;
     private View changePasswordSection, activitySection;
     private SwipeRefreshLayout swipeRefreshLayout;
 
@@ -112,40 +112,43 @@ public class UserProfileActivity extends AppCompatActivity {
                 handleBackNavigation();
             }
         });
+
+        // Critical: Initialize mode immediately to prevent flickering of edit icons
+        if ((isAdminViewing || isViewOnly) && targetUserId != null) {
+            setupAdminView();
+        }
     }
 
     @Override
     public void onEnterAnimationComplete() {
         super.onEnterAnimationComplete();
         // Heavy work deferred until after the activity transition animation is complete
-        new android.os.Handler(android.os.Looper.getMainLooper()).postDelayed(() -> {
-            setupDropdowns();
+        // Critical work started immediately, non-blocking UI setup deferred slightly
+        setupDropdowns();
 
-            if ((isAdminViewing || isViewOnly) && targetUserId != null) {
-                currentUniversityId = targetUserId;
-                loadUserData(targetUserId);
-                setupAdminView();
-                setupRealTimeActivityTracking(targetUserId);
+        if ((isAdminViewing || isViewOnly) && targetUserId != null) {
+            currentUniversityId = targetUserId;
+            loadUserData(targetUserId);
+            setupParallelActivityTracking(targetUserId);
+        } else {
+            android.content.SharedPreferences prefs = getSharedPreferences("MyApp", MODE_PRIVATE);
+            currentUniversityId = prefs.getString("universityId", null);
+            userEmail = prefs.getString("email", null);
+            
+            if (currentUniversityId != null) {
+                loadUserData(currentUniversityId);
+                setupParallelActivityTracking(currentUniversityId);
             } else {
-                android.content.SharedPreferences prefs = getSharedPreferences("MyApp", MODE_PRIVATE);
-                currentUniversityId = prefs.getString("universityId", null);
-                userEmail = prefs.getString("email", null);
-                
-                if (currentUniversityId != null) {
-                    loadUserData(currentUniversityId);
-                    setupRealTimeActivityTracking(currentUniversityId);
-                } else {
-                    searchUserByEmail();
-                }
-
-                fabChangePhoto.setOnClickListener(v -> showImageSourceDialog());
-
-                setupEditableToggles();
-                setupChangeDetection();
-                btnSaveChanges.setOnClickListener(v -> saveAllChanges());
-                setupPasswordChangeLogic();
+                searchUserByEmail();
             }
-        }, 100);
+
+            fabChangePhoto.setOnClickListener(v -> showImageSourceDialog());
+
+            setupEditableToggles();
+            setupChangeDetection();
+            btnSaveChanges.setOnClickListener(v -> saveAllChanges());
+            setupPasswordChangeLogic();
+        }
     }
 
     /**
@@ -189,7 +192,7 @@ public class UserProfileActivity extends AppCompatActivity {
             // Setup click listeners for activity sections
             tvLostReportsCount.setOnClickListener(v -> openFilteredItemList("lost"));
             tvFoundReportsCount.setOnClickListener(v -> openFilteredItemList("found"));
-            tvReturnedItemsCount.setOnClickListener(v -> openFilteredItemList("returned"));
+            tvResolvedItemsCount.setOnClickListener(v -> openFilteredItemList("returned"));
         }
 
         // Disable editing for Admin viewing or View Only mode
@@ -232,11 +235,11 @@ public class UserProfileActivity extends AppCompatActivity {
             swipeRefreshLayout.setOnRefreshListener(() -> {
                 if ((isAdminViewing || isViewOnly) && targetUserId != null) {
                     loadUserData(targetUserId);
-                    setupRealTimeActivityTracking(targetUserId);
+                    setupParallelActivityTracking(targetUserId);
                 } else {
                     if (currentUniversityId != null) {
                         loadUserData(currentUniversityId);
-                        setupRealTimeActivityTracking(currentUniversityId);
+                        setupParallelActivityTracking(currentUniversityId);
                     } else {
                         searchUserByEmail();
                     }
@@ -245,14 +248,21 @@ public class UserProfileActivity extends AppCompatActivity {
         }
     }
 
-    private void setupRealTimeActivityTracking(String userId) {
-        // 1. Lost Reports Count
+    private void setupParallelActivityTracking(String userId) {
+        // Reset counts for visual feedback
+        tvLostReportsCount.setText("Lost Reports: ...");
+        tvFoundReportsCount.setText("Found Reports: ...");
+        tvResolvedItemsCount.setText("Resolved Items: ...");
+        
+        AtomicLong resolvedCount = new AtomicLong(0);
+
+        // 1. Parallel Lost Reports Count
         SupabaseDatabaseHelper.select("lost_reports", "reporter_id=eq." + userId + "&select=count", new TypeToken<List<Map<String, Object>>>(){}.getType(), new SupabaseDatabaseHelper.DatabaseCallback<List<Map<String, Object>>>() {
             @Override
             public void onSuccess(List<Map<String, Object>> result) {
                 if (result != null && !result.isEmpty()) {
                     Object countObj = result.get(0).get("count");
-                    long count = countObj instanceof Double ? ((Double) countObj).longValue() : (countObj instanceof Long ? (Long) countObj : 0);
+                    long count = (countObj instanceof Number) ? ((Number) countObj).longValue() : 0;
                     tvLostReportsCount.setText("Lost Reports: " + count);
                     tvLostReportsCount.setTextColor(ContextCompat.getColor(UserProfileActivity.this, R.color.errorColor));
                 }
@@ -260,13 +270,13 @@ public class UserProfileActivity extends AppCompatActivity {
             @Override public void onFailure(String errorMessage) {}
         });
 
-        // 2. Found Reports Count
+        // 2. Parallel Found Reports Count
         SupabaseDatabaseHelper.select("found_reports", "reporter_id=eq." + userId + "&select=count", new TypeToken<List<Map<String, Object>>>(){}.getType(), new SupabaseDatabaseHelper.DatabaseCallback<List<Map<String, Object>>>() {
             @Override
             public void onSuccess(List<Map<String, Object>> result) {
                 if (result != null && !result.isEmpty()) {
                     Object countObj = result.get(0).get("count");
-                    long count = countObj instanceof Double ? ((Double) countObj).longValue() : (countObj instanceof Long ? (Long) countObj : 0);
+                    long count = (countObj instanceof Number) ? ((Number) countObj).longValue() : 0;
                     tvFoundReportsCount.setText("Found Reports: " + count);
                     tvFoundReportsCount.setTextColor(0xFF2E7D32); // Dark Green
                 }
@@ -274,33 +284,30 @@ public class UserProfileActivity extends AppCompatActivity {
             @Override public void onFailure(String errorMessage) {}
         });
 
-        // 3. Returned Items Count
-        // UserItems was a mapping of itemId -> true. In Supabase, we might have a user_items table or just query lost_reports/found_reports where claimedByUserId = userId.
-        // Based on Item.java, there's a claimedByUserId field.
+        // 3. Parallel Returned Items Count
         String q = "or=(claimed_by_id.eq." + userId + ",and(reporter_id.eq." + userId + ",admin_status.eq.Returned))";
-        
-        AtomicLong returnedCount = new AtomicLong(0);
         
         SupabaseDatabaseHelper.select("lost_reports", q + "&select=count", new TypeToken<List<Map<String, Object>>>(){}.getType(), new SupabaseDatabaseHelper.DatabaseCallback<List<Map<String, Object>>>() {
             @Override
             public void onSuccess(List<Map<String, Object>> result) {
                 if (result != null && !result.isEmpty()) {
                     Object countObj = result.get(0).get("count");
-                    long count = countObj instanceof Double ? ((Double) countObj).longValue() : (countObj instanceof Long ? (Long) countObj : 0);
-                    returnedCount.addAndGet(count);
-                    
-                    SupabaseDatabaseHelper.select("found_reports", q + "&select=count", new TypeToken<List<Map<String, Object>>>(){}.getType(), new SupabaseDatabaseHelper.DatabaseCallback<List<Map<String, Object>>>() {
-                        @Override
-                        public void onSuccess(List<Map<String, Object>> result2) {
-                            if (result2 != null && !result2.isEmpty()) {
-                                Object countObj2 = result2.get(0).get("count");
-                                long count2 = countObj2 instanceof Double ? ((Double) countObj2).longValue() : (countObj2 instanceof Long ? (Long) countObj2 : 0);
-                                returnedCount.addAndGet(count2);
-                                updateReturnedUI(returnedCount.get());
-                            }
-                        }
-                        @Override public void onFailure(String errorMessage) {}
-                    });
+                    resolvedCount.addAndGet((countObj instanceof Number) ? ((Number) countObj).longValue() : 0);
+                    updateResolvedUI(resolvedCount.get());
+                }
+            }
+            @Override public void onFailure(String errorMessage) {}
+        });
+
+        SupabaseDatabaseHelper.select("found_reports", q + "&select=count", new TypeToken<List<Map<String, Object>>>(){}.getType(), new SupabaseDatabaseHelper.DatabaseCallback<List<Map<String, Object>>>() {
+            @Override
+            public void onSuccess(List<Map<String, Object>> result2) {
+                if (result2 != null && !result2.isEmpty()) {
+                    Object countObj2 = result2.get(0).get("count2"); // Supabase count might be different in parallel if not careful, but here it's fine
+                    // Wait, actually count result is always "count" field in my helper
+                    countObj2 = result2.get(0).get("count");
+                    resolvedCount.addAndGet((countObj2 instanceof Number) ? ((Number) countObj2).longValue() : 0);
+                    updateResolvedUI(resolvedCount.get());
                 }
             }
             @Override public void onFailure(String errorMessage) {}
@@ -316,9 +323,9 @@ public class UserProfileActivity extends AppCompatActivity {
         callback.onResult(false);
     }
 
-    private void updateReturnedUI(long count) {
-        tvReturnedItemsCount.setText("Returned Items: " + count);
-        tvReturnedItemsCount.setTextColor(ContextCompat.getColor(this, R.color.primaryColor));
+    private void updateResolvedUI(long count) {
+        tvResolvedItemsCount.setText("Resolved Items: " + count);
+        tvResolvedItemsCount.setTextColor(ContextCompat.getColor(this, R.color.primaryColor));
     }
 
     private void confirmDeleteUser() {
@@ -453,20 +460,24 @@ public class UserProfileActivity extends AppCompatActivity {
         activitySection = findViewById(R.id.llActivitySection);
         tvLostReportsCount = findViewById(R.id.tvLostReportsCount);
         tvFoundReportsCount = findViewById(R.id.tvFoundReportsCount);
-        tvReturnedItemsCount = findViewById(R.id.tvReturnedItemsCount);
+        tvResolvedItemsCount = findViewById(R.id.tvReturnedItemsCount);
         swipeRefreshLayout = findViewById(R.id.swipeRefreshLayout);
 
-        // Ensure fields are initially non-focusable to prevent immediate edit mode on click
-        etFullName.setFocusable(false);
-        etEmail.setFocusable(false);
-        etPhone.setFocusable(false);
-        actvGender.setFocusable(false);
-        etBatch.setFocusable(false);
-        actvLevelTerm.setFocusable(false);
-        etDepartment.setFocusable(false);
-        actvSection.setFocusable(false);
-        etDesignation.setFocusable(false);
-        etUniversityId.setFocusable(false);
+        // Ensure fields are initially non-focusable and hide end icons if admin viewing to prevent flickering
+        if (isAdminViewing || isViewOnly) {
+            disableAllFields();
+        } else {
+            etFullName.setFocusable(false);
+            etEmail.setFocusable(false);
+            etPhone.setFocusable(false);
+            actvGender.setFocusable(false);
+            etBatch.setFocusable(false);
+            actvLevelTerm.setFocusable(false);
+            etDepartment.setFocusable(false);
+            actvSection.setFocusable(false);
+            etDesignation.setFocusable(false);
+            etUniversityId.setFocusable(false);
+        }
     }
 
     private void setupToolbar() {
@@ -644,14 +655,14 @@ public class UserProfileActivity extends AppCompatActivity {
             return;
         }
 
-        SupabaseDatabaseHelper.select("profiles", "email=eq." + userEmail + "&select=universityId&limit=1", new TypeToken<List<Map<String, String>>>(){}.getType(), new SupabaseDatabaseHelper.DatabaseCallback<List<Map<String, String>>>() {
+        SupabaseDatabaseHelper.select("profiles", "email=eq." + userEmail + "&select=university_id&limit=1", new TypeToken<List<Map<String, String>>>(){}.getType(), new SupabaseDatabaseHelper.DatabaseCallback<List<Map<String, String>>>() {
             @Override
             public void onSuccess(List<Map<String, String>> result) {
                 if (result != null && !result.isEmpty()) {
-                    currentUniversityId = result.get(0).get("universityId");
+                    currentUniversityId = result.get(0).get("university_id");
                     if (currentUniversityId != null) {
                         loadUserData(currentUniversityId);
-                        setupRealTimeActivityTracking(currentUniversityId);
+                        setupParallelActivityTracking(currentUniversityId);
                     }
                 } else {
                     showLoading(false);
@@ -666,7 +677,9 @@ public class UserProfileActivity extends AppCompatActivity {
     }
 
     private void loadUserData(String userId) {
-        SupabaseDatabaseHelper.select("profiles", "university_id=eq." + userId + "&select=*&limit=1", new TypeToken<List<User>>(){}.getType(), new SupabaseDatabaseHelper.DatabaseCallback<List<User>>() {
+        // Optimized: Fetch only required columns to reduce payload
+        String columns = "university_id,full_name,email,phone_number,gender,user_type,department,batch,level_term,section,designation,profile_image_url";
+        SupabaseDatabaseHelper.select("profiles", "university_id=eq." + userId + "&select=" + columns + "&limit=1", new TypeToken<List<User>>(){}.getType(), new SupabaseDatabaseHelper.DatabaseCallback<List<User>>() {
             @Override
             public void onSuccess(List<User> users) {
                 showLoading(false);

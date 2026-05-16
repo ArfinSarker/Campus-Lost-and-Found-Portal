@@ -27,6 +27,7 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ViewHolder> {
     private OnItemClickListener listener;
     private int layoutId = R.layout.item_list_row;
     private Map<Integer, Runnable> sliderRunnables = new HashMap<>();
+    private boolean isAdmin = false;
     private Handler sliderHandler = new Handler(Looper.getMainLooper());
 
     public interface OnItemClickListener {
@@ -42,6 +43,19 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ViewHolder> {
         this.items = items;
         this.layoutId = layoutId;
         this.listener = listener;
+    }
+
+    public ItemAdapter(List<Item> items, OnItemClickListener listener, boolean isAdmin) {
+        this.items = items;
+        this.listener = listener;
+        this.isAdmin = isAdmin;
+    }
+
+    public ItemAdapter(List<Item> items, int layoutId, OnItemClickListener listener, boolean isAdmin) {
+        this.items = items;
+        this.layoutId = layoutId;
+        this.listener = listener;
+        this.isAdmin = isAdmin;
     }
 
     @NonNull
@@ -75,6 +89,18 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ViewHolder> {
                 displayId = item.getReportId();
             }
             holder.tvReportId.setText(ReportIdFormatter.format(displayId));
+
+            // Status-based colors for the report ID badge
+            String adminStatus = item.getAdminStatus();
+            int color;
+            if ("Claimed".equalsIgnoreCase(adminStatus) || "Returned".equalsIgnoreCase(adminStatus)) {
+                color = ContextCompat.getColor(holder.itemView.getContext(), R.color.orange); // Orange/Gold
+            } else if ("lost".equalsIgnoreCase(item.getStatus())) {
+                color = ContextCompat.getColor(holder.itemView.getContext(), R.color.badge_lost_bg); // Red
+            } else {
+                color = ContextCompat.getColor(holder.itemView.getContext(), R.color.badge_found_bg); // Green
+            }
+            holder.tvReportId.setBackgroundTintList(android.content.res.ColorStateList.valueOf(color));
         }
 
         if (holder.tvType != null) {
@@ -101,7 +127,7 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ViewHolder> {
             if (listener != null) {
                 listener.onItemClick(item);
             } else {
-                ItemNavigationUtils.navigateToDetail(v.getContext(), item);
+                ItemNavigationUtils.navigateToDetail(v.getContext(), item, isAdmin);
             }
         });
 
@@ -110,7 +136,7 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ViewHolder> {
                 if (listener != null) {
                     listener.onItemClick(item);
                 } else {
-                    ItemNavigationUtils.navigateToDetail(v.getContext(), item);
+                    ItemNavigationUtils.navigateToDetail(v.getContext(), item, isAdmin);
                 }
             });
         }
@@ -133,7 +159,7 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ViewHolder> {
                 if (listener != null) {
                     listener.onItemClick(item);
                 } else {
-                    ItemNavigationUtils.navigateToDetail(holder.itemView.getContext(), item);
+                    ItemNavigationUtils.navigateToDetail(holder.itemView.getContext(), item, isAdmin);
                 }
             });
             
@@ -180,7 +206,7 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ViewHolder> {
                     if (listener != null) {
                         listener.onItemClick(item);
                     } else {
-                        ItemNavigationUtils.navigateToDetail(v.getContext(), item);
+                        ItemNavigationUtils.navigateToDetail(v.getContext(), item, isAdmin);
                     }
                 });
             } else {
@@ -191,7 +217,7 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ViewHolder> {
                     if (listener != null) {
                         listener.onItemClick(item);
                     } else {
-                        ItemNavigationUtils.navigateToDetail(v.getContext(), item);
+                        ItemNavigationUtils.navigateToDetail(v.getContext(), item, isAdmin);
                     }
                 });
                 if (holder.tvEmoji != null) {

@@ -75,7 +75,7 @@ public class ItemDetailActivity extends AppCompatActivity {
 
         android.content.SharedPreferences prefs = getSharedPreferences("MyApp", MODE_PRIVATE);
         currentUnivId = prefs.getString("universityId", null);
-        isAdminMode = prefs.getBoolean("isAdminLoggedIn", false);
+        isAdminMode = ModeManager.isAdminMode(this);
 
         itemId = getIntent().getStringExtra("itemId");
         itemStatus = getIntent().getStringExtra("itemStatus");
@@ -502,7 +502,7 @@ public class ItemDetailActivity extends AppCompatActivity {
             
             // In Admin mode, reporter actions like Edit/Mark As Claimed should also work if applicable
             btnEdit.setVisibility(View.VISIBLE);
-            btnReporterDelete.setVisibility(View.VISIBLE);
+            btnReporterDelete.setVisibility(View.GONE); // Hide this to avoid duplicate with btnDelete
             if ("lost".equalsIgnoreCase(itemStatus)) {
                 btnMarkAsClaimed.setVisibility(View.VISIBLE);
                 btnReturnToOwner.setVisibility(View.GONE);

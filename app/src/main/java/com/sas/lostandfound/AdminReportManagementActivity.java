@@ -12,6 +12,10 @@ import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.os.Handler;
+import android.os.Looper;
+import java.util.HashMap;
+import java.util.Map;
 
 import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.NonNull;
@@ -57,6 +61,8 @@ public class AdminReportManagementActivity extends AppCompatActivity {
     private List<AdminReport> allReports;
     private List<AdminReport> filteredReports;
     private boolean isFetching = false;
+    private Handler sliderHandler = new Handler(Looper.getMainLooper());
+    private Map<Integer, Runnable> sliderRunnables = new HashMap<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -281,43 +287,44 @@ public class AdminReportManagementActivity extends AppCompatActivity {
             SimpleDateFormat sdf = new SimpleDateFormat("dd MMM, hh:mm a", Locale.getDefault());
             holder.tvTimestamp.setText(sdf.format(new Date(report.getTimestamp())));
 
-            setupImageOrSlider(holder, report);
-
-            View.OnClickListener navigateToDetails = v -> {
-                Intent intent = new Intent(AdminReportManagementActivity.this, AdminReportReviewActivity.class);
-                intent.putExtra("reportId", report.getReportId());
-                startActivity(intent);
-            };
-
-            holder.itemView.setOnClickListener(navigateToDetails);
-            // Ensure child components that might intercept clicks also navigate to details
-            holder.ivIcon.setOnClickListener(navigateToDetails);
-            
-            // For ViewPager2, we need to set the click listener on the adapter
-            if (holder.viewPagerSlider.getAdapter() instanceof ImageSliderAdapter) {
-                ((ImageSliderAdapter) holder.viewPagerSlider.getAdapter()).setOnImageClickListener(pos -> {
-                    Intent intent = new Intent(AdminReportManagementActivity.this, AdminReportReviewActivity.class);
-                    intent.putExtra("reportId", report.getReportId());
-                    startActivity(intent);
-                });
-            }
+            setupImageOrSlider(holder, report, position);
         }
 
-        private void setupImageOrSlider(ViewHolder holder, AdminReport report) {
+        private void setupImageOrSlider(ViewHolder holder, AdminReport report, int position) {
             List<String> urls = report.getImageUrls();
             if (urls != null && urls.size() > 1) {
                 holder.ivIcon.setVisibility(View.GONE);
                 holder.viewPagerSlider.setVisibility(View.VISIBLE);
                 holder.tabLayoutIndicator.setVisibility(View.VISIBLE);
 
-                // Use fitCenter (true) for multiple images to prevent zooming in cards
                 ImageSliderAdapter sliderAdapter = new ImageSliderAdapter(urls, true);
+                sliderAdapter.setOnImageClickListener(pos -> {
+                    Intent intent = new Intent(AdminReportManagementActivity.this, AdminReportReviewActivity.class);
+                    intent.putExtra("reportId", report.getReportId());
+                    startActivity(intent);
+                });
                 holder.viewPagerSlider.setAdapter(sliderAdapter);
                 new TabLayoutMediator(holder.tabLayoutIndicator, holder.viewPagerSlider, (tab, pos) -> {}).attach();
+
+                stopSlider(position);
+                Runnable runnable = new Runnable() {
+                    @Override
+                    public void run() {
+                        if (holder.viewPagerSlider != null) {
+                            int current = holder.viewPagerSlider.getCurrentItem();
+                            int next = (current + 1) % urls.size();
+                            holder.viewPagerSlider.setCurrentItem(next, true);
+                            sliderHandler.postDelayed(this, 3000);
+                        }
+                    }
+                };
+                sliderRunnables.put(position, runnable);
+                sliderHandler.postDelayed(runnable, 3000);
             } else {
                 holder.viewPagerSlider.setVisibility(View.GONE);
                 holder.tabLayoutIndicator.setVisibility(View.GONE);
                 holder.ivIcon.setVisibility(View.VISIBLE);
+                stopSlider(position);
 
                 String imageUrl = (urls != null && !urls.isEmpty()) ? urls.get(0) : report.getImageUrl();
                 if (imageUrl != null && !imageUrl.isEmpty()) {
@@ -338,6 +345,20 @@ public class AdminReportManagementActivity extends AppCompatActivity {
                             ContextCompat.getColor(AdminReportManagementActivity.this, R.color.primaryColor)));
                 }
             }
+        }
+
+        private void stopSlider(int position) {
+            Runnable runnable = sliderRunnables.get(position);
+            if (runnable != null) {
+                sliderHandler.removeCallbacks(runnable);
+                sliderRunnables.remove(position);
+            }
+        }
+
+        @Override
+        public void onViewRecycled(@NonNull ViewHolder holder) {
+            super.onViewRecycled(holder);
+            stopSlider(holder.getBindingAdapterPosition());
         }
 
         @Override

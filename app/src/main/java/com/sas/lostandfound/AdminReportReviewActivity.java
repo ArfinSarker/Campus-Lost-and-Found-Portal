@@ -41,9 +41,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.Locale;
-import java.util.UUID;
-import java.util.List;
-import java.util.Locale;
 
 /**
  * Admin version of Report Details.

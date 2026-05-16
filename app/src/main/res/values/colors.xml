@@ -52,6 +52,7 @@
     <color name="admin_text_light">#F0F0F0</color>
     <color name="admin_hint_light">#E0E0E0</color>
     <color name="admin_accent">#8E2DE2</color>
+    <color name="manageAllItems">#006400</color>
 
     <!-- Developer Info Specific Colors -->
     <color name="dev_bg">#F4F6F8</color>

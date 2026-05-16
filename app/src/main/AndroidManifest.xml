@@ -48,7 +48,8 @@
         <activity android:name=".DashboardActivity" />
         <activity android:name=".AdminDashboardActivity" />
         <activity android:name=".AdminRequestsActivity" />
-        <activity android:name=".AllUsersActivity" />
+        <activity android:name=".ManageItemsActivity" android:windowSoftInputMode="adjustPan" />
+        <activity android:name=".AllUsersActivity" android:windowSoftInputMode="adjustPan" />
 
         <!-- Profile -->
         <activity android:name=".UserProfileActivity" />

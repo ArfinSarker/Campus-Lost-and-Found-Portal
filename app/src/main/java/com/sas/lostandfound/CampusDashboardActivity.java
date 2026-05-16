@@ -162,6 +162,9 @@ public class CampusDashboardActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
+        // Admins should behave like normal users when on the main dashboard
+        ModeManager.setMode(this, ModeManager.MODE_USER);
+        
         // Refresh data whenever user returns to dashboard
         fetchUserData();
         fetchRecentItems();

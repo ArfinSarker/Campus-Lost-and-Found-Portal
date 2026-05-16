@@ -239,6 +239,7 @@ public class UserLoginActivity extends AppCompatActivity {
             @Override
             public void onSuccess(String userId, String accessToken, String refreshToken) {
                 saveLoginState(userType, isMainAdmin, dbId, userId, accessToken, refreshToken);
+                ModeManager.setMode(UserLoginActivity.this, ModeManager.MODE_USER);
                 SnackbarManager.show(SnackbarManager.Type.SUCCESS, "Login successful");
 
                 Intent intent = new Intent(UserLoginActivity.this, CampusDashboardActivity.class);

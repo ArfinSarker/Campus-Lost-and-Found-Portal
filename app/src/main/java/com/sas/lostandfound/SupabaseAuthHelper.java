@@ -137,10 +137,8 @@ public class SupabaseAuthHelper {
     }
 
     public static void signOut() {
-        // Since we are using token-based auth and storing it in SharedPreferences (via saveLoginState in Activities),
-        // "signOut" here primarily means clearing that state in the activity.
-        // We could also call Supabase signout if we were managing sessions properly, 
-        // but for this migration, clearing SharedPreferences in the Activity is the equivalent.
+        // Clear the static auth token to ensure security after logout
+        SupabaseDatabaseHelper.setAuthToken(null);
     }
 
     private static String sanitizeUrl(String url) {
