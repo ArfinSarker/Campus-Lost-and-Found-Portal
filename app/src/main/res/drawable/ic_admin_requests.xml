@@ -1,0 +1,110 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="512"
+    android:viewportHeight="512">
+    <!-- Browser window background -->
+    <path
+        android:fillColor="#E8F1FA"
+        android:strokeColor="#000000"
+        android:strokeWidth="14"
+        android:strokeLineJoin="round"
+        android:pathData="M40,110h432a16,16 0 0 1 16,16v300a16,16 0 0 1 -16,16h-432a16,16 0 0 1 -16,-16v-300a16,16 0 0 1 16,-16z" />
+
+    <!-- Browser top bar -->
+    <path
+        android:fillColor="#4A90B8"
+        android:strokeColor="#000000"
+        android:strokeWidth="14"
+        android:strokeLineJoin="round"
+        android:pathData="M40,110h432a16,16 0 0 1 16,16v40h-464v-40a16,16 0 0 1 16,-16z" />
+
+    <!-- Top bar dots -->
+    <path
+        android:fillColor="#E8F1FA"
+        android:strokeColor="#000000"
+        android:strokeWidth="6"
+        android:pathData="M70,137a9,9 0 1,0 0,18 9,9 0 1,0 0,-18" />
+    <path
+        android:fillColor="#E8F1FA"
+        android:strokeColor="#000000"
+        android:strokeWidth="6"
+        android:pathData="M100,137a9,9 0 1,0 0,18 9,9 0 1,0 0,-18" />
+    <path
+        android:fillColor="#E8F1FA"
+        android:strokeColor="#000000"
+        android:strokeWidth="6"
+        android:pathData="M130,137a9,9 0 1,0 0,18 9,9 0 1,0 0,-18" />
+    <path
+        android:fillColor="#E8F1FA"
+        android:strokeColor="#000000"
+        android:strokeWidth="6"
+        android:pathData="M160,137a9,9 0 1,0 0,18 9,9 0 1,0 0,-18" />
+    <path
+        android:fillColor="#E8F1FA"
+        android:strokeColor="#000000"
+        android:strokeWidth="6"
+        android:pathData="M190,137a9,9 0 1,0 0,18 9,9 0 1,0 0,-18" />
+
+    <!-- Content lines on left side -->
+    <path
+        android:strokeColor="#000000"
+        android:strokeWidth="16"
+        android:strokeLineCap="round"
+        android:pathData="M50,230h180" />
+    <path
+        android:strokeColor="#000000"
+        android:strokeWidth="16"
+        android:strokeLineCap="round"
+        android:pathData="M50,290h220" />
+    <path
+        android:strokeColor="#000000"
+        android:strokeWidth="16"
+        android:strokeLineCap="round"
+        android:pathData="M50,350h380" />
+    <path
+        android:strokeColor="#000000"
+        android:strokeWidth="16"
+        android:strokeLineCap="round"
+        android:pathData="M50,405h380" />
+
+    <!-- Green circle behind avatar -->
+    <path
+        android:fillColor="#A4D65E"
+        android:strokeColor="#000000"
+        android:strokeWidth="14"
+        android:pathData="M370,132a100,100 0 1,0 0,200 100,100 0 1,0 0,-200" />
+
+    <!-- User body (blue) -->
+    <path
+        android:fillColor="#2E9CE6"
+        android:strokeColor="#000000"
+        android:strokeWidth="14"
+        android:strokeLineJoin="round"
+        android:pathData="M290,310c0,-44 36,-80 80,-80c44,0 80,36 80,80z" />
+
+    <!-- User head (blue) -->
+    <path
+        android:fillColor="#2E9CE6"
+        android:strokeColor="#000000"
+        android:strokeWidth="14"
+        android:pathData="M370,156a44,44 0 1,0 0,88 44,44 0 1,0 0,-88" />
+
+    <!-- Question mark circle (blue, top-right) -->
+    <path
+        android:fillColor="#2E9CE6"
+        android:strokeColor="#000000"
+        android:strokeWidth="14"
+        android:pathData="M370,74a56,56 0 1,0 0,112 56,56 0 1,0 0,-112" />
+
+    <!-- Question mark shape -->
+    <path
+        android:strokeColor="#FFFFFF"
+        android:strokeWidth="12"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round"
+        android:pathData="M348,114c0,-14 10,-26 24,-26c14,0 24,10 24,22c0,14 -22,18 -22,32v6" />
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M372,159a7,7 0 1,0 0,14 7,7 0 1,0 0,-14" />
+</vector>

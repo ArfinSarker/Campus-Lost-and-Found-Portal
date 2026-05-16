@@ -447,4 +447,8 @@
     <string name="stat_found_items_label">Found\nItems</string>
     <string name="stat_resolved_items_label">Resolved\nItems</string>
     <string name="hint_search_items_admin">Search by Name, ID or User ID...</string>
+    <!-- Forgot Password Strings -->
+    <string name="reset_password_title">Reset Password</string>
+    <string name="reset_password_success_msg">Reset link will be sent to your registered email.</string>
+    <string name="btn_okay">Okay</string>
 </resources>

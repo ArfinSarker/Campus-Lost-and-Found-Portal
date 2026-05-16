@@ -327,6 +327,10 @@ public class ClaimDetailsActivity extends AppCompatActivity {
         tvDescription.setText(item.getDescription());
         tvPhone.setText(item.getUserPhone() != null && !item.getUserPhone().isEmpty() ? item.getUserPhone() : "Not Specified");
         tvPreferredContact.setText(item.getPreferredContactMethod() != null && !item.getPreferredContactMethod().isEmpty() ? item.getPreferredContactMethod() : "Not Specified");
+        
+        if (item.getUserId() != null) {
+            fetchReporterProfileForContact(item);
+        }
 
         String details = "Date: " + item.getDate();
         if (item.getTime() != null && !item.getTime().isEmpty()) {
@@ -373,6 +377,75 @@ public class ClaimDetailsActivity extends AppCompatActivity {
                 btnMarkReturned.setText("Mark as Returned");
             }
         }
+    }
+
+    private void fetchReporterProfileForContact(Item item) {
+        if (item == null || item.getUserId() == null) return;
+        SupabaseDatabaseHelper.select("profiles", "university_id=eq." + item.getUserId() + "&limit=1", new TypeToken<List<User>>(){}.getType(), new SupabaseDatabaseHelper.DatabaseCallback<List<User>>() {
+            @Override
+            public void onSuccess(List<User> users) {
+                if (users != null && !users.isEmpty()) {
+                    User user = users.get(0);
+                    if (user != null) {
+                        item.setUserEmail(user.getEmail());
+                        item.setUserPhone(user.getPhone());
+                        setupPreferredContactLink(item, item.getPreferredContactMethod());
+                    }
+                }
+            }
+            @Override public void onFailure(String e) {}
+        });
+    }
+
+    private void setupPreferredContactLink(Item item, String method) {
+        if (method == null || method.isEmpty() || "Not Specified".equals(method)) {
+            return;
+        }
+        
+        String fullText = "Preferred Contact: " + method;
+        android.text.SpannableString spannableString = new android.text.SpannableString(fullText);
+        
+        int start = fullText.indexOf(method);
+        if (start == -1) return;
+        int end = start + method.length();
+
+        android.text.style.ClickableSpan clickableSpan = new android.text.style.ClickableSpan() {
+            @Override
+            public void onClick(@NonNull View widget) {
+                if ("Email".equalsIgnoreCase(method)) {
+                    String email = item.getUserEmail();
+                    if (email != null && !email.isEmpty()) {
+                        Intent intent = new Intent(Intent.ACTION_SENDTO);
+                        intent.setData(Uri.parse("mailto:" + email));
+                        intent.putExtra(Intent.EXTRA_SUBJECT, "Regarding your reported item: " + item.getName());
+                        startActivity(Intent.createChooser(intent, "Send Email"));
+                    } else {
+                        SnackbarManager.show(SnackbarManager.Type.ERROR, "Email address not available");
+                    }
+                } else if ("Phone".equalsIgnoreCase(method)) {
+                    String phone = item.getUserPhone();
+                    if (phone != null && !phone.isEmpty()) {
+                        Intent intent = new Intent(Intent.ACTION_DIAL);
+                        intent.setData(Uri.parse("tel:" + phone));
+                        startActivity(intent);
+                    } else {
+                        SnackbarManager.show(SnackbarManager.Type.ERROR, "Phone number not available");
+                    }
+                }
+            }
+
+            @Override
+            public void updateDrawState(@NonNull android.text.TextPaint ds) {
+                super.updateDrawState(ds);
+                ds.setUnderlineText(true);
+                ds.setColor(getResources().getColor(R.color.primaryColor));
+            }
+        };
+
+        spannableString.setSpan(clickableSpan, start, end, android.text.Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+        tvPreferredContact.setText(spannableString);
+        tvPreferredContact.setMovementMethod(android.text.method.LinkMovementMethod.getInstance());
+        tvPreferredContact.setHighlightColor(android.graphics.Color.TRANSPARENT);
     }
 
     private void setupImageSlider(List<String> imageUrls, String fallbackUrl) {

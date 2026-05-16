@@ -1,0 +1,89 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="512"
+    android:viewportHeight="512">
+    <!-- Main Background Shape -->
+    <path
+        android:fillColor="#EAEAEA"
+        android:strokeColor="#000000"
+        android:strokeWidth="16"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round"
+        android:pathData="M43.7,19.3h332.2v432.2H43.7V19.3z" />
+
+    <!-- horizontal lines -->
+    <path
+        android:strokeColor="#000000"
+        android:strokeWidth="16"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round"
+        android:pathData="M75.2,168.1 L195.4,168.1" />
+    <path
+        android:strokeColor="#000000"
+        android:strokeWidth="16"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round"
+        android:pathData="M75.2,248.1 L195.4,248.1" />
+    <path
+        android:strokeColor="#000000"
+        android:strokeWidth="16"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round"
+        android:pathData="M75.2,328.1 L195.4,328.1" />
+    <path
+        android:strokeColor="#000000"
+        android:strokeWidth="16"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round"
+        android:pathData="M75.2,408.1 L195.4,408.1" />
+
+    <!-- Pie Chart slice 1 -->
+    <path
+        android:fillColor="#8CE4FF"
+        android:strokeColor="#000000"
+        android:strokeWidth="16"
+        android:strokeLineJoin="round"
+        android:pathData="M260,147.2 L339,147.2 A79,79 0 1,1 260,68.2 Z" />
+
+    <!-- Pie Chart slice 2 -->
+    <path
+        android:fillColor="#FF6B6B"
+        android:strokeColor="#000000"
+        android:strokeWidth="16"
+        android:strokeLineJoin="round"
+        android:pathData="M284,119.2 L284,48.2 A79,79 0 0,1 355,119.2 Z" />
+
+    <!-- Bar Chart 1 -->
+    <path
+        android:fillColor="#FF6B6B"
+        android:strokeColor="#000000"
+        android:strokeWidth="16"
+        android:strokeLineJoin="round"
+        android:pathData="M91.4,315.6h41.2v78.1h-41.2z" />
+
+    <!-- Bar Chart 2 -->
+    <path
+        android:fillColor="#2ECC71"
+        android:strokeColor="#000000"
+        android:strokeWidth="16"
+        android:strokeLineJoin="round"
+        android:pathData="M132.6,274.5h41.2v119.2h-41.2z" />
+
+    <!-- Bar Chart 3 -->
+    <path
+        android:fillColor="#8CE4FF"
+        android:strokeColor="#000000"
+        android:strokeWidth="16"
+        android:strokeLineJoin="round"
+        android:pathData="M173.8,247.3h41.2v146.4h-41.2z" />
+
+    <!-- Cogwheel -->
+    <path
+        android:fillColor="#FFE047"
+        android:strokeColor="#000000"
+        android:strokeWidth="16"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round"
+        android:pathData="M485.4,360 c1.9,-6.3 2.9,-13 2.9,-19.9 c0,-6.9 -1,-13.6 -2.9,-19.9 l21.1,-16.5 c4.1,-3.2 5.2,-9 2.5,-13.6 l-23.7,-41 c-2.7,-4.7 -8.4,-6.6 -13.3,-4.5 l-24.8,10 c-8.3,-6.4 -17.6,-11.5 -27.7,-15.1 l-3.7,-26.4 c-0.7,-5.1 -5.1,-9 -10.3,-9 h-47.4 c-5.2,0 -9.6,3.9 -10.3,9 l-3.7,26.4 c-10,3.6 -19.4,8.7 -27.7,15.1 l-24.8,-10 c-4.9,-2.1 -10.6,-0.2 -13.3,4.5 l-23.7,41 c-2.7,4.7 -1.6,10.4 2.5,13.6 l21.1,16.5 c-1.9,6.3 -2.9,13 -2.9,19.9 c0,6.9 1,13.6 2.9,19.9 l-21.1,16.5 c-4.1,3.2 -5.2,9 -2.5,13.6 l23.7,41 c2.7,4.7 8.4,6.6 13.3,4.5 l24.8,-10 c8.3,6.4 17.6,11.5 27.7,15.1 l3.7,26.4 c0.7,5.1 5.1,9 10.3,9 h47.4 c5.2,0 9.6,-3.9 10.3,-9 l3.7,-26.4 c10,-3.6 19.4,-8.7 27.7,-15.1 l24.8,10 c4.9,2.1 10.6,0.2 13.3,-4.5 l23.7,-41 c2.7,-4.7 1.6,-10.4 -2.5,-13.6 L485.4,360 z M376.1,387.6 c-26.2,0 -47.5,-21.3 -47.5,-47.5 c0,-26.2 21.3,-47.5 47.5,-47.5 s47.5,21.3 47.5,47.5 C423.6,366.3 402.3,387.6 376.1,387.6 z" />
+</vector>

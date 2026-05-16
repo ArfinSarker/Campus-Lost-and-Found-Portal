@@ -55,7 +55,7 @@ public class UserLoginActivity extends AppCompatActivity {
         btnLogin.setOnClickListener(v -> loginUser());
 
         tvForgotPassword.setOnClickListener(v ->
-                SnackbarManager.show(SnackbarManager.Type.PRIMARY, "Reset link will be sent to your registered email.")
+                startActivity(new Intent(UserLoginActivity.this, ForgotPasswordActivity.class))
         );
     }
 

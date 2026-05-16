@@ -59,6 +59,15 @@ public class User {
     @SerializedName("password")
     private String password;
 
+    @SerializedName("reset_token")
+    private String resetToken;
+
+    @SerializedName("reset_token_expires_at")
+    private String resetTokenExpiresAt;
+
+    @SerializedName("reset_token_used")
+    private Boolean resetTokenUsed;
+
     // Derived or UI-specific fields (not in DB but kept for compatibility or temporary use)
     private transient String name;
     private transient String phone;
@@ -192,4 +201,13 @@ public class User {
         isAdmin = admin; 
         this.role = admin ? "admin" : "user";
     }
+
+    public String getResetToken() { return resetToken; }
+    public void setResetToken(String resetToken) { this.resetToken = resetToken; }
+
+    public String getResetTokenExpiresAt() { return resetTokenExpiresAt; }
+    public void setResetTokenExpiresAt(String resetTokenExpiresAt) { this.resetTokenExpiresAt = resetTokenExpiresAt; }
+
+    public Boolean getResetTokenUsed() { return resetTokenUsed != null ? resetTokenUsed : false; }
+    public void setResetTokenUsed(Boolean resetTokenUsed) { this.resetTokenUsed = resetTokenUsed; }
 }

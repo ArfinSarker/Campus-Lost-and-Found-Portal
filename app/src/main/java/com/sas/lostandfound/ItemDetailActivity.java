@@ -588,6 +588,12 @@ public class ItemDetailActivity extends AppCompatActivity {
                 if (users != null && !users.isEmpty()) {
                     User user = users.get(0);
                     if (user != null) {
+                        // Populate transient fields for Preferred Contact Method link
+                        if (currentItem != null) {
+                            currentItem.setUserEmail(user.getEmail());
+                            currentItem.setUserPhone(user.getPhone());
+                        }
+
                         tvReporterName.setText(user.getName() + (isMe ? " (You)" : ""));
                         tvReporterUniversityId.setText("ID: " + user.getUniversityId());
                         tvReporterUniversityId.setVisibility(View.VISIBLE);

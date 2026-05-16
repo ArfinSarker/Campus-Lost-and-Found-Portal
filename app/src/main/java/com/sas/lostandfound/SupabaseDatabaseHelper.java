@@ -132,6 +132,7 @@ public class SupabaseDatabaseHelper {
      */
     public static <T> void select(String table, String query, Type type, DatabaseCallback<T> callback) {
         String url = getBaseUrl() + "/rest/v1/" + table + (query != null ? "?" + query : "");
+        android.util.Log.d("SupabaseDB", "SELECT URL: " + url);
 
         Request request = new Request.Builder()
                 .url(url)
@@ -150,6 +151,8 @@ public class SupabaseDatabaseHelper {
             public void onResponse(Call call, Response response) throws IOException {
                 try {
                     String body = response.body() != null ? response.body().string() : "";
+                    android.util.Log.d("SupabaseDB", "SELECT RESPONSE [" + response.code() + "]: " + body);
+                    
                     if (response.isSuccessful()) {
                         T result = gson.fromJson(body, type);
                         mainHandler.post(() -> callback.onSuccess(result));
@@ -158,6 +161,7 @@ public class SupabaseDatabaseHelper {
                         mainHandler.post(() -> callback.onFailure(errorMessage));
                     }
                 } catch (Exception e) {
+                    android.util.Log.e("SupabaseDB", "Parsing error: " + e.getMessage());
                     mainHandler.post(() -> callback.onFailure("Parsing error: " + e.getMessage()));
                 } finally {
                     if (response.body() != null) response.close();
@@ -228,6 +232,8 @@ public class SupabaseDatabaseHelper {
     public static void update(String table, String query, Object data, DatabaseCallback<String> callback) {
         String url = getBaseUrl() + "/rest/v1/" + table + "?" + query;
         String jsonStr = gson.toJson(data);
+        android.util.Log.d("SupabaseDB", "UPDATE URL: " + url);
+        android.util.Log.d("SupabaseDB", "UPDATE BODY: " + jsonStr);
 
         Request request = new Request.Builder()
                 .url(url)
@@ -247,13 +253,20 @@ public class SupabaseDatabaseHelper {
             public void onResponse(Call call, Response response) throws IOException {
                 try {
                     String body = response.body() != null ? response.body().string() : "";
+                    android.util.Log.d("SupabaseDB", "UPDATE RESPONSE [" + response.code() + "]: " + body);
+                    
                     if (response.isSuccessful()) {
-                        mainHandler.post(() -> callback.onSuccess(body));
+                        if (body.equals("[]")) {
+                            mainHandler.post(() -> callback.onFailure("No records were updated. Check your permissions."));
+                        } else {
+                            mainHandler.post(() -> callback.onSuccess(body));
+                        }
                     } else {
                         String errorMessage = parseDatabaseError(response.code(), body);
                         mainHandler.post(() -> callback.onFailure(errorMessage));
                     }
                 } catch (Exception e) {
+                    android.util.Log.e("SupabaseDB", "Parsing error: " + e.getMessage());
                     mainHandler.post(() -> callback.onFailure("Parsing error: " + e.getMessage()));
                 } finally {
                     if (response.body() != null) response.close();
@@ -300,6 +313,44 @@ public class SupabaseDatabaseHelper {
      */
     public static void rpc(String functionName, Map<String, Object> params, DatabaseCallback<String> callback) {
         String url = getBaseUrl() + "/rest/v1/rpc/" + functionName;
+        String jsonStr = gson.toJson(params);
+
+        Request request = new Request.Builder()
+                .url(url)
+                .addHeader("apikey", SupabaseConfig.SUPABASE_KEY)
+                .addHeader("Authorization", getAuthHeader())
+                .post(RequestBody.create(jsonStr, JSON))
+                .build();
+
+        client.newCall(request).enqueue(new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+                mainHandler.post(() -> callback.onFailure("Network error: " + e.getMessage()));
+            }
+
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                try {
+                    String body = response.body() != null ? response.body().string() : "";
+                    if (response.isSuccessful()) {
+                        mainHandler.post(() -> callback.onSuccess(body));
+                    } else {
+                        String errorMessage = parseDatabaseError(response.code(), body);
+                        mainHandler.post(() -> callback.onFailure(errorMessage));
+                    }
+                } catch (Exception e) {
+                    mainHandler.post(() -> callback.onFailure("Parsing error: " + e.getMessage()));
+                } finally {
+                    if (response.body() != null) response.close();
+                }
+            }
+        });
+    }
+    /**
+     * Call Supabase Edge Function (POST /functions/v1/name)
+     */
+    public static void callEdgeFunction(String functionName, Map<String, Object> params, DatabaseCallback<String> callback) {
+        String url = getBaseUrl() + "/functions/v1/" + functionName;
         String jsonStr = gson.toJson(params);
 
         Request request = new Request.Builder()

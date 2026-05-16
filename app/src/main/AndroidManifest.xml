@@ -63,6 +63,29 @@
         <activity
             android:name=".UserRegistrationActivity"
             android:windowSoftInputMode="adjustResize" />
+        <activity android:name=".ForgotPasswordActivity" />
+        <activity android:name=".CreateNewPasswordActivity"
+            android:exported="true"
+            android:launchMode="singleTop">
+            <!-- Primary Deep Link: campus-lost-found://reset-password?token=XYZ -->
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="campus-lost-found"
+                    android:host="reset-password" />
+            </intent-filter>
+
+            <!-- Production App Link: https://campuslostandfound.com/reset?token=XYZ -->
+            <intent-filter android:autoVerify="true">
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="https"
+                    android:host="campuslostandfound.com"
+                    android:pathPrefix="/reset" />
+            </intent-filter>
+        </activity>
 
         <!-- Item Details -->
         <activity android:name=".ItemDetailActivity" />
