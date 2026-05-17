@@ -184,9 +184,11 @@
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/btnLogin"
                     android:layout_width="match_parent"
-                    android:layout_height="50dp"
+                    android:layout_height="55dp"
                     android:text="@string/sign_in"
-                    android:textAllCaps="false" />
+                    android:textAllCaps="false"
+                    app:strokeColor="@color/primaryColor"
+                    app:strokeWidth="2dp" />
 
                 <com.airbnb.lottie.LottieAnimationView
                     android:id="@+id/loginLoader"

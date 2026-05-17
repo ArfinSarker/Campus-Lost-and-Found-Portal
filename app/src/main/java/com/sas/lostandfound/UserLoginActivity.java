@@ -41,6 +41,7 @@ public class UserLoginActivity extends AppCompatActivity {
     private TextView tvForgotPassword, tvRegister;
     private MaterialToolbar toolbar;
     private AppBarLayout appBarLayout;
+    private android.content.res.ColorStateList originalBackgroundTint;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -117,7 +118,11 @@ public class UserLoginActivity extends AppCompatActivity {
 
     private void startLoading() {
         btnLogin.setEnabled(false);
-        btnLogin.setVisibility(View.INVISIBLE);
+        if (originalBackgroundTint == null) {
+            originalBackgroundTint = btnLogin.getBackgroundTintList();
+        }
+        btnLogin.setText("");
+        btnLogin.setBackgroundTintList(android.content.res.ColorStateList.valueOf(android.graphics.Color.TRANSPARENT));
         loader.setVisibility(View.VISIBLE);
         loader.playAnimation();
     }
@@ -125,7 +130,10 @@ public class UserLoginActivity extends AppCompatActivity {
     private void stopLoading() {
         loader.cancelAnimation();
         loader.setVisibility(View.GONE);
-        btnLogin.setVisibility(View.VISIBLE);
+        if (originalBackgroundTint != null) {
+            btnLogin.setBackgroundTintList(originalBackgroundTint);
+        }
+        btnLogin.setText(R.string.sign_in);
         btnLogin.setEnabled(true);
     }
 

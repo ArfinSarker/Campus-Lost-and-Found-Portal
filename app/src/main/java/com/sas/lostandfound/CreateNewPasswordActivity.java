@@ -22,6 +22,7 @@ public class CreateNewPasswordActivity extends AppCompatActivity {
     private LottieAnimationView loader;
     private String resetToken;
     private User currentUser;
+    private android.content.res.ColorStateList originalBackgroundTint;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -150,6 +151,11 @@ public class CreateNewPasswordActivity extends AppCompatActivity {
 
     private void startLoading() {
         btnReset.setEnabled(false);
+        if (originalBackgroundTint == null) {
+            originalBackgroundTint = btnReset.getBackgroundTintList();
+        }
+        btnReset.setText("");
+        btnReset.setBackgroundTintList(android.content.res.ColorStateList.valueOf(android.graphics.Color.TRANSPARENT));
         loader.setVisibility(View.VISIBLE);
         loader.playAnimation();
     }
@@ -157,6 +163,10 @@ public class CreateNewPasswordActivity extends AppCompatActivity {
     private void stopLoading() {
         loader.cancelAnimation();
         loader.setVisibility(View.GONE);
+        if (originalBackgroundTint != null) {
+            btnReset.setBackgroundTintList(originalBackgroundTint);
+        }
+        btnReset.setText("Reset Password");
         btnReset.setEnabled(true);
     }
 

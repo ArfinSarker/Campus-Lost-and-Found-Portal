@@ -20,6 +20,7 @@ public class ForgotPasswordActivity extends AppCompatActivity {
     private LinearLayout llInputFields, llSuccessState;
     private LottieAnimationView loader;
     private Toolbar toolbar;
+    private android.content.res.ColorStateList originalBackgroundTint;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -60,6 +61,11 @@ public class ForgotPasswordActivity extends AppCompatActivity {
 
     private void startLoading() {
         btnSubmit.setEnabled(false);
+        if (originalBackgroundTint == null) {
+            originalBackgroundTint = btnSubmit.getBackgroundTintList();
+        }
+        btnSubmit.setText("");
+        btnSubmit.setBackgroundTintList(android.content.res.ColorStateList.valueOf(android.graphics.Color.TRANSPARENT));
         loader.setVisibility(View.VISIBLE);
         loader.playAnimation();
     }
@@ -67,6 +73,10 @@ public class ForgotPasswordActivity extends AppCompatActivity {
     private void stopLoading() {
         loader.cancelAnimation();
         loader.setVisibility(View.GONE);
+        if (originalBackgroundTint != null) {
+            btnSubmit.setBackgroundTintList(originalBackgroundTint);
+        }
+        btnSubmit.setText(R.string.btn_submit);
         btnSubmit.setEnabled(true);
     }
 

@@ -96,11 +96,11 @@ Deno.serve(async (req) => {
                 <p style="color: #6B7280; font-size: 14px;">Campus Lost & Found</p>
               </div>
               <p>Hello,</p>
-              <p>Click the button below to reset your password:</p>
+              <p>We received a request to reset your password for your Lost&amp;Found Portal account. Click the button below to set a new password:</p>
               <div style="text-align: center; margin: 35px 0;">
                 <a href="${bridgeUrl}" style="padding: 16px 32px; background-color: #2AABEE; color: white; text-decoration: none; border-radius: 8px; font-weight: bold; display: inline-block;">Open Reset Screen</a>
               </div>
-              <p style="font-size: 14px; color: #6B7280; text-align: center;">Link: <a href="${appLink}" style="color: #2AABEE;">${appLink}</a></p>
+              <p style="font-size: 14px; color: #6B7280; text-align: center;">If the button above doesn't work, <a href="${bridgeUrl}" style="color: #2AABEE;">click here to reset via browser</a>.</p>
             </div>
           `,
         }),
@@ -163,6 +163,7 @@ Deno.serve(async (req) => {
 
       if (updateError) {
         console.error('Profile update error:', updateError)
+        return new Response(JSON.stringify({ error: 'Failed to update profile password: ' + updateError.message }), { status: 500, headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' } })
       }
 
       return new Response(JSON.stringify({ message: 'Password updated successfully' }), {
