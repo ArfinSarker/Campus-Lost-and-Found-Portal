@@ -1,23 +1,49 @@
-# Android Studio / IntelliJ IDEA
+# =========================================================================
+# Campus Lost and Found: Consolidating Git Exclusions (.gitignore)
+# =========================================================================
+
+# 1. Android Studio, IntelliJ IDEA & VS Code
 *.iml
 .gradle
 .idea
-/local.properties
+.vscode/
 /.idea/caches
 /.idea/libraries
 /.idea/modules.xml
 /.idea/workspace.xml
+/.idea/tasks.xml
 /.idea/navEditor.xml
 /.idea/assetWizardSettings.xml
+/.idea/runConfigurations.xml
 
-# Built artifacts
+# 2. Local Configuration & Environment Files (API Keys & Credentials)
+.env
+.env.*
+*.env
+local.properties
+private.properties
+secrets.xml
+apikey.xml
+credentials.json
+client_secret*.json
+
+# 3. Build & Compiled Artifacts
 /build
 app/build/
 captures/
-.externalNativeBuild
-.cxx
+*.apk
+*.ap_
+*.aab
+*.dex
+*.class
+*.aar
+*.jar
+*.war
+*.zip
+*.tar.gz
+*.tgz
 
-# Secrets and Sensitive Files
+# 4. Secrets, Keystores & Certificates
 release-keystore.jks
 google-services.json
 app/google-services.json
@@ -25,15 +51,23 @@ app/google-services.json
 *.keystore
 *.p12
 *.pem
+*.key
+*.der
 
-# OS generated files
+# 5. Native Build Tools
+.externalNativeBuild
+.cxx
+
+# 6. OS & Temporary Files
 .DS_Store
 Thumbs.db
+Desktop.ini
+ehthumbs.db
+*.log
+*.tmp
+*.temp
 
-# Firebase Rules (Optional, keep if you want them versioned, but user wanted to prevent data exposure)
-# database.rules.json
-new.json
-
-# Local Deno
+# 7. Local Dev Environments
 .deno/
-
+new.json
+SQL.sql
