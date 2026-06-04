@@ -104,11 +104,11 @@ public class AdminRequestsActivity extends AppCompatActivity {
         SupabaseDatabaseHelper.select("admin_requests", "select=*", new TypeToken<List<AdminRequest>>(){}.getType(), new SupabaseDatabaseHelper.DatabaseCallback<List<AdminRequest>>() {
             @Override
             public void onSuccess(List<AdminRequest> requests) {
-                requestList.clear();
+                List<AdminRequest> temp = new ArrayList<>();
                 if (requests != null) {
-                    requestList.addAll(requests);
+                    temp.addAll(requests);
                 }
-                adapter.notifyDataSetChanged();
+                adapter.updateRequests(temp);
                 progressBar.setVisibility(View.GONE);
                 llEmptyState.setVisibility(requestList.isEmpty() ? View.VISIBLE : View.GONE);
                 

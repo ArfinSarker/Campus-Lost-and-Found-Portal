@@ -18,6 +18,8 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import android.graphics.Rect;
+import android.view.ViewTreeObserver;
 
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.card.MaterialCardView;
@@ -36,20 +38,26 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class ReportToAdminActivity extends AppCompatActivity {
 
     private static final String TAG = "ReportToAdmin";
-    private TextInputEditText etReportTitle, etReportDescription, etRelatedId, etReporterName, etUniversityId, etReporterPhone;
-    private AutoCompleteTextView actvReportCategory, actvPriority;
-    private TextInputLayout tilReportTitle, tilReportDescription, tilReporterName;
+    private TextInputEditText etReportTitle, etReportDescription, etRelatedId, etReporterName, etUniversityId, etReporterPhone, etReporterEmail;
+    private AutoCompleteTextView actvReportCategory, actvCountryCode;
+    private TextInputLayout tilReportTitle, tilReportDescription, tilReporterName, tilReporterPhone, tilCountryCode, tilReporterEmail;
     private MaterialButton btnSubmit;
     private com.airbnb.lottie.LottieAnimationView loadingAnimation;
     private MaterialCardView uploadScreenshotCard;
     private ImageView ivScreenshot;
     private TextView tvScreenshotStatus;
     private Toolbar toolbar;
+    private View keyboardSpacer;
+    private View reportToAdminRoot;
 
     private List<Uri> selectedImageUris = new ArrayList<>();
     private String currentUniversityId;
     private String currentAuthId;
     private static final int PICK_IMAGES_REQUEST = 1;
+
+    private String contactNameState = "";
+    private String contactPhoneState = "";
+    private String contactEmailState = "";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -63,10 +71,36 @@ public class ReportToAdminActivity extends AppCompatActivity {
         initializeViews();
         setupToolbar();
         setupDropdowns();
+        setupTextWatchers();
+        setupKeyboardListener();
         fetchUserData();
 
         uploadScreenshotCard.setOnClickListener(v -> openGallery());
         btnSubmit.setOnClickListener(v -> validateAndSubmit());
+    }
+
+    private void setupTextWatchers() {
+        etReporterName.addTextChangedListener(new android.text.TextWatcher() {
+            @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+            @Override public void onTextChanged(CharSequence s, int start, int before, int count) {}
+            @Override public void afterTextChanged(android.text.Editable s) { contactNameState = s.toString().trim(); }
+        });
+        etReporterPhone.addTextChangedListener(new android.text.TextWatcher() {
+            @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+            @Override public void onTextChanged(CharSequence s, int start, int before, int count) {}
+            @Override public void afterTextChanged(android.text.Editable s) {
+                String selectedCountryCode = actvCountryCode.getText().toString().trim();
+                String code = ValidationUtils.extractCountryCode(selectedCountryCode);
+                contactPhoneState = code + s.toString().trim();
+            }
+        });
+        if (etReporterEmail != null) {
+            etReporterEmail.addTextChangedListener(new android.text.TextWatcher() {
+                @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+                @Override public void onTextChanged(CharSequence s, int start, int before, int count) {}
+                @Override public void afterTextChanged(android.text.Editable s) { contactEmailState = s.toString().trim(); }
+            });
+        }
     }
 
     private void initializeViews() {
@@ -77,20 +111,30 @@ public class ReportToAdminActivity extends AppCompatActivity {
         etUniversityId = findViewById(R.id.etUniversityId);
         etReporterPhone = findViewById(R.id.etReporterPhone);
         actvReportCategory = findViewById(R.id.actvReportCategory);
-        actvPriority = findViewById(R.id.actvPriority);
+
         tilReportTitle = findViewById(R.id.tilReportTitle);
         tilReportDescription = findViewById(R.id.tilReportDescription);
         tilReporterName = findViewById(R.id.tilReporterName);
+        tilReporterPhone = findViewById(R.id.tilReporterPhone);
+        tilCountryCode = findViewById(R.id.tilCountryCode);
+        actvCountryCode = findViewById(R.id.actvCountryCode);
+        etReporterEmail = findViewById(R.id.etReporterEmail);
+        tilReporterEmail = findViewById(R.id.tilReporterEmail);
         btnSubmit = findViewById(R.id.btnSubmitReportAdmin);
         loadingAnimation = findViewById(R.id.loadingAnimation);
         uploadScreenshotCard = findViewById(R.id.uploadScreenshotCard);
         ivScreenshot = findViewById(R.id.ivScreenshot);
         tvScreenshotStatus = findViewById(R.id.tvScreenshotStatus);
         toolbar = findViewById(R.id.toolbar);
+        reportToAdminRoot = findViewById(R.id.reportToAdminRoot);
+        keyboardSpacer = findViewById(R.id.keyboardSpacer);
 
         ErrorHelper.attachToTextInputLayout(tilReportTitle);
         ErrorHelper.attachToTextInputLayout(tilReportDescription);
         ErrorHelper.attachToTextInputLayout(tilReporterName);
+        ErrorHelper.attachToTextInputLayout(tilReporterPhone);
+        ErrorHelper.attachToTextInputLayout(tilCountryCode);
+        ErrorHelper.attachToTextInputLayout(tilReporterEmail);
     }
 
     private void setupToolbar() {
@@ -102,20 +146,29 @@ public class ReportToAdminActivity extends AppCompatActivity {
             }
             toolbar.setNavigationOnClickListener(v -> finish());
 
-            com.google.android.material.appbar.AppBarLayout appBarLayout = findViewById(R.id.appBarLayout);
-            if (appBarLayout != null) {
-                HeaderColorHelper.setup(this, appBarLayout, toolbar);
-            }
+            // HeaderColorHelper setup is commented out to lock the header bar statically in color/height
+            // com.google.android.material.appbar.AppBarLayout appBarLayout = findViewById(R.id.appBarLayout);
+            // if (appBarLayout != null) {
+            //     HeaderColorHelper.setup(this, appBarLayout, toolbar);
+            // }
         }
     }
 
     private void setupDropdowns() {
+        actvCountryCode.setFocusable(false);
+        actvCountryCode.setClickable(true);
+        actvCountryCode.setInputType(android.text.InputType.TYPE_NULL);
+        actvCountryCode.setText(ValidationUtils.getCountryDisplayString("+880"), false);
+        actvCountryCode.setOnClickListener(v -> CountryPickerDialog.show(this, country -> {
+            actvCountryCode.setText(country.getFlagEmoji() + " " + country.getCode(), false);
+            String phoneBody = etReporterPhone.getText().toString().trim();
+            contactPhoneState = country.getCode() + phoneBody;
+        }));
+
         String[] categories = {"Fake Report", "Spam / Misuse", "Harassment / Abuse", "Wrong Information", "Bug / Technical Issue", "Lost Item Issue", "Found Item Issue", "Other"};
         actvReportCategory.setAdapter(new ArrayAdapter<>(this, R.layout.dropdown_item, categories));
 
-        String[] priorities = {"Low", "Medium", "High"};
-        actvPriority.setAdapter(new ArrayAdapter<>(this, R.layout.dropdown_item, priorities));
-        actvPriority.setText("Medium", false);
+
     }
 
     private void fetchUserData() {
@@ -128,8 +181,23 @@ public class ReportToAdminActivity extends AppCompatActivity {
                     User user = users.get(0);
                     if (user != null) {
                         etReporterName.setText(user.getName());
+                        contactNameState = user.getName() != null ? user.getName() : "";
                         etUniversityId.setText(user.getUniversityId());
-                        etReporterPhone.setText(user.getPhone());
+                        
+                        String fullPhone = user.getPhone();
+                        String[] parsedPhone = ValidationUtils.parsePhoneNumber(fullPhone);
+                        String code = parsedPhone[0];
+                        String body = parsedPhone[1];
+                        
+                        if (actvCountryCode != null) {
+                            actvCountryCode.setText(ValidationUtils.getCountryDisplayString(code), false);
+                        }
+                        etReporterPhone.setText(body);
+                        contactPhoneState = code + body;
+                        if (etReporterEmail != null) {
+                            etReporterEmail.setText(user.getEmail());
+                            contactEmailState = user.getEmail() != null ? user.getEmail() : "";
+                        }
                     }
                 }
             }
@@ -172,10 +240,13 @@ public class ReportToAdminActivity extends AppCompatActivity {
         String category = actvReportCategory.getText().toString();
         String description = etReportDescription.getText().toString().trim();
         String relatedId = etRelatedId.getText().toString().trim();
-        String reporterName = etReporterName.getText().toString().trim();
+        String reporterName = contactNameState.trim();
         String universityId = etUniversityId.getText().toString().trim();
-        String phone = etReporterPhone.getText().toString().trim();
-        String priority = actvPriority.getText().toString();
+        String selectedCountryCode = actvCountryCode.getText().toString().trim();
+        String code = ValidationUtils.extractCountryCode(selectedCountryCode);
+        String phoneBody = etReporterPhone.getText().toString().trim();
+        String phone = contactPhoneState.trim();
+        String contactEmail = contactEmailState.trim();
 
         if (TextUtils.isEmpty(title)) { ErrorHelper.setFieldError(tilReportTitle, "Report title is required"); return; }
         if (TextUtils.isEmpty(description)) { ErrorHelper.setFieldError(tilReportDescription, "Report description is required"); return; }
@@ -185,17 +256,20 @@ public class ReportToAdminActivity extends AppCompatActivity {
             return;
         }
 
-        if (phone != null && !phone.isEmpty() && !ValidationUtils.isValidPhone(phone)) {
-            ErrorHelper.setFieldError(etReporterPhone.getParent() instanceof com.google.android.material.textfield.TextInputLayout ? (com.google.android.material.textfield.TextInputLayout) etReporterPhone.getParent() : null, "Please enter a valid phone number (10-14 digits)");
+        if (!phoneBody.isEmpty() && !ValidationUtils.isValidPhone(code, phoneBody)) {
+            ErrorHelper.setFieldError(tilReporterPhone, "Please enter a valid phone number");
             return;
         }
 
+        if (TextUtils.isEmpty(contactEmail)) { ErrorHelper.setFieldError(tilReporterEmail, "Contact email is required"); return; }
+        if (!android.util.Patterns.EMAIL_ADDRESS.matcher(contactEmail).matches()) { ErrorHelper.setFieldError(tilReporterEmail, "Please enter a valid email address"); return; }
+
         setLoadingState(true);
 
-        generateDisplayIdAndSubmit(title, category, description, relatedId, reporterName, universityId, phone, priority);
+        generateDisplayIdAndSubmit(title, category, description, relatedId, reporterName, universityId, phone, contactEmail);
     }
 
-    private void generateDisplayIdAndSubmit(String title, String category, String description, String relatedId, String reporterName, String universityId, String phone, String priority) {
+    private void generateDisplayIdAndSubmit(String title, String category, String description, String relatedId, String reporterName, String universityId, String phone, String email) {
         Map<String, Object> params = new HashMap<>();
         params.put("p_counter_name", "admin_reports");
         
@@ -205,7 +279,7 @@ public class ReportToAdminActivity extends AppCompatActivity {
                 try {
                     long newCount = Long.parseLong(result.trim());
                     String displayId = "R" + newCount;
-                    uploadImagesAndReport(displayId, title, category, description, relatedId, reporterName, universityId, phone, priority);
+                    uploadImagesAndReport(displayId, title, category, description, relatedId, reporterName, universityId, phone, email);
                 } catch (Exception e) {
                     resetButton();
                     ErrorHelper.showError(btnSubmit, "Failed to parse Report ID.");
@@ -220,7 +294,7 @@ public class ReportToAdminActivity extends AppCompatActivity {
         });
     }
 
-    private void uploadImagesAndReport(String displayId, String title, String category, String description, String relatedId, String reporterName, String universityId, String phone, String priority) {
+    private void uploadImagesAndReport(String displayId, String title, String category, String description, String relatedId, String reporterName, String universityId, String phone, String email) {
         if (!selectedImageUris.isEmpty()) {
             List<String> imageUrlStrings = Collections.synchronizedList(new ArrayList<>());
             AtomicInteger remaining = new AtomicInteger(selectedImageUris.size());
@@ -232,29 +306,30 @@ public class ReportToAdminActivity extends AppCompatActivity {
                     public void onSuccess(String publicUrl) {
                         imageUrlStrings.add(publicUrl);
                         if (remaining.decrementAndGet() == 0) {
-                            submitReport(displayId, title, category, description, relatedId, reporterName, universityId, phone, imageUrlStrings, priority);
+                            submitReport(displayId, title, category, description, relatedId, reporterName, universityId, phone, email, imageUrlStrings);
                         }
                     }
 
                     @Override
                     public void onFailure(Exception e) {
                         if (remaining.decrementAndGet() == 0) {
-                            submitReport(displayId, title, category, description, relatedId, reporterName, universityId, phone, imageUrlStrings, priority);
+                            submitReport(displayId, title, category, description, relatedId, reporterName, universityId, phone, email, imageUrlStrings);
                         }
                     }
                 });
             }
         } else {
-            submitReport(displayId, title, category, description, relatedId, reporterName, universityId, phone, new ArrayList<>(), priority);
+            submitReport(displayId, title, category, description, relatedId, reporterName, universityId, phone, email, new ArrayList<>());
         }
     }
 
-    private void submitReport(String displayId, String title, String category, String description, String relatedId, String reporterName, String universityId, String phone, List<String> imageUrls, String priority) {
+    private void submitReport(String displayId, String title, String category, String description, String relatedId, String reporterName, String universityId, String phone, String email, List<String> imageUrls) {
         String reportId = UUID.randomUUID().toString();
         String firstImage = (imageUrls != null && !imageUrls.isEmpty()) ? imageUrls.get(0) : null;
         AdminReport report = new AdminReport(
-                reportId, displayId, title, category, description, relatedId, reporterName, universityId, currentAuthId, phone, firstImage, priority, "Pending", System.currentTimeMillis()
+                reportId, displayId, title, category, description, relatedId, reporterName, universityId, currentAuthId, phone, firstImage, "Pending", System.currentTimeMillis()
         );
+        report.setEmail(email);
         report.setImageUrls(imageUrls != null ? imageUrls : new ArrayList<>());
         report.setUpdatedAt(System.currentTimeMillis());
 
@@ -360,5 +435,31 @@ public class ReportToAdminActivity extends AppCompatActivity {
 
     private void resetButton() {
         setLoadingState(false);
+    }
+
+    private void setupKeyboardListener() {
+        if (reportToAdminRoot == null || keyboardSpacer == null) return;
+
+        reportToAdminRoot.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+            @Override
+            public void onGlobalLayout() {
+                Rect r = new Rect();
+                reportToAdminRoot.getWindowVisibleDisplayFrame(r);
+                int screenHeight = reportToAdminRoot.getRootView().getHeight();
+                int keypadHeight = screenHeight - r.bottom;
+
+                if (keypadHeight > screenHeight * 0.15) {
+                    if (keyboardSpacer.getVisibility() != View.VISIBLE) {
+                        keyboardSpacer.setVisibility(View.VISIBLE);
+                        keyboardSpacer.getLayoutParams().height = (int) (320 * getResources().getDisplayMetrics().density);
+                        keyboardSpacer.requestLayout();
+                    }
+                } else {
+                    if (keyboardSpacer.getVisibility() != View.GONE) {
+                        keyboardSpacer.setVisibility(View.GONE);
+                    }
+                }
+            }
+        });
     }
 }

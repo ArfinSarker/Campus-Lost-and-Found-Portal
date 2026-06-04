@@ -590,11 +590,18 @@ public class ItemDetailActivity extends AppCompatActivity {
                     if (user != null) {
                         // Populate transient fields for Preferred Contact Method link
                         if (currentItem != null) {
-                            currentItem.setUserEmail(user.getEmail());
-                            currentItem.setUserPhone(user.getPhone());
+                            if (currentItem.getUserEmail() == null || currentItem.getUserEmail().isEmpty()) {
+                                currentItem.setUserEmail(user.getEmail());
+                            }
+                            if (currentItem.getUserPhone() == null || currentItem.getUserPhone().isEmpty()) {
+                                currentItem.setUserPhone(user.getPhone());
+                            }
+                            if (currentItem.getUserName() == null || currentItem.getUserName().isEmpty()) {
+                                currentItem.setUserName(user.getName());
+                            }
                         }
 
-                        tvReporterName.setText(user.getName() + (isMe ? " (You)" : ""));
+                        tvReporterName.setText((currentItem != null ? currentItem.getUserName() : user.getName()) + (isMe ? " (You)" : ""));
                         tvReporterUniversityId.setText("ID: " + user.getUniversityId());
                         tvReporterUniversityId.setVisibility(View.VISIBLE);
                         tvReporterType.setText(user.getUserType());
@@ -696,16 +703,22 @@ public class ItemDetailActivity extends AppCompatActivity {
                 .setTitle("Contact Information")
                 .setItems(options, (dialog, which) -> {
                     if (which == 0) {
-                        if (user.getEmail() != null && !user.getEmail().isEmpty()) {
+                        String email = (currentItem != null && currentItem.getUserEmail() != null && !currentItem.getUserEmail().isEmpty())
+                                ? currentItem.getUserEmail()
+                                : user.getEmail();
+                        if (email != null && !email.isEmpty()) {
                             Intent intent = new Intent(Intent.ACTION_SENDTO);
-                            intent.setData(Uri.parse("mailto:" + user.getEmail()));
+                            intent.setData(Uri.parse("mailto:" + email));
                             intent.putExtra(Intent.EXTRA_SUBJECT, "Regarding item: " + tvItemName.getText().toString());
                             startActivity(Intent.createChooser(intent, "Send Email"));
                         } else SnackbarManager.show(SnackbarManager.Type.ERROR, "Email not available");
                     } else {
-                        if (user.getPhone() != null && !user.getPhone().isEmpty()) {
+                        String phone = (currentItem != null && currentItem.getUserPhone() != null && !currentItem.getUserPhone().isEmpty())
+                                ? currentItem.getUserPhone()
+                                : user.getPhone();
+                        if (phone != null && !phone.isEmpty()) {
                             Intent intent = new Intent(Intent.ACTION_DIAL);
-                            intent.setData(Uri.parse("tel:" + user.getPhone()));
+                            intent.setData(Uri.parse("tel:" + phone));
                             startActivity(intent);
                         } else SnackbarManager.show(SnackbarManager.Type.ERROR, "Phone not available");
                     }
@@ -787,8 +800,8 @@ public class ItemDetailActivity extends AppCompatActivity {
                     public void onSuccess(List<User> reporterList) {
                         User reporter = (reporterList != null && !reporterList.isEmpty()) ? reporterList.get(0) : null;
                         String reporterName = (reporter != null) ? reporter.getName() : "A user";
-                        String reporterPhone = (reporter != null) ? reporter.getPhone() : "";
-                        String reporterEmail = (reporter != null) ? reporter.getEmail() : "";
+                        String reporterPhone = (currentItem != null && currentItem.getUserPhone() != null && !currentItem.getUserPhone().isEmpty()) ? currentItem.getUserPhone() : ((reporter != null) ? reporter.getPhone() : "");
+                        String reporterEmail = (currentItem != null && currentItem.getUserEmail() != null && !currentItem.getUserEmail().isEmpty()) ? currentItem.getUserEmail() : ((reporter != null) ? reporter.getEmail() : "");
 
                         Map<String, Object> updates = new HashMap<>();
                         updates.put("admin_status", "Claimed");
@@ -854,8 +867,8 @@ public class ItemDetailActivity extends AppCompatActivity {
                     public void onSuccess(List<User> reporterList) {
                         User reporter = (reporterList != null && !reporterList.isEmpty()) ? reporterList.get(0) : null;
                         String reporterName = (reporter != null) ? reporter.getName() : "A user";
-                        String reporterPhone = (reporter != null) ? reporter.getPhone() : "";
-                        String reporterEmail = (reporter != null) ? reporter.getEmail() : "";
+                        String reporterPhone = (currentItem != null && currentItem.getUserPhone() != null && !currentItem.getUserPhone().isEmpty()) ? currentItem.getUserPhone() : ((reporter != null) ? reporter.getPhone() : "");
+                        String reporterEmail = (currentItem != null && currentItem.getUserEmail() != null && !currentItem.getUserEmail().isEmpty()) ? currentItem.getUserEmail() : ((reporter != null) ? reporter.getEmail() : "");
 
                         Map<String, Object> updates = new HashMap<>();
                         updates.put("admin_status", "Returned");
@@ -958,11 +971,9 @@ public class ItemDetailActivity extends AppCompatActivity {
     private void deleteItem(String itemId, String status) {
         new AlertDialog.Builder(this).setTitle("Delete Report").setMessage("Permanently delete this report?").setPositiveButton("Delete", (dialog, which) -> {
             if (currentItem != null) deleteItemImages(currentItem);
-            Map<String, Object> update = new HashMap<>();
-            update.put("deleted_by_user", true);
             String table = "lost".equalsIgnoreCase(status) ? "lost_reports" : "found_reports";
-            SupabaseDatabaseHelper.update(table, "id=eq." + itemId, update, new SupabaseDatabaseHelper.DatabaseCallback<String>() {
-                @Override public void onSuccess(String r) { 
+            SupabaseDatabaseHelper.delete(table, "id=eq." + itemId, new SupabaseDatabaseHelper.DatabaseCallback<Void>() {
+                @Override public void onSuccess(Void r) { 
                     SnackbarManager.show(SnackbarManager.Type.SUCCESS, "Deleted"); 
                     finish(); 
                 }

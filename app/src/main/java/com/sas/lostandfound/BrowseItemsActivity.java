@@ -191,7 +191,7 @@ public class BrowseItemsActivity extends AppCompatActivity {
     }
 
     private void filterItems() {
-        filteredItems.clear();
+        List<Item> temp = new ArrayList<>();
         for (Item item : allItems) {
             String name = item.getName() != null ? item.getName().toLowerCase() : "";
             String desc = item.getDescription() != null ? item.getDescription().toLowerCase() : "";
@@ -222,10 +222,10 @@ public class BrowseItemsActivity extends AppCompatActivity {
             }
 
             if (matchesSearch && matchesCategory && matchesStatus) {
-                filteredItems.add(item);
+                temp.add(item);
             }
         }
-        adapter.notifyDataSetChanged();
+        adapter.updateItems(temp);
         
         if (filteredItems.isEmpty()) {
             layoutEmptyState.setVisibility(View.VISIBLE);

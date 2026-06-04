@@ -86,10 +86,16 @@ public class Item {
     @SerializedName("user_id")
     private String authUserId;
 
+    @SerializedName("contact_name")
+    private String userName;
+
+    @SerializedName("contact_email")
+    private String userEmail;
+
+    @SerializedName("contact_phone")
+    private String userPhone;
+
     // Transient fields for backward compatibility in UI (should be fetched from profiles)
-    private transient String userName;
-    private transient String userEmail;
-    private transient String userPhone;
     private transient String userUniversityId;
     private transient String userDepartment;
 

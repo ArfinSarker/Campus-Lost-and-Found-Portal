@@ -370,6 +370,21 @@ public class CampusDashboardActivity extends AppCompatActivity {
             rvRecentItems.setLayoutManager(new LinearLayoutManager(this));
             rvRecentItems.setNestedScrollingEnabled(false);
             rvRecentItems.setAdapter(adapter);
+
+            // Load cached items for instant rendering
+            android.content.SharedPreferences prefs = getSharedPreferences("MyApp", MODE_PRIVATE);
+            String cachedItemsJson = prefs.getString("cachedRecentItemsJson", "");
+            if (!cachedItemsJson.isEmpty()) {
+                try {
+                    List<Item> cachedItems = new com.google.gson.Gson().fromJson(cachedItemsJson, new com.google.gson.reflect.TypeToken<List<Item>>(){}.getType());
+                    if (cachedItems != null && !cachedItems.isEmpty()) {
+                        fullItemList.addAll(cachedItems);
+                        updateDisplayedList();
+                    }
+                } catch (Exception e) {
+                    Log.e("Dashboard", "Error parsing cached items: " + e.getMessage());
+                }
+            }
         }
     }
 
@@ -381,9 +396,28 @@ public class CampusDashboardActivity extends AppCompatActivity {
     }
 
     private void fetchUserData() {
-        SharedPreferences prefs = getSharedPreferences("MyApp", MODE_PRIVATE);
+        android.content.SharedPreferences prefs = getSharedPreferences("MyApp", MODE_PRIVATE);
         currentUniversityId = prefs.getString("universityId", null);
         String authId = prefs.getString("authId", null);
+
+        // Load cached values for instant UI updates
+        String cachedName = prefs.getString("cachedUserName", "");
+        String cachedProfileUrl = prefs.getString("cachedProfileImageUrl", "");
+        String cachedLostCount = prefs.getString("cachedLostCount", "0");
+        String cachedFoundCount = prefs.getString("cachedFoundCount", "0");
+
+        if (!cachedName.isEmpty()) {
+            tvWelcome.setText("Welcome back, " + cachedName + "!");
+            if (tvNavHeaderName != null) tvNavHeaderName.setText(cachedName);
+        }
+        if (!cachedProfileUrl.isEmpty()) {
+            loadNavHeaderProfileImageRectangular(cachedProfileUrl);
+            setupProfileImageFullScreenViewer(cachedProfileUrl);
+        }
+        tvLostCount.setText(cachedLostCount);
+        tvLostLabel.setText("1".equals(cachedLostCount) ? "Lost Report" : "Lost Reports");
+        tvFoundCount.setText(cachedFoundCount);
+        tvFoundLabel.setText("1".equals(cachedFoundCount) ? "Found Report" : "Found Reports");
 
         if (authId != null && currentUniversityId != null) {
             fetchUserStats(authId);
@@ -396,11 +430,28 @@ public class CampusDashboardActivity extends AppCompatActivity {
                     if (users != null && !users.isEmpty()) {
                         User user = users.get(0);
                         if (user != null) {
-                            tvWelcome.setText("Welcome back, " + user.getName() + "!");
-                            if (tvNavHeaderName != null) tvNavHeaderName.setText(user.getName());
+                            String name = user.getName();
+                            if (name == null) name = user.getFullName();
+                            
+                            tvWelcome.setText("Welcome back, " + name + "!");
+                            if (tvNavHeaderName != null) tvNavHeaderName.setText(name);
                             loadNavHeaderProfileImageRectangular(user.getProfileImageUrl());
                             setupProfileImageFullScreenViewer(user.getProfileImageUrl());
-                            fetchUserStats(user.getAuthId());
+                            
+                            // Save profile attributes to SharedPreferences cache
+                            prefs.edit()
+                                 .putString("cachedUserName", name)
+                                 .putString("cachedProfileImageUrl", user.getProfileImageUrl())
+                                 .putString("cachedUserEmail", user.getEmail())
+                                 .putString("cachedUserPhone", user.getPhone())
+                                 .putString("cachedUserGender", user.getGender())
+                                 .putString("cachedUserDepartment", user.getDepartment())
+                                 .putString("cachedUserBatch", user.getBatch())
+                                 .putString("cachedUserLevelTerm", user.getLevelTerm())
+                                 .putString("cachedUserSection", user.getSection())
+                                 .putString("cachedUserDesignation", user.getDesignation())
+                                 .apply();
+
                             listenForNotifications();
                         }
                     }
@@ -434,7 +485,7 @@ public class CampusDashboardActivity extends AppCompatActivity {
 
     private void fetchUserStats(String authId) {
         if (authId == null || currentUniversityId == null) return;
-        String q = "or=(user_id.eq." + authId + ",reporter_id.eq." + currentUniversityId + ")";
+        String q = "deleted_by_user=eq.false&or=(user_id.eq." + authId + ",reporter_id.eq." + currentUniversityId + ")";
         SupabaseDatabaseHelper.select("lost_reports", q + "&select=count", new TypeToken<List<Map<String, Object>>>(){}.getType(), new SupabaseDatabaseHelper.DatabaseCallback<List<Map<String, Object>>>() {
             @Override public void onSuccess(List<Map<String, Object>> res) {
                 if (res != null && !res.isEmpty() && res.get(0).get("count") != null) {
@@ -442,6 +493,9 @@ public class CampusDashboardActivity extends AppCompatActivity {
                     long count = (countObj instanceof Number) ? ((Number) countObj).longValue() : 0;
                     tvLostCount.setText(String.valueOf(count));
                     tvLostLabel.setText(count == 1 ? "Lost Report" : "Lost Reports");
+                    
+                    // Update cache
+                    getSharedPreferences("MyApp", MODE_PRIVATE).edit().putString("cachedLostCount", String.valueOf(count)).apply();
                 }
             }
             @Override public void onFailure(String e) {}
@@ -453,6 +507,9 @@ public class CampusDashboardActivity extends AppCompatActivity {
                     long count = (countObj instanceof Number) ? ((Number) countObj).longValue() : 0;
                     tvFoundCount.setText(String.valueOf(count));
                     tvFoundLabel.setText(count == 1 ? "Found Report" : "Found Reports");
+                    
+                    // Update cache
+                    getSharedPreferences("MyApp", MODE_PRIVATE).edit().putString("cachedFoundCount", String.valueOf(count)).apply();
                 }
             }
             @Override public void onFailure(String e) {}
@@ -492,6 +549,14 @@ public class CampusDashboardActivity extends AppCompatActivity {
                         
                         // Robust sorting by timestamp
                         combined.sort((o1, o2) -> Long.compare(o2.getTimestamp(), o1.getTimestamp()));
+
+                        // Save to cache
+                        try {
+                            String json = new com.google.gson.Gson().toJson(combined);
+                            getSharedPreferences("MyApp", MODE_PRIVATE).edit().putString("cachedRecentItemsJson", json).apply();
+                        } catch (Exception e) {
+                            Log.e("Dashboard", "Error saving cached items: " + e.getMessage());
+                        }
                         
                         fullItemList.clear();
                         fullItemList.addAll(combined);
@@ -516,10 +581,49 @@ public class CampusDashboardActivity extends AppCompatActivity {
     }
 
     private void updateDisplayedList() {
-        displayedItemList.clear();
+        List<Item> newDisplayedList = new ArrayList<>();
         int limit = Math.min(currentLimit, fullItemList.size());
-        for (int i = 0; i < limit; i++) displayedItemList.add(fullItemList.get(i));
-        adapter.notifyDataSetChanged();
+        for (int i = 0; i < limit; i++) {
+            newDisplayedList.add(fullItemList.get(i));
+        }
+
+        // Use DiffUtil to compute exact changes
+        androidx.recyclerview.widget.DiffUtil.DiffResult diffResult = androidx.recyclerview.widget.DiffUtil.calculateDiff(new androidx.recyclerview.widget.DiffUtil.Callback() {
+            @Override
+            public int getOldListSize() {
+                return displayedItemList.size();
+            }
+
+            @Override
+            public int getNewListSize() {
+                return newDisplayedList.size();
+            }
+
+            @Override
+            public boolean areItemsTheSame(int oldItemPosition, int newItemPosition) {
+                Item oldItem = displayedItemList.get(oldItemPosition);
+                Item newItem = newDisplayedList.get(newItemPosition);
+                return oldItem.getId() != null && newItem.getId() != null && oldItem.getId().equals(newItem.getId());
+            }
+
+            @Override
+            public boolean areContentsTheSame(int oldItemPosition, int newItemPosition) {
+                Item oldItem = displayedItemList.get(oldItemPosition);
+                Item newItem = newDisplayedList.get(newItemPosition);
+                return java.util.Objects.equals(oldItem.getName(), newItem.getName()) &&
+                       java.util.Objects.equals(oldItem.getLocation(), newItem.getLocation()) &&
+                       java.util.Objects.equals(oldItem.getDate(), newItem.getDate()) &&
+                       java.util.Objects.equals(oldItem.getAdminStatus(), newItem.getAdminStatus()) &&
+                       java.util.Objects.equals(oldItem.getStatus(), newItem.getStatus()) &&
+                       java.util.Objects.equals(oldItem.getImageUrl(), newItem.getImageUrl()) &&
+                       java.util.Objects.equals(oldItem.getImageUrls(), newItem.getImageUrls());
+            }
+        });
+
+        displayedItemList.clear();
+        displayedItemList.addAll(newDisplayedList);
+        diffResult.dispatchUpdatesTo(adapter);
+
         btnViewMore.setVisibility(fullItemList.size() > currentLimit ? View.VISIBLE : View.GONE);
         btnViewLess.setVisibility(currentLimit > 5 ? View.VISIBLE : View.GONE);
     }

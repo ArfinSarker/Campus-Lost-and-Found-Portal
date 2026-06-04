@@ -49,6 +49,7 @@ public class AllUsersActivity extends AppCompatActivity {
     private boolean isFetching = false;
     private String currentRoleFilter = "All";
     private String currentSearchQuery = "";
+    private boolean isEnterAnimationCompleted = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -64,7 +65,37 @@ public class AllUsersActivity extends AppCompatActivity {
         setupRecyclerView();
         setupSwipeRefresh();
         setupSearchAndFilter();
-        
+
+        // Load cached users for instant rendering
+        android.content.SharedPreferences prefs = getSharedPreferences("MyApp", MODE_PRIVATE);
+        String cachedUsersJson = prefs.getString("cachedAllUsersJson", "");
+        if (!cachedUsersJson.isEmpty()) {
+            try {
+                List<User> cachedUsers = new com.google.gson.Gson().fromJson(cachedUsersJson, new TypeToken<List<User>>(){}.getType());
+                if (cachedUsers != null && !cachedUsers.isEmpty()) {
+                    fullUserList.clear();
+                    fullUserList.addAll(cachedUsers);
+                    updateStats();
+                    applyFilter();
+                }
+            } catch (Exception e) {
+                // ignore
+            }
+        }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if (isEnterAnimationCompleted) {
+            fetchAllUsers();
+        }
+    }
+
+    @Override
+    public void onEnterAnimationComplete() {
+        super.onEnterAnimationComplete();
+        isEnterAnimationCompleted = true;
         fetchAllUsers();
     }
 
@@ -154,6 +185,13 @@ public class AllUsersActivity extends AppCompatActivity {
                 fullUserList.clear();
                 if (users != null) {
                     fullUserList.addAll(users);
+                    // Save to cache
+                    try {
+                        String json = new com.google.gson.Gson().toJson(users);
+                        getSharedPreferences("MyApp", MODE_PRIVATE).edit().putString("cachedAllUsersJson", json).apply();
+                    } catch (Exception e) {
+                        // ignore
+                    }
                 }
                 
                 updateStats();
@@ -194,7 +232,7 @@ public class AllUsersActivity extends AppCompatActivity {
     }
 
     private void applyFilter() {
-        filteredUserList.clear();
+        List<User> temp = new ArrayList<>();
         for (User user : fullUserList) {
             boolean matchesRole = "All".equalsIgnoreCase(currentRoleFilter) || 
                                  user.getUserType().equalsIgnoreCase(currentRoleFilter);
@@ -207,11 +245,11 @@ public class AllUsersActivity extends AppCompatActivity {
                                    (user.getUniversityId() != null && user.getUniversityId().toLowerCase().contains(currentSearchQuery));
             
             if (matchesSearch) {
-                filteredUserList.add(user);
+                temp.add(user);
             }
         }
         
-        adapter.notifyDataSetChanged();
+        adapter.updateUsers(temp);
         llEmptyState.setVisibility(filteredUserList.isEmpty() ? View.VISIBLE : View.GONE);
     }
 
@@ -255,6 +293,9 @@ public class AllUsersActivity extends AppCompatActivity {
                 Intent intent = new Intent(AllUsersActivity.this, UserProfileActivity.class);
                 intent.putExtra("targetUserId", user.getUniversityId());
                 intent.putExtra("isAdminViewing", true);
+                intent.putExtra("intentFullName", user.getFullName() != null ? user.getFullName() : user.getName());
+                intent.putExtra("intentUserType", user.getUserType());
+                intent.putExtra("intentProfileImageUrl", user.getProfileImageUrl());
                 startActivity(intent);
             });
         }
@@ -262,6 +303,41 @@ public class AllUsersActivity extends AppCompatActivity {
         @Override
         public int getItemCount() {
             return users.size();
+        }
+
+        public void updateUsers(List<User> newUsers) {
+            androidx.recyclerview.widget.DiffUtil.DiffResult diffResult = androidx.recyclerview.widget.DiffUtil.calculateDiff(new androidx.recyclerview.widget.DiffUtil.Callback() {
+                @Override
+                public int getOldListSize() {
+                    return users.size();
+                }
+
+                @Override
+                public int getNewListSize() {
+                    return newUsers.size();
+                }
+
+                @Override
+                public boolean areItemsTheSame(int oldItemPosition, int newItemPosition) {
+                    User oldItem = users.get(oldItemPosition);
+                    User newItem = newUsers.get(newItemPosition);
+                    return oldItem.getUniversityId() != null && newItem.getUniversityId() != null && oldItem.getUniversityId().equals(newItem.getUniversityId());
+                }
+
+                @Override
+                public boolean areContentsTheSame(int oldItemPosition, int newItemPosition) {
+                    User oldItem = users.get(oldItemPosition);
+                    User newItem = newUsers.get(newItemPosition);
+                    return java.util.Objects.equals(oldItem.getFullName(), newItem.getFullName()) &&
+                           java.util.Objects.equals(oldItem.getName(), newItem.getName()) &&
+                           java.util.Objects.equals(oldItem.getProfileImageUrl(), newItem.getProfileImageUrl()) &&
+                           java.util.Objects.equals(oldItem.getUserType(), newItem.getUserType());
+                }
+            });
+
+            this.users.clear();
+            this.users.addAll(newUsers);
+            diffResult.dispatchUpdatesTo(this);
         }
 
         class ViewHolder extends RecyclerView.ViewHolder {

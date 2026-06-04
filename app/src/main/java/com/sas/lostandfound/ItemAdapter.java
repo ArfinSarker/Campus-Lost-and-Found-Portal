@@ -271,4 +271,42 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ViewHolder> {
             tabLayoutIndicator = itemView.findViewById(R.id.tabLayoutIndicator);
         }
     }
+
+    public void updateItems(List<Item> newItems) {
+        androidx.recyclerview.widget.DiffUtil.DiffResult diffResult = androidx.recyclerview.widget.DiffUtil.calculateDiff(new androidx.recyclerview.widget.DiffUtil.Callback() {
+            @Override
+            public int getOldListSize() {
+                return items.size();
+            }
+
+            @Override
+            public int getNewListSize() {
+                return newItems.size();
+            }
+
+            @Override
+            public boolean areItemsTheSame(int oldItemPosition, int newItemPosition) {
+                Item oldItem = items.get(oldItemPosition);
+                Item newItem = newItems.get(newItemPosition);
+                return oldItem.getId() != null && newItem.getId() != null && oldItem.getId().equals(newItem.getId());
+            }
+
+            @Override
+            public boolean areContentsTheSame(int oldItemPosition, int newItemPosition) {
+                Item oldItem = items.get(oldItemPosition);
+                Item newItem = newItems.get(newItemPosition);
+                return java.util.Objects.equals(oldItem.getName(), newItem.getName()) &&
+                       java.util.Objects.equals(oldItem.getLocation(), newItem.getLocation()) &&
+                       java.util.Objects.equals(oldItem.getDate(), newItem.getDate()) &&
+                       java.util.Objects.equals(oldItem.getAdminStatus(), newItem.getAdminStatus()) &&
+                       java.util.Objects.equals(oldItem.getStatus(), newItem.getStatus()) &&
+                       java.util.Objects.equals(oldItem.getImageUrl(), newItem.getImageUrl()) &&
+                       java.util.Objects.equals(oldItem.getImageUrls(), newItem.getImageUrls());
+            }
+        });
+
+        this.items.clear();
+        this.items.addAll(newItems);
+        diffResult.dispatchUpdatesTo(this);
+    }
 }

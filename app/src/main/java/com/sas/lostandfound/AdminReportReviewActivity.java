@@ -16,6 +16,8 @@ import android.widget.AutoCompleteTextView;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
+import android.net.Uri;
 
 import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.NonNull;
@@ -49,7 +51,8 @@ import java.util.Locale;
 public class AdminReportReviewActivity extends AppCompatActivity {
 
     private TextView tvHeaderTitle;
-    private TextView tvReporterName, tvDetailTitle, tvDetailCategory, tvDetailDescription, tvDetailRelatedId, tvDetailPriority;
+    private TextView tvReporterName, tvDetailTitle, tvDetailCategory, tvDetailDescription, tvDetailRelatedId;
+    private TextView tvReporterUniversityId, tvReporterRole, tvReporterDeptDesignation, tvReporterPhone, tvReporterEmail;
     private ImageView ivEvidence;
     private ViewPager2 viewPagerEvidence;
     private TabLayout tabLayoutIndicator;
@@ -117,11 +120,16 @@ public class AdminReportReviewActivity extends AppCompatActivity {
         tvHeaderTitle = findViewById(R.id.tvHeaderTitle);
         
         tvReporterName = findViewById(R.id.tvReporterName);
+        tvReporterUniversityId = findViewById(R.id.tvReporterUniversityId);
+        tvReporterRole = findViewById(R.id.tvReporterRole);
+        tvReporterDeptDesignation = findViewById(R.id.tvReporterDeptDesignation);
+        tvReporterPhone = findViewById(R.id.tvReporterPhone);
+        tvReporterEmail = findViewById(R.id.tvReporterEmail);
+
         tvDetailTitle = findViewById(R.id.tvDetailTitle);
         tvDetailCategory = findViewById(R.id.tvDetailCategory);
         tvDetailDescription = findViewById(R.id.tvDetailDescription);
         tvDetailRelatedId = findViewById(R.id.tvDetailRelatedId);
-        tvDetailPriority = findViewById(R.id.tvDetailPriority);
 
         ivEvidence = findViewById(R.id.ivDetailEvidence);
         viewPagerEvidence = findViewById(R.id.viewPagerEvidence);
@@ -134,6 +142,50 @@ public class AdminReportReviewActivity extends AppCompatActivity {
         etAdminNote = findViewById(R.id.etAdminNote);
         btnUpdate = findViewById(R.id.btnUpdateReport);
         btnDelete = findViewById(R.id.btnDeleteReport);
+        
+        MaterialButton btnViewProfile = findViewById(R.id.btnViewProfile);
+        if (btnViewProfile != null) {
+            btnViewProfile.setOnClickListener(v -> {
+                if (currentReport != null && currentReport.getUniversityId() != null) {
+                    Intent intent = new Intent(this, UserProfileActivity.class);
+                    intent.putExtra("isAdminViewing", true);
+                    intent.putExtra("targetUserId", currentReport.getUniversityId());
+                    startActivity(intent);
+                }
+            });
+        }
+
+        View layoutReporterPhone = findViewById(R.id.layoutReporterPhone);
+        if (layoutReporterPhone != null) {
+            layoutReporterPhone.setOnClickListener(v -> {
+                if (currentReport != null && currentReport.getPhone() != null && !currentReport.getPhone().trim().isEmpty() && !"N/A".equalsIgnoreCase(currentReport.getPhone().trim())) {
+                    try {
+                        Intent intent = new Intent(Intent.ACTION_DIAL);
+                        intent.setData(Uri.parse("tel:" + currentReport.getPhone().trim()));
+                        startActivity(intent);
+                    } catch (Exception e) {
+                        Toast.makeText(this, "Failed to open phone dialer", Toast.LENGTH_SHORT).show();
+                    }
+                }
+            });
+        }
+
+        View layoutReporterEmail = findViewById(R.id.layoutReporterEmail);
+        if (layoutReporterEmail != null) {
+            layoutReporterEmail.setOnClickListener(v -> {
+                if (currentReport != null && currentReport.getEmail() != null && !currentReport.getEmail().trim().isEmpty() && !"N/A".equalsIgnoreCase(currentReport.getEmail().trim())) {
+                    try {
+                        Intent intent = new Intent(Intent.ACTION_SENDTO);
+                        intent.setData(Uri.parse("mailto:" + currentReport.getEmail().trim()));
+                        String subject = "Regarding Admin Report: " + (currentReport.getDisplayId() != null ? currentReport.getDisplayId() : "");
+                        intent.putExtra(Intent.EXTRA_SUBJECT, subject);
+                        startActivity(Intent.createChooser(intent, "Send Email"));
+                    } catch (Exception e) {
+                        Toast.makeText(this, "Failed to open email app", Toast.LENGTH_SHORT).show();
+                    }
+                }
+            });
+        }
         
         toolbar = findViewById(R.id.toolbar);
         progressBar = findViewById(R.id.progressBar);
@@ -200,6 +252,8 @@ public class AdminReportReviewActivity extends AppCompatActivity {
         actvUpdateStatus.setAdapter(adapter);
     }
 
+
+
     private void setupSwipeRefresh() {
         if (swipeRefreshLayout != null) {
             swipeRefreshLayout.setColorSchemeColors(ContextCompat.getColor(this, R.color.primaryColor));
@@ -239,18 +293,14 @@ public class AdminReportReviewActivity extends AppCompatActivity {
     private void displayReportDetails(AdminReport report) {
         tvHeaderTitle.setText("Report Details");
         
-        // Reporter Name with Clickable Link (Spannable)
-        String reporterName = report.getReporterName() != null ? report.getReporterName() : "N/A";
-        applyStyledText(tvReporterName, "Name: ", reporterName);
-        
-        if (report.getUniversityId() != null) {
-            tvReporterName.setOnClickListener(v -> {
-                Intent intent = new Intent(this, UserProfileActivity.class);
-                intent.putExtra("isAdminViewing", true);
-                intent.putExtra("targetUserId", report.getUniversityId());
-                startActivity(intent);
-            });
+        // Reporter info bindings
+        tvReporterName.setText("Name: " + (report.getReporterName() != null ? report.getReporterName() : "N/A"));
+        tvReporterUniversityId.setText("University ID: " + (report.getUniversityId() != null ? report.getUniversityId() : "N/A"));
+        applyStyledLinkText(tvReporterPhone, "Phone: ", report.getPhone() != null ? report.getPhone() : "N/A");
+        if (tvReporterEmail != null) {
+            applyStyledLinkText(tvReporterEmail, "Email: ", report.getEmail() != null ? report.getEmail() : "N/A");
         }
+        fetchReporterExtraInfo(report.getUniversityId());
 
         // Report Information Section Styling
         applyStyledText(tvDetailTitle, "Report Title: ", report.getTitle() != null ? report.getTitle() : "N/A");
@@ -267,8 +317,7 @@ public class AdminReportReviewActivity extends AppCompatActivity {
             tvDetailRelatedId.setEnabled(true);
             tvDetailRelatedId.setOnClickListener(v -> navigateToRelatedItem(relatedId));
         }
-        
-        tvDetailPriority.setText("Priority: " + (report.getPriority() != null ? report.getPriority() : "N/A"));
+
 
         setupEvidenceSlider(report.getImageUrls(), report.getImageUrl());
 
@@ -297,6 +346,27 @@ public class AdminReportReviewActivity extends AppCompatActivity {
         etAdminNote.setText(report.getAdminNote());
     }
 
+    private void fetchReporterExtraInfo(String universityId) {
+        if (universityId == null || tvReporterRole == null) return;
+        SupabaseDatabaseHelper.select("profiles", "university_id=eq." + universityId + "&limit=1", new TypeToken<List<User>>(){}.getType(), new SupabaseDatabaseHelper.DatabaseCallback<List<User>>() {
+            @Override
+            public void onSuccess(List<User> users) {
+                if (users != null && !users.isEmpty()) {
+                    User user = users.get(0);
+                    if (user != null) {
+                        tvReporterRole.setText("Role: " + user.getUserType());
+                        if ("Student".equalsIgnoreCase(user.getUserType())) {
+                            tvReporterDeptDesignation.setText("Department: " + (user.getDepartment() != null ? user.getDepartment() : "N/A"));
+                        } else {
+                            tvReporterDeptDesignation.setText("Designation: " + (user.getDesignation() != null ? user.getDesignation() : "N/A"));
+                        }
+                    }
+                }
+            }
+            @Override public void onFailure(String e) {}
+        });
+    }
+
     /**
      * Helper to apply styling: Label in black, Value in primary theme color.
      */
@@ -310,6 +380,30 @@ public class AdminReportReviewActivity extends AppCompatActivity {
         // Value in Theme Color
         int themeColor = ContextCompat.getColor(this, R.color.primaryColor);
         spannable.setSpan(new ForegroundColorSpan(themeColor), label.length(), fullText.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+        
+        textView.setText(spannable);
+    }
+
+    /**
+     * Helper to apply clickable link styling: Label in black, Value in primary theme color and underlined.
+     */
+    private void applyStyledLinkText(TextView textView, String label, String value) {
+        String fullText = label + value;
+        SpannableString spannable = new SpannableString(fullText);
+        
+        // Label in Black
+        spannable.setSpan(new ForegroundColorSpan(Color.BLACK), 0, label.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+        
+        if (value != null && !value.isEmpty() && !"N/A".equalsIgnoreCase(value)) {
+            // Value in Theme Color & Underlined
+            int themeColor = ContextCompat.getColor(this, R.color.primaryColor);
+            spannable.setSpan(new ForegroundColorSpan(themeColor), label.length(), fullText.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+            spannable.setSpan(new android.text.style.UnderlineSpan(), label.length(), fullText.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+        } else {
+            // Muted color for N/A
+            int mutedColor = ContextCompat.getColor(this, R.color.textSecondary);
+            spannable.setSpan(new ForegroundColorSpan(mutedColor), label.length(), fullText.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+        }
         
         textView.setText(spannable);
     }
@@ -459,6 +553,15 @@ public class AdminReportReviewActivity extends AppCompatActivity {
         updates.put("admin_note", finalAdminNote);
         updates.put("updated_at_timestamp", System.currentTimeMillis());
 
+        final Long reviewTime = System.currentTimeMillis();
+        if ("Reviewed".equalsIgnoreCase(finalStatus)) {
+            updates.put("reviewed_by", currentAdminUnivId);
+            updates.put("review_timestamp", reviewTime);
+        } else {
+            updates.put("reviewed_by", null);
+            updates.put("review_timestamp", null);
+        }
+
         SupabaseDatabaseHelper.update("admin_reports", "id=eq." + reportId, updates, new SupabaseDatabaseHelper.DatabaseCallback<String>() {
             @Override
             public void onSuccess(String result) {
@@ -469,6 +572,13 @@ public class AdminReportReviewActivity extends AppCompatActivity {
                 if (currentReport != null) {
                     currentReport.setStatus(finalStatus);
                     currentReport.setAdminNote(finalAdminNote);
+                    if ("Reviewed".equalsIgnoreCase(finalStatus)) {
+                        currentReport.setReviewedBy(currentAdminUnivId);
+                        currentReport.setReviewTimestamp(reviewTime);
+                    } else {
+                        currentReport.setReviewedBy(null);
+                        currentReport.setReviewTimestamp(null);
+                    }
                     displayReportDetails(currentReport); // Refresh UI state immediately
                 }
                 

@@ -2,6 +2,7 @@
 <androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/reportFoundRoot"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/backgroundColor"
@@ -13,7 +14,8 @@
         android:layout_height="wrap_content"
         android:background="@color/primaryDarkColor"
         android:fitsSystemWindows="true"
-        app:elevation="0dp">
+        app:elevation="0dp"
+        app:liftOnScroll="false">
 
         <com.google.android.material.appbar.MaterialToolbar
             android:id="@+id/toolbar"
@@ -364,20 +366,80 @@
                     android:inputType="textPersonName" />
             </com.google.android.material.textfield.TextInputLayout>
 
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp">
+
+                <!-- Country Code Selection -->
+                <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/tilCountryCode"
+                    style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+                    android:layout_width="153dp"
+                    android:layout_height="0dp"
+                    android:hint="Code"
+                    app:shapeAppearanceOverlay="@style/ShapeAppearance.App.SmallComponent"
+                    app:startIconDrawable="@drawable/ic_phone"
+                    app:startIconTint="@color/primaryColor"
+                    app:endIconMode="none"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="@+id/tilContactPhone"
+                    app:layout_constraintBottom_toBottomOf="@+id/tilContactPhone">
+
+                    <AutoCompleteTextView
+                        android:id="@+id/actvCountryCode"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:minHeight="56dp"
+                        android:paddingTop="16dp"
+                        android:paddingBottom="16dp"
+                        android:inputType="text"
+                        android:textColor="@color/black" />
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <!-- Phone Number Body -->
+                <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/tilContactPhone"
+                    style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:hint="Contact Phone"
+                    app:shapeAppearanceOverlay="@style/ShapeAppearance.App.SmallComponent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toEndOf="@+id/tilCountryCode"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    android:layout_marginStart="8dp">
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/etContactPhone"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:minHeight="56dp"
+                        android:paddingTop="16dp"
+                        android:paddingBottom="16dp"
+                        android:inputType="phone"
+                        android:textColor="@color/black" />
+                </com.google.android.material.textfield.TextInputLayout>
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
             <com.google.android.material.textfield.TextInputLayout
-                android:id="@+id/tilContactPhone"
+                android:id="@+id/tilContactEmail"
                 style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="4dp"
-                android:hint="Contact Phone"
+                android:hint="Contact Email"
+                app:startIconDrawable="@drawable/ic_envelope"
+                app:startIconTint="@color/primaryColor"
                 app:shapeAppearanceOverlay="@style/ShapeAppearance.App.SmallComponent">
 
                 <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/etContactPhone"
+                    android:id="@+id/etContactEmail"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:inputType="phone" />
+                    android:inputType="textEmailAddress"
+                    android:textColor="@color/black" />
             </com.google.android.material.textfield.TextInputLayout>
 
             <com.google.android.material.textfield.TextInputLayout
@@ -412,7 +474,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
-                android:layout_marginBottom="32dp">
+                android:layout_marginBottom="24dp">
 
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/btnSubmitReport"
@@ -430,6 +492,12 @@
                     app:lottie_loop="true"
                     app:lottie_rawRes="@raw/submit_loader" />
             </FrameLayout>
+
+            <View
+                android:id="@+id/keyboardSpacer"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:visibility="gone" />
 
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>

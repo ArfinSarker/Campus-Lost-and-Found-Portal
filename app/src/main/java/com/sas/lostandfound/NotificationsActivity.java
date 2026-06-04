@@ -69,7 +69,10 @@ public class NotificationsActivity extends AppCompatActivity {
                 // Instantly update UI for responsiveness
                 if (!notification.isRead()) {
                     notification.setRead(true);
-                    adapter.notifyDataSetChanged();
+                    int index = notificationList.indexOf(notification);
+                    if (index != -1) {
+                        adapter.notifyItemChanged(index);
+                    }
                     // Update Mark All Read button visibility
                     checkUnreadStatus();
                     
@@ -84,7 +87,10 @@ public class NotificationsActivity extends AppCompatActivity {
                             Log.e("Notifications", "Failed to mark as read in DB: " + e);
                             // On failure, we revert the local state to match DB
                             notification.setRead(false);
-                            adapter.notifyDataSetChanged();
+                            int revertIndex = notificationList.indexOf(notification);
+                            if (revertIndex != -1) {
+                                adapter.notifyItemChanged(revertIndex);
+                            }
                             checkUnreadStatus();
                             SnackbarManager.show(SnackbarManager.Type.ERROR, "Sync failed: status not saved");
                         }
@@ -217,9 +223,7 @@ public class NotificationsActivity extends AppCompatActivity {
                 }
                 Collections.sort(temp, (n1, n2) -> Long.compare(n2.getTimestamp(), n1.getTimestamp()));
                 
-                notificationList.clear();
-                notificationList.addAll(temp);
-                adapter.notifyDataSetChanged();
+                adapter.updateNotifications(temp);
                 
                 llEmptyState.setVisibility(notificationList.isEmpty() ? View.VISIBLE : View.GONE);
                 rvNotifications.setVisibility(notificationList.isEmpty() ? View.GONE : View.VISIBLE);
@@ -262,7 +266,7 @@ public class NotificationsActivity extends AppCompatActivity {
         
         if (unreadBefore.isEmpty()) return;
 
-        adapter.notifyDataSetChanged();
+        adapter.notifyItemRangeChanged(0, notificationList.size());
         btnMarkAllRead.setVisibility(View.GONE);
         SnackbarManager.show(SnackbarManager.Type.SUCCESS, "All marked as read");
 

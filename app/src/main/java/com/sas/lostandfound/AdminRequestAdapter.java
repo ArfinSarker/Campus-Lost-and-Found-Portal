@@ -68,6 +68,43 @@ public class AdminRequestAdapter extends RecyclerView.Adapter<AdminRequestAdapte
         return requests.size();
     }
 
+    public void updateRequests(List<AdminRequest> newRequests) {
+        androidx.recyclerview.widget.DiffUtil.DiffResult diffResult = androidx.recyclerview.widget.DiffUtil.calculateDiff(new androidx.recyclerview.widget.DiffUtil.Callback() {
+            @Override
+            public int getOldListSize() {
+                return requests.size();
+            }
+
+            @Override
+            public int getNewListSize() {
+                return newRequests.size();
+            }
+
+            @Override
+            public boolean areItemsTheSame(int oldItemPosition, int newItemPosition) {
+                AdminRequest oldItem = requests.get(oldItemPosition);
+                AdminRequest newItem = newRequests.get(newItemPosition);
+                return oldItem.getUniversityId() != null && newItem.getUniversityId() != null && oldItem.getUniversityId().equals(newItem.getUniversityId());
+            }
+
+            @Override
+            public boolean areContentsTheSame(int oldItemPosition, int newItemPosition) {
+                AdminRequest oldItem = requests.get(oldItemPosition);
+                AdminRequest newItem = newRequests.get(newItemPosition);
+                return java.util.Objects.equals(oldItem.getFullName(), newItem.getFullName()) &&
+                       java.util.Objects.equals(oldItem.getDesignation(), newItem.getDesignation()) &&
+                       java.util.Objects.equals(oldItem.getEmail(), newItem.getEmail()) &&
+                       java.util.Objects.equals(oldItem.getPhoneNumber(), newItem.getPhoneNumber()) &&
+                       java.util.Objects.equals(oldItem.getVerificationCode(), newItem.getVerificationCode()) &&
+                       java.util.Objects.equals(oldItem.getProfileImageUrl(), newItem.getProfileImageUrl());
+            }
+        });
+
+        this.requests.clear();
+        this.requests.addAll(newRequests);
+        diffResult.dispatchUpdatesTo(this);
+    }
+
     static class ViewHolder extends RecyclerView.ViewHolder {
         TextView tvName, tvId, tvEmail, tvPhone, tvCode, tvDesignation;
         ImageView ivProfile;

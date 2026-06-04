@@ -24,6 +24,9 @@ public class SupabaseStorageHelper {
             .readTimeout(60, TimeUnit.SECONDS)
             .build();
 
+    private static final java.util.concurrent.ExecutorService executor =
+            java.util.concurrent.Executors.newFixedThreadPool(3);
+
     private static final Handler mainHandler = new Handler(Looper.getMainLooper());
 
     public interface UploadCallback {
@@ -37,64 +40,76 @@ public class SupabaseStorageHelper {
     }
 
     public static void uploadImage(Context context, Uri fileUri, String folder, String fileName, UploadCallback callback) {
-        try {
-            InputStream inputStream = context.getContentResolver().openInputStream(fileUri);
-            if (inputStream == null) {
-                callback.onFailure(new IOException("Could not open input stream"));
-                return;
-            }
-
-            byte[] data = readAllBytes(inputStream);
-            inputStream.close();
-
-            // Correct Supabase Storage API URL for uploading
-            String baseUrl = SupabaseConfig.SUPABASE_URL;
-            if (baseUrl.endsWith("/")) {
-                baseUrl = baseUrl.substring(0, baseUrl.length() - 1);
-            }
-            String url = baseUrl + "/storage/v1/object/" + SupabaseConfig.BUCKET_NAME + "/" + folder + "/" + fileName;
-
-            RequestBody requestBody = RequestBody.create(data, MediaType.parse("image/jpeg"));
-
-            Request request = new Request.Builder()
-                    .url(url)
-                    .addHeader("apikey", SupabaseConfig.SUPABASE_KEY)
-                    .addHeader("Authorization", "Bearer " + SupabaseConfig.SUPABASE_KEY)
-                    .post(requestBody)
-                    .build();
-
-            client.newCall(request).enqueue(new Callback() {
-                @Override
-                public void onFailure(Call call, IOException e) {
-                    mainHandler.post(() -> callback.onFailure(e));
+        executor.execute(() -> {
+            try {
+                InputStream inputStream = context.getContentResolver().openInputStream(fileUri);
+                if (inputStream == null) {
+                    mainHandler.post(() -> callback.onFailure(new IOException("Could not open input stream")));
+                    return;
                 }
 
-                @Override
-                public void onResponse(Call call, Response response) throws IOException {
-                    if (response.isSuccessful() || response.code() == 409) { // 409 means file already exists
-                        // Construct the public URL for downloading/viewing
-                        String finalBaseUrl = SupabaseConfig.SUPABASE_URL;
-                        if (finalBaseUrl.endsWith("/")) {
-                            finalBaseUrl = finalBaseUrl.substring(0, finalBaseUrl.length() - 1);
-                        }
-                        String publicUrl = finalBaseUrl + "/storage/v1/object/public/" +
-                                SupabaseConfig.BUCKET_NAME + "/" + folder + "/" + fileName;
-                        
-                        // Append API key as a query parameter for public access if needed
-                        publicUrl += "?apikey=" + SupabaseConfig.SUPABASE_KEY;
-                        
-                        final String finalUrl = publicUrl;
-                        mainHandler.post(() -> callback.onSuccess(finalUrl));
-                    } else {
-                        String errorBody = response.body() != null ? response.body().string() : "Unknown error";
-                        mainHandler.post(() -> callback.onFailure(new IOException("Upload failed: " + response.code() + " " + errorBody)));
+                android.graphics.Bitmap bitmap = android.graphics.BitmapFactory.decodeStream(inputStream);
+                inputStream.close();
+
+                if (bitmap == null) {
+                    mainHandler.post(() -> callback.onFailure(new IOException("Failed to decode Bitmap")));
+                    return;
+                }
+
+                java.io.ByteArrayOutputStream byteBuffer = new java.io.ByteArrayOutputStream();
+                bitmap.compress(android.graphics.Bitmap.CompressFormat.JPEG, 75, byteBuffer);
+                byte[] data = byteBuffer.toByteArray();
+                bitmap.recycle();
+
+                // Correct Supabase Storage API URL for uploading
+                String baseUrl = SupabaseConfig.SUPABASE_URL;
+                if (baseUrl.endsWith("/")) {
+                    baseUrl = baseUrl.substring(0, baseUrl.length() - 1);
+                }
+                String url = baseUrl + "/storage/v1/object/" + SupabaseConfig.BUCKET_NAME + "/" + folder + "/" + fileName;
+
+                RequestBody requestBody = RequestBody.create(data, MediaType.parse("image/jpeg"));
+
+                Request request = new Request.Builder()
+                        .url(url)
+                        .addHeader("apikey", SupabaseConfig.SUPABASE_KEY)
+                        .addHeader("Authorization", "Bearer " + SupabaseConfig.SUPABASE_KEY)
+                        .post(requestBody)
+                        .build();
+
+                client.newCall(request).enqueue(new Callback() {
+                    @Override
+                    public void onFailure(Call call, IOException e) {
+                        mainHandler.post(() -> callback.onFailure(e));
                     }
-                    if (response.body() != null) response.close();
-                }
-            });
-        } catch (Exception e) {
-            callback.onFailure(e);
-        }
+
+                    @Override
+                    public void onResponse(Call call, Response response) throws IOException {
+                        if (response.isSuccessful() || response.code() == 409) { // 409 means file already exists
+                            // Construct the public URL for downloading/viewing
+                            String finalBaseUrl = SupabaseConfig.SUPABASE_URL;
+                            if (finalBaseUrl.endsWith("/")) {
+                                finalBaseUrl = finalBaseUrl.substring(0, finalBaseUrl.length() - 1);
+                            }
+                            String publicUrl = finalBaseUrl + "/storage/v1/object/public/" +
+                                    SupabaseConfig.BUCKET_NAME + "/" + folder + "/" + fileName;
+                            
+                            // Append API key as a query parameter for public access if needed
+                            publicUrl += "?apikey=" + SupabaseConfig.SUPABASE_KEY;
+                            
+                            final String finalUrl = publicUrl;
+                            mainHandler.post(() -> callback.onSuccess(finalUrl));
+                        } else {
+                            String errorBody = response.body() != null ? response.body().string() : "Unknown error";
+                            mainHandler.post(() -> callback.onFailure(new IOException("Upload failed: " + response.code() + " " + errorBody)));
+                        }
+                        if (response.body() != null) response.close();
+                    }
+                });
+            } catch (Exception e) {
+                mainHandler.post(() -> callback.onFailure(e));
+            }
+        });
     }
 
     /**

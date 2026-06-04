@@ -39,6 +39,7 @@ public class ClaimDetailsActivity extends AppCompatActivity {
     private LinearLayout llSection, llBatch, llLevelTerm, llDesignation, llDepartment, llOwnershipVerification, llFoundSpecifics;
     private MaterialButton btnCall, btnEmail, btnMarkReturned;
     private String itemId, senderId, itemStatus, notificationType, currentUnivId;
+    private Item currentItem;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -293,14 +294,16 @@ public class ClaimDetailsActivity extends AppCompatActivity {
             public void onSuccess(List<Item> items) {
                 if (items != null && !items.isEmpty()) {
                     itemStatus = "found";
-                    displayItem(items.get(0));
+                    currentItem = items.get(0);
+                    displayItem(currentItem);
                 } else {
                     SupabaseDatabaseHelper.select("lost_reports", "id=eq." + itemId + "&limit=1", new TypeToken<List<Item>>(){}.getType(), new SupabaseDatabaseHelper.DatabaseCallback<List<Item>>() {
                         @Override
                         public void onSuccess(List<Item> items2) {
                             if (items2 != null && !items2.isEmpty()) {
                                 itemStatus = "lost";
-                                displayItem(items2.get(0));
+                                currentItem = items2.get(0);
+                                displayItem(currentItem);
                             }
                         }
                         @Override public void onFailure(String e) {}
@@ -387,8 +390,12 @@ public class ClaimDetailsActivity extends AppCompatActivity {
                 if (users != null && !users.isEmpty()) {
                     User user = users.get(0);
                     if (user != null) {
-                        item.setUserEmail(user.getEmail());
-                        item.setUserPhone(user.getPhone());
+                        if (item.getUserEmail() == null || item.getUserEmail().isEmpty()) {
+                            item.setUserEmail(user.getEmail());
+                        }
+                        if (item.getUserPhone() == null || item.getUserPhone().isEmpty()) {
+                            item.setUserPhone(user.getPhone());
+                        }
                         setupPreferredContactLink(item, item.getPreferredContactMethod());
                     }
                 }
@@ -514,8 +521,9 @@ public class ClaimDetailsActivity extends AppCompatActivity {
                                         : String.format("\"%s\" has marked that they returned \"%s\" from you. Click to view details.", reporterName, itemName);
 
                                     Notification notification = new Notification(notificationId, senderId, currentUnivId, 
-                                        reporterName, reporter != null ? reporter.getPhone() : "", 
-                                        reporter != null ? reporter.getEmail() : "", 
+                                        reporterName, 
+                                        (currentItem != null && currentItem.getUserPhone() != null && !currentItem.getUserPhone().isEmpty()) ? currentItem.getUserPhone() : (reporter != null ? reporter.getPhone() : ""), 
+                                        (currentItem != null && currentItem.getUserEmail() != null && !currentItem.getUserEmail().isEmpty()) ? currentItem.getUserEmail() : (reporter != null ? reporter.getEmail() : ""), 
                                         reporter != null ? reporter.getProfileImageUrl() : "", 
                                         itemId, itemName, message, System.currentTimeMillis(), type, "");
                                     notification.setItemName(itemName); // Ensure itemName is explicitly set

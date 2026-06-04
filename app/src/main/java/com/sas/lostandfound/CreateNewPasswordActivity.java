@@ -23,6 +23,9 @@ public class CreateNewPasswordActivity extends AppCompatActivity {
     private String resetToken;
     private User currentUser;
     private android.content.res.ColorStateList originalBackgroundTint;
+    private android.widget.ImageButton btnBack;
+    private View keyboardSpacer;
+    private View createNewPasswordRoot;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -31,6 +34,7 @@ public class CreateNewPasswordActivity extends AppCompatActivity {
 
         initializeViews();
         handleIntent(getIntent());
+        setupKeyboardListener();
 
         btnReset.setOnClickListener(v -> validateAndReset());
     }
@@ -49,6 +53,13 @@ public class CreateNewPasswordActivity extends AppCompatActivity {
         tilConfirmPassword = findViewById(R.id.tilConfirmPassword);
         btnReset = findViewById(R.id.btnReset);
         loader = findViewById(R.id.loader);
+        btnBack = findViewById(R.id.btnBack);
+        createNewPasswordRoot = findViewById(R.id.createNewPasswordRoot);
+        keyboardSpacer = findViewById(R.id.keyboardSpacer);
+
+        if (btnBack != null) {
+            btnBack.setOnClickListener(v -> finish());
+        }
 
         ErrorHelper.attachToTextInputLayout(tilNewPassword);
         ErrorHelper.attachToTextInputLayout(tilConfirmPassword);
@@ -215,6 +226,32 @@ public class CreateNewPasswordActivity extends AppCompatActivity {
                 stopLoading();
                 android.util.Log.e("CreateNewPassword", "Reset Failure: " + errorMessage);
                 SnackbarManager.show(SnackbarManager.Type.ERROR, "Failed to update password: " + errorMessage);
+            }
+        });
+    }
+
+    private void setupKeyboardListener() {
+        if (createNewPasswordRoot == null || keyboardSpacer == null) return;
+
+        createNewPasswordRoot.getViewTreeObserver().addOnGlobalLayoutListener(new android.view.ViewTreeObserver.OnGlobalLayoutListener() {
+            @Override
+            public void onGlobalLayout() {
+                android.graphics.Rect r = new android.graphics.Rect();
+                createNewPasswordRoot.getWindowVisibleDisplayFrame(r);
+                int screenHeight = createNewPasswordRoot.getRootView().getHeight();
+                int keypadHeight = screenHeight - r.bottom;
+
+                if (keypadHeight > screenHeight * 0.15) {
+                    if (keyboardSpacer.getVisibility() != View.VISIBLE) {
+                        keyboardSpacer.setVisibility(View.VISIBLE);
+                        keyboardSpacer.getLayoutParams().height = (int) (320 * getResources().getDisplayMetrics().density);
+                        keyboardSpacer.requestLayout();
+                    }
+                } else {
+                    if (keyboardSpacer.getVisibility() != View.GONE) {
+                        keyboardSpacer.setVisibility(View.GONE);
+                    }
+                }
             }
         });
     }

@@ -61,9 +61,9 @@ public class UserRegistrationActivity extends AppCompatActivity {
 
     private EditText etFullName, etUniversityId, etEmail, etPhone,
             etDepartment, etBatch, etPassword, etConfirmPassword, etDesignation, etAdminCode;
-    private AutoCompleteTextView actvLevelTerm, actvUserType;
+    private AutoCompleteTextView actvLevelTerm, actvUserType, actvCountryCode;
     private TextInputLayout tilBatch, tilDepartment, tilLevelTerm, tilDesignation, tilUserType, tilAdminCode, tilUniversityId,
-            tilFullName, tilEmail, tilPhone, tilPassword, tilConfirmPassword;
+            tilFullName, tilEmail, tilPhone, tilPassword, tilConfirmPassword, tilCountryCode;
     private MaterialButton btnCreateAccount;
     private ProgressBar progressBar;
     private ImageView ivProfilePicture;
@@ -92,11 +92,6 @@ public class UserRegistrationActivity extends AppCompatActivity {
         setupPolicyText();
         setupLoginLink();
         setupKeyboardListener();
-        
-        com.google.android.material.appbar.AppBarLayout appBarLayout = findViewById(R.id.appBarLayout);
-        if (appBarLayout != null) {
-            HeaderColorHelper.setup(this, appBarLayout);
-        }
     }
 
     private void initializeViews() {
@@ -125,12 +120,15 @@ public class UserRegistrationActivity extends AppCompatActivity {
         tilPhone = findViewById(R.id.tilPhone);
         tilPassword = findViewById(R.id.tilPassword);
         tilConfirmPassword = findViewById(R.id.tilConfirmPassword);
+        actvCountryCode = findViewById(R.id.actvCountryCode);
+        tilCountryCode = findViewById(R.id.tilCountryCode);
 
         ErrorHelper.attachToTextInputLayout(tilUserType);
         ErrorHelper.attachToTextInputLayout(tilUniversityId);
         ErrorHelper.attachToTextInputLayout(tilFullName);
         ErrorHelper.attachToTextInputLayout(tilEmail);
         ErrorHelper.attachToTextInputLayout(tilPhone);
+        ErrorHelper.attachToTextInputLayout(tilCountryCode);
         ErrorHelper.attachToTextInputLayout(tilDesignation);
         ErrorHelper.attachToTextInputLayout(tilAdminCode);
         ErrorHelper.attachToTextInputLayout(tilBatch);
@@ -165,7 +163,7 @@ public class UserRegistrationActivity extends AppCompatActivity {
                 if (keypadHeight > screenHeight * 0.15) {
                     if (keyboardSpacer.getVisibility() != View.VISIBLE) {
                         keyboardSpacer.setVisibility(View.VISIBLE);
-                        keyboardSpacer.getLayoutParams().height = (int) (200 * getResources().getDisplayMetrics().density);
+                        keyboardSpacer.getLayoutParams().height = (int) (320 * getResources().getDisplayMetrics().density);
                         keyboardSpacer.requestLayout();
                     }
                 } else {
@@ -178,6 +176,14 @@ public class UserRegistrationActivity extends AppCompatActivity {
     }
 
     private void setupDropdowns() {
+        actvCountryCode.setFocusable(false);
+        actvCountryCode.setClickable(true);
+        actvCountryCode.setInputType(android.text.InputType.TYPE_NULL);
+        actvCountryCode.setText(ValidationUtils.getCountryDisplayString("+880"), false);
+        actvCountryCode.setOnClickListener(v -> CountryPickerDialog.show(this, country -> {
+            actvCountryCode.setText(country.getFlagEmoji() + " " + country.getCode(), false);
+        }));
+
         String[] levelTermOptions = {
                 "Level 1 Term I", "Level 1 Term II",
                 "Level 2 Term I", "Level 2 Term II",
@@ -425,7 +431,12 @@ public class UserRegistrationActivity extends AppCompatActivity {
         String universityId = etUniversityId.getText().toString().trim();
         String fullName = etFullName.getText().toString().trim();
         String email = etEmail.getText().toString().trim();
-        String phone = etPhone.getText().toString().trim();
+        
+        String selectedCountryCode = actvCountryCode.getText().toString().trim();
+        String code = ValidationUtils.extractCountryCode(selectedCountryCode);
+        String phoneBody = etPhone.getText().toString().trim();
+        String phone = code + phoneBody;
+
         String password = etPassword.getText().toString().trim();
         String confirmPassword = etConfirmPassword.getText().toString().trim();
         String userType = actvUserType.getText().toString().trim();
@@ -456,8 +467,8 @@ public class UserRegistrationActivity extends AppCompatActivity {
             return;
         }
 
-        if (!ValidationUtils.isValidPhone(phone)) {
-            ErrorHelper.setFieldError(tilPhone, "Please enter a valid phone number (11 digits)");
+        if (!ValidationUtils.isValidPhone(code, phoneBody)) {
+            ErrorHelper.setFieldError(tilPhone, "Please enter a valid phone number");
             return;
         }
 
@@ -602,7 +613,7 @@ public class UserRegistrationActivity extends AppCompatActivity {
                         public void onSuccess(String publicUrl) {
                             Log.d("UserRegistration", "Profile image upload success: " + publicUrl);
                             if ("Admin".equals(userType)) {
-                                saveAdminRequest(universityId, fullName, email, etPhone.getText().toString().trim(), etDesignation.getText().toString().trim(), etDepartment.getText().toString().trim(), etAdminCode.getText().toString().trim(), password, publicUrl, authId);
+                                saveAdminRequest(universityId, fullName, email, getFormattedPhoneNumber(), etDesignation.getText().toString().trim(), etDepartment.getText().toString().trim(), etAdminCode.getText().toString().trim(), password, publicUrl, authId);
                             } else {
                                 saveUser(dbUserId, authId, publicUrl, universityId, fullName, email, password, userType);
                             }
@@ -616,7 +627,7 @@ public class UserRegistrationActivity extends AppCompatActivity {
                                     "Profile image upload failed. Continuing without image."
                             );
                             if ("Admin".equals(userType)) {
-                                saveAdminRequest(universityId, fullName, email, etPhone.getText().toString().trim(), etDesignation.getText().toString().trim(), etDepartment.getText().toString().trim(), etAdminCode.getText().toString().trim(), password, null, authId);
+                                saveAdminRequest(universityId, fullName, email, getFormattedPhoneNumber(), etDesignation.getText().toString().trim(), etDepartment.getText().toString().trim(), etAdminCode.getText().toString().trim(), password, null, authId);
                             } else {
                                 saveUser(dbUserId, authId, null, universityId, fullName, email, password, userType);
                             }
@@ -625,7 +636,7 @@ public class UserRegistrationActivity extends AppCompatActivity {
                 } else {
                     Log.d("UserRegistration", "No profile image, saving user data");
                     if ("Admin".equals(userType)) {
-                        saveAdminRequest(universityId, fullName, email, etPhone.getText().toString().trim(), etDesignation.getText().toString().trim(), etDepartment.getText().toString().trim(), etAdminCode.getText().toString().trim(), password, null, authId);
+                        saveAdminRequest(universityId, fullName, email, getFormattedPhoneNumber(), etDesignation.getText().toString().trim(), etDepartment.getText().toString().trim(), etAdminCode.getText().toString().trim(), password, null, authId);
                     } else {
                         saveUser(dbUserId, authId, null, universityId, fullName, email, password, userType);
                     }
@@ -648,7 +659,7 @@ public class UserRegistrationActivity extends AppCompatActivity {
 
     private void saveUser(String universityIdKey, String authId, String imageUrl, String universityId, String fullName, String email, String password, String userType) {
         Log.d("UserRegistration", "Saving user data. UID: " + authId + ", UnivID: " + universityIdKey + ", Type: " + userType);
-        String phone = etPhone.getText().toString().trim();
+        String phone = getFormattedPhoneNumber();
 
         User user;
         if ("Student".equals(userType)) {
@@ -678,5 +689,13 @@ public class UserRegistrationActivity extends AppCompatActivity {
                 ErrorHelper.showError(btnCreateAccount, "Database error: " + errorMessage);
             }
         });
+    }
+
+    private String getFormattedPhoneNumber() {
+        if (actvCountryCode == null || etPhone == null) return "";
+        String selectedCountryCode = actvCountryCode.getText().toString().trim();
+        String code = ValidationUtils.extractCountryCode(selectedCountryCode);
+        String phoneBody = etPhone.getText().toString().trim();
+        return code + phoneBody;
     }
 }

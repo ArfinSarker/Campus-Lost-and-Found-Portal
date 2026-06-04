@@ -35,8 +35,8 @@ public class AdminReport {
     @SerializedName("phone")
     private String phone;
     
-    @SerializedName("priority")
-    private String priority;
+    @SerializedName("email")
+    private String email;
     
     @SerializedName("status")
     private String status;
@@ -59,26 +59,31 @@ public class AdminReport {
     @SerializedName("deleted_by_user")
     private boolean deletedByUser;
 
+    @SerializedName("reviewed_by")
+    private String reviewedBy;
+
+    @SerializedName("review_timestamp")
+    private Long reviewTimestamp;
+
     public AdminReport() {
         this.imageUrls = new ArrayList<>();
         this.timestamp = System.currentTimeMillis();
         this.updatedAt = System.currentTimeMillis();
     }
 
-    public AdminReport(String id, String title, String category, String description, String relatedId, String reporterAuthId, String priority) {
+    public AdminReport(String id, String title, String category, String description, String relatedId, String reporterAuthId) {
         this.id = id;
         this.title = title;
         this.category = category;
         this.description = description;
         this.relatedId = relatedId;
         this.reporterAuthId = reporterAuthId;
-        this.priority = priority;
         this.status = "Pending";
         this.imageUrls = new ArrayList<>();
         this.timestamp = System.currentTimeMillis();
     }
 
-    public AdminReport(String id, String displayId, String title, String category, String description, String relatedId, String reporterName, String universityId, String reporterAuthId, String phone, String imageUrl, String priority, String status, long timestamp) {
+    public AdminReport(String id, String displayId, String title, String category, String description, String relatedId, String reporterName, String universityId, String reporterAuthId, String phone, String imageUrl, String status, long timestamp) {
         this.id = id;
         this.displayId = displayId;
         this.title = title;
@@ -90,7 +95,6 @@ public class AdminReport {
         this.reporterAuthId = reporterAuthId;
         this.phone = phone;
         this.imageUrl = imageUrl;
-        this.priority = priority;
         this.status = status;
         this.timestamp = timestamp;
         this.imageUrls = new ArrayList<>();
@@ -120,8 +124,7 @@ public class AdminReport {
     public String getReporterAuthId() { return reporterAuthId; }
     public void setReporterAuthId(String id) { this.reporterAuthId = id; }
 
-    public String getPriority() { return priority; }
-    public void setPriority(String p) { this.priority = p; }
+
 
     public String getStatus() { return status; }
     public void setStatus(String s) { this.status = s; }
@@ -157,6 +160,15 @@ public class AdminReport {
     public String getPhone() { return phone; }
     public void setPhone(String p) { this.phone = p; }
 
+    public String getEmail() { return email; }
+    public void setEmail(String email) { this.email = email; }
+
     public boolean isDeletedByUser() { return deletedByUser; }
     public void setDeletedByUser(boolean deletedByUser) { this.deletedByUser = deletedByUser; }
+
+    public String getReviewedBy() { return reviewedBy; }
+    public void setReviewedBy(String reviewedBy) { this.reviewedBy = reviewedBy; }
+
+    public Long getReviewTimestamp() { return reviewTimestamp; }
+    public void setReviewTimestamp(Long reviewTimestamp) { this.reviewTimestamp = reviewTimestamp; }
 }

@@ -341,4 +341,39 @@ public class NotificationAdapter extends RecyclerView.Adapter<NotificationAdapte
             ivIcon = itemView.findViewById(R.id.ivNotificationIcon);
         }
     }
+
+    public void updateNotifications(List<Notification> newNotifications) {
+        androidx.recyclerview.widget.DiffUtil.DiffResult diffResult = androidx.recyclerview.widget.DiffUtil.calculateDiff(new androidx.recyclerview.widget.DiffUtil.Callback() {
+            @Override
+            public int getOldListSize() {
+                return notifications.size();
+            }
+
+            @Override
+            public int getNewListSize() {
+                return newNotifications.size();
+            }
+
+            @Override
+            public boolean areItemsTheSame(int oldItemPosition, int newItemPosition) {
+                Notification oldItem = notifications.get(oldItemPosition);
+                Notification newItem = newNotifications.get(newItemPosition);
+                return oldItem.getId() != null && newItem.getId() != null && oldItem.getId().equals(newItem.getId());
+            }
+
+            @Override
+            public boolean areContentsTheSame(int oldItemPosition, int newItemPosition) {
+                Notification oldItem = notifications.get(oldItemPosition);
+                Notification newItem = newNotifications.get(newItemPosition);
+                return oldItem.isRead() == newItem.isRead() &&
+                       java.util.Objects.equals(oldItem.getMessage(), newItem.getMessage()) &&
+                       java.util.Objects.equals(oldItem.getType(), newItem.getType()) &&
+                       oldItem.getTimestamp() == newItem.getTimestamp();
+            }
+        });
+
+        this.notifications.clear();
+        this.notifications.addAll(newNotifications);
+        diffResult.dispatchUpdatesTo(this);
+    }
 }

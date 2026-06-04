@@ -11,6 +11,8 @@ import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 import com.google.gson.reflect.TypeToken;
 import java.util.List;
+import android.graphics.Rect;
+import android.view.ViewTreeObserver;
 
 public class ForgotPasswordActivity extends AppCompatActivity {
 
@@ -19,8 +21,9 @@ public class ForgotPasswordActivity extends AppCompatActivity {
     private MaterialButton btnSubmit, btnOkay;
     private LinearLayout llInputFields, llSuccessState;
     private LottieAnimationView loader;
-    private Toolbar toolbar;
     private android.content.res.ColorStateList originalBackgroundTint;
+    private View keyboardSpacer;
+    private View forgotPasswordRoot;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -29,6 +32,7 @@ public class ForgotPasswordActivity extends AppCompatActivity {
 
         initializeViews();
         setupToolbar();
+        setupKeyboardListener();
 
         btnSubmit.setOnClickListener(v -> validateAndReset());
         btnOkay.setOnClickListener(v -> finish());
@@ -44,19 +48,18 @@ public class ForgotPasswordActivity extends AppCompatActivity {
         llInputFields = findViewById(R.id.llInputFields);
         llSuccessState = findViewById(R.id.llSuccessState);
         loader = findViewById(R.id.loader);
-        toolbar = findViewById(R.id.toolbar);
+        forgotPasswordRoot = findViewById(R.id.forgotPasswordRoot);
+        keyboardSpacer = findViewById(R.id.keyboardSpacer);
 
         ErrorHelper.attachToTextInputLayout(tilUniversityId);
         ErrorHelper.attachToTextInputLayout(tilEmail);
     }
 
     private void setupToolbar() {
-        setSupportActionBar(toolbar);
-        if (getSupportActionBar() != null) {
-            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-            getSupportActionBar().setDisplayShowTitleEnabled(false);
+        View btnBack = findViewById(R.id.btnBack);
+        if (btnBack != null) {
+            btnBack.setOnClickListener(v -> finish());
         }
-        toolbar.setNavigationOnClickListener(v -> finish());
     }
 
     private void startLoading() {
@@ -111,7 +114,7 @@ public class ForgotPasswordActivity extends AppCompatActivity {
                     } else {
                         // Case 2: ID exists but Email is incorrect
                         stopLoading();
-                        SnackbarManager.show(SnackbarManager.Type.ERROR, "Incorrect email address. Please try again with the correct email.");
+                        ErrorHelper.setFieldError(tilEmail, "Incorrect email address. Please try again with the correct email.");
                     }
                 } else {
                     // University ID doesn't exist, now check if Email exists for Case 3
@@ -134,10 +137,12 @@ public class ForgotPasswordActivity extends AppCompatActivity {
                 stopLoading();
                 if (users != null && !users.isEmpty()) {
                     // Case 3: Email exists but University ID is incorrect
-                    SnackbarManager.show(SnackbarManager.Type.ERROR, "Invalid University ID. Please try again with the correct University ID.");
+                    ErrorHelper.setFieldError(tilUniversityId, "Invalid University ID. Please try again with the correct University ID.");
                 } else {
                     // Case 1: Neither exist (or at least not together)
-                    SnackbarManager.show(SnackbarManager.Type.ERROR, "This user account does not exist. Please create an account first.");
+                    ErrorHelper.setFieldError(tilUniversityId, "This user account does not exist. Please create an account first.");
+                    tilEmail.setError("This user account does not exist. Please create an account first.");
+                    tilEmail.setBoxBackgroundColor(androidx.core.content.ContextCompat.getColor(ForgotPasswordActivity.this, R.color.error_light_bg));
                 }
             }
 
@@ -203,5 +208,31 @@ public class ForgotPasswordActivity extends AppCompatActivity {
     private void showSuccessState() {
         llInputFields.setVisibility(View.GONE);
         llSuccessState.setVisibility(View.VISIBLE);
+    }
+
+    private void setupKeyboardListener() {
+        if (forgotPasswordRoot == null || keyboardSpacer == null) return;
+
+        forgotPasswordRoot.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+            @Override
+            public void onGlobalLayout() {
+                Rect r = new Rect();
+                forgotPasswordRoot.getWindowVisibleDisplayFrame(r);
+                int screenHeight = forgotPasswordRoot.getRootView().getHeight();
+                int keypadHeight = screenHeight - r.bottom;
+
+                if (keypadHeight > screenHeight * 0.15) {
+                    if (keyboardSpacer.getVisibility() != View.VISIBLE) {
+                        keyboardSpacer.setVisibility(View.VISIBLE);
+                        keyboardSpacer.getLayoutParams().height = (int) (320 * getResources().getDisplayMetrics().density);
+                        keyboardSpacer.requestLayout();
+                    }
+                } else {
+                    if (keyboardSpacer.getVisibility() != View.GONE) {
+                        keyboardSpacer.setVisibility(View.GONE);
+                    }
+                }
+            }
+        });
     }
 }

@@ -68,7 +68,11 @@ public class ManageItemsActivity extends AppCompatActivity implements ItemAdapte
                 finish();
             }
         });
+    }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
         fetchData();
     }
 
@@ -240,7 +244,7 @@ public class ManageItemsActivity extends AppCompatActivity implements ItemAdapte
         String query = etSearch.getText().toString().toLowerCase().trim();
         int checkedChipId = chipGroupFilter.getCheckedChipId();
 
-        filteredList.clear();
+        List<Item> temp = new ArrayList<>();
         for (Item item : allItems) {
             String name = item.getName() != null ? item.getName().toLowerCase() : "";
             String userId = item.getUserId() != null ? item.getUserId().toLowerCase() : "";
@@ -263,11 +267,11 @@ public class ManageItemsActivity extends AppCompatActivity implements ItemAdapte
             }
 
             if (matchesSearch && matchesStatus) {
-                filteredList.add(item);
+                temp.add(item);
             }
         }
 
-        adapter.notifyDataSetChanged();
+        adapter.updateItems(temp);
         llEmptyState.setVisibility(filteredList.isEmpty() ? View.VISIBLE : View.GONE);
     }
 }

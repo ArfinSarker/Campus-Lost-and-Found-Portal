@@ -33,3 +33,7 @@ Thumbs.db
 # Firebase Rules (Optional, keep if you want them versioned, but user wanted to prevent data exposure)
 # database.rules.json
 new.json
+
+# Local Deno
+.deno/
+

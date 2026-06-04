@@ -13,7 +13,9 @@ import android.text.Spanned;
 import android.text.TextPaint;
 import android.text.method.LinkMovementMethod;
 import android.text.style.ClickableSpan;
+import android.graphics.Rect;
 import android.view.View;
+import android.view.ViewTreeObserver;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import com.airbnb.lottie.LottieAnimationView;
@@ -39,9 +41,11 @@ public class UserLoginActivity extends AppCompatActivity {
     private MaterialButton btnLogin;
     private LottieAnimationView loader;
     private TextView tvForgotPassword, tvRegister;
-    private MaterialToolbar toolbar;
+    private android.widget.ImageButton btnBack;
     private AppBarLayout appBarLayout;
     private android.content.res.ColorStateList originalBackgroundTint;
+    private View keyboardSpacer;
+    private View loginRoot;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -52,6 +56,7 @@ public class UserLoginActivity extends AppCompatActivity {
         setupUserTypeDropdown();
         setupToolbar();
         setupClickableRegister();
+        setupKeyboardListener();
 
         btnLogin.setOnClickListener(v -> loginUser());
 
@@ -76,8 +81,10 @@ public class UserLoginActivity extends AppCompatActivity {
         loader = findViewById(R.id.loginLoader);
         tvForgotPassword = findViewById(R.id.tvForgotPassword);
         tvRegister = findViewById(R.id.tvRegister);
-        toolbar = findViewById(R.id.toolbar);
+        btnBack = findViewById(R.id.btnBack);
         appBarLayout = findViewById(R.id.appBarLayout);
+        loginRoot = findViewById(R.id.loginRoot);
+        keyboardSpacer = findViewById(R.id.keyboardSpacer);
     }
 
     private void setupUserTypeDropdown() {
@@ -88,21 +95,13 @@ public class UserLoginActivity extends AppCompatActivity {
     }
 
     private void setupToolbar() {
-        if (toolbar != null) {
-            setSupportActionBar(toolbar);
-            if (getSupportActionBar() != null) {
-                getSupportActionBar().setDisplayShowTitleEnabled(false);
-            }
-            toolbar.setNavigationOnClickListener(v -> {
+        if (btnBack != null) {
+            btnBack.setOnClickListener(v -> {
                 Intent intent = new Intent(UserLoginActivity.this, DashboardActivity.class);
                 intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
                 startActivity(intent);
                 finish();
             });
-
-            if (appBarLayout != null) {
-                HeaderColorHelper.setup(this, appBarLayout, toolbar);
-            }
         }
     }
 
@@ -204,7 +203,7 @@ public class UserLoginActivity extends AppCompatActivity {
                         return;
                     }
 
-                    performSupabaseLogin(user.getEmail(), password, userType, dbIsAdmin, universityId);
+                    performSupabaseLogin(user.getEmail(), password, userType, dbIsAdmin, universityId, user);
 
                 } catch (Exception e) {
                     stopLoading();
@@ -241,12 +240,12 @@ public class UserLoginActivity extends AppCompatActivity {
         });
     }
 
-    private void performSupabaseLogin(String email, String password, String userType, boolean isMainAdmin, String dbId) {
+    private void performSupabaseLogin(String email, String password, String userType, boolean isMainAdmin, String dbId, User user) {
 
         SupabaseAuthHelper.login(email, password, new SupabaseAuthHelper.AuthCallback() {
             @Override
             public void onSuccess(String userId, String accessToken, String refreshToken) {
-                saveLoginState(userType, isMainAdmin, dbId, userId, accessToken, refreshToken);
+                saveLoginState(userType, isMainAdmin, dbId, userId, accessToken, refreshToken, user);
                 ModeManager.setMode(UserLoginActivity.this, ModeManager.MODE_USER);
                 SnackbarManager.show(SnackbarManager.Type.SUCCESS, "Login successful");
 
@@ -264,9 +263,9 @@ public class UserLoginActivity extends AppCompatActivity {
         });
     }
 
-    private void saveLoginState(String userType, boolean isMainAdmin, String dbId, String authId, String accessToken, String refreshToken) {
+    private void saveLoginState(String userType, boolean isMainAdmin, String dbId, String authId, String accessToken, String refreshToken, User user) {
         SharedPreferences prefs = getSharedPreferences("MyApp", MODE_PRIVATE);
-        prefs.edit()
+        SharedPreferences.Editor editor = prefs.edit()
                 .putString("userType", userType)
                 .putBoolean("isAdminLoggedIn", "Admin".equalsIgnoreCase(userType) || isMainAdmin)
                 .putBoolean("isMainAdmin", "Admin".equalsIgnoreCase(userType) || isMainAdmin)
@@ -274,8 +273,26 @@ public class UserLoginActivity extends AppCompatActivity {
                 .putString("adminId", dbId)
                 .putString("authId", authId)
                 .putString("accessToken", accessToken)
-                .putString("refreshToken", refreshToken)
-                .apply();
+                .putString("refreshToken", refreshToken);
+
+        if (user != null) {
+            String name = user.getName();
+            if (name == null || name.trim().isEmpty()) {
+                name = user.getFullName();
+            }
+            editor.putString("cachedUserName", name)
+                  .putString("cachedUserEmail", user.getEmail())
+                  .putString("cachedUserPhone", user.getPhone())
+                  .putString("cachedUserGender", user.getGender())
+                  .putString("cachedUserDepartment", user.getDepartment())
+                  .putString("cachedUserBatch", user.getBatch())
+                  .putString("cachedUserLevelTerm", user.getLevelTerm())
+                  .putString("cachedUserSection", user.getSection())
+                  .putString("cachedUserDesignation", user.getDesignation())
+                  .putString("cachedProfileImageUrl", user.getProfileImageUrl());
+        }
+
+        editor.apply();
         
         // Update helper with token
         SupabaseDatabaseHelper.setAuthToken(accessToken);
@@ -313,5 +330,38 @@ public class UserLoginActivity extends AppCompatActivity {
 
         tvRegister.setText(ss);
         tvRegister.setMovementMethod(LinkMovementMethod.getInstance());
+    }
+
+    private void setupKeyboardListener() {
+        if (loginRoot == null || keyboardSpacer == null) return;
+
+        loginRoot.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+            @Override
+            public void onGlobalLayout() {
+                Rect r = new Rect();
+                loginRoot.getWindowVisibleDisplayFrame(r);
+                int screenHeight = loginRoot.getRootView().getHeight();
+                int keypadHeight = screenHeight - r.bottom;
+
+                if (keypadHeight > screenHeight * 0.15) {
+                    if (keyboardSpacer.getVisibility() != View.VISIBLE) {
+                        keyboardSpacer.setVisibility(View.VISIBLE);
+                    }
+                    // tvRegister has android:layout_marginBottom="24dp".
+                    // To stop scrolling EXACTLY at the Register text without any extra space,
+                    // we set the spacer height to keypadHeight minus the tvRegister bottom margin.
+                    int tvRegisterMarginBottom = (int) (24 * getResources().getDisplayMetrics().density);
+                    int targetHeight = Math.max(0, keypadHeight - tvRegisterMarginBottom);
+                    if (keyboardSpacer.getLayoutParams().height != targetHeight) {
+                        keyboardSpacer.getLayoutParams().height = targetHeight;
+                        keyboardSpacer.requestLayout();
+                    }
+                } else {
+                    if (keyboardSpacer.getVisibility() != View.GONE) {
+                        keyboardSpacer.setVisibility(View.GONE);
+                    }
+                }
+            }
+        });
     }
 }

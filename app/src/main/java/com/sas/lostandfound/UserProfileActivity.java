@@ -13,7 +13,9 @@ import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.util.Patterns;
+import android.graphics.Rect;
 import android.view.View;
+import android.view.ViewTreeObserver;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.ImageView;
@@ -53,9 +55,9 @@ public class UserProfileActivity extends AppCompatActivity {
 
     private ImageView ivProfilePicture;
     private FloatingActionButton fabChangePhoto;
-    private TextInputLayout tilEmail, tilPhone, tilDepartment, tilGender, tilBatch, tilLevelTerm, tilSection, tilOldPassword, tilNewPassword, tilConfirmPassword, tilDesignation, tilFullName, tilUniversityId;
+    private TextInputLayout tilEmail, tilPhone, tilDepartment, tilGender, tilBatch, tilLevelTerm, tilSection, tilOldPassword, tilNewPassword, tilConfirmPassword, tilDesignation, tilFullName, tilUniversityId, tilCountryCode;
     private TextInputEditText etEmail, etPhone, etFullName, etUniversityId, etBatch, etOldPassword, etNewPassword, etConfirmPassword, etDesignation, etDepartment;
-    private AutoCompleteTextView actvGender, actvLevelTerm, actvSection;
+    private AutoCompleteTextView actvGender, actvLevelTerm, actvSection, actvCountryCode;
     private MaterialButton btnSaveChanges, btnConfirmPasswordChange, btnDeleteUser;
     private com.airbnb.lottie.LottieAnimationView loadingAnimation;
     private ProgressBar progressBar;
@@ -81,6 +83,8 @@ public class UserProfileActivity extends AppCompatActivity {
     private boolean isViewOnly = false;
     private boolean fromDrawer = false;
     private String targetUserId;
+    private View keyboardSpacer;
+    private View userProfileRoot;
 
     // Real-time listeners were removed in favor of Supabase REST calls
     // private ValueEventListener lostListener, foundListener, itemsListener;
@@ -98,6 +102,7 @@ public class UserProfileActivity extends AppCompatActivity {
         initializeViews();
         setupToolbar();
         setupSwipeRefresh();
+        setupKeyboardListener();
 
         // Initial Role-based UI setup from SharedPreferences for immediate response
         android.content.SharedPreferences prefs = getSharedPreferences("MyApp", MODE_PRIVATE);
@@ -115,7 +120,37 @@ public class UserProfileActivity extends AppCompatActivity {
 
         // Critical: Initialize mode immediately to prevent flickering of edit icons
         if ((isAdminViewing || isViewOnly) && targetUserId != null) {
+            currentUniversityId = targetUserId;
             setupAdminView();
+
+            // Instantly render basic details from Intent to prevent lag/empty screen
+            String intentName = getIntent().getStringExtra("intentFullName");
+            String intentUserType = getIntent().getStringExtra("intentUserType");
+            String intentProfileUrl = getIntent().getStringExtra("intentProfileImageUrl");
+
+            if (intentName != null) {
+                etFullName.setText(intentName);
+                tvHeaderTitle.setText(intentName + "'s Profile");
+            }
+            if (currentUniversityId != null) {
+                etUniversityId.setText(currentUniversityId);
+            }
+            if (intentUserType != null) {
+                ProfileRoleHelper.applyRoleVisibility(intentUserType, tilDesignation, tilBatch, tilLevelTerm, tilDepartment, tilSection);
+            }
+            if (intentProfileUrl != null && !intentProfileUrl.isEmpty()) {
+                GlideApp.with(this)
+                        .load(intentProfileUrl)
+                        .placeholder(R.drawable.ic_user)
+                        .thumbnail(0.1f)
+                        .diskCacheStrategy(DiskCacheStrategy.ALL)
+                        .circleCrop()
+                        .into(ivProfilePicture);
+            } else {
+                ivProfilePicture.setImageResource(R.drawable.ic_user);
+            }
+        } else {
+            loadCachedUserData();
         }
     }
 
@@ -211,6 +246,7 @@ public class UserProfileActivity extends AppCompatActivity {
         etFullName.setEnabled(false);
         etEmail.setEnabled(false);
         etPhone.setEnabled(false);
+        if (actvCountryCode != null) actvCountryCode.setEnabled(false);
         actvGender.setEnabled(false);
         etBatch.setEnabled(false);
         actvLevelTerm.setEnabled(false);
@@ -257,7 +293,7 @@ public class UserProfileActivity extends AppCompatActivity {
         AtomicLong resolvedCount = new AtomicLong(0);
 
         // 1. Parallel Lost Reports Count
-        SupabaseDatabaseHelper.select("lost_reports", "reporter_id=eq." + userId + "&select=count", new TypeToken<List<Map<String, Object>>>(){}.getType(), new SupabaseDatabaseHelper.DatabaseCallback<List<Map<String, Object>>>() {
+        SupabaseDatabaseHelper.select("lost_reports", "reporter_id=eq." + userId + "&deleted_by_user=eq.false&select=count", new TypeToken<List<Map<String, Object>>>(){}.getType(), new SupabaseDatabaseHelper.DatabaseCallback<List<Map<String, Object>>>() {
             @Override
             public void onSuccess(List<Map<String, Object>> result) {
                 if (result != null && !result.isEmpty()) {
@@ -271,7 +307,7 @@ public class UserProfileActivity extends AppCompatActivity {
         });
 
         // 2. Parallel Found Reports Count
-        SupabaseDatabaseHelper.select("found_reports", "reporter_id=eq." + userId + "&select=count", new TypeToken<List<Map<String, Object>>>(){}.getType(), new SupabaseDatabaseHelper.DatabaseCallback<List<Map<String, Object>>>() {
+        SupabaseDatabaseHelper.select("found_reports", "reporter_id=eq." + userId + "&deleted_by_user=eq.false&select=count", new TypeToken<List<Map<String, Object>>>(){}.getType(), new SupabaseDatabaseHelper.DatabaseCallback<List<Map<String, Object>>>() {
             @Override
             public void onSuccess(List<Map<String, Object>> result) {
                 if (result != null && !result.isEmpty()) {
@@ -287,27 +323,13 @@ public class UserProfileActivity extends AppCompatActivity {
         // 3. Parallel Returned Items Count
         String q = "or=(claimed_by_id.eq." + userId + ",and(reporter_id.eq." + userId + ",admin_status.eq.Returned))";
         
-        SupabaseDatabaseHelper.select("lost_reports", q + "&select=count", new TypeToken<List<Map<String, Object>>>(){}.getType(), new SupabaseDatabaseHelper.DatabaseCallback<List<Map<String, Object>>>() {
+        SupabaseDatabaseHelper.select("reports", q + "&deleted_by_user=eq.false&select=count", new TypeToken<List<Map<String, Object>>>(){}.getType(), new SupabaseDatabaseHelper.DatabaseCallback<List<Map<String, Object>>>() {
             @Override
             public void onSuccess(List<Map<String, Object>> result) {
                 if (result != null && !result.isEmpty()) {
                     Object countObj = result.get(0).get("count");
-                    resolvedCount.addAndGet((countObj instanceof Number) ? ((Number) countObj).longValue() : 0);
-                    updateResolvedUI(resolvedCount.get());
-                }
-            }
-            @Override public void onFailure(String errorMessage) {}
-        });
-
-        SupabaseDatabaseHelper.select("found_reports", q + "&select=count", new TypeToken<List<Map<String, Object>>>(){}.getType(), new SupabaseDatabaseHelper.DatabaseCallback<List<Map<String, Object>>>() {
-            @Override
-            public void onSuccess(List<Map<String, Object>> result2) {
-                if (result2 != null && !result2.isEmpty()) {
-                    Object countObj2 = result2.get(0).get("count2"); // Supabase count might be different in parallel if not careful, but here it's fine
-                    // Wait, actually count result is always "count" field in my helper
-                    countObj2 = result2.get(0).get("count");
-                    resolvedCount.addAndGet((countObj2 instanceof Number) ? ((Number) countObj2).longValue() : 0);
-                    updateResolvedUI(resolvedCount.get());
+                    long count = (countObj instanceof Number) ? ((Number) countObj).longValue() : 0;
+                    updateResolvedUI(count);
                 }
             }
             @Override public void onFailure(String errorMessage) {}
@@ -340,9 +362,12 @@ public class UserProfileActivity extends AppCompatActivity {
 
     private void deleteUserFromDatabase() {
         showLoading(true);
-        SupabaseDatabaseHelper.delete("profiles", "university_id=eq." + currentUniversityId, new SupabaseDatabaseHelper.DatabaseCallback<Void>() {
+        Map<String, Object> params = new HashMap<>();
+        params.put("target_university_id", currentUniversityId);
+
+        SupabaseDatabaseHelper.rpc("delete_user_by_admin", params, new SupabaseDatabaseHelper.DatabaseCallback<String>() {
             @Override
-            public void onSuccess(Void result) {
+            public void onSuccess(String result) {
                 showLoading(false);
                 SnackbarManager.show(SnackbarManager.Type.SUCCESS, "User deleted successfully");
                 finish();
@@ -413,6 +438,7 @@ public class UserProfileActivity extends AppCompatActivity {
         tilFullName = findViewById(R.id.tilFullName);
         tilEmail = findViewById(R.id.tilEmail);
         tilPhone = findViewById(R.id.tilPhone);
+        tilCountryCode = findViewById(R.id.tilCountryCode);
         tilDepartment = findViewById(R.id.tilDepartment);
         tilGender = findViewById(R.id.tilGender);
         tilBatch = findViewById(R.id.tilBatch);
@@ -427,6 +453,7 @@ public class UserProfileActivity extends AppCompatActivity {
         ErrorHelper.attachToTextInputLayout(tilFullName);
         ErrorHelper.attachToTextInputLayout(tilEmail);
         ErrorHelper.attachToTextInputLayout(tilPhone);
+        ErrorHelper.attachToTextInputLayout(tilCountryCode);
         ErrorHelper.attachToTextInputLayout(tilDepartment);
         ErrorHelper.attachToTextInputLayout(tilGender);
         ErrorHelper.attachToTextInputLayout(tilBatch);
@@ -439,6 +466,7 @@ public class UserProfileActivity extends AppCompatActivity {
 
         etEmail = findViewById(R.id.etEmail);
         etPhone = findViewById(R.id.etPhone);
+        actvCountryCode = findViewById(R.id.actvCountryCode);
         etFullName = findViewById(R.id.etFullName);
         etUniversityId = findViewById(R.id.etUniversityId);
         actvGender = findViewById(R.id.actvGender);
@@ -470,6 +498,8 @@ public class UserProfileActivity extends AppCompatActivity {
             etFullName.setFocusable(false);
             etEmail.setFocusable(false);
             etPhone.setFocusable(false);
+            actvCountryCode.setFocusable(false);
+            actvCountryCode.setEnabled(false);
             actvGender.setFocusable(false);
             etBatch.setFocusable(false);
             actvLevelTerm.setFocusable(false);
@@ -478,6 +508,9 @@ public class UserProfileActivity extends AppCompatActivity {
             etDesignation.setFocusable(false);
             etUniversityId.setFocusable(false);
         }
+
+        userProfileRoot = findViewById(R.id.userProfileRoot);
+        keyboardSpacer = findViewById(R.id.keyboardSpacer);
     }
 
     private void setupToolbar() {
@@ -490,14 +523,26 @@ public class UserProfileActivity extends AppCompatActivity {
             }
             toolbar.setNavigationOnClickListener(v -> handleBackNavigation());
             
-            com.google.android.material.appbar.AppBarLayout appBarLayout = findViewById(R.id.appBarLayout);
-            if (appBarLayout != null) {
-                HeaderColorHelper.setup(this, appBarLayout, toolbar);
-            }
+            // HeaderColorHelper setup is commented out to lock the header bar statically in color/height
+            // com.google.android.material.appbar.AppBarLayout appBarLayout = findViewById(R.id.appBarLayout);
+            // if (appBarLayout != null) {
+            //     HeaderColorHelper.setup(this, appBarLayout, toolbar);
+            // }
         }
     }
 
     private void setupDropdowns() {
+        actvCountryCode.setFocusable(false);
+        actvCountryCode.setClickable(true);
+        actvCountryCode.setInputType(android.text.InputType.TYPE_NULL);
+        actvCountryCode.setOnClickListener(v -> {
+            if (actvCountryCode.isEnabled()) {
+                CountryPickerDialog.show(this, country -> {
+                    actvCountryCode.setText(country.getFlagEmoji() + " " + country.getCode(), false);
+                });
+            }
+        });
+
         String[] genders = {"Male", "Female"};
         ArrayAdapter<String> genderAdapter = new ArrayAdapter<>(this, R.layout.dropdown_item, genders);
         actvGender.setAdapter(genderAdapter);
@@ -522,13 +567,34 @@ public class UserProfileActivity extends AppCompatActivity {
     private void setupEditableToggles() {
         setupToggle(tilFullName, etFullName);
         setupToggle(tilEmail, etEmail);
-        setupToggle(tilPhone, etPhone);
+        setupTogglePhone();
         setupToggle(tilGender, actvGender);
         setupToggle(tilBatch, etBatch);
         setupToggle(tilLevelTerm, actvLevelTerm);
         setupToggle(tilDepartment, etDepartment);
         setupToggle(tilSection, actvSection);
         setupToggle(tilDesignation, etDesignation);
+    }
+
+    private void setupTogglePhone() {
+        if (tilPhone == null || etPhone == null || actvCountryCode == null) return;
+        tilPhone.setEndIconOnClickListener(v -> {
+            boolean isEnabled = etPhone.isEnabled();
+            boolean newState = !isEnabled;
+            etPhone.setEnabled(newState);
+            etPhone.setFocusable(newState);
+            etPhone.setFocusableInTouchMode(newState);
+            
+            actvCountryCode.setEnabled(newState);
+            
+            if (newState) {
+                etPhone.requestFocus();
+                if (etPhone.getText() != null) {
+                    etPhone.setSelection(etPhone.getText().length());
+                }
+            }
+            checkForChanges();
+        });
     }
 
     private void setupToggle(TextInputLayout til, View field) {
@@ -574,6 +640,7 @@ public class UserProfileActivity extends AppCompatActivity {
         etFullName.addTextChangedListener(watcher);
         etEmail.addTextChangedListener(watcher);
         etPhone.addTextChangedListener(watcher);
+        if (actvCountryCode != null) actvCountryCode.addTextChangedListener(watcher);
         actvGender.addTextChangedListener(watcher);
         etBatch.addTextChangedListener(watcher);
         actvLevelTerm.addTextChangedListener(watcher);
@@ -606,7 +673,7 @@ public class UserProfileActivity extends AppCompatActivity {
         
         if (!etFullName.getText().toString().equals(originalUser.getName())) changed = true;
         if (!etEmail.getText().toString().equals(originalUser.getEmail())) changed = true;
-        if (!etPhone.getText().toString().equals(originalUser.getPhone())) changed = true;
+        if (!getFormattedPhoneNumber().equals(originalUser.getPhone())) changed = true;
         
         String gender = actvGender.getText().toString();
         String originalGender = originalUser.getGender() != null ? originalUser.getGender() : "";
@@ -679,6 +746,7 @@ public class UserProfileActivity extends AppCompatActivity {
     private void loadUserData(String userId) {
         // Optimized: Fetch only required columns to reduce payload
         String columns = "university_id,full_name,email,phone_number,gender,user_type,department,batch,level_term,section,designation,profile_image_url";
+        showLoading(true);
         SupabaseDatabaseHelper.select("profiles", "university_id=eq." + userId + "&select=" + columns + "&limit=1", new TypeToken<List<User>>(){}.getType(), new SupabaseDatabaseHelper.DatabaseCallback<List<User>>() {
             @Override
             public void onSuccess(List<User> users) {
@@ -698,7 +766,17 @@ public class UserProfileActivity extends AppCompatActivity {
 
                         etUniversityId.setText(originalUser.getUniversityId());
                         etEmail.setText(originalUser.getEmail());
-                        etPhone.setText(originalUser.getPhone());
+                        
+                        String fullPhone = originalUser.getPhone();
+                        String[] parsedPhone = ValidationUtils.parsePhoneNumber(fullPhone);
+                        String code = parsedPhone[0];
+                        String body = parsedPhone[1];
+                        
+                        if (actvCountryCode != null) {
+                            actvCountryCode.setText(ValidationUtils.getCountryDisplayString(code), false);
+                        }
+                        etPhone.setText(body);
+
                         actvGender.setText(originalUser.getGender(), false);
 
                         ProfileRoleHelper.applyRoleVisibility(originalUser.getUserType(),
@@ -734,7 +812,22 @@ public class UserProfileActivity extends AppCompatActivity {
                         isProfilePictureRemoved = false;
                         isDataLoaded = true;
 
-                        if ((isAdminViewing || isViewOnly) && targetUserId != null) disableAllFields();
+                        if ((isAdminViewing || isViewOnly) && targetUserId != null) {
+                            disableAllFields();
+                        } else {
+                            android.content.SharedPreferences.Editor editor = getSharedPreferences("MyApp", MODE_PRIVATE).edit();
+                            editor.putString("cachedUserName", originalUser.getName());
+                            editor.putString("cachedUserEmail", originalUser.getEmail());
+                            editor.putString("cachedUserPhone", originalUser.getPhone());
+                            editor.putString("cachedUserGender", originalUser.getGender());
+                            editor.putString("cachedUserDepartment", originalUser.getDepartment());
+                            editor.putString("cachedUserBatch", originalUser.getBatch());
+                            editor.putString("cachedUserLevelTerm", originalUser.getLevelTerm());
+                            editor.putString("cachedUserSection", originalUser.getSection());
+                            editor.putString("cachedUserDesignation", originalUser.getDesignation());
+                            editor.putString("cachedProfileImageUrl", originalUser.getProfileImageUrl());
+                            editor.apply();
+                        }
                     }
                 }
                 if (swipeRefreshLayout != null) swipeRefreshLayout.setRefreshing(false);
@@ -752,10 +845,14 @@ public class UserProfileActivity extends AppCompatActivity {
     private void saveAllChanges() {
         String name = etFullName.getText().toString().trim();
         String email = etEmail.getText().toString().trim();
-        String phone = etPhone.getText().toString().trim();
+        
+        String selectedCountryCode = actvCountryCode.getText().toString().trim();
+        String code = ValidationUtils.extractCountryCode(selectedCountryCode);
+        String phoneBody = etPhone.getText().toString().trim();
+        String phone = code + phoneBody;
         String gender = actvGender.getText().toString().trim();
 
-        if (!validateInputs(name, email, phone)) return;
+        if (!validateInputs(name, email, code, phoneBody)) return;
 
         setLoadingState(true);
 
@@ -813,16 +910,28 @@ public class UserProfileActivity extends AppCompatActivity {
             @Override
             public void onSuccess(String result) {
                 // Update local session data if email changed
+                android.content.SharedPreferences prefs = getSharedPreferences("MyApp", MODE_PRIVATE);
+                android.content.SharedPreferences.Editor editor = prefs.edit();
                 if (updates.containsKey("email")) {
                     String newEmail = (String) updates.get("email");
                     userEmail = newEmail;
                     
                     // Update SharedPreferences if it was being used to cache email
-                    android.content.SharedPreferences prefs = getSharedPreferences("MyApp", MODE_PRIVATE);
                     if (prefs.contains("email")) {
-                        prefs.edit().putString("email", newEmail).apply();
+                        editor.putString("email", newEmail);
                     }
+                    editor.putString("cachedUserEmail", newEmail);
                 }
+                if (updates.containsKey("full_name")) editor.putString("cachedUserName", (String) updates.get("full_name"));
+                if (updates.containsKey("phone_number")) editor.putString("cachedUserPhone", (String) updates.get("phone_number"));
+                if (updates.containsKey("gender")) editor.putString("cachedUserGender", (String) updates.get("gender"));
+                if (updates.containsKey("department")) editor.putString("cachedUserDepartment", (String) updates.get("department"));
+                if (updates.containsKey("batch")) editor.putString("cachedUserBatch", (String) updates.get("batch"));
+                if (updates.containsKey("level_term")) editor.putString("cachedUserLevelTerm", (String) updates.get("level_term"));
+                if (updates.containsKey("section")) editor.putString("cachedUserSection", (String) updates.get("section"));
+                if (updates.containsKey("designation")) editor.putString("cachedUserDesignation", (String) updates.get("designation"));
+                if (updates.containsKey("profile_image_url")) editor.putString("cachedProfileImageUrl", (String) updates.get("profile_image_url"));
+                editor.apply();
 
                 setLoadingState(false);
                 resetUIState();
@@ -842,6 +951,7 @@ public class UserProfileActivity extends AppCompatActivity {
         etFullName.setEnabled(false);
         etEmail.setEnabled(false);
         etPhone.setEnabled(false);
+        if (actvCountryCode != null) actvCountryCode.setEnabled(false);
         actvGender.setEnabled(false);
         etBatch.setEnabled(false);
         actvLevelTerm.setEnabled(false);
@@ -856,7 +966,7 @@ public class UserProfileActivity extends AppCompatActivity {
         btnSaveChanges.setVisibility(View.GONE);
     }
 
-    private boolean validateInputs(String name, String email, String phone) {
+    private boolean validateInputs(String name, String email, String countryCode, String phoneBody) {
         boolean valid = true;
         if (TextUtils.isEmpty(name)) {
             ErrorHelper.setFieldError(tilFullName, "Full name is required");
@@ -868,8 +978,8 @@ public class UserProfileActivity extends AppCompatActivity {
             valid = false;
         }
 
-        if (!ValidationUtils.isValidPhone(phone)) {
-            ErrorHelper.setFieldError(tilPhone, "Please enter a valid phone number (11 digits)");
+        if (!ValidationUtils.isValidPhone(countryCode, phoneBody)) {
+            ErrorHelper.setFieldError(tilPhone, "Please enter a valid phone number");
             valid = false;
         }
 
@@ -1019,6 +1129,54 @@ public class UserProfileActivity extends AppCompatActivity {
         }
     }
 
+    private void loadCachedUserData() {
+        android.content.SharedPreferences prefs = getSharedPreferences("MyApp", MODE_PRIVATE);
+        String name = prefs.getString("cachedUserName", "");
+        String id = prefs.getString("universityId", "");
+        String email = prefs.getString("cachedUserEmail", "");
+        String phone = prefs.getString("cachedUserPhone", "");
+        String gender = prefs.getString("cachedUserGender", "");
+        String type = prefs.getString("userType", "Student");
+        String dept = prefs.getString("cachedUserDepartment", "");
+        String batch = prefs.getString("cachedUserBatch", "");
+        String levelTerm = prefs.getString("cachedUserLevelTerm", "");
+        String section = prefs.getString("cachedUserSection", "");
+        String designation = prefs.getString("cachedUserDesignation", "");
+        String imgUrl = prefs.getString("cachedProfileImageUrl", "");
+
+        if (!name.isEmpty()) {
+            etFullName.setText(name);
+            etUniversityId.setText(id);
+            etEmail.setText(email);
+            etPhone.setText(phone);
+            actvGender.setText(gender, false);
+            
+            ProfileRoleHelper.applyRoleVisibility(type, tilDesignation, tilBatch, tilLevelTerm, tilDepartment, tilSection);
+            
+            if (dept.isEmpty()) dept = "Not Specified";
+            
+            if ("Staff".equals(type) || "Admin".equalsIgnoreCase(type)) {
+                etDesignation.setText(designation);
+                etDepartment.setText(dept);
+            } else {
+                etBatch.setText(batch);
+                actvLevelTerm.setText(levelTerm, false);
+                etDepartment.setText(dept);
+                actvSection.setText(section, false);
+            }
+            
+            if (!imgUrl.isEmpty()) {
+                GlideApp.with(UserProfileActivity.this)
+                        .load(imgUrl)
+                        .placeholder(R.drawable.ic_user)
+                        .thumbnail(0.1f)
+                        .diskCacheStrategy(DiskCacheStrategy.ALL)
+                        .circleCrop()
+                        .into(ivProfilePicture);
+            }
+        }
+    }
+
     private void showLoading(boolean show) {
         progressBar.setVisibility(show ? View.VISIBLE : View.GONE);
         if (!isAdminViewing) btnSaveChanges.setEnabled(!show);
@@ -1049,5 +1207,39 @@ public class UserProfileActivity extends AppCompatActivity {
     protected void onDestroy() {
         super.onDestroy();
         // Listeners were removed in favor of Supabase REST calls
+    }
+
+    private void setupKeyboardListener() {
+        if (userProfileRoot == null || keyboardSpacer == null) return;
+
+        userProfileRoot.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+            @Override
+            public void onGlobalLayout() {
+                Rect r = new Rect();
+                userProfileRoot.getWindowVisibleDisplayFrame(r);
+                int screenHeight = userProfileRoot.getRootView().getHeight();
+                int keypadHeight = screenHeight - r.bottom;
+
+                if (keypadHeight > screenHeight * 0.15) {
+                    if (keyboardSpacer.getVisibility() != View.VISIBLE) {
+                        keyboardSpacer.setVisibility(View.VISIBLE);
+                        keyboardSpacer.getLayoutParams().height = (int) (320 * getResources().getDisplayMetrics().density);
+                        keyboardSpacer.requestLayout();
+                    }
+                } else {
+                    if (keyboardSpacer.getVisibility() != View.GONE) {
+                        keyboardSpacer.setVisibility(View.GONE);
+                    }
+                }
+            }
+        });
+    }
+
+    private String getFormattedPhoneNumber() {
+        if (actvCountryCode == null || etPhone == null) return "";
+        String selectedCountryCode = actvCountryCode.getText().toString().trim();
+        String code = ValidationUtils.extractCountryCode(selectedCountryCode);
+        String phoneBody = etPhone.getText().toString().trim();
+        return code + phoneBody;
     }
 }

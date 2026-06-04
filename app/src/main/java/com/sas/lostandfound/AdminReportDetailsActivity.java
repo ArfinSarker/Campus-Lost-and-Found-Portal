@@ -37,15 +37,17 @@ import java.util.Map;
 public class AdminReportDetailsActivity extends AppCompatActivity {
 
     private TextView tvHeaderTitle;
-    private TextView tvReporterName, tvUniversityId, tvReporterRole, tvReporterDeptDesignation, tvReporterPhone;
-    private TextView tvTitle, tvCategory, tvDescription, tvRelatedId, tvDate, tvPriority;
+    private TextView tvReporterName, tvUniversityId, tvReporterRole, tvReporterDeptDesignation, tvReporterPhone, tvReporterEmail;
+    private TextView tvTitle, tvCategory, tvDescription, tvRelatedId, tvDate;
     private TextView tvFinalReportId, tvFinalStatus, tvFinalAdminNote;
-    private ImageView ivEvidence;
+    private TextView tvReviewedByDetails, tvReviewTimestampDetails, tvReviewProgressSubText;
+    private ImageView ivEvidence, ivTimelineReviewStatusIcon;
     private ViewPager2 viewPagerEvidence;
     private TabLayout tabLayoutIndicator;
     private View cardEvidence;
     private TextView tvNoEvidence;
     private MaterialButton btnDelete;
+
     
     private Toolbar toolbar;
     private ProgressBar progressBar;
@@ -92,13 +94,14 @@ public class AdminReportDetailsActivity extends AppCompatActivity {
         tvReporterRole = findViewById(R.id.tvDetailReporterRole);
         tvReporterDeptDesignation = findViewById(R.id.tvDetailReporterDeptDesignation);
         tvReporterPhone = findViewById(R.id.tvDetailReporterPhone);
+        tvReporterEmail = findViewById(R.id.tvDetailReporterEmail);
         
         tvTitle = findViewById(R.id.tvDetailTitle);
         tvCategory = findViewById(R.id.tvDetailCategory);
         tvDescription = findViewById(R.id.tvDetailDescription);
         tvRelatedId = findViewById(R.id.tvDetailRelatedId);
         tvDate = findViewById(R.id.tvDetailDate);
-        tvPriority = findViewById(R.id.tvDetailPriority);
+
         
         ivEvidence = findViewById(R.id.ivDetailEvidence);
         viewPagerEvidence = findViewById(R.id.viewPagerEvidence);
@@ -109,6 +112,12 @@ public class AdminReportDetailsActivity extends AppCompatActivity {
         tvFinalReportId = findViewById(R.id.tvFinalReportId);
         tvFinalStatus = findViewById(R.id.tvFinalStatus);
         tvFinalAdminNote = findViewById(R.id.tvFinalAdminNote);
+        
+        tvReviewedByDetails = findViewById(R.id.tvReviewedByDetails);
+        tvReviewTimestampDetails = findViewById(R.id.tvReviewTimestampDetails);
+        tvReviewProgressSubText = findViewById(R.id.tvReviewProgressSubText);
+        ivTimelineReviewStatusIcon = findViewById(R.id.ivTimelineReviewStatusIcon);
+
         
         btnDelete = findViewById(R.id.btnDeleteUserReport);
         
@@ -220,27 +229,107 @@ public class AdminReportDetailsActivity extends AppCompatActivity {
         tvReporterName.setText("Name: " + report.getReporterName());
         tvUniversityId.setText("University ID: " + report.getUniversityId());
         tvReporterPhone.setText("Phone: " + report.getPhone());
+        if (tvReporterEmail != null) {
+            tvReporterEmail.setText("Email: " + (report.getEmail() != null ? report.getEmail() : "N/A"));
+        }
         tvTitle.setText(report.getTitle());
-        tvCategory.setText("Category: " + report.getCategory());
+        tvCategory.setText(report.getCategory());
         tvDescription.setText(report.getDescription());
         String related = report.getRelatedId();
         if (related == null || related.isEmpty() || "None".equalsIgnoreCase(related)) {
-            tvRelatedId.setText("Related Report ID: None");
+            tvRelatedId.setText("Related Item: None");
             tvRelatedId.setEnabled(false);
             tvRelatedId.setTextColor(Color.GRAY);
         } else {
-            tvRelatedId.setText("Related Report ID: " + ReportIdFormatter.format(related));
+            tvRelatedId.setText("Related Item: " + ReportIdFormatter.format(related));
             tvRelatedId.setEnabled(true);
             tvRelatedId.setTextColor(getResources().getColor(R.color.primaryColor));
         }
         SimpleDateFormat sdf = new SimpleDateFormat("dd MMM yyyy, hh:mm a", Locale.getDefault());
-        tvDate.setText("Submitted: " + sdf.format(new Date(report.getTimestamp())));
-        tvPriority.setText("Priority: " + report.getPriority());
+        tvDate.setText(sdf.format(new Date(report.getTimestamp())));
+        
+
+        
         setupImageSlider(report.getImageUrls(), report.getImageUrl());
         String displayId = ReportIdFormatter.format(report.getDisplayId());
         tvFinalReportId.setText("Report ID: " + displayId);
-        tvFinalStatus.setText("Report Status: " + (report.getStatus() != null ? report.getStatus() : "Pending"));
-        tvFinalAdminNote.setText("Admin Note: " + (report.getAdminNote() != null ? report.getAdminNote() : "None"));
+        
+        // Status Timeline styling
+        boolean isReviewed = "Reviewed".equalsIgnoreCase(report.getStatus());
+        if (isReviewed) {
+            if (ivTimelineReviewStatusIcon != null) {
+                ivTimelineReviewStatusIcon.setImageResource(R.drawable.ic_check_circle);
+                ivTimelineReviewStatusIcon.setImageTintList(android.content.res.ColorStateList.valueOf(Color.parseColor("#34C759")));
+            }
+            tvFinalStatus.setText("Status: Reviewed & Resolved");
+            if (tvReviewProgressSubText != null) {
+                tvReviewProgressSubText.setText("The administrative team has successfully reviewed this report.");
+            }
+            
+            // Format notes and display reviewer details
+            if (report.getAdminNote() != null && !report.getAdminNote().trim().isEmpty()) {
+                tvFinalAdminNote.setText("Remarks: " + report.getAdminNote());
+            } else {
+                tvFinalAdminNote.setText("Remarks: Report reviewed without specific notes.");
+            }
+
+            if (report.getReviewedBy() != null && !report.getReviewedBy().isEmpty()) {
+                fetchAdminInfoForTimeline(report.getReviewedBy());
+            } else {
+                if (tvReviewedByDetails != null) {
+                    tvReviewedByDetails.setText("Reviewed By: Administrator");
+                    tvReviewedByDetails.setVisibility(View.VISIBLE);
+                }
+            }
+
+            if (report.getReviewTimestamp() != null && report.getReviewTimestamp() > 0) {
+                if (tvReviewTimestampDetails != null) {
+                    SimpleDateFormat reviewSdf = new SimpleDateFormat("dd MMM yyyy, hh:mm a", Locale.getDefault());
+                    tvReviewTimestampDetails.setText("Reviewed On: " + reviewSdf.format(new Date(report.getReviewTimestamp())));
+                    tvReviewTimestampDetails.setVisibility(View.VISIBLE);
+                }
+            } else {
+                if (tvReviewTimestampDetails != null) {
+                    tvReviewTimestampDetails.setVisibility(View.GONE);
+                }
+            }
+        } else {
+            if (ivTimelineReviewStatusIcon != null) {
+                ivTimelineReviewStatusIcon.setImageResource(R.drawable.ic_info);
+                ivTimelineReviewStatusIcon.setImageTintList(android.content.res.ColorStateList.valueOf(Color.parseColor("#FFA500")));
+            }
+            tvFinalStatus.setText("Status: Pending Review");
+            if (tvReviewProgressSubText != null) {
+                tvReviewProgressSubText.setText("Admin is currently evaluating details.");
+            }
+            tvFinalAdminNote.setText("Admin Note: No action remarks provided yet.");
+            if (tvReviewedByDetails != null) tvReviewedByDetails.setVisibility(View.GONE);
+            if (tvReviewTimestampDetails != null) tvReviewTimestampDetails.setVisibility(View.GONE);
+        }
+    }
+
+    private void fetchAdminInfoForTimeline(String adminId) {
+        if (adminId == null || adminId.isEmpty() || tvReviewedByDetails == null) return;
+        SupabaseDatabaseHelper.select("profiles", "university_id=eq." + adminId + "&limit=1", new TypeToken<List<User>>(){}.getType(), new SupabaseDatabaseHelper.DatabaseCallback<List<User>>() {
+            @Override
+            public void onSuccess(List<User> users) {
+                if (users != null && !users.isEmpty()) {
+                    User user = users.get(0);
+                    if (user != null && user.getName() != null) {
+                        tvReviewedByDetails.setText("Reviewed By: " + user.getName() + " (" + adminId + ")");
+                        tvReviewedByDetails.setVisibility(View.VISIBLE);
+                        return;
+                    }
+                }
+                tvReviewedByDetails.setText("Reviewed By: Admin (" + adminId + ")");
+                tvReviewedByDetails.setVisibility(View.VISIBLE);
+            }
+            @Override
+            public void onFailure(String e) {
+                tvReviewedByDetails.setText("Reviewed By: Admin (" + adminId + ")");
+                tvReviewedByDetails.setVisibility(View.VISIBLE);
+            }
+        });
     }
 
     private void setupImageSlider(List<String> urls, String fallbackUrl) {

@@ -72,7 +72,11 @@ public class AllReportedItemsActivity extends AppCompatActivity {
                 finish();
             }
         });
+    }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
         fetchAllItems();
     }
 
@@ -204,24 +208,60 @@ public class AllReportedItemsActivity extends AppCompatActivity {
     }
 
     private void applyFilter() {
-        filteredList.clear();
+        List<Item> newFilteredList = new ArrayList<>();
         for (Item item : itemList) {
             boolean matchesUser = (targetUserId == null || item.getUserId().equals(targetUserId));
             if (!matchesUser) continue;
 
             if (filterStatus == null) {
-                filteredList.add(item);
+                newFilteredList.add(item);
             } else if ("returned".equalsIgnoreCase(filterStatus) || "resolved".equalsIgnoreCase(filterStatus)) {
                 String status = item.getAdminStatus();
                 if ("Returned".equalsIgnoreCase(status) || "Claimed".equalsIgnoreCase(status)) {
-                    filteredList.add(item);
+                    newFilteredList.add(item);
                 }
             } else if (item.getStatus().equalsIgnoreCase(filterStatus)) {
-                filteredList.add(item);
+                newFilteredList.add(item);
             }
         }
-        filteredList.sort((o1, o2) -> Long.compare(o2.getTimestamp(), o1.getTimestamp()));
-        adapter.notifyDataSetChanged();
+        newFilteredList.sort((o1, o2) -> Long.compare(o2.getTimestamp(), o1.getTimestamp()));
+
+        // Calculate diff between filteredList and newFilteredList
+        androidx.recyclerview.widget.DiffUtil.DiffResult diffResult = androidx.recyclerview.widget.DiffUtil.calculateDiff(new androidx.recyclerview.widget.DiffUtil.Callback() {
+            @Override
+            public int getOldListSize() {
+                return filteredList.size();
+            }
+
+            @Override
+            public int getNewListSize() {
+                return newFilteredList.size();
+            }
+
+            @Override
+            public boolean areItemsTheSame(int oldItemPosition, int newItemPosition) {
+                Item oldItem = filteredList.get(oldItemPosition);
+                Item newItem = newFilteredList.get(newItemPosition);
+                return oldItem.getId() != null && newItem.getId() != null && oldItem.getId().equals(newItem.getId());
+            }
+
+            @Override
+            public boolean areContentsTheSame(int oldItemPosition, int newItemPosition) {
+                Item oldItem = filteredList.get(oldItemPosition);
+                Item newItem = newFilteredList.get(newItemPosition);
+                return java.util.Objects.equals(oldItem.getName(), newItem.getName()) &&
+                       java.util.Objects.equals(oldItem.getLocation(), newItem.getLocation()) &&
+                       java.util.Objects.equals(oldItem.getDate(), newItem.getDate()) &&
+                       java.util.Objects.equals(oldItem.getAdminStatus(), newItem.getAdminStatus()) &&
+                       java.util.Objects.equals(oldItem.getStatus(), newItem.getStatus()) &&
+                       java.util.Objects.equals(oldItem.getImageUrl(), newItem.getImageUrl()) &&
+                       java.util.Objects.equals(oldItem.getImageUrls(), newItem.getImageUrls());
+            }
+        });
+
+        filteredList.clear();
+        filteredList.addAll(newFilteredList);
+        diffResult.dispatchUpdatesTo(adapter);
     }
 
     private class AllItemsAdapter extends RecyclerView.Adapter<AllItemsAdapter.ViewHolder> {

@@ -1,9 +1,11 @@
 package com.sas.lostandfound;
 
+import android.annotation.SuppressLint;
 import android.app.Application;
 import android.content.Context;
 
 public class LostAndFoundApplication extends Application {
+    @SuppressLint("StaticFieldLeak")
     private static Context instance;
 
     public static Context getContext() {

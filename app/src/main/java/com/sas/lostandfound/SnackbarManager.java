@@ -249,5 +249,24 @@ public class SnackbarManager implements Application.ActivityLifecycleCallbacks {
         if (this.currentActivityRef != null && this.currentActivityRef.get() == activity) {
             this.currentActivityRef = null;
         }
+        if (currentSnackbarView != null) {
+            android.content.Context context = currentSnackbarView.getContext();
+            boolean isLinked = false;
+            android.content.Context current = context;
+            while (current instanceof android.content.ContextWrapper) {
+                if (current == activity) {
+                    isLinked = true;
+                    break;
+                }
+                current = ((android.content.ContextWrapper) current).getBaseContext();
+            }
+            if (current == activity) {
+                isLinked = true;
+            }
+            if (isLinked) {
+                currentSnackbarView = null;
+                isShowing = false;
+            }
+        }
     }
 }

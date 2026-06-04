@@ -54,6 +54,20 @@ public class DashboardActivity extends AppCompatActivity {
         recyclerView.setAdapter(adapter);
         recyclerView.setNestedScrollingEnabled(false);
 
+        // Load cached guest items for instant rendering
+        SharedPreferences cachedPrefs = getSharedPreferences("MyApp", MODE_PRIVATE);
+        String cachedGuestJson = cachedPrefs.getString("cachedGuestRecentItemsJson", "");
+        if (!cachedGuestJson.isEmpty()) {
+            try {
+                List<Item> cachedItems = new com.google.gson.Gson().fromJson(cachedGuestJson, new com.google.gson.reflect.TypeToken<List<Item>>(){}.getType());
+                if (cachedItems != null && !cachedItems.isEmpty()) {
+                    adapter.updateItems(cachedItems);
+                }
+            } catch (Exception e) {
+                // ignore
+            }
+        }
+
         setupSwipeRefresh();
         loadRecentItems();
         
@@ -167,9 +181,51 @@ public class DashboardActivity extends AppCompatActivity {
                             combined = new ArrayList<>(combined.subList(0, 6));
                         }
                         
+                        // Save guest recent items to SharedPreferences cache
+                        try {
+                            String json = new com.google.gson.Gson().toJson(combined);
+                            getSharedPreferences("MyApp", MODE_PRIVATE).edit().putString("cachedGuestRecentItemsJson", json).apply();
+                        } catch (Exception e) {
+                            // ignore
+                        }
+
+                        // Use DiffUtil to compute exact changes
+                        List<Item> newCombined = combined;
+                        androidx.recyclerview.widget.DiffUtil.DiffResult diffResult = androidx.recyclerview.widget.DiffUtil.calculateDiff(new androidx.recyclerview.widget.DiffUtil.Callback() {
+                            @Override
+                            public int getOldListSize() {
+                                return itemList.size();
+                            }
+
+                            @Override
+                            public int getNewListSize() {
+                                return newCombined.size();
+                            }
+
+                            @Override
+                            public boolean areItemsTheSame(int oldItemPosition, int newItemPosition) {
+                                Item oldItem = itemList.get(oldItemPosition);
+                                Item newItem = newCombined.get(newItemPosition);
+                                return oldItem.getId() != null && newItem.getId() != null && oldItem.getId().equals(newItem.getId());
+                            }
+
+                            @Override
+                            public boolean areContentsTheSame(int oldItemPosition, int newItemPosition) {
+                                Item oldItem = itemList.get(oldItemPosition);
+                                Item newItem = newCombined.get(newItemPosition);
+                                return java.util.Objects.equals(oldItem.getName(), newItem.getName()) &&
+                                       java.util.Objects.equals(oldItem.getLocation(), newItem.getLocation()) &&
+                                       java.util.Objects.equals(oldItem.getDate(), newItem.getDate()) &&
+                                       java.util.Objects.equals(oldItem.getAdminStatus(), newItem.getAdminStatus()) &&
+                                       java.util.Objects.equals(oldItem.getStatus(), newItem.getStatus()) &&
+                                       java.util.Objects.equals(oldItem.getImageUrl(), newItem.getImageUrl()) &&
+                                       java.util.Objects.equals(oldItem.getImageUrls(), newItem.getImageUrls());
+                            }
+                        });
+
                         itemList.clear();
-                        itemList.addAll(combined);
-                        adapter.notifyDataSetChanged();
+                        itemList.addAll(newCombined);
+                        diffResult.dispatchUpdatesTo(adapter);
                         
                         isFetching = false;
                         if (swipeRefreshLayout != null) swipeRefreshLayout.setRefreshing(false);

@@ -217,7 +217,7 @@ public class AdminReportManagementActivity extends AppCompatActivity {
         String query = etSearch.getText().toString().toLowerCase().trim();
         int checkedChipId = chipGroupFilter.getCheckedChipId();
         
-        filteredReports.clear();
+        List<AdminReport> temp = new ArrayList<>();
         for (AdminReport report : allReports) {
             String displayId = report.getDisplayId() != null ? report.getDisplayId().toLowerCase() : "";
             String formattedId = "#" + displayId;
@@ -240,10 +240,10 @@ public class AdminReportManagementActivity extends AppCompatActivity {
             else if (checkedChipId == R.id.chipReviewed) matchesStatus = "Reviewed".equalsIgnoreCase(report.getStatus());
             
             if (matchesSearch && matchesStatus) {
-                filteredReports.add(report);
+                temp.add(report);
             }
         }
-        adapter.notifyDataSetChanged();
+        adapter.updateReports(temp);
         tvEmptyState.setVisibility(filteredReports.isEmpty() ? View.VISIBLE : View.GONE);
     }
 
@@ -372,6 +372,44 @@ public class AdminReportManagementActivity extends AppCompatActivity {
         @Override
         public int getItemCount() {
             return reports.size();
+        }
+
+        public void updateReports(List<AdminReport> newReports) {
+            androidx.recyclerview.widget.DiffUtil.DiffResult diffResult = androidx.recyclerview.widget.DiffUtil.calculateDiff(new androidx.recyclerview.widget.DiffUtil.Callback() {
+                @Override
+                public int getOldListSize() {
+                    return reports.size();
+                }
+
+                @Override
+                public int getNewListSize() {
+                    return newReports.size();
+                }
+
+                @Override
+                public boolean areItemsTheSame(int oldItemPosition, int newItemPosition) {
+                    AdminReport oldItem = reports.get(oldItemPosition);
+                    AdminReport newItem = newReports.get(newItemPosition);
+                    return oldItem.getId() != null && newItem.getId() != null && oldItem.getId().equals(newItem.getId());
+                }
+
+                @Override
+                public boolean areContentsTheSame(int oldItemPosition, int newItemPosition) {
+                    AdminReport oldItem = reports.get(oldItemPosition);
+                    AdminReport newItem = newReports.get(newItemPosition);
+                    return java.util.Objects.equals(oldItem.getTitle(), newItem.getTitle()) &&
+                           java.util.Objects.equals(oldItem.getCategory(), newItem.getCategory()) &&
+                           java.util.Objects.equals(oldItem.getStatus(), newItem.getStatus()) &&
+                           java.util.Objects.equals(oldItem.getReporterName(), newItem.getReporterName()) &&
+                           java.util.Objects.equals(oldItem.getDisplayId(), newItem.getDisplayId()) &&
+                           oldItem.getTimestamp() == newItem.getTimestamp() &&
+                           java.util.Objects.equals(oldItem.getImageUrls(), newItem.getImageUrls());
+                }
+            });
+
+            this.reports.clear();
+            this.reports.addAll(newReports);
+            diffResult.dispatchUpdatesTo(this);
         }
 
         class ViewHolder extends RecyclerView.ViewHolder {
