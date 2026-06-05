@@ -105,6 +105,9 @@ public class NotificationsActivity extends AppCompatActivity {
                     Intent intent = new Intent(this, AdminReportReviewActivity.class);
                     intent.putExtra("reportId", notification.getItemId());
                     startActivity(intent);
+                } else if ("admin_request".equals(notification.getType())) {
+                    Intent intent = new Intent(this, AdminRequestsActivity.class);
+                    startActivity(intent);
                 } else if ("item_claimed".equals(notification.getType()) || "item_return".equals(notification.getType())) {
                     Intent intent = new Intent(this, ClaimDetailsActivity.class);
                     intent.putExtra("senderId", notification.getSenderId());

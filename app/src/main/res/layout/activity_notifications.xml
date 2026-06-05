@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/backgroundColor"
+    android:background="@color/chatBackground"
     android:fitsSystemWindows="true">
 
     <com.google.android.material.appbar.AppBarLayout
@@ -62,6 +62,7 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:clipToPadding="false"
+            android:paddingTop="8dp"
             android:paddingBottom="16dp"
             tools:listitem="@layout/item_notification" />
 
@@ -73,23 +74,46 @@
         android:layout_height="wrap_content"
         android:layout_gravity="center"
         android:gravity="center"
+        android:paddingHorizontal="32dp"
         android:orientation="vertical"
         android:visibility="gone">
 
-        <ImageView
+        <com.google.android.material.card.MaterialCardView
             android:layout_width="80dp"
             android:layout_height="80dp"
-            android:src="@drawable/ic_inbox"
-            app:tint="@color/textSecondary"
-            android:contentDescription="@null" />
+            app:cardCornerRadius="40dp"
+            app:cardElevation="0dp"
+            app:strokeWidth="0dp"
+            app:cardBackgroundColor="@color/primaryLightColor">
+
+            <ImageView
+                android:layout_width="38dp"
+                android:layout_height="38dp"
+                android:layout_gravity="center"
+                android:src="@drawable/ic_inbox"
+                app:tint="@color/primaryColor"
+                android:contentDescription="@null" />
+        </com.google.android.material.card.MaterialCardView>
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
-            android:text="No notifications yet"
+            android:layout_marginTop="20dp"
+            android:text="You're all caught up!"
+            android:textColor="@color/textPrimary"
+            android:textSize="18sp"
+            android:fontFamily="sans-serif-bold"
+            android:gravity="center" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:text="We'll notify you here when claims or reports get updated."
             android:textColor="@color/textSecondary"
-            android:textSize="16sp" />
+            android:textSize="14sp"
+            android:fontFamily="sans-serif"
+            android:gravity="center" />
     </LinearLayout>
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

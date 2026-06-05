@@ -128,22 +128,53 @@
                     android:layout_marginTop="24dp"
                     android:orientation="horizontal">
 
+                    <!-- Report Lost Button -->
                     <com.google.android.material.button.MaterialButton
                         android:id="@+id/btnReportLost"
                         android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_marginEnd="12dp"
+                        android:layout_height="56dp"
+                        android:layout_marginEnd="8dp"
                         android:layout_weight="1"
-                        android:text="@string/report_lost_btn" />
+                        android:text="@string/report_lost_btn"
+                        android:textAllCaps="false"
+                        android:textSize="13sp"
+                        android:textStyle="bold"
+                        android:textColor="@color/white"
+                        android:paddingStart="8dp"
+                        android:paddingEnd="8dp"
+                        android:insetTop="0dp"
+                        android:insetBottom="0dp"
+                        app:backgroundTint="@color/statusLost"
+                        app:cornerRadius="12dp"
+                        app:icon="@drawable/ic_alert_circle"
+                        app:iconGravity="textStart"
+                        app:iconTint="@color/white"
+                        app:iconSize="16dp"
+                        app:iconPadding="4dp" />
 
+                    <!-- Report Found Button -->
                     <com.google.android.material.button.MaterialButton
                         android:id="@+id/btnReportFound"
-                        style="@style/Widget.App.Button.Secondary"
                         android:layout_width="0dp"
-                        android:layout_height="wrap_content"
+                        android:layout_height="56dp"
                         android:layout_marginStart="8dp"
                         android:layout_weight="1"
-                        android:text="@string/report_found_btn" />
+                        android:text="@string/report_found_btn"
+                        android:textAllCaps="false"
+                        android:textSize="13sp"
+                        android:textStyle="bold"
+                        android:textColor="@color/white"
+                        android:paddingStart="8dp"
+                        android:paddingEnd="8dp"
+                        android:insetTop="0dp"
+                        android:insetBottom="0dp"
+                        app:backgroundTint="@color/statusFound"
+                        app:cornerRadius="12dp"
+                        app:icon="@drawable/ic_check_circle"
+                        app:iconGravity="textStart"
+                        app:iconTint="@color/white"
+                        app:iconSize="16dp"
+                        app:iconPadding="4dp" />
                 </LinearLayout>
 
                 <TextView

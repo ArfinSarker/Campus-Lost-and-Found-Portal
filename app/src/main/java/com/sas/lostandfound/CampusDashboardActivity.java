@@ -11,6 +11,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -38,12 +39,22 @@ import java.util.Map;
 
 public class CampusDashboardActivity extends AppCompatActivity {
 
+    private static final String TAG = "CampusDashboard";
     private RecyclerView rvRecentItems;
     private RecentItemsAdapter adapter;
     private List<Item> fullItemList;
     private List<Item> displayedItemList;
     private TextView tvWelcome, tvNotificationBadge, tvBrowseAll, tvLostCount, tvFoundCount, tvLostLabel, tvFoundLabel;
-    private View btnReportLost, btnReportFound, btnReportProblem, btnMenu, btnNotifications, tvDeveloperInfo, btnViewMore, btnViewLess;
+    private FrameLayout layoutWelcomeBg;
+    private ImageView ivWelcomeWatermark;
+
+    private String lastWelcomeKey = null;
+    private android.os.Handler welcomeLoopHandler = new android.os.Handler(android.os.Looper.getMainLooper());
+    private Runnable welcomeLoopRunnable = null;
+    private android.os.Handler typingHandler = new android.os.Handler(android.os.Looper.getMainLooper());
+    private Runnable typingRunnable = null;
+    private View btnReportLost, btnReportFound, btnReportProblem, btnMenu, btnNotifications, tvDeveloperInfo,
+            btnViewMore, btnViewLess;
     private TabLayout tabLayout;
     private DrawerLayout drawerLayout;
     private NavigationView navigationView;
@@ -86,7 +97,8 @@ public class CampusDashboardActivity extends AppCompatActivity {
 
         if (btnMenu != null) {
             btnMenu.setOnClickListener(v -> {
-                if (drawerLayout != null) drawerLayout.openDrawer(GravityCompat.START);
+                if (drawerLayout != null)
+                    drawerLayout.openDrawer(GravityCompat.START);
             });
         }
 
@@ -105,7 +117,7 @@ public class CampusDashboardActivity extends AppCompatActivity {
                 }
             });
         }
-        
+
         if (btnReportFound != null) {
             btnReportFound.setOnClickListener(v -> {
                 if (ItemNavigationUtils.canNavigate()) {
@@ -164,7 +176,7 @@ public class CampusDashboardActivity extends AppCompatActivity {
         super.onResume();
         // Admins should behave like normal users when on the main dashboard
         ModeManager.setMode(this, ModeManager.MODE_USER);
-        
+
         // Refresh data whenever user returns to dashboard
         fetchUserData();
         fetchRecentItems();
@@ -204,6 +216,8 @@ public class CampusDashboardActivity extends AppCompatActivity {
     private void initializeViews() {
         rvRecentItems = findViewById(R.id.rvRecentItems);
         tvWelcome = findViewById(R.id.tvWelcome);
+        layoutWelcomeBg = findViewById(R.id.layoutWelcomeBg);
+        ivWelcomeWatermark = findViewById(R.id.ivWelcomeWatermark);
         tvDeveloperInfo = findViewById(R.id.tvDeveloperInfo);
         btnReportLost = findViewById(R.id.btnReportLost);
         btnReportFound = findViewById(R.id.btnReportFound);
@@ -271,7 +285,8 @@ public class CampusDashboardActivity extends AppCompatActivity {
                         pendingIntent = null;
                         new Handler(Looper.getMainLooper()).postDelayed(() -> {
                             startActivity(intentToLaunch);
-                            overridePendingTransition(R.anim.material_shared_axis_z_enter, R.anim.material_shared_axis_z_exit);
+                            overridePendingTransition(R.anim.material_shared_axis_z_enter,
+                                    R.anim.material_shared_axis_z_exit);
                         }, 200);
                     }
                 }
@@ -289,7 +304,8 @@ public class CampusDashboardActivity extends AppCompatActivity {
                     for (int j = 0; j < subMenu.size(); j++) {
                         subMenu.getItem(j).setChecked(false);
                     }
-                } else item.setChecked(false);
+                } else
+                    item.setChecked(false);
             }
         }
     }
@@ -305,7 +321,8 @@ public class CampusDashboardActivity extends AppCompatActivity {
             }
 
             navigationView.setNavigationItemSelectedListener(item -> {
-                if (!ItemNavigationUtils.canNavigate()) return false;
+                if (!ItemNavigationUtils.canNavigate())
+                    return false;
                 int id = item.getItemId();
                 if (id == R.id.nav_profile) {
                     pendingIntent = new Intent(this, UserProfileActivity.class);
@@ -338,7 +355,8 @@ public class CampusDashboardActivity extends AppCompatActivity {
                     finish();
                     return true;
                 }
-                if (drawerLayout != null) drawerLayout.closeDrawer(GravityCompat.START);
+                if (drawerLayout != null)
+                    drawerLayout.closeDrawer(GravityCompat.START);
                 return true;
             });
         }
@@ -356,8 +374,15 @@ public class CampusDashboardActivity extends AppCompatActivity {
                         startActivity(new Intent(CampusDashboardActivity.this, ReportToAdminActivity.class));
                     }
                 }
-                @Override public void onTabUnselected(TabLayout.Tab tab) {}
-                @Override public void onTabReselected(TabLayout.Tab tab) { onTabSelected(tab); }
+
+                @Override
+                public void onTabUnselected(TabLayout.Tab tab) {
+                }
+
+                @Override
+                public void onTabReselected(TabLayout.Tab tab) {
+                    onTabSelected(tab);
+                }
             });
         }
     }
@@ -376,7 +401,9 @@ public class CampusDashboardActivity extends AppCompatActivity {
             String cachedItemsJson = prefs.getString("cachedRecentItemsJson", "");
             if (!cachedItemsJson.isEmpty()) {
                 try {
-                    List<Item> cachedItems = new com.google.gson.Gson().fromJson(cachedItemsJson, new com.google.gson.reflect.TypeToken<List<Item>>(){}.getType());
+                    List<Item> cachedItems = new com.google.gson.Gson().fromJson(cachedItemsJson,
+                            new com.google.gson.reflect.TypeToken<List<Item>>() {
+                            }.getType());
                     if (cachedItems != null && !cachedItems.isEmpty()) {
                         fullItemList.addAll(cachedItems);
                         updateDisplayedList();
@@ -391,7 +418,10 @@ public class CampusDashboardActivity extends AppCompatActivity {
     private void setupSwipeRefresh() {
         if (swipeRefreshLayout != null) {
             swipeRefreshLayout.setColorSchemeColors(ContextCompat.getColor(this, R.color.primaryColor));
-            swipeRefreshLayout.setOnRefreshListener(() -> { fetchUserData(); fetchRecentItems(); });
+            swipeRefreshLayout.setOnRefreshListener(() -> {
+                fetchUserData();
+                fetchRecentItems();
+            });
         }
     }
 
@@ -405,10 +435,12 @@ public class CampusDashboardActivity extends AppCompatActivity {
         String cachedProfileUrl = prefs.getString("cachedProfileImageUrl", "");
         String cachedLostCount = prefs.getString("cachedLostCount", "0");
         String cachedFoundCount = prefs.getString("cachedFoundCount", "0");
+        String cachedUserType = prefs.getString("userType", "Student");
 
         if (!cachedName.isEmpty()) {
-            tvWelcome.setText("Welcome back, " + cachedName + "!");
-            if (tvNavHeaderName != null) tvNavHeaderName.setText(cachedName);
+            updateWelcomeMessage(cachedName, cachedUserType);
+            if (tvNavHeaderName != null)
+                tvNavHeaderName.setText(cachedName);
         }
         if (!cachedProfileUrl.isEmpty()) {
             loadNavHeaderProfileImageRectangular(cachedProfileUrl);
@@ -424,47 +456,57 @@ public class CampusDashboardActivity extends AppCompatActivity {
         }
 
         if (currentUniversityId != null) {
-            SupabaseDatabaseHelper.select("profiles", "university_id=eq." + currentUniversityId + "&limit=1", new TypeToken<List<User>>(){}.getType(), new SupabaseDatabaseHelper.DatabaseCallback<List<User>>() {
-                @Override
-                public void onSuccess(List<User> users) {
-                    if (users != null && !users.isEmpty()) {
-                        User user = users.get(0);
-                        if (user != null) {
-                            String name = user.getName();
-                            if (name == null) name = user.getFullName();
-                            
-                            tvWelcome.setText("Welcome back, " + name + "!");
-                            if (tvNavHeaderName != null) tvNavHeaderName.setText(name);
-                            loadNavHeaderProfileImageRectangular(user.getProfileImageUrl());
-                            setupProfileImageFullScreenViewer(user.getProfileImageUrl());
-                            
-                            // Save profile attributes to SharedPreferences cache
-                            prefs.edit()
-                                 .putString("cachedUserName", name)
-                                 .putString("cachedProfileImageUrl", user.getProfileImageUrl())
-                                 .putString("cachedUserEmail", user.getEmail())
-                                 .putString("cachedUserPhone", user.getPhone())
-                                 .putString("cachedUserGender", user.getGender())
-                                 .putString("cachedUserDepartment", user.getDepartment())
-                                 .putString("cachedUserBatch", user.getBatch())
-                                 .putString("cachedUserLevelTerm", user.getLevelTerm())
-                                 .putString("cachedUserSection", user.getSection())
-                                 .putString("cachedUserDesignation", user.getDesignation())
-                                 .apply();
+            SupabaseDatabaseHelper.select("profiles", "university_id=eq." + currentUniversityId + "&limit=1",
+                    new TypeToken<List<User>>() {
+                    }.getType(), new SupabaseDatabaseHelper.DatabaseCallback<List<User>>() {
+                        @Override
+                        public void onSuccess(List<User> users) {
+                            if (users != null && !users.isEmpty()) {
+                                User user = users.get(0);
+                                if (user != null) {
+                                    String name = user.getName();
+                                    if (name == null)
+                                        name = user.getFullName();
 
-                            listenForNotifications();
+                                    updateWelcomeMessage(name, user.getUserType());
+                                    if (tvNavHeaderName != null)
+                                        tvNavHeaderName.setText(name);
+                                    loadNavHeaderProfileImageRectangular(user.getProfileImageUrl());
+                                    setupProfileImageFullScreenViewer(user.getProfileImageUrl());
+
+                                    // Save profile attributes to SharedPreferences cache
+                                    prefs.edit()
+                                            .putString("cachedUserName", name)
+                                            .putString("cachedProfileImageUrl", user.getProfileImageUrl())
+                                            .putString("cachedUserEmail", user.getEmail())
+                                            .putString("cachedUserPhone", user.getPhone())
+                                            .putString("cachedUserGender", user.getGender())
+                                            .putString("cachedUserDepartment", user.getDepartment())
+                                            .putString("cachedUserBatch", user.getBatch())
+                                            .putString("cachedUserLevelTerm", user.getLevelTerm())
+                                            .putString("cachedUserSection", user.getSection())
+                                            .putString("cachedUserDesignation", user.getDesignation())
+                                            .putString("userType", user.getUserType())
+                                            .apply();
+
+                                    listenForNotifications();
+                                }
+                            }
                         }
-                    }
-                }
-                @Override public void onFailure(String errorMessage) {}
-            });
+
+                        @Override
+                        public void onFailure(String errorMessage) {
+                        }
+                    });
         }
     }
 
     private void loadNavHeaderProfileImageRectangular(String imageUrl) {
-        if (ivNavHeaderProfile == null) return;
+        if (ivNavHeaderProfile == null)
+            return;
         if (imageUrl != null && !imageUrl.isEmpty()) {
-            GlideApp.with(this).load(imageUrl).placeholder(R.drawable.ic_user).diskCacheStrategy(DiskCacheStrategy.ALL).centerCrop().into(ivNavHeaderProfile);
+            GlideApp.with(this).load(imageUrl).placeholder(R.drawable.ic_user).diskCacheStrategy(DiskCacheStrategy.ALL)
+                    .centerCrop().into(ivNavHeaderProfile);
         } else {
             ivNavHeaderProfile.setImageResource(R.drawable.ic_user);
             ivNavHeaderProfile.setScaleType(ImageView.ScaleType.CENTER_CROP);
@@ -472,7 +514,8 @@ public class CampusDashboardActivity extends AppCompatActivity {
     }
 
     private void setupProfileImageFullScreenViewer(String imageUrl) {
-        if (ivNavHeaderProfile == null || imageUrl == null || imageUrl.isEmpty()) return;
+        if (ivNavHeaderProfile == null || imageUrl == null || imageUrl.isEmpty())
+            return;
         ivNavHeaderProfile.setOnClickListener(v -> {
             Intent intent = new Intent(this, FullScreenImageActivity.class);
             ArrayList<String> images = new ArrayList<>();
@@ -484,100 +527,138 @@ public class CampusDashboardActivity extends AppCompatActivity {
     }
 
     private void fetchUserStats(String authId) {
-        if (authId == null || currentUniversityId == null) return;
+        if (authId == null || currentUniversityId == null)
+            return;
         String q = "deleted_by_user=eq.false&or=(user_id.eq." + authId + ",reporter_id.eq." + currentUniversityId + ")";
-        SupabaseDatabaseHelper.select("lost_reports", q + "&select=count", new TypeToken<List<Map<String, Object>>>(){}.getType(), new SupabaseDatabaseHelper.DatabaseCallback<List<Map<String, Object>>>() {
-            @Override public void onSuccess(List<Map<String, Object>> res) {
+        SupabaseDatabaseHelper.select("lost_reports", q + "&select=count", new TypeToken<List<Map<String, Object>>>() {
+        }.getType(), new SupabaseDatabaseHelper.DatabaseCallback<List<Map<String, Object>>>() {
+            @Override
+            public void onSuccess(List<Map<String, Object>> res) {
                 if (res != null && !res.isEmpty() && res.get(0).get("count") != null) {
                     Object countObj = res.get(0).get("count");
                     long count = (countObj instanceof Number) ? ((Number) countObj).longValue() : 0;
                     tvLostCount.setText(String.valueOf(count));
                     tvLostLabel.setText(count == 1 ? "Lost Report" : "Lost Reports");
-                    
+
                     // Update cache
-                    getSharedPreferences("MyApp", MODE_PRIVATE).edit().putString("cachedLostCount", String.valueOf(count)).apply();
+                    getSharedPreferences("MyApp", MODE_PRIVATE).edit()
+                            .putString("cachedLostCount", String.valueOf(count)).apply();
                 }
             }
-            @Override public void onFailure(String e) {}
+
+            @Override
+            public void onFailure(String e) {
+            }
         });
-        SupabaseDatabaseHelper.select("found_reports", q + "&select=count", new TypeToken<List<Map<String, Object>>>(){}.getType(), new SupabaseDatabaseHelper.DatabaseCallback<List<Map<String, Object>>>() {
-            @Override public void onSuccess(List<Map<String, Object>> res) {
+        SupabaseDatabaseHelper.select("found_reports", q + "&select=count", new TypeToken<List<Map<String, Object>>>() {
+        }.getType(), new SupabaseDatabaseHelper.DatabaseCallback<List<Map<String, Object>>>() {
+            @Override
+            public void onSuccess(List<Map<String, Object>> res) {
                 if (res != null && !res.isEmpty() && res.get(0).get("count") != null) {
                     Object countObj = res.get(0).get("count");
                     long count = (countObj instanceof Number) ? ((Number) countObj).longValue() : 0;
                     tvFoundCount.setText(String.valueOf(count));
                     tvFoundLabel.setText(count == 1 ? "Found Report" : "Found Reports");
-                    
+
                     // Update cache
-                    getSharedPreferences("MyApp", MODE_PRIVATE).edit().putString("cachedFoundCount", String.valueOf(count)).apply();
+                    getSharedPreferences("MyApp", MODE_PRIVATE).edit()
+                            .putString("cachedFoundCount", String.valueOf(count)).apply();
                 }
             }
-            @Override public void onFailure(String e) {}
+
+            @Override
+            public void onFailure(String e) {
+            }
         });
     }
 
     private void listenForNotifications() {
-        if (currentUniversityId == null) return;
+        if (currentUniversityId == null)
+            return;
         // Filter for user types only
-        String filter = "recipient_id=eq." + currentUniversityId + "&is_read=eq.false&type=in.(lost_item,found_item,item_claimed,item_return,admin_report)&select=count";
-        SupabaseDatabaseHelper.select("notifications", filter, new TypeToken<List<Map<String, Object>>>(){}.getType(), new SupabaseDatabaseHelper.DatabaseCallback<List<Map<String, Object>>>() {
-            @Override public void onSuccess(List<Map<String, Object>> res) {
+        String filter = "recipient_id=eq." + currentUniversityId
+                + "&is_read=eq.false&type=in.(lost_item,found_item,item_claimed,item_return,admin_report)&select=count";
+        SupabaseDatabaseHelper.select("notifications", filter, new TypeToken<List<Map<String, Object>>>() {
+        }.getType(), new SupabaseDatabaseHelper.DatabaseCallback<List<Map<String, Object>>>() {
+            @Override
+            public void onSuccess(List<Map<String, Object>> res) {
                 if (res != null && !res.isEmpty() && res.get(0).get("count") != null) {
                     long count = ((Number) res.get(0).get("count")).longValue();
                     tvNotificationBadge.setVisibility(count > 0 ? View.VISIBLE : View.GONE);
                     tvNotificationBadge.setText(String.valueOf(count));
                 }
             }
-            @Override public void onFailure(String e) {}
+
+            @Override
+            public void onFailure(String e) {
+            }
         });
     }
 
     private void fetchRecentItems() {
-        if (isFetchingItems) return;
+        if (isFetchingItems)
+            return;
         isFetchingItems = true;
 
         Log.d("Dashboard", "Fetching recent lost reports...");
-        SupabaseDatabaseHelper.select("lost_reports", "deleted_by_user=eq.false&order=timestamp.desc&limit=10", new TypeToken<List<Item>>(){}.getType(), new SupabaseDatabaseHelper.DatabaseCallback<List<Item>>() {
-            @Override public void onSuccess(List<Item> lostItems) {
-                Log.d("Dashboard", "Lost reports fetched: " + (lostItems != null ? lostItems.size() : 0));
-                SupabaseDatabaseHelper.select("found_reports", "deleted_by_user=eq.false&order=timestamp.desc&limit=10", new TypeToken<List<Item>>(){}.getType(), new SupabaseDatabaseHelper.DatabaseCallback<List<Item>>() {
-                    @Override public void onSuccess(List<Item> foundItems) {
-                        Log.d("Dashboard", "Found reports fetched: " + (foundItems != null ? foundItems.size() : 0));
-                        List<Item> combined = new ArrayList<>();
-                        if (lostItems != null) combined.addAll(lostItems);
-                        if (foundItems != null) combined.addAll(foundItems);
-                        
-                        // Robust sorting by timestamp
-                        combined.sort((o1, o2) -> Long.compare(o2.getTimestamp(), o1.getTimestamp()));
+        SupabaseDatabaseHelper.select("lost_reports", "deleted_by_user=eq.false&order=timestamp.desc&limit=10",
+                new TypeToken<List<Item>>() {
+                }.getType(), new SupabaseDatabaseHelper.DatabaseCallback<List<Item>>() {
+                    @Override
+                    public void onSuccess(List<Item> lostItems) {
+                        Log.d("Dashboard", "Lost reports fetched: " + (lostItems != null ? lostItems.size() : 0));
+                        SupabaseDatabaseHelper.select("found_reports",
+                                "deleted_by_user=eq.false&order=timestamp.desc&limit=10", new TypeToken<List<Item>>() {
+                                }.getType(), new SupabaseDatabaseHelper.DatabaseCallback<List<Item>>() {
+                                    @Override
+                                    public void onSuccess(List<Item> foundItems) {
+                                        Log.d("Dashboard", "Found reports fetched: "
+                                                + (foundItems != null ? foundItems.size() : 0));
+                                        List<Item> combined = new ArrayList<>();
+                                        if (lostItems != null)
+                                            combined.addAll(lostItems);
+                                        if (foundItems != null)
+                                            combined.addAll(foundItems);
 
-                        // Save to cache
-                        try {
-                            String json = new com.google.gson.Gson().toJson(combined);
-                            getSharedPreferences("MyApp", MODE_PRIVATE).edit().putString("cachedRecentItemsJson", json).apply();
-                        } catch (Exception e) {
-                            Log.e("Dashboard", "Error saving cached items: " + e.getMessage());
-                        }
-                        
-                        fullItemList.clear();
-                        fullItemList.addAll(combined);
-                        
-                        updateDisplayedList();
-                        isFetchingItems = false;
-                        if (swipeRefreshLayout != null) swipeRefreshLayout.setRefreshing(false);
+                                        // Robust sorting by timestamp
+                                        combined.sort((o1, o2) -> Long.compare(o2.getTimestamp(), o1.getTimestamp()));
+
+                                        // Save to cache
+                                        try {
+                                            String json = new com.google.gson.Gson().toJson(combined);
+                                            getSharedPreferences("MyApp", MODE_PRIVATE).edit()
+                                                    .putString("cachedRecentItemsJson", json).apply();
+                                        } catch (Exception e) {
+                                            Log.e("Dashboard", "Error saving cached items: " + e.getMessage());
+                                        }
+
+                                        fullItemList.clear();
+                                        fullItemList.addAll(combined);
+
+                                        updateDisplayedList();
+                                        isFetchingItems = false;
+                                        if (swipeRefreshLayout != null)
+                                            swipeRefreshLayout.setRefreshing(false);
+                                    }
+
+                                    @Override
+                                    public void onFailure(String e) {
+                                        Log.e("Dashboard", "Failed to fetch found reports: " + e);
+                                        isFetchingItems = false;
+                                        if (swipeRefreshLayout != null)
+                                            swipeRefreshLayout.setRefreshing(false);
+                                    }
+                                });
                     }
-                    @Override public void onFailure(String e) {
-                        Log.e("Dashboard", "Failed to fetch found reports: " + e);
+
+                    @Override
+                    public void onFailure(String e) {
+                        Log.e("Dashboard", "Failed to fetch lost reports: " + e);
                         isFetchingItems = false;
-                        if (swipeRefreshLayout != null) swipeRefreshLayout.setRefreshing(false);
+                        if (swipeRefreshLayout != null)
+                            swipeRefreshLayout.setRefreshing(false);
                     }
                 });
-            }
-            @Override public void onFailure(String e) {
-                Log.e("Dashboard", "Failed to fetch lost reports: " + e);
-                isFetchingItems = false;
-                if (swipeRefreshLayout != null) swipeRefreshLayout.setRefreshing(false);
-            }
-        });
     }
 
     private void updateDisplayedList() {
@@ -588,37 +669,39 @@ public class CampusDashboardActivity extends AppCompatActivity {
         }
 
         // Use DiffUtil to compute exact changes
-        androidx.recyclerview.widget.DiffUtil.DiffResult diffResult = androidx.recyclerview.widget.DiffUtil.calculateDiff(new androidx.recyclerview.widget.DiffUtil.Callback() {
-            @Override
-            public int getOldListSize() {
-                return displayedItemList.size();
-            }
+        androidx.recyclerview.widget.DiffUtil.DiffResult diffResult = androidx.recyclerview.widget.DiffUtil
+                .calculateDiff(new androidx.recyclerview.widget.DiffUtil.Callback() {
+                    @Override
+                    public int getOldListSize() {
+                        return displayedItemList.size();
+                    }
 
-            @Override
-            public int getNewListSize() {
-                return newDisplayedList.size();
-            }
+                    @Override
+                    public int getNewListSize() {
+                        return newDisplayedList.size();
+                    }
 
-            @Override
-            public boolean areItemsTheSame(int oldItemPosition, int newItemPosition) {
-                Item oldItem = displayedItemList.get(oldItemPosition);
-                Item newItem = newDisplayedList.get(newItemPosition);
-                return oldItem.getId() != null && newItem.getId() != null && oldItem.getId().equals(newItem.getId());
-            }
+                    @Override
+                    public boolean areItemsTheSame(int oldItemPosition, int newItemPosition) {
+                        Item oldItem = displayedItemList.get(oldItemPosition);
+                        Item newItem = newDisplayedList.get(newItemPosition);
+                        return oldItem.getId() != null && newItem.getId() != null
+                                && oldItem.getId().equals(newItem.getId());
+                    }
 
-            @Override
-            public boolean areContentsTheSame(int oldItemPosition, int newItemPosition) {
-                Item oldItem = displayedItemList.get(oldItemPosition);
-                Item newItem = newDisplayedList.get(newItemPosition);
-                return java.util.Objects.equals(oldItem.getName(), newItem.getName()) &&
-                       java.util.Objects.equals(oldItem.getLocation(), newItem.getLocation()) &&
-                       java.util.Objects.equals(oldItem.getDate(), newItem.getDate()) &&
-                       java.util.Objects.equals(oldItem.getAdminStatus(), newItem.getAdminStatus()) &&
-                       java.util.Objects.equals(oldItem.getStatus(), newItem.getStatus()) &&
-                       java.util.Objects.equals(oldItem.getImageUrl(), newItem.getImageUrl()) &&
-                       java.util.Objects.equals(oldItem.getImageUrls(), newItem.getImageUrls());
-            }
-        });
+                    @Override
+                    public boolean areContentsTheSame(int oldItemPosition, int newItemPosition) {
+                        Item oldItem = displayedItemList.get(oldItemPosition);
+                        Item newItem = newDisplayedList.get(newItemPosition);
+                        return java.util.Objects.equals(oldItem.getName(), newItem.getName()) &&
+                                java.util.Objects.equals(oldItem.getLocation(), newItem.getLocation()) &&
+                                java.util.Objects.equals(oldItem.getDate(), newItem.getDate()) &&
+                                java.util.Objects.equals(oldItem.getAdminStatus(), newItem.getAdminStatus()) &&
+                                java.util.Objects.equals(oldItem.getStatus(), newItem.getStatus()) &&
+                                java.util.Objects.equals(oldItem.getImageUrl(), newItem.getImageUrl()) &&
+                                java.util.Objects.equals(oldItem.getImageUrls(), newItem.getImageUrls());
+                    }
+                });
 
         displayedItemList.clear();
         displayedItemList.addAll(newDisplayedList);
@@ -628,69 +711,301 @@ public class CampusDashboardActivity extends AppCompatActivity {
         btnViewLess.setVisibility(currentLimit > 5 ? View.VISIBLE : View.GONE);
     }
 
+    private void updateWelcomeMessage(String name, String userType) {
+        if (name == null || name.trim().isEmpty()) {
+            name = "User";
+        }
+        if (userType == null || userType.trim().isEmpty()) {
+            userType = "Student";
+        }
+
+        // Apply role-based styling (background gradient & watermark icon)
+        if (layoutWelcomeBg != null && ivWelcomeWatermark != null) {
+            if ("Staff".equalsIgnoreCase(userType)) {
+                layoutWelcomeBg.setBackgroundResource(R.drawable.staff_gradient_bg);
+                ivWelcomeWatermark.setImageResource(R.drawable.ic_id_card);
+            } else if ("Admin".equalsIgnoreCase(userType)) {
+                layoutWelcomeBg.setBackgroundResource(R.drawable.admin_user_view_gradient_bg);
+                ivWelcomeWatermark.setImageResource(R.drawable.ic_shield);
+            } else {
+                // Default: Student
+                layoutWelcomeBg.setBackgroundResource(R.drawable.user_gradient_bg);
+                ivWelcomeWatermark.setImageResource(R.drawable.ic_graduation_cap);
+            }
+        }
+
+        // Apply dynamic button styling (background & text/icon colors) based on role
+        int themeColor;
+        if ("Staff".equalsIgnoreCase(userType)) {
+            themeColor = ContextCompat.getColor(this, R.color.statusFound);
+        } else if ("Admin".equalsIgnoreCase(userType)) {
+            themeColor = ContextCompat.getColor(this, R.color.admin_accent);
+        } else {
+            themeColor = ContextCompat.getColor(this, R.color.primaryColor);
+        }
+
+        // Generate dynamic ColorStateLists for background and text/icon colors to support active/pressed states with excellent contrast
+        int pressedBgColor = (themeColor & 0x00FFFFFF) | 0x40000000; // 25% alpha
+        int normalBgColor = (themeColor & 0x00FFFFFF) | 0x1A000000;  // 10% alpha
+        int disabledBgColor = android.graphics.Color.parseColor("#1A808080"); // 10% alpha gray
+        int disabledTextColor = ContextCompat.getColor(this, R.color.textSecondary);
+
+        android.content.res.ColorStateList bgStatesList = new android.content.res.ColorStateList(
+            new int[][] {
+                new int[] { android.R.attr.state_pressed },
+                new int[] { -android.R.attr.state_enabled },
+                new int[] {}
+            },
+            new int[] {
+                pressedBgColor,
+                disabledBgColor,
+                normalBgColor
+            }
+        );
+
+        android.content.res.ColorStateList textStatesList = new android.content.res.ColorStateList(
+            new int[][] {
+                new int[] { -android.R.attr.state_enabled },
+                new int[] {}
+            },
+            new int[] {
+                disabledTextColor,
+                themeColor
+            }
+        );
+
+        if (btnViewMore instanceof com.google.android.material.button.MaterialButton) {
+            com.google.android.material.button.MaterialButton mBtn = (com.google.android.material.button.MaterialButton) btnViewMore;
+            mBtn.setBackgroundTintList(bgStatesList);
+            mBtn.setTextColor(textStatesList);
+            mBtn.setIconTint(textStatesList);
+        }
+        if (btnViewLess instanceof com.google.android.material.button.MaterialButton) {
+            com.google.android.material.button.MaterialButton mBtn = (com.google.android.material.button.MaterialButton) btnViewLess;
+            mBtn.setBackgroundTintList(bgStatesList);
+            mBtn.setTextColor(textStatesList);
+            mBtn.setIconTint(textStatesList);
+        }
+
+        String key = name + "_" + userType;
+        if (key.equals(lastWelcomeKey)) {
+            // Already running welcome loop for this name and type
+            return;
+        }
+        lastWelcomeKey = key;
+        
+        // Stop any running animations and handlers
+        if (tvWelcome != null) {
+            tvWelcome.animate().cancel();
+        }
+        welcomeLoopHandler.removeCallbacksAndMessages(null);
+        typingHandler.removeCallbacksAndMessages(null);
+        
+        String welcomeText = "Welcome back, " + name + "!";
+        startWelcomeLoop(tvWelcome, welcomeText);
+    }
+
+    private void startWelcomeLoop(final TextView textView, final String welcomeText) {
+        if (textView == null || isFinishing() || isDestroyed()) {
+            return;
+        }
+
+        // Reset positions
+        textView.setText("");
+        textView.setAlpha(0f);
+        textView.setTranslationY(20f);
+
+        // Slide up + Fade in
+        textView.animate()
+            .alpha(1f)
+            .translationY(0f)
+            .setDuration(800)
+            .setInterpolator(new android.view.animation.DecelerateInterpolator())
+            .withEndAction(() -> {
+                // When entrance completes, start typing
+                animateTextTyping(textView, welcomeText, () -> {
+                    // When typing finishes, wait 4 seconds, then slide up + fade out
+                    welcomeLoopRunnable = () -> {
+                        if (isFinishing() || isDestroyed() || !textView.isAttachedToWindow()) {
+                            return;
+                        }
+                        textView.animate()
+                            .alpha(0f)
+                            .translationY(-20f)
+                            .setDuration(800)
+                            .setInterpolator(new android.view.animation.AccelerateInterpolator())
+                            .withEndAction(() -> {
+                                // Restart the welcome loop
+                                startWelcomeLoop(textView, welcomeText);
+                            })
+                            .start();
+                    };
+                    welcomeLoopHandler.postDelayed(welcomeLoopRunnable, 4000);
+                });
+            })
+            .start();
+    }
+
+    private void animateTextTyping(final TextView textView, final String fullText, final Runnable onComplete) {
+        textView.setText("");
+        final int delay = 60; // ms per character
+        typingRunnable = new Runnable() {
+            private int index = 0;
+            @Override
+            public void run() {
+                if (isFinishing() || isDestroyed()) {
+                    return;
+                }
+                if (textView == null) {
+                    return;
+                }
+                if (index > 0 && !textView.isAttachedToWindow()) {
+                    return;
+                }
+                if (index <= fullText.length()) {
+                    textView.setText(fullText.substring(0, index));
+                    index++;
+                    typingHandler.postDelayed(this, delay);
+                } else if (onComplete != null) {
+                    onComplete.run();
+                }
+            }
+        };
+        typingHandler.post(typingRunnable);
+    }
+
     private class RecentItemsAdapter extends RecyclerView.Adapter<RecentItemsAdapter.ViewHolder> {
         private List<Item> items;
         private Map<Integer, Runnable> sliderRunnables = new HashMap<>();
         private Handler sliderHandler = new Handler(Looper.getMainLooper());
-        public RecentItemsAdapter(List<Item> items) { this.items = items; }
-        @NonNull @Override public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-            return new ViewHolder(LayoutInflater.from(parent.getContext()).inflate(R.layout.item_campus_reported_recent, parent, false));
+
+        public RecentItemsAdapter(List<Item> items) {
+            this.items = items;
         }
-        @Override public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
+
+        @NonNull
+        @Override
+        public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+            return new ViewHolder(LayoutInflater.from(parent.getContext()).inflate(R.layout.item_campus_reported_recent,
+                    parent, false));
+        }
+
+        @Override
+        public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
             Item item = items.get(position);
             holder.tvTitle.setText(item.getName());
-            holder.tvLocation.setText(ReportLocationDisplay.formatFullLocation(item.getLocation(), item.getManualLocation(), item.getAdditionalLocationDetails()));
+            holder.tvLocation.setText(ReportLocationDisplay.formatFullLocation(item.getLocation(),
+                    item.getManualLocation(), item.getAdditionalLocationDetails()));
             holder.tvTime.setText(item.getDate());
-            
+
             String displayId = item.getDisplayId();
             if (displayId == null || displayId.isEmpty()) {
                 displayId = item.getReportId();
             }
             holder.tvReportId.setText(ReportIdFormatter.format(displayId));
 
-            boolean res = "Claimed".equalsIgnoreCase(item.getAdminStatus()) || "Returned".equalsIgnoreCase(item.getAdminStatus());
-            int color = ContextCompat.getColor(holder.itemView.getContext(), res ? R.color.badge_resolved_bg : ("lost".equals(item.getStatus()) ? R.color.badge_lost_bg : R.color.badge_found_bg));
+            boolean res = "Claimed".equalsIgnoreCase(item.getAdminStatus())
+                    || "Returned".equalsIgnoreCase(item.getAdminStatus());
+            int color = ContextCompat.getColor(holder.itemView.getContext(), res ? R.color.badge_resolved_bg
+                    : ("lost".equals(item.getStatus()) ? R.color.badge_lost_bg : R.color.badge_found_bg));
             holder.statusIndicator.setBackgroundColor(color);
             holder.tvBadge.setText(res ? "RESOLVED" : item.getStatus().toUpperCase());
-            if (holder.cardBadge != null) holder.cardBadge.setCardBackgroundColor(color);
+            if (holder.cardBadge != null)
+                holder.cardBadge.setCardBackgroundColor(color);
             setupImageOrSlider(holder, item, position);
             holder.itemView.setOnClickListener(v -> ItemNavigationUtils.navigateToDetail(v.getContext(), item));
         }
+
         private void setupImageOrSlider(ViewHolder h, Item item, int pos) {
             List<String> urls = item.getImageUrls();
             if (urls != null && urls.size() > 1 && h.viewPagerSlider != null) {
-                h.ivIcon.setVisibility(View.GONE); h.viewPagerSlider.setVisibility(View.VISIBLE);
-                if (h.tabLayoutIndicator != null) h.tabLayoutIndicator.setVisibility(View.VISIBLE);
+                h.ivIcon.setVisibility(View.GONE);
+                h.viewPagerSlider.setVisibility(View.VISIBLE);
+                if (h.tabLayoutIndicator != null)
+                    h.tabLayoutIndicator.setVisibility(View.VISIBLE);
                 ImageSliderAdapter sAdapter = new ImageSliderAdapter(urls, true);
-                sAdapter.setOnImageClickListener(p -> ItemNavigationUtils.navigateToDetail(h.itemView.getContext(), item));
+                sAdapter.setOnImageClickListener(
+                        p -> ItemNavigationUtils.navigateToDetail(h.itemView.getContext(), item));
                 h.viewPagerSlider.setAdapter(sAdapter);
-                if (h.tabLayoutIndicator != null) new TabLayoutMediator(h.tabLayoutIndicator, h.viewPagerSlider, (t, p) -> {}).attach();
+                if (h.tabLayoutIndicator != null)
+                    new TabLayoutMediator(h.tabLayoutIndicator, h.viewPagerSlider, (t, p) -> {
+                    }).attach();
                 stopSlider(pos);
-                Runnable r = new Runnable() { @Override public void run() { if (h.viewPagerSlider != null) { int c = h.viewPagerSlider.getCurrentItem(); h.viewPagerSlider.setCurrentItem((c + 1) % urls.size(), true); sliderHandler.postDelayed(this, 3000); } } };
-                sliderRunnables.put(pos, r); sliderHandler.postDelayed(r, 3000);
+                Runnable r = new Runnable() {
+                    @Override
+                    public void run() {
+                        if (h.viewPagerSlider != null) {
+                            int c = h.viewPagerSlider.getCurrentItem();
+                            h.viewPagerSlider.setCurrentItem((c + 1) % urls.size(), true);
+                            sliderHandler.postDelayed(this, 3000);
+                        }
+                    }
+                };
+                sliderRunnables.put(pos, r);
+                sliderHandler.postDelayed(r, 3000);
             } else {
-                if (h.viewPagerSlider != null) h.viewPagerSlider.setVisibility(View.GONE);
-                if (h.tabLayoutIndicator != null) h.tabLayoutIndicator.setVisibility(View.GONE);
-                h.ivIcon.setVisibility(View.VISIBLE); stopSlider(pos);
+                if (h.viewPagerSlider != null)
+                    h.viewPagerSlider.setVisibility(View.GONE);
+                if (h.tabLayoutIndicator != null)
+                    h.tabLayoutIndicator.setVisibility(View.GONE);
+                h.ivIcon.setVisibility(View.VISIBLE);
+                stopSlider(pos);
                 String url = (urls != null && !urls.isEmpty()) ? urls.get(0) : item.getImageUrl();
                 if (url != null && !url.isEmpty()) {
-                    h.ivIcon.setImageTintList(null); h.ivIcon.setScaleType(ImageView.ScaleType.CENTER_CROP);
-                    GlideApp.with(h.itemView.getContext()).load(url).placeholder(R.drawable.ic_package).thumbnail(0.1f).diskCacheStrategy(DiskCacheStrategy.ALL).centerCrop().into(h.ivIcon);
+                    h.ivIcon.setImageTintList(null);
+                    h.ivIcon.setScaleType(ImageView.ScaleType.CENTER_CROP);
+                    GlideApp.with(h.itemView.getContext()).load(url).placeholder(R.drawable.ic_package).thumbnail(0.1f)
+                            .diskCacheStrategy(DiskCacheStrategy.ALL).centerCrop().into(h.ivIcon);
                     h.ivIcon.setOnClickListener(v -> ItemNavigationUtils.navigateToDetail(v.getContext(), item));
                 } else {
-                    h.ivIcon.setImageResource(R.drawable.ic_package); h.ivIcon.setScaleType(ImageView.ScaleType.CENTER_INSIDE);
-                    h.ivIcon.setImageTintList(android.content.res.ColorStateList.valueOf(ContextCompat.getColor(h.itemView.getContext(), R.color.textSecondary)));
+                    h.ivIcon.setImageResource(R.drawable.ic_package);
+                    h.ivIcon.setScaleType(ImageView.ScaleType.CENTER_INSIDE);
+                    h.ivIcon.setImageTintList(android.content.res.ColorStateList
+                            .valueOf(ContextCompat.getColor(h.itemView.getContext(), R.color.textSecondary)));
                     h.ivIcon.setOnClickListener(v -> ItemNavigationUtils.navigateToDetail(v.getContext(), item));
                 }
             }
         }
-        private void stopSlider(int pos) { Runnable r = sliderRunnables.get(pos); if (r != null) { sliderHandler.removeCallbacks(r); sliderRunnables.remove(pos); } }
-        @Override public void onViewRecycled(@NonNull ViewHolder h) { super.onViewRecycled(h); stopSlider(h.getBindingAdapterPosition()); }
-        @Override public int getItemCount() { return items.size(); }
+
+        private void stopSlider(int pos) {
+            Runnable r = sliderRunnables.get(pos);
+            if (r != null) {
+                sliderHandler.removeCallbacks(r);
+                sliderRunnables.remove(pos);
+            }
+        }
+
+        @Override
+        public void onViewRecycled(@NonNull ViewHolder h) {
+            super.onViewRecycled(h);
+            stopSlider(h.getBindingAdapterPosition());
+        }
+
+        @Override
+        public int getItemCount() {
+            return items.size();
+        }
+
         class ViewHolder extends RecyclerView.ViewHolder {
-            TextView tvTitle, tvLocation, tvTime, tvBadge, tvReportId; ImageView ivIcon; View statusIndicator; MaterialCardView cardBadge; ViewPager2 viewPagerSlider; TabLayout tabLayoutIndicator;
+            TextView tvTitle, tvLocation, tvTime, tvBadge, tvReportId;
+            ImageView ivIcon;
+            View statusIndicator;
+            MaterialCardView cardBadge;
+            ViewPager2 viewPagerSlider;
+            TabLayout tabLayoutIndicator;
+
             public ViewHolder(@NonNull View v) {
-                super(v); tvTitle = v.findViewById(R.id.tvItemTitle); tvLocation = v.findViewById(R.id.tvItemLocation); tvTime = v.findViewById(R.id.tvItemTime); ivIcon = v.findViewById(R.id.ivItemIcon); statusIndicator = v.findViewById(R.id.viewStatusIndicator); tvBadge = v.findViewById(R.id.tvBadge); cardBadge = v.findViewById(R.id.cardBadge); tvReportId = v.findViewById(R.id.tvReportId); viewPagerSlider = v.findViewById(R.id.viewPagerSlider); tabLayoutIndicator = v.findViewById(R.id.tabLayoutIndicator);
+                super(v);
+                tvTitle = v.findViewById(R.id.tvItemTitle);
+                tvLocation = v.findViewById(R.id.tvItemLocation);
+                tvTime = v.findViewById(R.id.tvItemTime);
+                ivIcon = v.findViewById(R.id.ivItemIcon);
+                statusIndicator = v.findViewById(R.id.viewStatusIndicator);
+                tvBadge = v.findViewById(R.id.tvBadge);
+                cardBadge = v.findViewById(R.id.cardBadge);
+                tvReportId = v.findViewById(R.id.tvReportId);
+                viewPagerSlider = v.findViewById(R.id.viewPagerSlider);
+                tabLayoutIndicator = v.findViewById(R.id.tabLayoutIndicator);
             }
         }
     }

@@ -192,6 +192,7 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ViewHolder> {
 
             if (item.getImageUrl() != null && !item.getImageUrl().isEmpty()) {
                 holder.ivImage.setVisibility(View.VISIBLE);
+                holder.ivImage.setScaleType(ImageView.ScaleType.CENTER_CROP);
                 if (holder.tvEmoji != null) holder.tvEmoji.setVisibility(View.GONE);
                 GlideApp.with(holder.itemView.getContext())
                         .load(SupabaseStorageHelper.ensurePublicUrl(item.getImageUrl()))
@@ -211,6 +212,7 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ViewHolder> {
                 });
             } else {
                 holder.ivImage.setVisibility(View.VISIBLE);
+                holder.ivImage.setScaleType(ImageView.ScaleType.CENTER_INSIDE);
                 holder.ivImage.setImageResource(R.drawable.ic_package);
                 // Even if placeholder, click leads to details
                 holder.ivImage.setOnClickListener(v -> {

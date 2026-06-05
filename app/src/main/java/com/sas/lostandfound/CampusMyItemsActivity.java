@@ -512,6 +512,7 @@ public class CampusMyItemsActivity extends AppCompatActivity {
                 stopSlider(position);
 
                 if (item.getImageUrl() != null && !item.getImageUrl().isEmpty()) {
+                    holder.ivIcon.setScaleType(ImageView.ScaleType.CENTER_CROP);
                     GlideApp.with(holder.itemView.getContext())
                             .load(item.getImageUrl())
                             .placeholder(R.drawable.ic_package)
@@ -531,6 +532,7 @@ public class CampusMyItemsActivity extends AppCompatActivity {
                         }
                     });
                 } else {
+                    holder.ivIcon.setScaleType(ImageView.ScaleType.CENTER_INSIDE);
                     holder.ivIcon.setImageResource(R.drawable.ic_package);
                     // Still navigate to details on placeholder click
                     holder.ivIcon.setOnClickListener(v -> {

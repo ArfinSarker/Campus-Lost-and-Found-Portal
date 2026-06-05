@@ -81,7 +81,7 @@ public class BrowseItemsActivity extends AppCompatActivity {
         if (toolbar != null) {
             setSupportActionBar(toolbar);
             toolbar.setNavigationOnClickListener(v -> finish());
-            
+
             com.google.android.material.appbar.AppBarLayout appBarLayout = findViewById(R.id.appBarLayout);
             if (appBarLayout != null) {
                 HeaderColorHelper.setup(this, appBarLayout, toolbar);
@@ -101,17 +101,23 @@ public class BrowseItemsActivity extends AppCompatActivity {
     private void setupFilters() {
         etSearch.addTextChangedListener(new TextWatcher() {
             @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+            }
+
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
                 currentSearchQuery = s.toString().trim().toLowerCase();
                 filterItems();
             }
+
             @Override
-            public void afterTextChanged(Editable s) {}
+            public void afterTextChanged(Editable s) {
+            }
         });
 
-        String[] categories = {"All Categories", "Electronics & Gadgets", "ID Cards", "Wallets & Purses", "Bank/Credit Cards", "Bags", "Study Materials", "Eyewear", "Keys & Access Devices", "Clothing & Accessories", "Others"};
+        String[] categories = { "All Categories", "Electronics & Gadgets", "ID Cards", "Wallets & Purses",
+                "Bank/Credit Cards", "Bags", "Study Materials", "Eyewear", "Keys & Access Devices",
+                "Clothing & Accessories", "Others" };
         ArrayAdapter<String> categoryAdapter = new ArrayAdapter<>(this, R.layout.dropdown_item, categories);
         actvCategoryFilter.setAdapter(categoryAdapter);
         actvCategoryFilter.setText(categories[0], false);
@@ -138,26 +144,32 @@ public class BrowseItemsActivity extends AppCompatActivity {
     }
 
     private void loadItems() {
-        if (isFetching) return;
+        if (isFetching)
+            return;
         isFetching = true;
 
         // Fetch Lost Items
-        SupabaseDatabaseHelper.select("lost_reports", "deleted_by_user=eq.false", new TypeToken<List<Item>>(){}.getType(), new SupabaseDatabaseHelper.DatabaseCallback<List<Item>>() {
+        SupabaseDatabaseHelper.select("lost_reports", "deleted_by_user=eq.false", new TypeToken<List<Item>>() {
+        }.getType(), new SupabaseDatabaseHelper.DatabaseCallback<List<Item>>() {
             @Override
             public void onSuccess(List<Item> lostItems) {
                 // Fetch Found Items
-                SupabaseDatabaseHelper.select("found_reports", "deleted_by_user=eq.false", new TypeToken<List<Item>>(){}.getType(), new SupabaseDatabaseHelper.DatabaseCallback<List<Item>>() {
+                SupabaseDatabaseHelper.select("found_reports", "deleted_by_user=eq.false", new TypeToken<List<Item>>() {
+                }.getType(), new SupabaseDatabaseHelper.DatabaseCallback<List<Item>>() {
                     @Override
                     public void onSuccess(List<Item> foundItems) {
                         lostItemsList.clear();
-                        if (lostItems != null) lostItemsList.addAll(lostItems);
-                        
+                        if (lostItems != null)
+                            lostItemsList.addAll(lostItems);
+
                         foundItemsList.clear();
-                        if (foundItems != null) foundItemsList.addAll(foundItems);
-                        
+                        if (foundItems != null)
+                            foundItemsList.addAll(foundItems);
+
                         combineAndFilter();
                         isFetching = false;
-                        if (swipeRefreshLayout != null) swipeRefreshLayout.setRefreshing(false);
+                        if (swipeRefreshLayout != null)
+                            swipeRefreshLayout.setRefreshing(false);
                     }
 
                     @Override
@@ -166,7 +178,8 @@ public class BrowseItemsActivity extends AppCompatActivity {
                         if (!isFinishing()) {
                             SnackbarManager.show(SnackbarManager.Type.ERROR, "FoundReports Error: " + errorMessage);
                         }
-                        if (swipeRefreshLayout != null) swipeRefreshLayout.setRefreshing(false);
+                        if (swipeRefreshLayout != null)
+                            swipeRefreshLayout.setRefreshing(false);
                     }
                 });
             }
@@ -177,7 +190,8 @@ public class BrowseItemsActivity extends AppCompatActivity {
                 if (!isFinishing()) {
                     SnackbarManager.show(SnackbarManager.Type.ERROR, "LostReports Error: " + errorMessage);
                 }
-                if (swipeRefreshLayout != null) swipeRefreshLayout.setRefreshing(false);
+                if (swipeRefreshLayout != null)
+                    swipeRefreshLayout.setRefreshing(false);
             }
         });
     }
@@ -197,16 +211,16 @@ public class BrowseItemsActivity extends AppCompatActivity {
             String desc = item.getDescription() != null ? item.getDescription().toLowerCase() : "";
             String displayId = item.getDisplayId() != null ? item.getDisplayId().toLowerCase() : "";
             String formattedId = ("#" + displayId);
-            
-            boolean matchesSearch = currentSearchQuery.isEmpty() || 
-                                    name.contains(currentSearchQuery) || 
-                                    desc.contains(currentSearchQuery) ||
-                                    displayId.contains(currentSearchQuery) ||
-                                    formattedId.contains(currentSearchQuery);
-            
-            boolean matchesCategory = currentCategory.equals("All Categories") || 
-                                      (item.getCategory() != null && item.getCategory().equals(currentCategory));
-            
+
+            boolean matchesSearch = currentSearchQuery.isEmpty() ||
+                    name.contains(currentSearchQuery) ||
+                    desc.contains(currentSearchQuery) ||
+                    displayId.contains(currentSearchQuery) ||
+                    formattedId.contains(currentSearchQuery);
+
+            boolean matchesCategory = currentCategory.equals("All Categories") ||
+                    (item.getCategory() != null && item.getCategory().equals(currentCategory));
+
             boolean matchesStatus = false;
             String adminStatus = item.getAdminStatus();
             boolean isClaimed = "Claimed".equalsIgnoreCase(adminStatus) || "Returned".equalsIgnoreCase(adminStatus);
@@ -226,7 +240,7 @@ public class BrowseItemsActivity extends AppCompatActivity {
             }
         }
         adapter.updateItems(temp);
-        
+
         if (filteredItems.isEmpty()) {
             layoutEmptyState.setVisibility(View.VISIBLE);
             recyclerView.setVisibility(View.GONE);

@@ -123,12 +123,50 @@
                     android:orientation="vertical"
                     android:padding="16dp">
 
-                    <TextView
-                        android:id="@+id/tvWelcome"
-                        style="@style/TextAppearance.App.Headline"
-                        android:layout_width="wrap_content"
+                    <!-- Welcome Section Banner Card -->
+                    <com.google.android.material.card.MaterialCardView
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="@string/welcomeUser" />
+                        app:cardCornerRadius="16dp"
+                        app:cardElevation="3dp"
+                        app:strokeWidth="0dp">
+
+                        <FrameLayout
+                            android:id="@+id/layoutWelcomeBg"
+                            android:layout_width="match_parent"
+                            android:layout_height="130dp"
+                            android:background="@drawable/user_gradient_bg">
+
+                            <!-- Semi-transparent decorative graduation cap icon on the right -->
+                            <ImageView
+                                android:id="@+id/ivWelcomeWatermark"
+                                android:layout_width="110dp"
+                                android:layout_height="110dp"
+                                android:layout_gravity="end|center_vertical"
+                                android:layout_marginEnd="-10dp"
+                                android:alpha="0.15"
+                                android:src="@drawable/ic_graduation_cap"
+                                app:tint="@color/white" />
+
+                            <LinearLayout
+                                android:layout_width="match_parent"
+                                android:layout_height="match_parent"
+                                android:orientation="vertical"
+                                android:padding="20dp"
+                                android:gravity="center">
+
+                                <TextView
+                                    android:id="@+id/tvWelcome"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="@string/welcomeUser"
+                                    android:textColor="@color/white"
+                                    android:textSize="22sp"
+                                    android:fontFamily="sans-serif-black"
+                                    android:gravity="center" />
+                            </LinearLayout>
+                        </FrameLayout>
+                    </com.google.android.material.card.MaterialCardView>
 
                     <LinearLayout
                         android:layout_width="match_parent"
@@ -139,68 +177,132 @@
                         <!-- Lost Reports Card -->
                         <com.google.android.material.card.MaterialCardView
                             android:id="@+id/cardUserLostReports"
-                            style="@style/Widget.App.Card"
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
+                            app:cardCornerRadius="16dp"
+                            app:cardElevation="0dp"
+                            app:cardBackgroundColor="#0DFF3B30"
+                            app:strokeWidth="0dp"
                             android:clickable="true"
                             android:focusable="true">
-                            <LinearLayout
+
+                            <androidx.constraintlayout.widget.ConstraintLayout
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
-                                android:orientation="vertical"
-                                android:padding="10dp"
-                                android:gravity="center">
+                                android:padding="16dp">
+
                                 <TextView
                                     android:id="@+id/tvUserLostCount"
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
                                     android:text="0"
-                                    style="@style/TextAppearance.App.Headline"
-                                    android:textColor="#FF0000"/>
+                                    android:textColor="@color/statusLost"
+                                    android:textSize="36sp"
+                                    android:textStyle="bold"
+                                    android:fontFamily="sans-serif-black"
+                                    app:layout_constraintStart_toStartOf="parent"
+                                    app:layout_constraintTop_toTopOf="parent"/>
+
                                 <TextView
                                     android:id="@+id/tvUserLostLabel"
-                                    android:layout_width="wrap_content"
+                                    android:layout_width="0dp"
                                     android:layout_height="wrap_content"
-                                    android:text="Report Lost"
-                                    android:textStyle="bold"
-                                    android:textColor="#FF0000"
-                                    style="@style/TextAppearance.App.Small"/>
-                            </LinearLayout>
+                                    android:layout_marginTop="4dp"
+                                    android:text="Lost Reports"
+                                    android:textColor="@color/textSecondary"
+                                    android:textSize="13sp"
+                                    android:fontFamily="sans-serif-medium"
+                                    app:layout_constraintStart_toStartOf="parent"
+                                    app:layout_constraintEnd_toStartOf="@+id/layoutIconLost"
+                                    app:layout_constraintTop_toBottomOf="@+id/tvUserLostCount"
+                                    app:layout_constraintBottom_toBottomOf="parent"/>
+
+                                <FrameLayout
+                                    android:id="@+id/layoutIconLost"
+                                    android:layout_width="40dp"
+                                    android:layout_height="40dp"
+                                    android:background="@drawable/bg_indicator_pill"
+                                    android:backgroundTint="#1AFF3B30"
+                                    app:layout_constraintEnd_toEndOf="parent"
+                                    app:layout_constraintTop_toTopOf="parent"
+                                    app:layout_constraintBottom_toBottomOf="parent">
+
+                                    <ImageView
+                                        android:layout_width="20dp"
+                                        android:layout_height="20dp"
+                                        android:layout_gravity="center"
+                                        android:src="@drawable/ic_warning"
+                                        app:tint="@color/statusLost" />
+                                </FrameLayout>
+
+                            </androidx.constraintlayout.widget.ConstraintLayout>
                         </com.google.android.material.card.MaterialCardView>
 
                         <!-- Found Reports Card -->
                         <com.google.android.material.card.MaterialCardView
                             android:id="@+id/cardUserFoundReports"
-                            style="@style/Widget.App.Card"
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
                             android:layout_marginStart="12dp"
+                            app:cardCornerRadius="16dp"
+                            app:cardElevation="0dp"
+                            app:cardBackgroundColor="#0D34C759"
+                            app:strokeWidth="0dp"
                             android:clickable="true"
                             android:focusable="true">
-                            <LinearLayout
+
+                            <androidx.constraintlayout.widget.ConstraintLayout
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
-                                android:orientation="vertical"
-                                android:padding="10dp"
-                                android:gravity="center">
+                                android:padding="16dp">
+
                                 <TextView
                                     android:id="@+id/tvUserFoundCount"
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
                                     android:text="0"
-                                    style="@style/TextAppearance.App.Headline"
-                                    android:textColor="@color/statusFound"/>
+                                    android:textColor="@color/statusFound"
+                                    android:textSize="36sp"
+                                    android:textStyle="bold"
+                                    android:fontFamily="sans-serif-black"
+                                    app:layout_constraintStart_toStartOf="parent"
+                                    app:layout_constraintTop_toTopOf="parent"/>
+
                                 <TextView
                                     android:id="@+id/tvUserFoundLabel"
-                                    android:layout_width="wrap_content"
+                                    android:layout_width="0dp"
                                     android:layout_height="wrap_content"
-                                    android:text="Report Found"
-                                    android:textStyle="bold"
-                                    android:textColor="@color/statusFound"
-                                    style="@style/TextAppearance.App.Small"/>
-                            </LinearLayout>
+                                    android:layout_marginTop="4dp"
+                                    android:text="Found Reports"
+                                    android:textColor="@color/textSecondary"
+                                    android:textSize="13sp"
+                                    android:fontFamily="sans-serif-medium"
+                                    app:layout_constraintStart_toStartOf="parent"
+                                    app:layout_constraintEnd_toStartOf="@+id/layoutIconFound"
+                                    app:layout_constraintTop_toBottomOf="@+id/tvUserFoundCount"
+                                    app:layout_constraintBottom_toBottomOf="parent"/>
+
+                                <FrameLayout
+                                    android:id="@+id/layoutIconFound"
+                                    android:layout_width="40dp"
+                                    android:layout_height="40dp"
+                                    android:background="@drawable/bg_indicator_pill"
+                                    android:backgroundTint="#1A34C759"
+                                    app:layout_constraintEnd_toEndOf="parent"
+                                    app:layout_constraintTop_toTopOf="parent"
+                                    app:layout_constraintBottom_toBottomOf="parent">
+
+                                    <ImageView
+                                        android:layout_width="20dp"
+                                        android:layout_height="20dp"
+                                        android:layout_gravity="center"
+                                        android:src="@drawable/ic_check_circle"
+                                        app:tint="@color/statusFound" />
+                                </FrameLayout>
+
+                            </androidx.constraintlayout.widget.ConstraintLayout>
                         </com.google.android.material.card.MaterialCardView>
                     </LinearLayout>
 
@@ -210,22 +312,53 @@
                         android:layout_marginTop="24dp"
                         android:orientation="horizontal">
 
+                        <!-- Report Lost Button -->
                         <com.google.android.material.button.MaterialButton
                             android:id="@+id/btnReportLost"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
+                            android:layout_width="0dp"
+                            android:layout_height="56dp"
                             android:layout_marginEnd="8dp"
                             android:layout_weight="1"
-                            android:text="@string/report_lost" />
+                            android:text="@string/report_lost_btn"
+                            android:textAllCaps="false"
+                            android:textSize="13sp"
+                            android:textStyle="bold"
+                            android:textColor="@color/white"
+                            android:paddingStart="8dp"
+                            android:paddingEnd="8dp"
+                            android:insetTop="0dp"
+                            android:insetBottom="0dp"
+                            app:backgroundTint="@color/statusLost"
+                            app:cornerRadius="12dp"
+                            app:icon="@drawable/ic_alert_circle"
+                            app:iconGravity="textStart"
+                            app:iconTint="@color/white"
+                            app:iconSize="16dp"
+                            app:iconPadding="4dp" />
 
+                        <!-- Report Found Button -->
                         <com.google.android.material.button.MaterialButton
                             android:id="@+id/btnReportFound"
-                            style="@style/Widget.App.Button.Secondary"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
+                            android:layout_width="0dp"
+                            android:layout_height="56dp"
                             android:layout_marginStart="8dp"
                             android:layout_weight="1"
-                            android:text="@string/report_found" />
+                            android:text="@string/report_found_btn"
+                            android:textAllCaps="false"
+                            android:textSize="13sp"
+                            android:textStyle="bold"
+                            android:textColor="@color/white"
+                            android:paddingStart="8dp"
+                            android:paddingEnd="8dp"
+                            android:insetTop="0dp"
+                            android:insetBottom="0dp"
+                            app:backgroundTint="@color/statusFound"
+                            app:cornerRadius="12dp"
+                            app:icon="@drawable/ic_check_circle"
+                            app:iconGravity="textStart"
+                            app:iconTint="@color/white"
+                            app:iconSize="16dp"
+                            app:iconPadding="4dp" />
                     </LinearLayout>
 
                     <RelativeLayout
@@ -271,58 +404,146 @@
                         android:layout_height="wrap_content"
                         android:layout_marginTop="8dp"
                         android:text="View Less"
+                        android:textAllCaps="false"
+                        android:textColor="@color/primaryColor"
+                        android:textSize="14sp"
+                        android:textStyle="bold"
+                        app:backgroundTint="#1A2AABEE"
+                        app:cornerRadius="12dp"
+                        app:elevation="0dp"
+                        app:icon="@drawable/ic_chevron_up"
+                        app:iconGravity="textStart"
+                        app:iconTint="@color/primaryColor"
+                        app:iconSize="18dp"
+                        app:iconPadding="6dp"
                         android:visibility="gone" />
 
                     <com.google.android.material.button.MaterialButton
                         android:id="@+id/btnViewMore"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="4dp"
+                        android:layout_marginTop="6dp"
                         android:text="View More"
+                        android:textAllCaps="false"
+                        android:textColor="@color/primaryColor"
+                        android:textSize="14sp"
+                        android:textStyle="bold"
+                        app:backgroundTint="#1A2AABEE"
+                        app:cornerRadius="12dp"
+                        app:elevation="0dp"
+                        app:icon="@drawable/ic_chevron_down"
+                        app:iconGravity="textStart"
+                        app:iconTint="@color/primaryColor"
+                        app:iconSize="18dp"
+                        app:iconPadding="6dp"
                         android:visibility="gone" />
 
                     <com.google.android.material.card.MaterialCardView
-                        style="@style/Widget.App.Card"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="32dp"
-                        app:cardElevation="0dp"
-                        app:strokeColor="@color/dividerColor"
-                        app:strokeWidth="1dp">
+                        android:layout_marginBottom="24dp"
+                        app:cardCornerRadius="20dp"
+                        app:cardElevation="2dp"
+                        app:strokeColor="#5C133A"
+                        app:strokeWidth="1dp"
+                        app:cardPreventCornerOverlap="false">
 
-                        <LinearLayout
+                        <FrameLayout
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:orientation="vertical"
-                            android:padding="16dp">
+                            android:background="@drawable/help_gradient_bg">
 
-                            <TextView
-                                style="@style/TextAppearance.App.SectionTitle"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                app:drawableStartCompat="@drawable/ic_alert_circle"
-                                android:drawablePadding="8dp"
-                                android:gravity="center_vertical"
-                                app:drawableTint="@color/primaryColor"
-                                android:text="@string/need_help" />
+                            <!-- Subtle background watermark icon on the right -->
+                            <ImageView
+                                android:layout_width="160dp"
+                                android:layout_height="160dp"
+                                android:layout_gravity="end|bottom"
+                                android:layout_marginEnd="-10dp"
+                                android:layout_marginBottom="-15dp"
+                                android:alpha="0.18"
+                                android:src="@drawable/ic_info"
+                                app:tint="@color/white" />
 
-                            <TextView
-                                style="@style/TextAppearance.App.Body"
-                                android:layout_width="wrap_content"
+                            <androidx.constraintlayout.widget.ConstraintLayout
+                                android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
-                                android:layout_marginTop="8dp"
-                                android:text="@string/helpDescription"
-                                android:textColor="@color/textSecondary" />
+                                android:padding="24dp">
 
-                            <com.google.android.material.button.MaterialButton
-                                android:id="@+id/btnReportProblem"
-                                style="@style/Widget.Material3.Button.TextButton"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:layout_marginTop="8dp"
-                                android:layout_gravity="center_horizontal"
-                                android:text="@string/reportProblem" />
-                        </LinearLayout>
+                                <!-- Rounded Icon Badge -->
+                                <com.google.android.material.card.MaterialCardView
+                                    android:id="@+id/badgeHelpIcon"
+                                    android:layout_width="40dp"
+                                    android:layout_height="40dp"
+                                    app:cardCornerRadius="12dp"
+                                    app:cardElevation="0dp"
+                                    app:strokeWidth="0dp"
+                                    app:cardBackgroundColor="@color/white"
+                                    app:layout_constraintStart_toStartOf="parent"
+                                    app:layout_constraintTop_toTopOf="parent">
+
+                                    <ImageView
+                                        android:layout_width="20dp"
+                                        android:layout_height="20dp"
+                                        android:layout_gravity="center"
+                                        android:src="@drawable/ic_info"
+                                        app:tint="@color/primaryColor" />
+                                </com.google.android.material.card.MaterialCardView>
+
+                                <!-- Title -->
+                                <TextView
+                                    android:id="@+id/tvHelpTitle"
+                                    android:layout_width="0dp"
+                                    android:layout_height="wrap_content"
+                                    android:layout_marginStart="16dp"
+                                    android:text="@string/need_help"
+                                    android:textColor="@color/white"
+                                    android:textSize="18sp"
+                                    android:fontFamily="sans-serif-bold"
+                                    app:layout_constraintStart_toEndOf="@id/badgeHelpIcon"
+                                    app:layout_constraintEnd_toEndOf="parent"
+                                    app:layout_constraintTop_toTopOf="@id/badgeHelpIcon"
+                                    app:layout_constraintBottom_toBottomOf="@id/badgeHelpIcon" />
+
+                                <!-- Description -->
+                                <TextView
+                                    android:id="@+id/tvHelpDesc"
+                                    android:layout_width="0dp"
+                                    android:layout_height="wrap_content"
+                                    android:layout_marginTop="18dp"
+                                    android:text="@string/helpDescription"
+                                    android:textColor="#E2E8F0"
+                                    android:textSize="14sp"
+                                    android:lineSpacingMultiplier="1.25"
+                                    app:layout_constraintStart_toStartOf="parent"
+                                    app:layout_constraintEnd_toEndOf="parent"
+                                    app:layout_constraintTop_toBottomOf="@id/badgeHelpIcon" />
+
+                                <!-- Main Call to Action Button -->
+                                <com.google.android.material.button.MaterialButton
+                                    android:id="@+id/btnReportProblem"
+                                    android:layout_width="0dp"
+                                    android:layout_height="54dp"
+                                    android:layout_marginTop="20dp"
+                                    android:text="@string/reportProblem"
+                                    android:textColor="@color/white"
+                                    android:textSize="15sp"
+                                    android:fontFamily="sans-serif-medium"
+                                    android:textAllCaps="false"
+                                    android:background="@drawable/btn_gradient_primary"
+                                    app:backgroundTint="@null"
+                                    app:icon="@drawable/ic_alert_circle"
+                                    app:iconTint="@color/white"
+                                    app:iconSize="18dp"
+                                    app:iconPadding="8dp"
+                                    app:elevation="4dp"
+                                    app:layout_constraintStart_toStartOf="parent"
+                                    app:layout_constraintEnd_toEndOf="parent"
+                                    app:layout_constraintTop_toBottomOf="@id/tvHelpDesc"
+                                    app:layout_constraintBottom_toBottomOf="parent" />
+
+                            </androidx.constraintlayout.widget.ConstraintLayout>
+                        </FrameLayout>
                     </com.google.android.material.card.MaterialCardView>
 
                     <TextView

@@ -51,6 +51,7 @@ public class ItemNavigationUtils {
                 ivIcon.setVisibility(View.VISIBLE);
                 String imageUrl = (urls != null && !urls.isEmpty()) ? urls.get(0) : fallbackUrl;
                 if (imageUrl != null && !imageUrl.isEmpty()) {
+                    ivIcon.setScaleType(ImageView.ScaleType.CENTER_CROP);
                     GlideApp.with(context)
                             .load(imageUrl)
                             .placeholder(R.drawable.ic_package)
@@ -63,6 +64,7 @@ public class ItemNavigationUtils {
                         openFullScreenImage(context, singleUrl, 0);
                     });
                 } else {
+                    ivIcon.setScaleType(ImageView.ScaleType.CENTER_INSIDE);
                     ivIcon.setImageResource(R.drawable.ic_package);
                     ivIcon.setOnClickListener(null);
                 }
