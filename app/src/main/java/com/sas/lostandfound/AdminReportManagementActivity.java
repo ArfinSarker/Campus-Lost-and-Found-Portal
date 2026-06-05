@@ -178,6 +178,7 @@ public class AdminReportManagementActivity extends AppCompatActivity {
             public void onSuccess(List<AdminReport> reports) {
                 List<AdminReport> tempReports = new ArrayList<>();
                 int total = 0, pending = 0, reviewed = 0;
+                List<String> reporterIds = new ArrayList<>();
                 
                 if (reports != null) {
                     for (AdminReport report : reports) {
@@ -186,22 +187,59 @@ public class AdminReportManagementActivity extends AppCompatActivity {
                         String status = report.getStatus();
                         if ("Pending".equalsIgnoreCase(status)) pending++;
                         else if ("Reviewed".equalsIgnoreCase(status)) reviewed++;
+                        
+                        String repId = report.getUniversityId();
+                        if (repId != null && !repId.trim().isEmpty() && !reporterIds.contains(repId)) {
+                            reporterIds.add(repId);
+                        }
                     }
                 }
                 
-                tvStatTotal.setText(String.valueOf(total));
-                tvStatPending.setText(String.valueOf(pending));
-                tvStatReviewed.setText(String.valueOf(reviewed));
-                
-                Collections.sort(tempReports, (o1, o2) -> Long.compare(o2.getTimestamp(), o1.getTimestamp()));
-                
-                allReports.clear();
-                allReports.addAll(tempReports);
-                applyFilters();
-                
-                isFetching = false;
-                progressBar.setVisibility(View.GONE);
-                if (swipeRefreshLayout != null) swipeRefreshLayout.setRefreshing(false);
+                if (!reporterIds.isEmpty()) {
+                    StringBuilder queryBuilder = new StringBuilder();
+                    queryBuilder.append("select=university_id,profile_image_url&university_id=in.(");
+                    for (int i = 0; i < reporterIds.size(); i++) {
+                        if (i > 0) {
+                            queryBuilder.append(",");
+                        }
+                        queryBuilder.append(reporterIds.get(i));
+                    }
+                    queryBuilder.append(")");
+                    
+                    final int finalTotal = total;
+                    final int finalPending = pending;
+                    final int finalReviewed = reviewed;
+                    
+                    SupabaseDatabaseHelper.select("profiles", queryBuilder.toString(), new TypeToken<List<User>>(){}.getType(), new SupabaseDatabaseHelper.DatabaseCallback<List<User>>() {
+                        @Override
+                        public void onSuccess(List<User> users) {
+                            Map<String, String> profileMap = new HashMap<>();
+                            if (users != null) {
+                                for (User u : users) {
+                                    if (u.getUniversityId() != null && u.getProfileImageUrl() != null) {
+                                        profileMap.put(u.getUniversityId(), u.getProfileImageUrl());
+                                    }
+                                }
+                            }
+                            
+                            for (AdminReport report : tempReports) {
+                                String url = profileMap.get(report.getUniversityId());
+                                if (url != null) {
+                                    report.setReporterProfileImageUrl(url);
+                                }
+                            }
+                            
+                            finalizeFetch(tempReports, finalTotal, finalPending, finalReviewed);
+                        }
+
+                        @Override
+                        public void onFailure(String errorMessage) {
+                            finalizeFetch(tempReports, finalTotal, finalPending, finalReviewed);
+                        }
+                    });
+                } else {
+                    finalizeFetch(tempReports, total, pending, reviewed);
+                }
             }
 
             @Override
@@ -211,6 +249,22 @@ public class AdminReportManagementActivity extends AppCompatActivity {
                 if (swipeRefreshLayout != null) swipeRefreshLayout.setRefreshing(false);
             }
         });
+    }
+
+    private void finalizeFetch(List<AdminReport> tempReports, int total, int pending, int reviewed) {
+        tvStatTotal.setText(String.valueOf(total));
+        tvStatPending.setText(String.valueOf(pending));
+        tvStatReviewed.setText(String.valueOf(reviewed));
+        
+        Collections.sort(tempReports, (o1, o2) -> Long.compare(o2.getTimestamp(), o1.getTimestamp()));
+        
+        allReports.clear();
+        allReports.addAll(tempReports);
+        applyFilters();
+        
+        isFetching = false;
+        progressBar.setVisibility(View.GONE);
+        if (swipeRefreshLayout != null) swipeRefreshLayout.setRefreshing(false);
     }
 
     private void applyFilters() {
@@ -286,6 +340,22 @@ public class AdminReportManagementActivity extends AppCompatActivity {
 
             SimpleDateFormat sdf = new SimpleDateFormat("dd MMM, hh:mm a", Locale.getDefault());
             holder.tvTimestamp.setText(sdf.format(new Date(report.getTimestamp())));
+
+            // Load submitter's profile picture if available, fallback to default user icon
+            String profileUrl = report.getReporterProfileImageUrl();
+            if (profileUrl != null && !profileUrl.isEmpty()) {
+                holder.ivReporterAvatar.setImageTintList(null); // Clear tint for user photo
+                GlideApp.with(AdminReportManagementActivity.this)
+                        .load(profileUrl)
+                        .placeholder(R.drawable.ic_user)
+                        .error(R.drawable.ic_user)
+                        .diskCacheStrategy(DiskCacheStrategy.ALL)
+                        .into(holder.ivReporterAvatar);
+            } else {
+                holder.ivReporterAvatar.setImageResource(R.drawable.ic_user);
+                holder.ivReporterAvatar.setImageTintList(android.content.res.ColorStateList.valueOf(
+                        ContextCompat.getColor(AdminReportManagementActivity.this, R.color.textSecondary)));
+            }
 
             // Handle card click to open details
             holder.itemView.setOnClickListener(v -> {
@@ -414,7 +484,7 @@ public class AdminReportManagementActivity extends AppCompatActivity {
 
         class ViewHolder extends RecyclerView.ViewHolder {
             TextView tvDisplayId, tvTitle, tvCategory, tvReporterInfo, tvStatus, tvTimestamp;
-            ImageView ivIcon;
+            ImageView ivIcon, ivReporterAvatar;
             ViewPager2 viewPagerSlider;
             TabLayout tabLayoutIndicator;
             MaterialCardView cardStatusBadge;
@@ -428,6 +498,7 @@ public class AdminReportManagementActivity extends AppCompatActivity {
                 tvStatus = itemView.findViewById(R.id.tvStatusBadge);
                 tvTimestamp = itemView.findViewById(R.id.tvTimestamp);
                 ivIcon = itemView.findViewById(R.id.ivReportIcon);
+                ivReporterAvatar = itemView.findViewById(R.id.ivReporterAvatar);
                 viewPagerSlider = itemView.findViewById(R.id.viewPagerSlider);
                 tabLayoutIndicator = itemView.findViewById(R.id.tabLayoutIndicator);
                 cardStatusBadge = itemView.findViewById(R.id.cardStatusBadge);

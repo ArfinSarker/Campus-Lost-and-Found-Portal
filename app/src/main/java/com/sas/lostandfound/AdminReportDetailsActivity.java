@@ -18,10 +18,12 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import android.net.Uri;
 import androidx.viewpager2.widget.ViewPager2;
 
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.google.android.material.button.MaterialButton;
+import com.google.android.material.card.MaterialCardView;
 import com.google.android.material.tabs.TabLayout;
 import com.google.android.material.tabs.TabLayoutMediator;
 import com.google.gson.reflect.TypeToken;
@@ -41,12 +43,20 @@ public class AdminReportDetailsActivity extends AppCompatActivity {
     private TextView tvTitle, tvCategory, tvDescription, tvRelatedId, tvDate;
     private TextView tvFinalReportId, tvFinalStatus, tvFinalAdminNote;
     private TextView tvReviewedByDetails, tvReviewTimestampDetails, tvReviewProgressSubText;
-    private ImageView ivEvidence, ivTimelineReviewStatusIcon;
+    private ImageView ivEvidence, ivTimelineReviewStatusIcon, ivReporterAvatar;
+    private MaterialCardView wrapperDot2, wrapperDot3;
+    private View viewTimelineReviewLine;
+    private View viewNoteAccentStripe;
+    private ImageView ivTimelineNotesIcon;
+    private View layoutRelatedContainer;
     private ViewPager2 viewPagerEvidence;
     private TabLayout tabLayoutIndicator;
     private View cardEvidence;
     private TextView tvNoEvidence;
+    private View layoutEvidenceContent;
+    private View layoutNoEvidenceContent;
     private MaterialButton btnDelete;
+    private View layoutRowUniversityId, layoutRowPhone, layoutRowEmail;
 
     
     private Toolbar toolbar;
@@ -95,11 +105,15 @@ public class AdminReportDetailsActivity extends AppCompatActivity {
         tvReporterDeptDesignation = findViewById(R.id.tvDetailReporterDeptDesignation);
         tvReporterPhone = findViewById(R.id.tvDetailReporterPhone);
         tvReporterEmail = findViewById(R.id.tvDetailReporterEmail);
+        layoutRowUniversityId = findViewById(R.id.layoutRowUniversityId);
+        layoutRowPhone = findViewById(R.id.layoutRowPhone);
+        layoutRowEmail = findViewById(R.id.layoutRowEmail);
         
         tvTitle = findViewById(R.id.tvDetailTitle);
         tvCategory = findViewById(R.id.tvDetailCategory);
         tvDescription = findViewById(R.id.tvDetailDescription);
         tvRelatedId = findViewById(R.id.tvDetailRelatedId);
+        layoutRelatedContainer = findViewById(R.id.layoutRelatedContainer);
         tvDate = findViewById(R.id.tvDetailDate);
 
         
@@ -108,6 +122,8 @@ public class AdminReportDetailsActivity extends AppCompatActivity {
         tabLayoutIndicator = findViewById(R.id.tabLayoutIndicator);
         cardEvidence = findViewById(R.id.cardEvidence);
         tvNoEvidence = findViewById(R.id.tvNoEvidence);
+        layoutEvidenceContent = findViewById(R.id.layoutEvidenceContent);
+        layoutNoEvidenceContent = findViewById(R.id.layoutNoEvidenceContent);
         
         tvFinalReportId = findViewById(R.id.tvFinalReportId);
         tvFinalStatus = findViewById(R.id.tvFinalStatus);
@@ -117,6 +133,16 @@ public class AdminReportDetailsActivity extends AppCompatActivity {
         tvReviewTimestampDetails = findViewById(R.id.tvReviewTimestampDetails);
         tvReviewProgressSubText = findViewById(R.id.tvReviewProgressSubText);
         ivTimelineReviewStatusIcon = findViewById(R.id.ivTimelineReviewStatusIcon);
+        ivReporterAvatar = findViewById(R.id.ivDetailReporterAvatar);
+        if (ivReporterAvatar != null) {
+            ivReporterAvatar.setImageTintList(android.content.res.ColorStateList.valueOf(
+                    androidx.core.content.ContextCompat.getColor(this, R.color.primaryColor)));
+        }
+        wrapperDot2 = findViewById(R.id.wrapperDot2);
+        wrapperDot3 = findViewById(R.id.wrapperDot3);
+        viewTimelineReviewLine = findViewById(R.id.viewTimelineReviewLine);
+        viewNoteAccentStripe = findViewById(R.id.viewNoteAccentStripe);
+        ivTimelineNotesIcon = findViewById(R.id.ivTimelineNotesIcon);
 
         
         btnDelete = findViewById(R.id.btnDeleteUserReport);
@@ -209,13 +235,29 @@ public class AdminReportDetailsActivity extends AppCompatActivity {
                 if (users != null && !users.isEmpty()) {
                     User user = users.get(0);
                     if (user != null) {
-                        tvReporterRole.setText("Role: " + user.getUserType());
+                        tvReporterRole.setText(user.getUserType());
                         if ("Student".equalsIgnoreCase(user.getUserType())) {
-                            tvReporterDeptDesignation.setText("Department: " + (user.getDepartment() != null ? user.getDepartment() : "N/A"));
+                            tvReporterDeptDesignation.setText(user.getDepartment() != null ? user.getDepartment() : "N/A");
                             tvReporterDeptDesignation.setVisibility(View.VISIBLE);
                         } else {
-                            tvReporterDeptDesignation.setText("Designation: " + (user.getDesignation() != null ? user.getDesignation() : "N/A"));
+                            tvReporterDeptDesignation.setText(user.getDesignation() != null ? user.getDesignation() : "N/A");
                             tvReporterDeptDesignation.setVisibility(View.VISIBLE);
+                        }
+                        
+                        // Load dynamic reporter profile picture using Glide
+                        if (ivReporterAvatar != null) {
+                            if (user.getProfileImageUrl() != null && !user.getProfileImageUrl().isEmpty()) {
+                                ivReporterAvatar.setImageTintList(null);
+                                GlideApp.with(AdminReportDetailsActivity.this)
+                                        .load(user.getProfileImageUrl())
+                                        .placeholder(R.drawable.ic_user)
+                                        .circleCrop()
+                                        .into(ivReporterAvatar);
+                            } else {
+                                ivReporterAvatar.setImageResource(R.drawable.ic_user);
+                                ivReporterAvatar.setImageTintList(android.content.res.ColorStateList.valueOf(
+                                        androidx.core.content.ContextCompat.getColor(AdminReportDetailsActivity.this, R.color.primaryColor)));
+                            }
                         }
                     }
                 }
@@ -226,11 +268,116 @@ public class AdminReportDetailsActivity extends AppCompatActivity {
 
     private void displayReportDetails(AdminReport report) {
         tvHeaderTitle.setText("Report Details");
-        tvReporterName.setText("Name: " + report.getReporterName());
-        tvUniversityId.setText("University ID: " + report.getUniversityId());
-        tvReporterPhone.setText("Phone: " + report.getPhone());
+        tvReporterName.setText(report.getReporterName());
+        
+        final String reporterIdVal = report.getUniversityId();
+        if (tvUniversityId != null) {
+            tvUniversityId.setText(reporterIdVal);
+        }
+        if (layoutRowUniversityId != null) {
+            layoutRowUniversityId.setOnClickListener(v -> {
+                android.content.ClipboardManager clipboard = (android.content.ClipboardManager) getSystemService(android.content.Context.CLIPBOARD_SERVICE);
+                android.content.ClipData clip = android.content.ClipData.newPlainText("University ID", reporterIdVal);
+                if (clipboard != null) {
+                    clipboard.setPrimaryClip(clip);
+                    android.widget.Toast.makeText(this, "University ID copied to clipboard", android.widget.Toast.LENGTH_SHORT).show();
+                }
+            });
+            layoutRowUniversityId.setOnLongClickListener(v -> {
+                android.content.ClipboardManager clipboard = (android.content.ClipboardManager) getSystemService(android.content.Context.CLIPBOARD_SERVICE);
+                android.content.ClipData clip = android.content.ClipData.newPlainText("University ID", reporterIdVal);
+                if (clipboard != null) {
+                    clipboard.setPrimaryClip(clip);
+                    android.widget.Toast.makeText(this, "University ID copied to clipboard", android.widget.Toast.LENGTH_SHORT).show();
+                }
+                return true;
+            });
+        }
+        
+        final String reporterPhoneVal = report.getPhone();
+        if (tvReporterPhone != null) {
+            if (reporterPhoneVal != null && !reporterPhoneVal.isEmpty()) {
+                android.text.SpannableString phoneSpannable = new android.text.SpannableString(reporterPhoneVal);
+                int start = 0;
+                int end = phoneSpannable.length();
+                phoneSpannable.setSpan(new android.text.style.UnderlineSpan(), start, end, 0);
+                phoneSpannable.setSpan(new android.text.style.ForegroundColorSpan(
+                        getResources().getColor(R.color.primaryColor)), start, end, 0);
+                tvReporterPhone.setText(phoneSpannable);
+            } else {
+                tvReporterPhone.setText("N/A");
+                tvReporterPhone.setTextColor(Color.GRAY);
+            }
+        }
+        if (layoutRowPhone != null) {
+            if (reporterPhoneVal != null && !reporterPhoneVal.isEmpty()) {
+                layoutRowPhone.setOnClickListener(v -> {
+                    Intent intent = new Intent(Intent.ACTION_DIAL);
+                    intent.setData(Uri.parse("tel:" + reporterPhoneVal));
+                    try {
+                        startActivity(intent);
+                    } catch (android.content.ActivityNotFoundException e) {
+                        SnackbarManager.show(SnackbarManager.Type.ERROR, "No phone dialer found on this device");
+                    }
+                });
+                layoutRowPhone.setOnLongClickListener(v -> {
+                    android.content.ClipboardManager clipboard = (android.content.ClipboardManager) getSystemService(android.content.Context.CLIPBOARD_SERVICE);
+                    android.content.ClipData clip = android.content.ClipData.newPlainText("Phone Number", reporterPhoneVal);
+                    if (clipboard != null) {
+                        clipboard.setPrimaryClip(clip);
+                        android.widget.Toast.makeText(this, "Phone number copied to clipboard", android.widget.Toast.LENGTH_SHORT).show();
+                    }
+                    return true;
+                });
+            } else {
+                layoutRowPhone.setOnClickListener(null);
+                layoutRowPhone.setOnLongClickListener(null);
+                layoutRowPhone.setClickable(false);
+                layoutRowPhone.setFocusable(false);
+            }
+        }
+        
+        final String reporterEmailVal = report.getEmail();
         if (tvReporterEmail != null) {
-            tvReporterEmail.setText("Email: " + (report.getEmail() != null ? report.getEmail() : "N/A"));
+            if (reporterEmailVal != null && !reporterEmailVal.isEmpty() && !"N/A".equalsIgnoreCase(reporterEmailVal)) {
+                android.text.SpannableString emailSpannable = new android.text.SpannableString(reporterEmailVal);
+                int start = 0;
+                int end = emailSpannable.length();
+                emailSpannable.setSpan(new android.text.style.UnderlineSpan(), start, end, 0);
+                emailSpannable.setSpan(new android.text.style.ForegroundColorSpan(
+                        getResources().getColor(R.color.primaryColor)), start, end, 0);
+                tvReporterEmail.setText(emailSpannable);
+            } else {
+                tvReporterEmail.setText("N/A");
+                tvReporterEmail.setTextColor(Color.GRAY);
+            }
+        }
+        if (layoutRowEmail != null) {
+            if (reporterEmailVal != null && !reporterEmailVal.isEmpty() && !"N/A".equalsIgnoreCase(reporterEmailVal)) {
+                layoutRowEmail.setOnClickListener(v -> {
+                    Intent intent = new Intent(Intent.ACTION_SENDTO);
+                    intent.setData(Uri.parse("mailto:" + reporterEmailVal));
+                    try {
+                        startActivity(Intent.createChooser(intent, "Send Email"));
+                    } catch (android.content.ActivityNotFoundException e) {
+                        SnackbarManager.show(SnackbarManager.Type.ERROR, "No email client found on this device");
+                    }
+                });
+                layoutRowEmail.setOnLongClickListener(v -> {
+                    android.content.ClipboardManager clipboard = (android.content.ClipboardManager) getSystemService(android.content.Context.CLIPBOARD_SERVICE);
+                    android.content.ClipData clip = android.content.ClipData.newPlainText("Email Address", reporterEmailVal);
+                    if (clipboard != null) {
+                        clipboard.setPrimaryClip(clip);
+                        android.widget.Toast.makeText(this, "Email copied to clipboard", android.widget.Toast.LENGTH_SHORT).show();
+                    }
+                    return true;
+                });
+            } else {
+                layoutRowEmail.setOnClickListener(null);
+                layoutRowEmail.setOnLongClickListener(null);
+                layoutRowEmail.setClickable(false);
+                layoutRowEmail.setFocusable(false);
+            }
         }
         tvTitle.setText(report.getTitle());
         tvCategory.setText(report.getCategory());
@@ -240,10 +387,16 @@ public class AdminReportDetailsActivity extends AppCompatActivity {
             tvRelatedId.setText("Related Item: None");
             tvRelatedId.setEnabled(false);
             tvRelatedId.setTextColor(Color.GRAY);
+            if (layoutRelatedContainer != null) {
+                layoutRelatedContainer.setVisibility(View.GONE);
+            }
         } else {
             tvRelatedId.setText("Related Item: " + ReportIdFormatter.format(related));
             tvRelatedId.setEnabled(true);
             tvRelatedId.setTextColor(getResources().getColor(R.color.primaryColor));
+            if (layoutRelatedContainer != null) {
+                layoutRelatedContainer.setVisibility(View.VISIBLE);
+            }
         }
         SimpleDateFormat sdf = new SimpleDateFormat("dd MMM yyyy, hh:mm a", Locale.getDefault());
         tvDate.setText(sdf.format(new Date(report.getTimestamp())));
@@ -259,8 +412,26 @@ public class AdminReportDetailsActivity extends AppCompatActivity {
         if (isReviewed) {
             if (ivTimelineReviewStatusIcon != null) {
                 ivTimelineReviewStatusIcon.setImageResource(R.drawable.ic_check_circle);
-                ivTimelineReviewStatusIcon.setImageTintList(android.content.res.ColorStateList.valueOf(Color.parseColor("#34C759")));
+                ivTimelineReviewStatusIcon.setImageTintList(android.content.res.ColorStateList.valueOf(Color.parseColor("#10B981")));
             }
+            if (wrapperDot2 != null) {
+                wrapperDot2.setStrokeColor(android.content.res.ColorStateList.valueOf(Color.parseColor("#10B981")));
+                wrapperDot2.setCardBackgroundColor(android.content.res.ColorStateList.valueOf(Color.parseColor("#ECFDF5")));
+            }
+            if (viewTimelineReviewLine != null) {
+                viewTimelineReviewLine.setBackgroundColor(Color.parseColor("#10B981"));
+            }
+            if (wrapperDot3 != null) {
+                wrapperDot3.setStrokeColor(android.content.res.ColorStateList.valueOf(Color.parseColor("#10B981")));
+                wrapperDot3.setCardBackgroundColor(android.content.res.ColorStateList.valueOf(Color.parseColor("#ECFDF5")));
+            }
+            if (ivTimelineNotesIcon != null) {
+                ivTimelineNotesIcon.setImageTintList(android.content.res.ColorStateList.valueOf(Color.parseColor("#10B981")));
+            }
+            if (viewNoteAccentStripe != null) {
+                viewNoteAccentStripe.setBackgroundColor(Color.parseColor("#10B981"));
+            }
+
             tvFinalStatus.setText("Status: Reviewed & Resolved");
             if (tvReviewProgressSubText != null) {
                 tvReviewProgressSubText.setText("The administrative team has successfully reviewed this report.");
@@ -296,8 +467,26 @@ public class AdminReportDetailsActivity extends AppCompatActivity {
         } else {
             if (ivTimelineReviewStatusIcon != null) {
                 ivTimelineReviewStatusIcon.setImageResource(R.drawable.ic_info);
-                ivTimelineReviewStatusIcon.setImageTintList(android.content.res.ColorStateList.valueOf(Color.parseColor("#FFA500")));
+                ivTimelineReviewStatusIcon.setImageTintList(android.content.res.ColorStateList.valueOf(Color.parseColor("#F59E0B")));
             }
+            if (wrapperDot2 != null) {
+                wrapperDot2.setStrokeColor(android.content.res.ColorStateList.valueOf(Color.parseColor("#F59E0B")));
+                wrapperDot2.setCardBackgroundColor(android.content.res.ColorStateList.valueOf(Color.parseColor("#FFFBEB")));
+            }
+            if (viewTimelineReviewLine != null) {
+                viewTimelineReviewLine.setBackgroundColor(Color.parseColor("#E2E8F0"));
+            }
+            if (wrapperDot3 != null) {
+                wrapperDot3.setStrokeColor(android.content.res.ColorStateList.valueOf(Color.parseColor("#94A3B8")));
+                wrapperDot3.setCardBackgroundColor(android.content.res.ColorStateList.valueOf(Color.parseColor("#F1F5F9")));
+            }
+            if (ivTimelineNotesIcon != null) {
+                ivTimelineNotesIcon.setImageTintList(android.content.res.ColorStateList.valueOf(Color.parseColor("#94A3B8")));
+            }
+            if (viewNoteAccentStripe != null) {
+                viewNoteAccentStripe.setBackgroundColor(Color.parseColor("#94A3B8"));
+            }
+
             tvFinalStatus.setText("Status: Pending Review");
             if (tvReviewProgressSubText != null) {
                 tvReviewProgressSubText.setText("Admin is currently evaluating details.");
@@ -334,14 +523,27 @@ public class AdminReportDetailsActivity extends AppCompatActivity {
 
     private void setupImageSlider(List<String> urls, String fallbackUrl) {
         ItemNavigationUtils.setupImageOrSlider(this, urls, fallbackUrl, ivEvidence, viewPagerEvidence, tabLayoutIndicator);
+        
+        boolean hasEvidence = false;
         if (urls != null && urls.size() > 1) {
-            tvNoEvidence.setVisibility(View.GONE);
+            hasEvidence = true;
             startAutoSlide(urls.size());
         } else {
             stopAutoSlide();
             String finalUrl = (urls != null && !urls.isEmpty()) ? urls.get(0) : fallbackUrl;
-            if (finalUrl != null && !finalUrl.isEmpty()) tvNoEvidence.setVisibility(View.GONE);
-            else { cardEvidence.setVisibility(View.GONE); ivEvidence.setVisibility(View.GONE); tvNoEvidence.setVisibility(View.VISIBLE); }
+            if (finalUrl != null && !finalUrl.isEmpty()) {
+                hasEvidence = true;
+            }
+        }
+        
+        if (hasEvidence) {
+            if (cardEvidence != null) cardEvidence.setVisibility(View.VISIBLE);
+            if (layoutEvidenceContent != null) layoutEvidenceContent.setVisibility(View.VISIBLE);
+            if (layoutNoEvidenceContent != null) layoutNoEvidenceContent.setVisibility(View.GONE);
+        } else {
+            if (cardEvidence != null) cardEvidence.setVisibility(View.VISIBLE);
+            if (layoutEvidenceContent != null) layoutEvidenceContent.setVisibility(View.GONE);
+            if (layoutNoEvidenceContent != null) layoutNoEvidenceContent.setVisibility(View.VISIBLE);
         }
     }
 

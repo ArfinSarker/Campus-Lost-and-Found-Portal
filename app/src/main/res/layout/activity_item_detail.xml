@@ -19,7 +19,7 @@
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
-            app:navigationIcon="@drawable/ic_back_arrow"
+            app:navigationIcon="@drawable/ic_arrow_back"
             app:navigationIconTint="@color/white"
             app:title=""
             app:titleTextColor="@color/white">
@@ -302,7 +302,7 @@
                         <ImageView
                             android:layout_width="20dp"
                             android:layout_height="20dp"
-                            android:src="@drawable/ic_map_pin"
+                            android:src="@drawable/ic_location"
                             app:tint="@color/primaryColor"
                             android:contentDescription="@null" />
 
@@ -607,7 +607,7 @@
                             android:text="@string/btn_return_to_owner"
                             android:textColor="@color/white"
                             app:backgroundTint="@color/statusFound"
-                            app:icon="@drawable/ic_back_arrow"
+                            app:icon="@drawable/ic_arrow_back"
                             app:iconGravity="textStart"
                             app:iconTint="@color/white"
                             android:visibility="gone"

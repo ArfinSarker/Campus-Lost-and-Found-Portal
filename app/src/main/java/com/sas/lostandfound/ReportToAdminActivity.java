@@ -46,6 +46,9 @@ public class ReportToAdminActivity extends AppCompatActivity {
     private MaterialCardView uploadScreenshotCard;
     private ImageView ivScreenshot;
     private TextView tvScreenshotStatus;
+    private View layoutUploadEmpty, layoutUploadSelected;
+    private TextView tvUploadStatusSubtext;
+    private android.widget.ImageButton btnDeleteImage;
     private Toolbar toolbar;
     private View keyboardSpacer;
     private View reportToAdminRoot;
@@ -77,6 +80,12 @@ public class ReportToAdminActivity extends AppCompatActivity {
 
         uploadScreenshotCard.setOnClickListener(v -> openGallery());
         btnSubmit.setOnClickListener(v -> validateAndSubmit());
+        if (btnDeleteImage != null) {
+            btnDeleteImage.setOnClickListener(v -> {
+                selectedImageUris.clear();
+                updateUploadUI();
+            });
+        }
     }
 
     private void setupTextWatchers() {
@@ -125,6 +134,10 @@ public class ReportToAdminActivity extends AppCompatActivity {
         uploadScreenshotCard = findViewById(R.id.uploadScreenshotCard);
         ivScreenshot = findViewById(R.id.ivScreenshot);
         tvScreenshotStatus = findViewById(R.id.tvScreenshotStatus);
+        layoutUploadEmpty = findViewById(R.id.layoutUploadEmpty);
+        layoutUploadSelected = findViewById(R.id.layoutUploadSelected);
+        tvUploadStatusSubtext = findViewById(R.id.tvUploadStatusSubtext);
+        btnDeleteImage = findViewById(R.id.btnDeleteImage);
         toolbar = findViewById(R.id.toolbar);
         reportToAdminRoot = findViewById(R.id.reportToAdminRoot);
         keyboardSpacer = findViewById(R.id.keyboardSpacer);
@@ -228,9 +241,32 @@ public class ReportToAdminActivity extends AppCompatActivity {
                 selectedImageUris.add(data.getData());
             }
 
-            if (!selectedImageUris.isEmpty()) {
+            updateUploadUI();
+        }
+    }
+
+    private void updateUploadUI() {
+        if (selectedImageUris != null && !selectedImageUris.isEmpty()) {
+            if (layoutUploadEmpty != null) layoutUploadEmpty.setVisibility(View.GONE);
+            if (layoutUploadSelected != null) layoutUploadSelected.setVisibility(View.VISIBLE);
+            
+            if (ivScreenshot != null) {
                 ivScreenshot.setImageURI(selectedImageUris.get(0));
-                tvScreenshotStatus.setText(selectedImageUris.size() + " Screenshot(s) Selected");
+                ivScreenshot.clearColorFilter();
+            }
+            if (tvScreenshotStatus != null) {
+                String status = selectedImageUris.size() + " Screenshot" + (selectedImageUris.size() > 1 ? "s" : "") + " Selected";
+                tvScreenshotStatus.setText(status);
+            }
+            if (tvUploadStatusSubtext != null) {
+                tvUploadStatusSubtext.setText("Tap card to change selection");
+            }
+        } else {
+            if (layoutUploadEmpty != null) layoutUploadEmpty.setVisibility(View.VISIBLE);
+            if (layoutUploadSelected != null) layoutUploadSelected.setVisibility(View.GONE);
+            
+            if (ivScreenshot != null) {
+                ivScreenshot.setImageURI(null);
             }
         }
     }

@@ -119,7 +119,7 @@ public class SnackbarManager implements Application.ActivityLifecycleCallbacks {
                 break;
             case ERROR:
                 backgroundColor = R.color.error;
-                iconRes = R.drawable.ic_error_outline;
+                iconRes = R.drawable.ic_alert_circle;
                 break;
             case WARNING:
                 backgroundColor = R.color.warningColor;

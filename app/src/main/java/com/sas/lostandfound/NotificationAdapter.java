@@ -106,7 +106,7 @@ public class NotificationAdapter extends RecyclerView.Adapter<NotificationAdapte
             holder.ivIcon.setPadding(0, 0, 0, 0);
             holder.ivIcon.setBackground(null);
         } else {
-            holder.ivIcon.setImageResource(R.drawable.ic_bell);
+            holder.ivIcon.setImageResource(R.drawable.ic_notification);
             holder.ivIcon.setPadding(8, 8, 8, 8);
             holder.ivIcon.setBackgroundResource(R.drawable.bg_notification_badge);
             holder.ivIcon.setBackgroundTintList(android.content.res.ColorStateList.valueOf(

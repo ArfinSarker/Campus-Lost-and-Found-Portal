@@ -10,19 +10,19 @@
             android:title="My Profile" />
         <item
             android:id="@+id/nav_reported_items"
-            android:icon="@drawable/ic_found_search"
+            android:icon="@drawable/ic_search_found"
             android:title="@string/myFoundReports" />
         <item
             android:id="@+id/nav_find_items"
-            android:icon="@drawable/ic_lost_times"
+            android:icon="@drawable/ic_search_lost"
             android:title="@string/my_lost_reports" />
         <item
             android:id="@+id/nav_resolved_items"
-            android:icon="@drawable/ic_fact_check"
+            android:icon="@drawable/ic_check_square"
             android:title="@string/my_resolved_items" />
         <item
             android:id="@+id/nav_admin_reports"
-            android:icon="@drawable/ic_note"
+            android:icon="@drawable/ic_file_text"
             android:title="My Admin Reports" />
         <item
             android:id="@+id/nav_admin_dashboard"

@@ -2,10 +2,10 @@
 # Campus Lost and Found: Consolidating Git Exclusions (.gitignore)
 # =========================================================================
 
-# 1. Android Studio, IntelliJ IDEA & VS Code
+# 1. Android Studio, IntelliJ IDEA, Eclipse, & VS Code
 *.iml
-.gradle
-.idea
+.gradle/
+.idea/
 .vscode/
 /.idea/caches
 /.idea/libraries
@@ -15,20 +15,36 @@
 /.idea/navEditor.xml
 /.idea/assetWizardSettings.xml
 /.idea/runConfigurations.xml
+.classpath
+.project
+.settings/
+*.launch
+*.sublime-project
+*.sublime-workspace
 
 # 2. Local Configuration & Environment Files (API Keys & Credentials)
 .env
 .env.*
 *.env
-local.properties
-private.properties
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+.env.keys
+.env.vault
+**/local.properties
+**/private.properties
+**/secrets.xml
+**/apikey.xml
+**/credentials.json
+**/client_secret*.json
+credentials.json
 secrets.xml
 apikey.xml
-credentials.json
-client_secret*.json
 
 # 3. Build & Compiled Artifacts
 /build
+**/build/
 app/build/
 captures/
 *.apk
@@ -42,11 +58,23 @@ captures/
 *.zip
 *.tar.gz
 *.tgz
+*.rar
+bin/
+gen/
+out/
 
 # 4. Secrets, Keystores & Certificates
 release-keystore.jks
 google-services.json
 app/google-services.json
+**/*google-services.json
+**/*.jks
+**/*.keystore
+**/*.p12
+**/*.pem
+**/*.key
+**/*.der
+**/*.pkcs12
 *.jks
 *.keystore
 *.p12
@@ -54,9 +82,10 @@ app/google-services.json
 *.key
 *.der
 
-# 5. Native Build Tools
+# 5. Native Build Tools & NDK
 .externalNativeBuild
-.cxx
+.cxx/
+ndkBuild/
 
 # 6. OS & Temporary Files
 .DS_Store
@@ -66,8 +95,17 @@ ehthumbs.db
 *.log
 *.tmp
 *.temp
+*~
+.sass-cache/
 
-# 7. Local Dev Environments
+# 7. Local Dev Environments & Supabase
 .deno/
 new.json
 SQL.sql
+*.db
+*.sqlite
+.branches
+.temp/
+supabase/.temp/
+supabase/.branches/
+

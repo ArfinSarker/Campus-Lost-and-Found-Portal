@@ -21,7 +21,7 @@ import java.util.Map;
 public class AdminDashboardActivity extends AppCompatActivity {
 
     private static final String TAG = "AdminDashboard";
-    private TextView tvTotalAdminRequests, tvTotalAdminReports, tvAdminTitle, tvNotificationBadge;
+    private TextView tvTotalAdminRequests, tvTotalAdminReports, tvAdminTitle, tvNotificationBadge, tvWelcomeAdmin;
     private MaterialCardView cardAdminRequests, cardAdminReports;
     private MaterialButton btnManageItems, btnLogout, btnAdminRequests, btnManageUsers, btnAdminReports;
     private View btnNotifications;
@@ -92,6 +92,7 @@ public class AdminDashboardActivity extends AppCompatActivity {
         tvAdminTitle = findViewById(R.id.tvAdminTitle);
         tvTotalAdminRequests = findViewById(R.id.tvTotalAdminRequests);
         tvTotalAdminReports = findViewById(R.id.tvTotalAdminReports);
+        tvWelcomeAdmin = findViewById(R.id.tvWelcomeAdmin);
 
         cardAdminRequests = findViewById(R.id.cardAdminRequests);
         cardAdminReports = findViewById(R.id.cardAdminReports);
@@ -112,6 +113,17 @@ public class AdminDashboardActivity extends AppCompatActivity {
     private void setupAdminDashboard() {
         if (tvAdminTitle != null)
             tvAdminTitle.setText(R.string.title_admin_dashboard);
+
+        if (tvWelcomeAdmin != null) {
+            android.content.SharedPreferences prefs = getSharedPreferences("MyApp", MODE_PRIVATE);
+            String adminName = prefs.getString("cachedUserName", "Admin");
+            if (adminName == null || adminName.trim().isEmpty()) {
+                adminName = "Admin";
+            }
+            String welcomeText = "Welcome, " + adminName;
+
+            startWelcomeLoop(tvWelcomeAdmin, welcomeText);
+        }
     }
 
     private void setupSwipeRefresh() {
@@ -263,6 +275,76 @@ public class AdminDashboardActivity extends AppCompatActivity {
         if (swipeRefreshLayout != null && swipeRefreshLayout.isRefreshing()) {
             swipeRefreshLayout.setRefreshing(false);
         }
+    }
+
+    private void startWelcomeLoop(final TextView textView, final String welcomeText) {
+        if (textView == null || isFinishing() || isDestroyed()) {
+            return;
+        }
+
+        // Reset positions
+        textView.setText("");
+        textView.setAlpha(0f);
+        textView.setTranslationY(20f);
+
+        // Slide up + Fade in
+        textView.animate()
+            .alpha(1f)
+            .translationY(0f)
+            .setDuration(800)
+            .setInterpolator(new android.view.animation.DecelerateInterpolator())
+            .withEndAction(() -> {
+                // When entrance completes, start typing
+                animateTextTyping(textView, welcomeText, () -> {
+                    // When typing finishes, wait 4 seconds, then slide up + fade out
+                    new android.os.Handler(android.os.Looper.getMainLooper()).postDelayed(() -> {
+                        if (isFinishing() || isDestroyed() || !textView.isAttachedToWindow()) {
+                            return;
+                        }
+                        textView.animate()
+                            .alpha(0f)
+                            .translationY(-20f)
+                            .setDuration(800)
+                            .setInterpolator(new android.view.animation.AccelerateInterpolator())
+                            .withEndAction(() -> {
+                                // Restart the welcome loop
+                                startWelcomeLoop(textView, welcomeText);
+                            })
+                            .start();
+                    }, 4000);
+                });
+            })
+            .start();
+    }
+
+    private void animateTextTyping(final TextView textView, final String fullText, final Runnable onComplete) {
+        textView.setText("");
+        final int delay = 60; // ms per character
+        final android.os.Handler handler = new android.os.Handler(android.os.Looper.getMainLooper());
+        handler.post(new Runnable() {
+            private int index = 0;
+            @Override
+            public void run() {
+                if (isFinishing() || isDestroyed()) {
+                    return;
+                }
+                if (textView == null) {
+                    return;
+                }
+                // Allow the first iteration (index == 0) to run during onCreate layout attachment transition,
+                // but protect subsequent recursive loops by checking isAttachedToWindow().
+                if (index > 0 && !textView.isAttachedToWindow()) {
+                    return;
+                }
+                if (index <= fullText.length()) {
+                    textView.setText(fullText.substring(0, index));
+                    index++;
+                    handler.postDelayed(this, delay);
+                } else if (onComplete != null) {
+                    onComplete.run();
+                }
+            }
+        });
     }
 
 }

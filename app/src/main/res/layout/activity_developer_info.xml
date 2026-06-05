@@ -26,7 +26,7 @@
                 android:layout_height="48dp"
                 android:background="?attr/selectableItemBackgroundBorderless"
                 android:contentDescription="@string/back"
-                android:src="@drawable/ic_back_arrow"
+                android:src="@drawable/ic_arrow_back"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
@@ -356,7 +356,7 @@
                         <ImageView
                             android:layout_width="24dp"
                             android:layout_height="24dp"
-                            android:src="@drawable/ic_envelope"
+                            android:src="@drawable/ic_email"
                             app:tint="@color/lightRed"
                             android:contentDescription="@string/dev_email"
                             android:textColor="@color/primaryDarkColor" />

@@ -60,6 +60,9 @@ public class CampusReportFoundActivity extends AppCompatActivity {
     private com.google.android.material.card.MaterialCardView uploadCard;
     private ImageView ivUploadedImage;
     private android.widget.TextView tvUploadPlaceholder;
+    private View layoutUploadEmpty, layoutUploadSelected;
+    private android.widget.TextView tvUploadStatusSubtext;
+    private android.widget.ImageButton btnDeleteImage;
     private Toolbar toolbar;
     private View keyboardSpacer;
     private View reportFoundRoot;
@@ -108,6 +111,16 @@ public class CampusReportFoundActivity extends AppCompatActivity {
 
         btnSubmit.setOnClickListener(v -> validateAndSubmit());
         uploadCard.setOnClickListener(v -> showImageSourceDialog());
+        if (btnDeleteImage != null) {
+            btnDeleteImage.setOnClickListener(v -> {
+                selectedImageUris.clear();
+                if (existingItem != null) {
+                    existingItem.setImageUrls(new ArrayList<>());
+                    existingItem.setImageUrl(null);
+                }
+                updateUploadUI();
+            });
+        }
     }
 
     private void initViews() {
@@ -165,6 +178,10 @@ public class CampusReportFoundActivity extends AppCompatActivity {
         uploadCard = findViewById(R.id.uploadCard);
         ivUploadedImage = findViewById(R.id.ivUploadedImage);
         tvUploadPlaceholder = findViewById(R.id.tvUploadStatus);
+        layoutUploadEmpty = findViewById(R.id.layoutUploadEmpty);
+        layoutUploadSelected = findViewById(R.id.layoutUploadSelected);
+        tvUploadStatusSubtext = findViewById(R.id.tvUploadStatusSubtext);
+        btnDeleteImage = findViewById(R.id.btnDeleteImage);
         toolbar = findViewById(R.id.toolbar);
         reportFoundRoot = findViewById(R.id.reportFoundRoot);
         keyboardSpacer = findViewById(R.id.keyboardSpacer);
@@ -264,8 +281,42 @@ public class CampusReportFoundActivity extends AppCompatActivity {
         currentUniversityId = item.getUserId();
         btnSubmit.setText("Save Changes");
 
-        if (item.getImageUrl() != null && !item.getImageUrl().isEmpty()) {
-            tvUploadPlaceholder.setText("Previous images exist. Upload new to replace.");
+        if (item.getImageUrls() != null && !item.getImageUrls().isEmpty()) {
+            if (layoutUploadEmpty != null) layoutUploadEmpty.setVisibility(View.GONE);
+            if (layoutUploadSelected != null) layoutUploadSelected.setVisibility(View.VISIBLE);
+            
+            com.bumptech.glide.Glide.with(this)
+                .load(item.getImageUrls().get(0))
+                .placeholder(R.drawable.bg_report_placeholder)
+                .into(ivUploadedImage);
+            if (ivUploadedImage != null) ivUploadedImage.clearColorFilter();
+            
+            if (tvUploadPlaceholder != null) {
+                String status = item.getImageUrls().size() + " Previous Image" + (item.getImageUrls().size() > 1 ? "s" : "") + " Loaded";
+                tvUploadPlaceholder.setText(status);
+            }
+            if (tvUploadStatusSubtext != null) {
+                tvUploadStatusSubtext.setText("Tap card to replace with new photos");
+            }
+        } else if (item.getImageUrl() != null && !item.getImageUrl().isEmpty()) {
+            if (layoutUploadEmpty != null) layoutUploadEmpty.setVisibility(View.GONE);
+            if (layoutUploadSelected != null) layoutUploadSelected.setVisibility(View.VISIBLE);
+            
+            com.bumptech.glide.Glide.with(this)
+                .load(item.getImageUrl())
+                .placeholder(R.drawable.bg_report_placeholder)
+                .into(ivUploadedImage);
+            if (ivUploadedImage != null) ivUploadedImage.clearColorFilter();
+            
+            if (tvUploadPlaceholder != null) {
+                tvUploadPlaceholder.setText("Previous Image Loaded");
+            }
+            if (tvUploadStatusSubtext != null) {
+                tvUploadStatusSubtext.setText("Tap card to replace with new photo");
+            }
+        } else {
+            if (layoutUploadEmpty != null) layoutUploadEmpty.setVisibility(View.VISIBLE);
+            if (layoutUploadSelected != null) layoutUploadSelected.setVisibility(View.GONE);
         }
     }
 
@@ -503,10 +554,32 @@ public class CampusReportFoundActivity extends AppCompatActivity {
                 }
             }
 
-            if (!selectedImageUris.isEmpty()) {
-                ivUploadedImage.setImageResource(R.drawable.ic_check_circle);
-                ivUploadedImage.setColorFilter(ContextCompat.getColor(this, R.color.primaryColor));
-                tvUploadPlaceholder.setText(selectedImageUris.size() + " Image(s) Selected");
+            updateUploadUI();
+        }
+    }
+
+    private void updateUploadUI() {
+        if (selectedImageUris != null && !selectedImageUris.isEmpty()) {
+            if (layoutUploadEmpty != null) layoutUploadEmpty.setVisibility(View.GONE);
+            if (layoutUploadSelected != null) layoutUploadSelected.setVisibility(View.VISIBLE);
+            
+            if (ivUploadedImage != null) {
+                ivUploadedImage.setImageURI(selectedImageUris.get(0));
+                ivUploadedImage.clearColorFilter();
+            }
+            if (tvUploadPlaceholder != null) {
+                String status = selectedImageUris.size() + " Image" + (selectedImageUris.size() > 1 ? "s" : "") + " Selected";
+                tvUploadPlaceholder.setText(status);
+            }
+            if (tvUploadStatusSubtext != null) {
+                tvUploadStatusSubtext.setText("Tap card to change selection");
+            }
+        } else {
+            if (layoutUploadEmpty != null) layoutUploadEmpty.setVisibility(View.VISIBLE);
+            if (layoutUploadSelected != null) layoutUploadSelected.setVisibility(View.GONE);
+            
+            if (ivUploadedImage != null) {
+                ivUploadedImage.setImageURI(null);
             }
         }
     }

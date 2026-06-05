@@ -57,10 +57,13 @@ public class AdminReportReviewActivity extends AppCompatActivity {
     private ViewPager2 viewPagerEvidence;
     private TabLayout tabLayoutIndicator;
     private View cardEvidence;
+    private ImageView ivReporterAvatar;
+    private View layoutRowUniversityId;
+    private View layoutRelatedContainer;
     
     private AutoCompleteTextView actvUpdateStatus;
     private View tilUpdateStatus;
-    private TextView tvReviewedStatus;
+    private View tvReviewedStatus;
     private TextInputEditText etAdminNote;
     private MaterialButton btnUpdate, btnDelete;
     
@@ -125,11 +128,18 @@ public class AdminReportReviewActivity extends AppCompatActivity {
         tvReporterDeptDesignation = findViewById(R.id.tvReporterDeptDesignation);
         tvReporterPhone = findViewById(R.id.tvReporterPhone);
         tvReporterEmail = findViewById(R.id.tvReporterEmail);
+        ivReporterAvatar = findViewById(R.id.ivReporterAvatar);
+        layoutRowUniversityId = findViewById(R.id.layoutRowUniversityId);
+        if (ivReporterAvatar != null) {
+            ivReporterAvatar.setImageTintList(android.content.res.ColorStateList.valueOf(
+                    ContextCompat.getColor(this, R.color.primaryColor)));
+        }
 
         tvDetailTitle = findViewById(R.id.tvDetailTitle);
         tvDetailCategory = findViewById(R.id.tvDetailCategory);
         tvDetailDescription = findViewById(R.id.tvDetailDescription);
         tvDetailRelatedId = findViewById(R.id.tvDetailRelatedId);
+        layoutRelatedContainer = findViewById(R.id.layoutRelatedContainer);
 
         ivEvidence = findViewById(R.id.ivDetailEvidence);
         viewPagerEvidence = findViewById(R.id.viewPagerEvidence);
@@ -294,26 +304,74 @@ public class AdminReportReviewActivity extends AppCompatActivity {
         tvHeaderTitle.setText("Report Details");
         
         // Reporter info bindings
-        tvReporterName.setText("Name: " + (report.getReporterName() != null ? report.getReporterName() : "N/A"));
-        tvReporterUniversityId.setText("University ID: " + (report.getUniversityId() != null ? report.getUniversityId() : "N/A"));
-        applyStyledLinkText(tvReporterPhone, "Phone: ", report.getPhone() != null ? report.getPhone() : "N/A");
+        tvReporterName.setText(report.getReporterName() != null ? report.getReporterName() : "N/A");
+        
+        final String reporterIdVal = report.getUniversityId();
+        tvReporterUniversityId.setText(reporterIdVal != null ? reporterIdVal : "N/A");
+        if (layoutRowUniversityId != null && reporterIdVal != null) {
+            layoutRowUniversityId.setOnClickListener(v -> {
+                android.content.ClipboardManager clipboard = (android.content.ClipboardManager) getSystemService(android.content.Context.CLIPBOARD_SERVICE);
+                android.content.ClipData clip = android.content.ClipData.newPlainText("University ID", reporterIdVal);
+                if (clipboard != null) {
+                    clipboard.setPrimaryClip(clip);
+                    Toast.makeText(this, "University ID copied to clipboard", Toast.LENGTH_SHORT).show();
+                }
+            });
+            layoutRowUniversityId.setOnLongClickListener(v -> {
+                android.content.ClipboardManager clipboard = (android.content.ClipboardManager) getSystemService(android.content.Context.CLIPBOARD_SERVICE);
+                android.content.ClipData clip = android.content.ClipData.newPlainText("University ID", reporterIdVal);
+                if (clipboard != null) {
+                    clipboard.setPrimaryClip(clip);
+                    Toast.makeText(this, "University ID copied to clipboard", Toast.LENGTH_SHORT).show();
+                }
+                return true;
+            });
+        }
+        
+        if (tvReporterPhone != null) {
+            String phoneVal = report.getPhone();
+            if (phoneVal != null && !phoneVal.isEmpty() && !"N/A".equalsIgnoreCase(phoneVal.trim())) {
+                SpannableString phoneSpannable = new SpannableString(phoneVal.trim());
+                phoneSpannable.setSpan(new android.text.style.UnderlineSpan(), 0, phoneSpannable.length(), 0);
+                phoneSpannable.setSpan(new ForegroundColorSpan(ContextCompat.getColor(this, R.color.primaryColor)), 0, phoneSpannable.length(), 0);
+                tvReporterPhone.setText(phoneSpannable);
+            } else {
+                tvReporterPhone.setText("N/A");
+                tvReporterPhone.setTextColor(Color.GRAY);
+            }
+        }
+
         if (tvReporterEmail != null) {
-            applyStyledLinkText(tvReporterEmail, "Email: ", report.getEmail() != null ? report.getEmail() : "N/A");
+            String emailVal = report.getEmail();
+            if (emailVal != null && !emailVal.isEmpty() && !"N/A".equalsIgnoreCase(emailVal.trim())) {
+                SpannableString emailSpannable = new SpannableString(emailVal.trim());
+                emailSpannable.setSpan(new android.text.style.UnderlineSpan(), 0, emailSpannable.length(), 0);
+                emailSpannable.setSpan(new ForegroundColorSpan(ContextCompat.getColor(this, R.color.primaryColor)), 0, emailSpannable.length(), 0);
+                tvReporterEmail.setText(emailSpannable);
+            } else {
+                tvReporterEmail.setText("N/A");
+                tvReporterEmail.setTextColor(Color.GRAY);
+            }
         }
         fetchReporterExtraInfo(report.getUniversityId());
 
         // Report Information Section Styling
-        applyStyledText(tvDetailTitle, "Report Title: ", report.getTitle() != null ? report.getTitle() : "N/A");
-        applyStyledText(tvDetailCategory, "Category: ", report.getCategory() != null ? report.getCategory() : "N/A");
-        applyStyledText(tvDetailDescription, "Description: ", report.getDescription() != null ? report.getDescription() : "No detailed information provided.");
+        tvDetailTitle.setText(report.getTitle() != null ? report.getTitle() : "N/A");
+        tvDetailCategory.setText(report.getCategory() != null ? report.getCategory() : "N/A");
+        tvDetailDescription.setText(report.getDescription() != null ? report.getDescription() : "No detailed information provided.");
         
         String relatedId = report.getRelatedId();
         if (relatedId == null || relatedId.isEmpty() || "None".equalsIgnoreCase(relatedId)) {
-            applyStyledText(tvDetailRelatedId, "Related Report ID: ", "None");
+            if (layoutRelatedContainer != null) {
+                layoutRelatedContainer.setVisibility(View.GONE);
+            }
             tvDetailRelatedId.setEnabled(false);
             tvDetailRelatedId.setOnClickListener(null);
         } else {
-            applyStyledText(tvDetailRelatedId, "Related Report ID: ", ReportIdFormatter.format(relatedId));
+            if (layoutRelatedContainer != null) {
+                layoutRelatedContainer.setVisibility(View.VISIBLE);
+            }
+            tvDetailRelatedId.setText("Related Report: " + ReportIdFormatter.format(relatedId));
             tvDetailRelatedId.setEnabled(true);
             tvDetailRelatedId.setOnClickListener(v -> navigateToRelatedItem(relatedId));
         }
@@ -354,11 +412,27 @@ public class AdminReportReviewActivity extends AppCompatActivity {
                 if (users != null && !users.isEmpty()) {
                     User user = users.get(0);
                     if (user != null) {
-                        tvReporterRole.setText("Role: " + user.getUserType());
+                        tvReporterRole.setText(user.getUserType() != null ? user.getUserType() : "N/A");
                         if ("Student".equalsIgnoreCase(user.getUserType())) {
-                            tvReporterDeptDesignation.setText("Department: " + (user.getDepartment() != null ? user.getDepartment() : "N/A"));
+                            tvReporterDeptDesignation.setText(user.getDepartment() != null ? user.getDepartment() : "N/A");
                         } else {
-                            tvReporterDeptDesignation.setText("Designation: " + (user.getDesignation() != null ? user.getDesignation() : "N/A"));
+                            tvReporterDeptDesignation.setText(user.getDesignation() != null ? user.getDesignation() : "N/A");
+                        }
+                        
+                        // Load dynamic reporter profile picture using Glide
+                        if (ivReporterAvatar != null) {
+                            if (user.getProfileImageUrl() != null && !user.getProfileImageUrl().isEmpty()) {
+                                ivReporterAvatar.setImageTintList(null);
+                                GlideApp.with(AdminReportReviewActivity.this)
+                                        .load(user.getProfileImageUrl())
+                                        .placeholder(R.drawable.ic_user)
+                                        .circleCrop()
+                                        .into(ivReporterAvatar);
+                            } else {
+                                ivReporterAvatar.setImageResource(R.drawable.ic_user);
+                                ivReporterAvatar.setImageTintList(android.content.res.ColorStateList.valueOf(
+                                        ContextCompat.getColor(AdminReportReviewActivity.this, R.color.primaryColor)));
+                            }
                         }
                     }
                 }

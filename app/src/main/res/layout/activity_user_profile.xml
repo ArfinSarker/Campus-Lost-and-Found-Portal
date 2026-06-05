@@ -21,7 +21,7 @@
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
-            app:navigationIcon="@drawable/ic_back_arrow"
+            app:navigationIcon="@drawable/ic_arrow_back"
             app:navigationIconTint="@color/white"
             app:title=""
             app:titleTextColor="@color/white">
@@ -142,7 +142,7 @@
                             android:enabled="false"
                             android:hint="@string/hint_university_id"
                             app:helperText="@string/label_not_changeable"
-                            app:startIconDrawable="@drawable/ic_admin_id"
+                            app:startIconDrawable="@drawable/ic_id_card"
                             app:startIconTint="@color/primaryColor">
 
                             <com.google.android.material.textfield.TextInputEditText
@@ -318,7 +318,7 @@
                             android:hint="@string/hint_email"
                             app:endIconDrawable="@drawable/ic_edit"
                             app:endIconMode="custom"
-                            app:startIconDrawable="@drawable/ic_envelope"
+                            app:startIconDrawable="@drawable/ic_email"
                             app:startIconTint="@color/primaryColor">
 
                             <com.google.android.material.textfield.TextInputEditText

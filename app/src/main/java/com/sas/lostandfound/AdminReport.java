@@ -171,4 +171,8 @@ public class AdminReport {
 
     public Long getReviewTimestamp() { return reviewTimestamp; }
     public void setReviewTimestamp(Long reviewTimestamp) { this.reviewTimestamp = reviewTimestamp; }
+
+    private transient String reporterProfileImageUrl;
+    public String getReporterProfileImageUrl() { return reporterProfileImageUrl; }
+    public void setReporterProfileImageUrl(String url) { this.reporterProfileImageUrl = url; }
 }

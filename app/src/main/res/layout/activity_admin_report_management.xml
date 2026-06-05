@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/backgroundColor"
+    android:background="#F8FAFC"
     android:fitsSystemWindows="true">
 
     <com.google.android.material.appbar.AppBarLayout
@@ -19,17 +19,17 @@
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
-            app:navigationIcon="@drawable/ic_back_arrow"
+            app:navigationIcon="@drawable/ic_arrow_back"
             app:navigationIconTint="@color/white">
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_gravity="center_horizontal"
+                android:layout_gravity="center"
                 android:text="Report Management"
                 android:textColor="@color/white"
-                android:textSize="19sp"
-                android:textStyle="bold" />
+                android:textSize="20sp"
+                android:fontFamily="sans-serif-black" />
 
         </com.google.android.material.appbar.MaterialToolbar>
     </com.google.android.material.appbar.AppBarLayout>
@@ -51,112 +51,190 @@
                 android:padding="16dp">
 
                 <!-- Stats Section -->
-                <GridLayout
+                <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:columnCount="3"
-                    android:alignmentMode="alignMargins">
+                    android:orientation="horizontal"
+                    android:weightSum="3"
+                    android:layout_marginBottom="16dp">
 
+                    <!-- Total Card -->
                     <com.google.android.material.card.MaterialCardView
                         android:id="@+id/cardTotal"
-                        style="@style/Widget.App.Card"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
-                        android:layout_columnWeight="1"
+                        android:layout_weight="1"
                         android:layout_margin="4dp"
                         android:clickable="true"
-                        android:focusable="true">
+                        android:focusable="true"
+                        app:cardCornerRadius="16dp"
+                        app:cardElevation="2dp"
+                        app:strokeColor="#E2E8F0"
+                        app:strokeWidth="1dp"
+                        app:cardBackgroundColor="@color/white">
                         <LinearLayout
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:orientation="vertical"
                             android:padding="12dp"
                             android:gravity="center">
+
+                            <!-- Icon Background Circular Badge -->
+                            <com.google.android.material.card.MaterialCardView
+                                android:layout_width="36dp"
+                                android:layout_height="36dp"
+                                app:cardCornerRadius="18dp"
+                                app:cardElevation="0dp"
+                                app:strokeWidth="0dp"
+                                app:cardBackgroundColor="#EFF6FF">
+                                <ImageView
+                                    android:layout_width="20dp"
+                                    android:layout_height="20dp"
+                                    android:layout_gravity="center"
+                                    android:src="@drawable/ic_layers"
+                                    app:tint="#2563EB" />
+                            </com.google.android.material.card.MaterialCardView>
+
                             <TextView
                                 android:id="@+id/tvStatTotal"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
+                                android:layout_marginTop="8dp"
                                 android:text="0"
-                                android:textColor="@color/primaryColor"
-                                style="@style/TextAppearance.App.Headline" />
+                                android:textColor="#1E293B"
+                                android:fontFamily="sans-serif-black"
+                                android:textSize="24sp" />
+
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
+                                android:layout_marginTop="2dp"
                                 android:text="@string/stat_total_reports"
-                                android:textColor="@color/primaryColor"
-                                android:textStyle="bold"
+                                android:textColor="#64748B"
+                                android:textSize="11sp"
                                 android:gravity="center"
-                                style="@style/TextAppearance.App.Small" />
+                                android:fontFamily="sans-serif-medium" />
                         </LinearLayout>
                     </com.google.android.material.card.MaterialCardView>
 
+                    <!-- Pending Card -->
                     <com.google.android.material.card.MaterialCardView
                         android:id="@+id/cardPending"
-                        style="@style/Widget.App.Card"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
-                        android:layout_columnWeight="1"
+                        android:layout_weight="1"
                         android:layout_margin="4dp"
                         android:clickable="true"
-                        android:focusable="true">
+                        android:focusable="true"
+                        app:cardCornerRadius="16dp"
+                        app:cardElevation="2dp"
+                        app:strokeColor="#E2E8F0"
+                        app:strokeWidth="1dp"
+                        app:cardBackgroundColor="@color/white">
                         <LinearLayout
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:orientation="vertical"
                             android:padding="12dp"
                             android:gravity="center">
+
+                            <!-- Icon Background Circular Badge -->
+                            <com.google.android.material.card.MaterialCardView
+                                android:layout_width="36dp"
+                                android:layout_height="36dp"
+                                app:cardCornerRadius="18dp"
+                                app:cardElevation="0dp"
+                                app:strokeWidth="0dp"
+                                app:cardBackgroundColor="#FFF7ED">
+                                <ImageView
+                                    android:layout_width="20dp"
+                                    android:layout_height="20dp"
+                                    android:layout_gravity="center"
+                                    android:src="@drawable/ic_warning"
+                                    app:tint="#EA580C" />
+                            </com.google.android.material.card.MaterialCardView>
+
                             <TextView
                                 android:id="@+id/tvStatPending"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
+                                android:layout_marginTop="8dp"
                                 android:text="0"
-                                android:textColor="@color/error"
-                                style="@style/TextAppearance.App.Headline" />
+                                android:textColor="#1E293B"
+                                android:fontFamily="sans-serif-black"
+                                android:textSize="24sp" />
+
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
+                                android:layout_marginTop="2dp"
                                 android:text="@string/stat_pending_reports"
-                                android:textColor="@color/lightRed"
-                                android:textStyle="bold"
+                                android:textColor="#64748B"
+                                android:textSize="11sp"
                                 android:gravity="center"
-                                style="@style/TextAppearance.App.Small" />
+                                android:fontFamily="sans-serif-medium" />
                         </LinearLayout>
                     </com.google.android.material.card.MaterialCardView>
 
+                    <!-- Reviewed Card -->
                     <com.google.android.material.card.MaterialCardView
                         android:id="@+id/cardReviewed"
-                        style="@style/Widget.App.Card"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
-                        android:layout_columnWeight="1"
+                        android:layout_weight="1"
                         android:layout_margin="4dp"
                         android:clickable="true"
-                        android:focusable="true">
+                        android:focusable="true"
+                        app:cardCornerRadius="16dp"
+                        app:cardElevation="2dp"
+                        app:strokeColor="#E2E8F0"
+                        app:strokeWidth="1dp"
+                        app:cardBackgroundColor="@color/white">
                         <LinearLayout
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:orientation="vertical"
                             android:padding="12dp"
                             android:gravity="center">
+
+                            <!-- Icon Background Circular Badge -->
+                            <com.google.android.material.card.MaterialCardView
+                                android:layout_width="36dp"
+                                android:layout_height="36dp"
+                                app:cardCornerRadius="18dp"
+                                app:cardElevation="0dp"
+                                app:strokeWidth="0dp"
+                                app:cardBackgroundColor="#F0FDF4">
+                                <ImageView
+                                    android:layout_width="20dp"
+                                    android:layout_height="20dp"
+                                    android:layout_gravity="center"
+                                    android:src="@drawable/ic_check_square"
+                                    app:tint="#16A34A" />
+                            </com.google.android.material.card.MaterialCardView>
+
                             <TextView
                                 android:id="@+id/tvStatReviewed"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
+                                android:layout_marginTop="8dp"
                                 android:text="0"
-                                android:textColor="@color/success"
-                                style="@style/TextAppearance.App.Headline" />
+                                android:textColor="#1E293B"
+                                android:fontFamily="sans-serif-black"
+                                android:textSize="24sp" />
+
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
+                                android:layout_marginTop="2dp"
                                 android:text="@string/stat_reviewed_reports"
-                                android:textColor="@color/vibrantGreen"
-                                android:textStyle="bold"
+                                android:textColor="#64748B"
+                                android:textSize="11sp"
                                 android:gravity="center"
-                                style="@style/TextAppearance.App.Small" />
+                                android:fontFamily="sans-serif-medium" />
                         </LinearLayout>
                     </com.google.android.material.card.MaterialCardView>
-
-                </GridLayout>
+                </LinearLayout>
 
                 <!-- Search and Filter -->
                 <com.google.android.material.textfield.TextInputLayout
@@ -167,25 +245,35 @@
                     android:layout_marginTop="8dp"
                     android:hint="@string/hint_search_reports"
                     app:startIconDrawable="@drawable/ic_search"
-                    app:shapeAppearanceOverlay="@style/ShapeAppearance.App.SmallComponent">
+                    app:startIconTint="#64748B"
+                    app:boxCornerRadiusTopStart="12dp"
+                    app:boxCornerRadiusTopEnd="12dp"
+                    app:boxCornerRadiusBottomStart="12dp"
+                    app:boxCornerRadiusBottomEnd="12dp"
+                    app:boxStrokeColor="@color/primaryColor"
+                    app:hintTextColor="@color/primaryColor">
 
                     <com.google.android.material.textfield.TextInputEditText
                         android:id="@+id/etSearch"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:inputType="text" />
+                        android:inputType="text"
+                        android:textColor="#1E293B"
+                        android:textSize="15sp"
+                        android:paddingVertical="14dp" />
                 </com.google.android.material.textfield.TextInputLayout>
 
                 <HorizontalScrollView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
+                    android:layout_marginTop="12dp"
                     android:scrollbars="none">
                     <com.google.android.material.chip.ChipGroup
                         android:id="@+id/chipGroupFilter"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        app:singleSelection="true">
+                        app:singleSelection="true"
+                        app:selectionRequired="true">
                         <com.google.android.material.chip.Chip
                             android:id="@+id/chipAll"
                             style="@style/Widget.Material3.Chip.Filter"
@@ -223,6 +311,9 @@
                     android:layout_gravity="center"
                     android:layout_marginTop="64dp"
                     android:text="No reports found"
+                    android:textColor="#94A3B8"
+                    android:textSize="15sp"
+                    android:fontFamily="sans-serif-medium"
                     android:visibility="gone" />
 
                 <ProgressBar

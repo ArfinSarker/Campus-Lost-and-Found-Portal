@@ -814,6 +814,9 @@ public class UserProfileActivity extends AppCompatActivity {
 
                         if ((isAdminViewing || isViewOnly) && targetUserId != null) {
                             disableAllFields();
+                            if (isAdminViewing) {
+                                setupInteractiveContactFields();
+                            }
                         } else {
                             android.content.SharedPreferences.Editor editor = getSharedPreferences("MyApp", MODE_PRIVATE).edit();
                             editor.putString("cachedUserName", originalUser.getName());
@@ -840,6 +843,151 @@ public class UserProfileActivity extends AppCompatActivity {
                 SnackbarManager.show(SnackbarManager.Type.ERROR, "Failed to load data: " + errorMessage);
             }
         });
+    }
+
+    private void setupInteractiveContactFields() {
+        if (!isAdminViewing) return;
+
+        // 1. Email field click action, long click action and styling
+        final String email = etEmail.getText().toString().trim();
+        if (!email.isEmpty()) {
+            android.text.SpannableString emailSpannable = new android.text.SpannableString(email);
+            emailSpannable.setSpan(new android.text.style.UnderlineSpan(), 0, email.length(), 0);
+            emailSpannable.setSpan(new android.text.style.ForegroundColorSpan(
+                    ContextCompat.getColor(this, R.color.primaryColor)), 0, email.length(), 0);
+            
+            etEmail.setEnabled(true);
+            etEmail.setFocusable(false);
+            etEmail.setFocusableInTouchMode(false);
+            etEmail.setCursorVisible(false);
+            etEmail.setText(emailSpannable);
+            
+            etEmail.setOnClickListener(v -> {
+                Intent intent = new Intent(Intent.ACTION_SENDTO);
+                intent.setData(Uri.parse("mailto:" + email));
+                try {
+                    startActivity(Intent.createChooser(intent, "Send Email"));
+                } catch (android.content.ActivityNotFoundException e) {
+                    SnackbarManager.show(SnackbarManager.Type.ERROR, "No email client found on this device");
+                }
+            });
+
+            etEmail.setOnLongClickListener(v -> {
+                android.content.ClipboardManager clipboard = (android.content.ClipboardManager) getSystemService(android.content.Context.CLIPBOARD_SERVICE);
+                android.content.ClipData clip = android.content.ClipData.newPlainText("Email Address", email);
+                if (clipboard != null) {
+                    clipboard.setPrimaryClip(clip);
+                    android.widget.Toast.makeText(this, "Email copied to clipboard", android.widget.Toast.LENGTH_SHORT).show();
+                }
+                return true; // Consumes the long press, preventing selection cursor handle "|"
+            });
+            
+            tilEmail.setEndIconMode(TextInputLayout.END_ICON_NONE);
+        }
+
+        // 2. Phone field click action, long click action and styling
+        String phoneBody = etPhone.getText().toString().trim();
+        String tempPhone = originalUser != null ? originalUser.getPhone() : "";
+        if (tempPhone == null || tempPhone.isEmpty()) {
+            String code = actvCountryCode != null ? actvCountryCode.getText().toString().trim() : "";
+            tempPhone = ValidationUtils.extractCountryCode(code) + phoneBody;
+        }
+        final String fullPhone = tempPhone;
+        
+        if (!phoneBody.isEmpty()) {
+            android.text.SpannableString phoneSpannable = new android.text.SpannableString(phoneBody);
+            phoneSpannable.setSpan(new android.text.style.UnderlineSpan(), 0, phoneBody.length(), 0);
+            phoneSpannable.setSpan(new android.text.style.ForegroundColorSpan(
+                    ContextCompat.getColor(this, R.color.primaryColor)), 0, phoneBody.length(), 0);
+            
+            etPhone.setEnabled(true);
+            etPhone.setFocusable(false);
+            etPhone.setFocusableInTouchMode(false);
+            etPhone.setCursorVisible(false);
+            etPhone.setText(phoneSpannable);
+            
+            etPhone.setOnClickListener(v -> {
+                Intent intent = new Intent(Intent.ACTION_DIAL);
+                intent.setData(Uri.parse("tel:" + fullPhone));
+                try {
+                    startActivity(intent);
+                } catch (android.content.ActivityNotFoundException e) {
+                    SnackbarManager.show(SnackbarManager.Type.ERROR, "No phone dialer found on this device");
+                }
+            });
+
+            etPhone.setOnLongClickListener(v -> {
+                android.content.ClipboardManager clipboard = (android.content.ClipboardManager) getSystemService(android.content.Context.CLIPBOARD_SERVICE);
+                android.content.ClipData clip = android.content.ClipData.newPlainText("Phone Number", fullPhone);
+                if (clipboard != null) {
+                    clipboard.setPrimaryClip(clip);
+                    android.widget.Toast.makeText(this, "Phone number copied to clipboard", android.widget.Toast.LENGTH_SHORT).show();
+                }
+                return true; // Consumes the long press, preventing selection cursor handle "|"
+            });
+            
+            tilPhone.setEndIconMode(TextInputLayout.END_ICON_NONE);
+
+            // Setup country code to match phone body interactive styling
+            if (actvCountryCode != null) {
+                String countryText = actvCountryCode.getText().toString().trim();
+                if (!countryText.isEmpty()) {
+                    android.text.SpannableString countrySpannable = new android.text.SpannableString(countryText);
+                    countrySpannable.setSpan(new android.text.style.UnderlineSpan(), 0, countryText.length(), 0);
+                    countrySpannable.setSpan(new android.text.style.ForegroundColorSpan(
+                            ContextCompat.getColor(this, R.color.primaryColor)), 0, countryText.length(), 0);
+                    
+                    if (tilCountryCode != null) {
+                        tilCountryCode.setEnabled(true);
+                    }
+                    actvCountryCode.setEnabled(true);
+                    actvCountryCode.setFocusable(false);
+                    actvCountryCode.setFocusableInTouchMode(false);
+                    actvCountryCode.setCursorVisible(false);
+                    actvCountryCode.setText(countrySpannable, false);
+
+                    actvCountryCode.setOnClickListener(v -> {
+                        Intent intent = new Intent(Intent.ACTION_DIAL);
+                        intent.setData(Uri.parse("tel:" + fullPhone));
+                        try {
+                            startActivity(intent);
+                        } catch (android.content.ActivityNotFoundException e) {
+                            SnackbarManager.show(SnackbarManager.Type.ERROR, "No phone dialer found on this device");
+                        }
+                    });
+
+                    actvCountryCode.setOnLongClickListener(v -> {
+                        android.content.ClipboardManager clipboard = (android.content.ClipboardManager) getSystemService(android.content.Context.CLIPBOARD_SERVICE);
+                        android.content.ClipData clip = android.content.ClipData.newPlainText("Phone Number", fullPhone);
+                        if (clipboard != null) {
+                            clipboard.setPrimaryClip(clip);
+                            android.widget.Toast.makeText(this, "Phone number copied to clipboard", android.widget.Toast.LENGTH_SHORT).show();
+                        }
+                        return true; // Consumes the long press, preventing selection cursor handle "|"
+                    });
+                }
+            }
+        }
+
+        // 3. University ID long click action (for Admin)
+        final String universityIdVal = etUniversityId.getText().toString().trim();
+        if (!universityIdVal.isEmpty()) {
+            tilUniversityId.setEnabled(true);
+            etUniversityId.setEnabled(true);
+            etUniversityId.setFocusable(false);
+            etUniversityId.setFocusableInTouchMode(false);
+            etUniversityId.setCursorVisible(false);
+
+            etUniversityId.setOnLongClickListener(v -> {
+                android.content.ClipboardManager clipboard = (android.content.ClipboardManager) getSystemService(android.content.Context.CLIPBOARD_SERVICE);
+                android.content.ClipData clip = android.content.ClipData.newPlainText("University ID", universityIdVal);
+                if (clipboard != null) {
+                    clipboard.setPrimaryClip(clip);
+                    android.widget.Toast.makeText(this, "University ID copied to clipboard", android.widget.Toast.LENGTH_SHORT).show();
+                }
+                return true; // Consumes the long press, preventing selection cursor handle "|"
+            });
+        }
     }
 
     private void saveAllChanges() {

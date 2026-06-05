@@ -223,7 +223,7 @@ public class UserRegistrationActivity extends AppCompatActivity {
             tilDesignation.setVisibility(View.VISIBLE);
             tilAdminCode.setVisibility(View.GONE);
         } else if ("Admin".equals(userType)) {
-            tilUserType.setStartIconDrawable(R.drawable.ic_admin_id);
+            tilUserType.setStartIconDrawable(R.drawable.ic_id_card);
             tilBatch.setVisibility(View.GONE);
             tilDepartment.setVisibility(View.VISIBLE);
             tilLevelTerm.setVisibility(View.GONE);

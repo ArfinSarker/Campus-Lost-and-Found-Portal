@@ -21,7 +21,7 @@
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
-            app:navigationIcon="@drawable/ic_back_arrow"
+            app:navigationIcon="@drawable/ic_arrow_back"
             app:navigationIconTint="@color/white">
 
             <TextView
@@ -119,36 +119,119 @@
 
             <com.google.android.material.card.MaterialCardView
                 android:id="@+id/uploadCard"
-                style="@style/Widget.App.Card"
                 android:layout_width="match_parent"
-                android:layout_height="120dp"
+                android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
                 app:cardElevation="0dp"
-                app:strokeColor="@color/dividerColor"
-                app:strokeWidth="1dp">
+                app:strokeWidth="0dp"
+                app:cardBackgroundColor="@color/transparent">
 
                 <LinearLayout
-                    android:layout_width="wrap_content"
+                    android:id="@+id/layoutUploadMain"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_gravity="center"
-                    android:gravity="center"
-                    android:orientation="vertical">
+                    android:orientation="vertical"
+                    android:background="@drawable/bg_upload_dashed"
+                    android:padding="16dp">
 
-                    <ImageView
-                        android:id="@+id/ivUploadedImage"
-                        android:layout_width="32dp"
-                        android:layout_height="32dp"
-                        android:src="@drawable/ic_layers"
-                        app:tint="@color/textSecondary"
-                        android:contentDescription="@null" />
-
-                    <TextView
-                        android:id="@+id/tvUploadStatus"
-                        style="@style/TextAppearance.App.Small"
-                        android:layout_width="wrap_content"
+                    <!-- State 1: Empty / Prompt State (Visible by default) -->
+                    <LinearLayout
+                        android:id="@+id/layoutUploadEmpty"
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="8dp"
-                        android:text="@string/tap_upload_photo" />
+                        android:orientation="vertical"
+                        android:gravity="center"
+                        android:visibility="visible">
+
+                        <ImageView
+                            android:id="@+id/ivUploadIcon"
+                            android:layout_width="40dp"
+                            android:layout_height="40dp"
+                            android:src="@drawable/ic_upload"
+                            app:tint="@color/primaryColor"
+                            android:contentDescription="@null" />
+
+                        <TextView
+                            android:id="@+id/tvUploadTitle"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="8dp"
+                            android:text="@string/label_upload_image"
+                            android:textColor="@color/primaryColor"
+                            android:textSize="14sp"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:id="@+id/tvUploadSubtitle"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="2dp"
+                            android:text="@string/tap_to_upload"
+                            android:textColor="@color/textSecondary"
+                            android:textSize="11sp" />
+                    </LinearLayout>
+
+                    <!-- State 2: Selected State (Gone by default) -->
+                    <RelativeLayout
+                        android:id="@+id/layoutUploadSelected"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:visibility="gone">
+
+                        <!-- Thumbnail Preview -->
+                        <com.google.android.material.imageview.ShapeableImageView
+                            android:id="@+id/ivUploadedImage"
+                            android:layout_width="64dp"
+                            android:layout_height="64dp"
+                            android:scaleType="centerCrop"
+                            android:src="@drawable/ic_image"
+                            app:shapeAppearanceOverlay="@style/ShapeAppearance.App.SmallComponent"
+                            android:layout_alignParentStart="true"
+                            android:layout_centerVertical="true" />
+
+                        <!-- Text Content -->
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="vertical"
+                            android:layout_toEndOf="@id/ivUploadedImage"
+                            android:layout_toStartOf="@id/btnDeleteImage"
+                            android:layout_centerVertical="true"
+                            android:layout_marginStart="12dp"
+                            android:layout_marginEnd="8dp">
+
+                            <TextView
+                                android:id="@+id/tvUploadStatus"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="1 Image Selected"
+                                android:textColor="@color/textPrimary"
+                                android:textSize="14sp"
+                                android:textStyle="bold" />
+
+                            <TextView
+                                android:id="@+id/tvUploadStatusSubtext"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="2dp"
+                                android:text="Tap card to change selection"
+                                android:textColor="@color/textSecondary"
+                                android:textSize="11sp" />
+                        </LinearLayout>
+
+                        <!-- Delete / Clear Button -->
+                        <ImageButton
+                            android:id="@+id/btnDeleteImage"
+                            android:layout_width="36dp"
+                            android:layout_height="36dp"
+                            android:background="?attr/selectableItemBackgroundBorderless"
+                            android:src="@drawable/ic_close"
+                            app:tint="@color/statusLost"
+                            android:layout_alignParentEnd="true"
+                            android:layout_centerVertical="true"
+                            android:contentDescription="Remove image" />
+
+                    </RelativeLayout>
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 
@@ -368,7 +451,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="4dp"
                 android:hint="Contact Email"
-                app:startIconDrawable="@drawable/ic_envelope"
+                app:startIconDrawable="@drawable/ic_email"
                 app:startIconTint="@color/primaryColor"
                 app:shapeAppearanceOverlay="@style/ShapeAppearance.App.SmallComponent">
 

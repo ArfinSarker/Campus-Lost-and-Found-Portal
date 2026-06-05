@@ -121,7 +121,7 @@
                 <ImageView
                     android:layout_width="14dp"
                     android:layout_height="14dp"
-                    android:src="@drawable/ic_map_pin"
+                    android:src="@drawable/ic_location"
                     app:tint="@color/textSecondary"
                     android:contentDescription="@null" />
 

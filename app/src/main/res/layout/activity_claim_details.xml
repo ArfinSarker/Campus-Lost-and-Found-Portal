@@ -19,7 +19,7 @@
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
-            app:navigationIcon="@drawable/ic_back_arrow"
+            app:navigationIcon="@drawable/ic_arrow_back"
             app:navigationIconTint="@color/white"
             app:title=""
             app:titleTextColor="@color/white">
@@ -482,7 +482,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="16dp"
                 android:text="Mark as Returned"
-                app:icon="@drawable/ic_fact_check"
+                app:icon="@drawable/ic_check_square"
                 android:visibility="gone"
                 app:cornerRadius="8dp" />
 
@@ -506,7 +506,7 @@
                 android:text="Send Email"
                 android:textSize="24dp"
                 app:cornerRadius="8dp"
-                app:icon="@drawable/ic_envelope"
+                app:icon="@drawable/ic_email"
                 app:iconGravity="textStart"
                 android:visibility="gone" />
 

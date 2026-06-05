@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/white"
+    android:background="#F8FAFC"
     android:fitsSystemWindows="true">
 
     <com.google.android.material.appbar.AppBarLayout
@@ -19,7 +19,6 @@
             android:layout_width="match_parent"
             android:layout_height="55dp"
             android:paddingHorizontal="10dp">
-
 
             <TextView
                 android:id="@+id/tvAdminTitle"
@@ -49,7 +48,7 @@
                     android:layout_width="24dp"
                     android:layout_height="24dp"
                     android:layout_gravity="center"
-                    android:src="@drawable/ic_bell"
+                    android:src="@drawable/ic_notification"
                     app:tint="@color/white" />
 
                 <TextView
@@ -87,149 +86,412 @@
                 android:orientation="vertical"
                 android:padding="16dp">
 
-                <GridLayout
+                <!-- Welcome Section Banner Card -->
+                <com.google.android.material.card.MaterialCardView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:columnCount="2"
-                    android:alignmentMode="alignMargins"
-                    android:columnOrderPreserved="false">
+                    android:layout_marginBottom="20dp"
+                    app:cardCornerRadius="16dp"
+                    app:cardElevation="3dp"
+                    app:strokeWidth="0dp">
+
+                    <FrameLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="130dp"
+                        android:background="@drawable/admin_gradient_bg">
+
+                        <!-- Semi-transparent decorative shield icon on the right -->
+                        <ImageView
+                            android:layout_width="110dp"
+                            android:layout_height="110dp"
+                            android:layout_gravity="end|center_vertical"
+                            android:layout_marginEnd="-10dp"
+                            android:alpha="0.15"
+                            android:src="@drawable/ic_shield"
+                            app:tint="@color/white" />
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:orientation="vertical"
+                            android:padding="20dp"
+                            android:gravity="center">
+
+                            <TextView
+                                android:id="@+id/tvWelcomeAdmin"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Welcome, Admin"
+                                android:textColor="@color/white"
+                                android:textSize="22sp"
+                                android:fontFamily="sans-serif-black"
+                                android:gravity="center" />
+                        </LinearLayout>
+                    </FrameLayout>
+                </com.google.android.material.card.MaterialCardView>
+
+                <!-- Statistics Grid -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:weightSum="2"
+                    android:layout_marginBottom="16dp">
 
                     <!-- Admin Requests Card -->
                     <com.google.android.material.card.MaterialCardView
                         android:id="@+id/cardAdminRequests"
-                        style="@style/Widget.App.Card"
                         android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_columnWeight="1"
-                        android:layout_margin="8dp"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1"
+                        android:layout_marginEnd="6dp"
                         android:clickable="true"
                         android:focusable="true"
-                        app:cardBackgroundColor="#F0F9FF">
+                        app:cardCornerRadius="16dp"
+                        app:cardElevation="2dp"
+                        app:strokeColor="#E2E8F0"
+                        app:strokeWidth="1dp"
+                        app:cardBackgroundColor="@color/white">
+
                         <LinearLayout
                             android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
+                            android:layout_height="match_parent"
+                            android:minHeight="145dp"
                             android:orientation="vertical"
-                            android:padding="16dp"
-                            android:gravity="center">
+                            android:padding="16dp">
+
+                            <RelativeLayout
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content">
+
+                                <!-- Icon background circular badge -->
+                                <com.google.android.material.card.MaterialCardView
+                                    android:id="@+id/badgeRequests"
+                                    android:layout_width="36dp"
+                                    android:layout_height="36dp"
+                                    app:cardCornerRadius="18dp"
+                                    app:cardElevation="0dp"
+                                    app:strokeWidth="0dp"
+                                    app:cardBackgroundColor="#EFF6FF">
+
+                                    <ImageView
+                                        android:layout_width="20dp"
+                                        android:layout_height="20dp"
+                                        android:layout_gravity="center"
+                                        android:src="@drawable/ic_user_check"
+                                        app:tint="#2563EB" />
+                                </com.google.android.material.card.MaterialCardView>
+
+                                <ImageView
+                                    android:layout_width="16dp"
+                                    android:layout_height="16dp"
+                                    android:layout_alignParentEnd="true"
+                                    android:layout_centerVertical="true"
+                                    android:src="@drawable/ic_chevron_right"
+                                    app:tint="#94A3B8" />
+                            </RelativeLayout>
+
                             <TextView
                                 android:id="@+id/tvTotalAdminRequests"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
+                                android:layout_marginTop="16dp"
                                 android:text="0"
-                                android:textColor="#0369A1"
+                                android:textColor="#1E293B"
                                 android:fontFamily="sans-serif-black"
-                                android:textSize="28sp" />
+                                android:textSize="32sp" />
+
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
+                                android:layout_marginTop="2dp"
                                 android:text="Admin Requests"
-                                android:textColor="#0369A1"
-                                android:textStyle="bold"
-                                android:gravity="center"
-                                android:textSize="14sp" />
+                                android:textColor="#475569"
+                                android:textSize="13sp"
+                                android:textStyle="bold" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="2dp"
+                                android:text="Pending review"
+                                android:textColor="#94A3B8"
+                                android:textSize="11sp" />
                         </LinearLayout>
                     </com.google.android.material.card.MaterialCardView>
 
-                    <!-- Admin Reports Card -->
+                    <!-- User Reports Card -->
                     <com.google.android.material.card.MaterialCardView
                         android:id="@+id/cardAdminReports"
-                        style="@style/Widget.App.Card"
                         android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_columnWeight="1"
-                        android:layout_margin="8dp"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1"
+                        android:layout_marginStart="6dp"
                         android:clickable="true"
                         android:focusable="true"
-                        app:cardBackgroundColor="#FEF2F2">
+                        app:cardCornerRadius="16dp"
+                        app:cardElevation="2dp"
+                        app:strokeColor="#E2E8F0"
+                        app:strokeWidth="1dp"
+                        app:cardBackgroundColor="@color/white">
+
                         <LinearLayout
                             android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
+                            android:layout_height="match_parent"
+                            android:minHeight="145dp"
                             android:orientation="vertical"
-                            android:padding="16dp"
-                            android:gravity="center">
+                            android:padding="16dp">
+
+                            <RelativeLayout
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content">
+
+                                <!-- Icon background circular badge -->
+                                <com.google.android.material.card.MaterialCardView
+                                    android:id="@+id/badgeReports"
+                                    android:layout_width="36dp"
+                                    android:layout_height="36dp"
+                                    app:cardCornerRadius="18dp"
+                                    app:cardElevation="0dp"
+                                    app:strokeWidth="0dp"
+                                    app:cardBackgroundColor="#FEF2F2">
+
+                                    <ImageView
+                                        android:layout_width="20dp"
+                                        android:layout_height="20dp"
+                                        android:layout_gravity="center"
+                                        android:src="@drawable/ic_report_management"
+                                        app:tint="#EF4444" />
+                                </com.google.android.material.card.MaterialCardView>
+
+                                <ImageView
+                                    android:layout_width="16dp"
+                                    android:layout_height="16dp"
+                                    android:layout_alignParentEnd="true"
+                                    android:layout_centerVertical="true"
+                                    android:src="@drawable/ic_chevron_right"
+                                    app:tint="#94A3B8" />
+                            </RelativeLayout>
+
                             <TextView
                                 android:id="@+id/tvTotalAdminReports"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
+                                android:layout_marginTop="16dp"
                                 android:text="0"
-                                android:textColor="#B91C1C"
+                                android:textColor="#1E293B"
                                 android:fontFamily="sans-serif-black"
-                                android:textSize="28sp" />
+                                android:textSize="32sp" />
+
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
+                                android:layout_marginTop="2dp"
                                 android:text="User Reports"
-                                android:textColor="#B91C1C"
-                                android:textStyle="bold"
-                                android:gravity="center"
-                                android:textSize="14sp" />
+                                android:textColor="#475569"
+                                android:textSize="13sp"
+                                android:textStyle="bold" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="2dp"
+                                android:text="Active issues"
+                                android:textColor="#94A3B8"
+                                android:textSize="11sp" />
                         </LinearLayout>
                     </com.google.android.material.card.MaterialCardView>
+                </LinearLayout>
 
-                </GridLayout>
+                <!-- Actions Section Title -->
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp"
+                    android:layout_marginBottom="8dp"
+                    android:text="Administrative Actions"
+                    android:textColor="#475569"
+                    android:textSize="12sp"
+                    android:textStyle="bold"
+                    android:textAllCaps="true"
+                    android:letterSpacing="0.08" />
 
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/btnAdminReports"
+                <!-- Action 1: Report Management -->
+                <FrameLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="24dp"
-                    android:text="Report Management"
-                    android:textColor="@color/white"
-                    app:backgroundTint="#800000"
-                    app:icon="@drawable/ic_report_management"
-                    app:iconTint="@null"
-                    app:iconSize="24dp"
-                    app:iconPadding="12dp" />
+                    android:layout_marginTop="8dp">
 
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/btnAdminRequests"
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btnAdminReports"
+                        android:layout_width="match_parent"
+                        android:layout_height="68dp"
+                        android:text="Report Management"
+                        android:textColor="#1E293B"
+                        android:gravity="start|center_vertical"
+                        android:paddingStart="16dp"
+                        android:paddingEnd="48dp"
+                        android:textSize="15sp"
+                        android:fontFamily="sans-serif-medium"
+                        android:textAllCaps="false"
+                        app:backgroundTint="@color/white"
+                        app:icon="@drawable/ic_report_management"
+                        app:iconTint="#E11D48"
+                        app:iconSize="24dp"
+                        app:iconPadding="16dp"
+                        app:cornerRadius="14dp"
+                        app:strokeColor="#E2E8F0"
+                        app:strokeWidth="1dp"
+                        app:elevation="2dp" />
+
+                    <ImageView
+                        android:layout_width="20dp"
+                        android:layout_height="20dp"
+                        android:layout_gravity="end|center_vertical"
+                        android:layout_marginEnd="20dp"
+                        android:src="@drawable/ic_chevron_right"
+                        android:elevation="3dp"
+                        android:importantForAccessibility="no"
+                        app:tint="#94A3B8" />
+                </FrameLayout>
+
+                <!-- Action 2: Review Admin Requests -->
+                <FrameLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
-                    android:text="Review Admin Requests"
-                    android:textColor="@color/white"
-                    app:backgroundTint="#FF6700"
-                    app:icon="@drawable/ic_admin_requests"
-                    app:iconTint="@null"
-                    app:iconSize="24dp"
-                    app:iconPadding="12dp" />
+                    android:layout_marginTop="10dp">
 
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/btnManageItems"
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btnAdminRequests"
+                        android:layout_width="match_parent"
+                        android:layout_height="68dp"
+                        android:text="Review Admin Requests"
+                        android:textColor="#1E293B"
+                        android:gravity="start|center_vertical"
+                        android:paddingStart="16dp"
+                        android:paddingEnd="48dp"
+                        android:textSize="15sp"
+                        android:fontFamily="sans-serif-medium"
+                        android:textAllCaps="false"
+                        app:backgroundTint="@color/white"
+                        app:icon="@drawable/ic_user_check"
+                        app:iconTint="#2563EB"
+                        app:iconSize="24dp"
+                        app:iconPadding="16dp"
+                        app:cornerRadius="14dp"
+                        app:strokeColor="#E2E8F0"
+                        app:strokeWidth="1dp"
+                        app:elevation="2dp" />
+
+                    <ImageView
+                        android:layout_width="20dp"
+                        android:layout_height="20dp"
+                        android:layout_gravity="end|center_vertical"
+                        android:layout_marginEnd="20dp"
+                        android:src="@drawable/ic_chevron_right"
+                        android:elevation="3dp"
+                        android:importantForAccessibility="no"
+                        app:tint="#94A3B8" />
+                </FrameLayout>
+
+                <!-- Action 3: Manage All Items -->
+                <FrameLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
-                    android:text="Manage All Items"
-                    android:textColor="@color/white"
-                    app:backgroundTint="@color/manageAllItems"
-                    app:icon="@drawable/ic_file_circle_plus"
-                    app:iconTint="@color/white"
-                    app:iconSize="24dp"
-                    app:iconPadding="12dp"/>
+                    android:layout_marginTop="10dp">
 
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/btnManageUsers"
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btnManageItems"
+                        android:layout_width="match_parent"
+                        android:layout_height="68dp"
+                        android:text="Manage All Items"
+                        android:textColor="#1E293B"
+                        android:gravity="start|center_vertical"
+                        android:paddingStart="16dp"
+                        android:paddingEnd="48dp"
+                        android:textSize="15sp"
+                        android:fontFamily="sans-serif-medium"
+                        android:textAllCaps="false"
+                        app:backgroundTint="@color/white"
+                        app:icon="@drawable/ic_file_plus"
+                        app:iconTint="#059669"
+                        app:iconSize="24dp"
+                        app:iconPadding="16dp"
+                        app:cornerRadius="14dp"
+                        app:strokeColor="#E2E8F0"
+                        app:strokeWidth="1dp"
+                        app:elevation="2dp" />
+
+                    <ImageView
+                        android:layout_width="20dp"
+                        android:layout_height="20dp"
+                        android:layout_gravity="end|center_vertical"
+                        android:layout_marginEnd="20dp"
+                        android:src="@drawable/ic_chevron_right"
+                        android:elevation="3dp"
+                        android:importantForAccessibility="no"
+                        app:tint="#94A3B8" />
+                </FrameLayout>
+
+                <!-- Action 4: Manage All Users -->
+                <FrameLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
-                    android:text="Manage All Users"
-                    android:textColor="@color/white"
-                    app:backgroundTint="@color/admin_accent"
-                    app:icon="@drawable/ic_users"
-                    app:iconTint="@color/white"/>
+                    android:layout_marginTop="10dp">
 
-                <View
-                    android:layout_width="match_parent"
-                    android:layout_height="32dp"/>
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btnManageUsers"
+                        android:layout_width="match_parent"
+                        android:layout_height="68dp"
+                        android:text="Manage All Users"
+                        android:textColor="#1E293B"
+                        android:gravity="start|center_vertical"
+                        android:paddingStart="16dp"
+                        android:paddingEnd="48dp"
+                        android:textSize="15sp"
+                        android:fontFamily="sans-serif-medium"
+                        android:textAllCaps="false"
+                        app:backgroundTint="@color/white"
+                        app:icon="@drawable/ic_users"
+                        app:iconTint="#7C3AED"
+                        app:iconSize="24dp"
+                        app:iconPadding="16dp"
+                        app:cornerRadius="14dp"
+                        app:strokeColor="#E2E8F0"
+                        app:strokeWidth="1dp"
+                        app:elevation="2dp" />
 
+                    <ImageView
+                        android:layout_width="20dp"
+                        android:layout_height="20dp"
+                        android:layout_gravity="end|center_vertical"
+                        android:layout_marginEnd="20dp"
+                        android:src="@drawable/ic_chevron_right"
+                        android:elevation="3dp"
+                        android:importantForAccessibility="no"
+                        app:tint="#94A3B8" />
+                </FrameLayout>
+
+                <!-- Logout Section -->
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/btnLogout"
                     style="@style/Widget.Material3.Button.OutlinedButton"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
+                    android:layout_height="52dp"
+                    android:layout_marginTop="32dp"
+                    android:layout_marginBottom="24dp"
                     android:text="Logout Admin Session"
-                    android:textColor="@color/statusLost"
-                    app:strokeColor="@color/statusLost"/>
+                    android:textColor="#DC2626"
+                    android:textAllCaps="false"
+                    android:textSize="15sp"
+                    android:fontFamily="sans-serif-medium"
+                    app:icon="@drawable/ic_logout"
+                    app:iconTint="#DC2626"
+                    app:iconGravity="textStart"
+                    app:iconPadding="10dp"
+                    app:cornerRadius="14dp"
+                    app:strokeColor="#FCA5A5"
+                    app:strokeWidth="1.5dp" />
 
             </LinearLayout>
         </androidx.core.widget.NestedScrollView>

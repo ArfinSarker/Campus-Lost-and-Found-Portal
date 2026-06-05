@@ -4,11 +4,15 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_margin="8dp"
-    app:cardCornerRadius="16dp"
-    app:cardElevation="3dp"
+    android:layout_marginHorizontal="0dp"
+    android:layout_marginVertical="8dp"
+    app:cardCornerRadius="20dp"
+    app:cardElevation="4dp"
     app:strokeWidth="1dp"
-    app:strokeColor="@color/dividerColor">
+    app:strokeColor="#EDF2F7"
+    app:cardBackgroundColor="@color/white"
+    app:cardPreventCornerOverlap="false"
+    android:clipToOutline="true">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
@@ -36,7 +40,7 @@
                 android:layout_height="match_parent"
                 android:scaleType="centerInside"
                 android:src="@drawable/ic_shield"
-                android:background="#F5F5F5"
+                android:background="@drawable/bg_report_placeholder"
                 android:padding="48dp"
                 app:tint="@color/primaryColor" />
 
@@ -65,22 +69,24 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_margin="12dp"
-            app:cardCornerRadius="8dp"
-            app:cardElevation="4dp"
+            app:cardCornerRadius="100dp"
+            app:cardElevation="3dp"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            app:strokeWidth="0dp">
+            app:strokeWidth="1.5dp"
+            app:strokeColor="#FFFFFF">
 
             <TextView
                 android:id="@+id/tvStatusBadge"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:paddingHorizontal="10dp"
-                android:paddingVertical="4dp"
+                android:paddingHorizontal="12dp"
+                android:paddingVertical="5dp"
                 android:textAllCaps="true"
                 android:textColor="@color/white"
-                android:textSize="11sp"
-                android:textStyle="bold"
+                android:textSize="10sp"
+                android:letterSpacing="0.08"
+                android:fontFamily="sans-serif-medium"
                 tools:text="PENDING" />
         </com.google.android.material.card.MaterialCardView>
 
@@ -90,31 +96,32 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_margin="12dp"
-            app:cardCornerRadius="8dp"
-            app:cardElevation="4dp"
+            app:cardCornerRadius="100dp"
+            app:cardElevation="3dp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            app:cardBackgroundColor="@color/primaryDarkColor"
-            app:strokeWidth="0dp">
+            app:cardBackgroundColor="#CC0F172A"
+            app:strokeWidth="1dp"
+            app:strokeColor="#33FFFFFF">
 
             <TextView
                 android:id="@+id/tvDisplayId"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:paddingHorizontal="10dp"
-                android:paddingVertical="4dp"
+                android:paddingHorizontal="12dp"
+                android:paddingVertical="5dp"
                 android:textColor="@color/white"
-                android:textSize="11sp"
-                android:textStyle="bold"
+                android:textSize="10sp"
+                android:letterSpacing="0.06"
+                android:fontFamily="sans-serif-medium"
                 tools:text="#R1" />
         </com.google.android.material.card.MaterialCardView>
 
         <!-- Info Content Section -->
-        <LinearLayout
+        <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:padding="12dp"
+            android:padding="16dp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -122,48 +129,128 @@
 
             <TextView
                 android:id="@+id/tvReportTitle"
-                android:layout_width="match_parent"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:ellipsize="end"
                 android:fontFamily="sans-serif-medium"
-                android:maxLines="1"
-                android:textColor="@color/textPrimary"
-                android:textSize="15sp"
+                android:maxLines="2"
+                android:textColor="#0F172A"
+                android:textSize="17sp"
+                android:lineSpacingExtra="3dp"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
                 tools:text="Report Title" />
 
+            <!-- Reporter Info Row -->
+            <LinearLayout
+                android:id="@+id/layoutReporterInfo"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:layout_marginTop="8dp"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/tvReportTitle">
+
+                <com.google.android.material.imageview.ShapeableImageView
+                    android:id="@+id/ivReporterAvatar"
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:layout_marginEnd="6dp"
+                    android:scaleType="centerCrop"
+                    android:src="@drawable/ic_user"
+                    app:tint="#64748B"
+                    app:shapeAppearanceOverlay="@style/ShapeAppearance.App.Circle"
+                    android:importantForAccessibility="no" />
+
+                <TextView
+                    android:id="@+id/tvReporterInfo"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textColor="#475569"
+                    android:textSize="13sp"
+                    android:fontFamily="sans-serif"
+                    tools:text="Submitted By: John Doe" />
+            </LinearLayout>
+
+            <!-- Divider line between info and tags -->
             <View
-                android:layout_width="match_parent"
+                android:id="@+id/divider"
+                android:layout_width="0dp"
                 android:layout_height="1dp"
-                android:layout_marginVertical="8dp"
-                android:background="@color/dividerColor" />
+                android:background="#F1F5F9"
+                android:layout_marginTop="12dp"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/layoutReporterInfo" />
 
-            <TextView
-                android:id="@+id/tvReporterInfo"
-                android:layout_width="match_parent"
+            <!-- Category Tag Chip -->
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/cardCategoryBadge"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textColor="@color/textSecondary"
-                android:textSize="12sp"
-                tools:text="Submitted By: John Doe" />
+                android:layout_marginTop="12dp"
+                app:cardCornerRadius="100dp"
+                app:cardElevation="0dp"
+                app:cardBackgroundColor="#EFF6FF"
+                app:strokeWidth="0dp"
+                app:layout_constrainedWidth="true"
+                app:layout_constraintHorizontal_bias="0.0"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toStartOf="@id/layoutTimestamp"
+                app:layout_constraintTop_toBottomOf="@id/divider"
+                app:layout_constraintBottom_toBottomOf="parent">
 
-            <TextView
-                android:id="@+id/tvCategory"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="2dp"
-                android:textColor="@color/primaryColor"
-                android:textSize="12sp"
-                android:textStyle="bold"
-                tools:text="Category: Spam" />
+                <TextView
+                    android:id="@+id/tvCategory"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:paddingHorizontal="10dp"
+                    android:paddingVertical="4dp"
+                    android:textColor="@color/primaryColor"
+                    android:textSize="10sp"
+                    android:letterSpacing="0.04"
+                    android:fontFamily="sans-serif-medium"
+                    android:ellipsize="end"
+                    android:singleLine="true"
+                    tools:text="Category: Spam" />
+            </com.google.android.material.card.MaterialCardView>
 
-            <TextView
-                android:id="@+id/tvTimestamp"
-                android:layout_width="match_parent"
+            <!-- Timestamp aligned to right -->
+            <LinearLayout
+                android:id="@+id/layoutTimestamp"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="4dp"
-                android:textColor="@color/textSecondary"
-                android:textSize="11sp"
-                tools:text="25 Oct, 10:30 AM" />
-        </LinearLayout>
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:layout_marginTop="12dp"
+                android:layout_marginStart="8dp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@id/cardCategoryBadge"
+                app:layout_constraintTop_toBottomOf="@id/divider"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintHorizontal_bias="1.0">
+
+                <ImageView
+                    android:layout_width="14dp"
+                    android:layout_height="14dp"
+                    android:src="@drawable/ic_clock"
+                    app:tint="#64748B"
+                    android:layout_marginEnd="4dp"
+                    android:importantForAccessibility="no" />
+
+                <TextView
+                    android:id="@+id/tvTimestamp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textColor="#64748B"
+                    android:textSize="12sp"
+                    android:fontFamily="sans-serif"
+                    tools:text="25 Oct, 10:30 AM" />
+            </LinearLayout>
+        </androidx.constraintlayout.widget.ConstraintLayout>
 
         <!-- Hidden elements for adapter compatibility -->
         <TextView android:id="@+id/tvPriorityBadge" android:layout_width="0dp" android:layout_height="0dp" android:visibility="gone" app:layout_constraintStart_toStartOf="parent" app:layout_constraintTop_toTopOf="parent" />

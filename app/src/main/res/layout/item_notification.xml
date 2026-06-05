@@ -24,7 +24,7 @@
             android:background="@drawable/bg_notification_badge"
             android:backgroundTint="@color/primaryLightColor"
             android:padding="8dp"
-            android:src="@drawable/ic_bell"
+            android:src="@drawable/ic_notification"
             app:tint="@color/primaryColor" />
 
         <LinearLayout
