@@ -26,6 +26,7 @@ public class CreateNewPasswordActivity extends AppCompatActivity {
     private android.widget.ImageButton btnBack;
     private View keyboardSpacer;
     private View createNewPasswordRoot;
+    private com.google.android.material.appbar.AppBarLayout appBarLayout;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -33,6 +34,9 @@ public class CreateNewPasswordActivity extends AppCompatActivity {
         setContentView(R.layout.activity_create_new_password);
 
         initializeViews();
+        if (appBarLayout != null) {
+            HeaderColorHelper.setup(this, appBarLayout);
+        }
         handleIntent(getIntent());
         setupKeyboardListener();
 
@@ -56,6 +60,7 @@ public class CreateNewPasswordActivity extends AppCompatActivity {
         btnBack = findViewById(R.id.btnBack);
         createNewPasswordRoot = findViewById(R.id.createNewPasswordRoot);
         keyboardSpacer = findViewById(R.id.keyboardSpacer);
+        appBarLayout = findViewById(R.id.appBarLayout);
 
         if (btnBack != null) {
             btnBack.setOnClickListener(v -> finish());

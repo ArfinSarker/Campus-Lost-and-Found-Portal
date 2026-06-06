@@ -24,6 +24,7 @@ public class ForgotPasswordActivity extends AppCompatActivity {
     private android.content.res.ColorStateList originalBackgroundTint;
     private View keyboardSpacer;
     private View forgotPasswordRoot;
+    private com.google.android.material.appbar.AppBarLayout appBarLayout;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -31,6 +32,9 @@ public class ForgotPasswordActivity extends AppCompatActivity {
         setContentView(R.layout.activity_forgot_password);
 
         initializeViews();
+        if (appBarLayout != null) {
+            HeaderColorHelper.setup(this, appBarLayout);
+        }
         setupToolbar();
         setupKeyboardListener();
 
@@ -50,6 +54,7 @@ public class ForgotPasswordActivity extends AppCompatActivity {
         loader = findViewById(R.id.loader);
         forgotPasswordRoot = findViewById(R.id.forgotPasswordRoot);
         keyboardSpacer = findViewById(R.id.keyboardSpacer);
+        appBarLayout = findViewById(R.id.appBarLayout);
 
         ErrorHelper.attachToTextInputLayout(tilUniversityId);
         ErrorHelper.attachToTextInputLayout(tilEmail);

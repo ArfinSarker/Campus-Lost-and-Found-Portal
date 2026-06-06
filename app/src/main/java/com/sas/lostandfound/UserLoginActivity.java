@@ -53,6 +53,9 @@ public class UserLoginActivity extends AppCompatActivity {
         setContentView(R.layout.activity_user_login);
 
         initializeViews();
+        if (appBarLayout != null) {
+            HeaderColorHelper.setup(this, appBarLayout);
+        }
         setupUserTypeDropdown();
         setupToolbar();
         setupClickableRegister();
@@ -60,9 +63,8 @@ public class UserLoginActivity extends AppCompatActivity {
 
         btnLogin.setOnClickListener(v -> loginUser());
 
-        tvForgotPassword.setOnClickListener(v ->
-                startActivity(new Intent(UserLoginActivity.this, ForgotPasswordActivity.class))
-        );
+        tvForgotPassword.setOnClickListener(
+                v -> startActivity(new Intent(UserLoginActivity.this, ForgotPasswordActivity.class)));
     }
 
     private void initializeViews() {
@@ -88,7 +90,7 @@ public class UserLoginActivity extends AppCompatActivity {
     }
 
     private void setupUserTypeDropdown() {
-        String[] userTypes = {"Student", "Staff", "Admin"};
+        String[] userTypes = { "Student", "Staff", "Admin" };
         ArrayAdapter<String> adapter = new ArrayAdapter<>(this, R.layout.dropdown_item, userTypes);
         actvUserType.setAdapter(adapter);
         actvUserType.setOnClickListener(v -> actvUserType.showDropDown());
@@ -168,7 +170,8 @@ public class UserLoginActivity extends AppCompatActivity {
 
     private void startLoginFlow(String universityId, String password, String userType) {
         String query = "university_id=eq." + universityId + "&select=*&limit=1";
-        SupabaseDatabaseHelper.select("profiles", query, new TypeToken<List<User>>(){}.getType(), new SupabaseDatabaseHelper.DatabaseCallback<List<User>>() {
+        SupabaseDatabaseHelper.select("profiles", query, new TypeToken<List<User>>() {
+        }.getType(), new SupabaseDatabaseHelper.DatabaseCallback<List<User>>() {
             @Override
             public void onSuccess(List<User> users) {
                 if (users == null || users.isEmpty()) {
@@ -190,10 +193,9 @@ public class UserLoginActivity extends AppCompatActivity {
                         return;
                     }
 
-                    boolean dbIsAdmin =
-                            "admin".equalsIgnoreCase(user.getRole()) ||
-                                    user.isAdmin() ||
-                                    "Admin".equalsIgnoreCase(user.getUserType());
+                    boolean dbIsAdmin = "admin".equalsIgnoreCase(user.getRole()) ||
+                            user.isAdmin() ||
+                            "Admin".equalsIgnoreCase(user.getUserType());
 
                     String actualRole = dbIsAdmin ? "Admin" : user.getUserType();
 
@@ -221,12 +223,14 @@ public class UserLoginActivity extends AppCompatActivity {
 
     private void checkPendingAdminRequest(String universityId) {
         String query = "university_id=eq." + universityId + "&select=*&limit=1";
-        SupabaseDatabaseHelper.select("admin_requests", query, new TypeToken<List<AdminRequest>>(){}.getType(), new SupabaseDatabaseHelper.DatabaseCallback<List<AdminRequest>>() {
+        SupabaseDatabaseHelper.select("admin_requests", query, new TypeToken<List<AdminRequest>>() {
+        }.getType(), new SupabaseDatabaseHelper.DatabaseCallback<List<AdminRequest>>() {
             @Override
             public void onSuccess(List<AdminRequest> requests) {
                 stopLoading();
                 if (requests != null && !requests.isEmpty()) {
-                    ErrorHelper.showError(btnLogin, "Your account request is still pending approval. Please try again later.");
+                    ErrorHelper.showError(btnLogin,
+                            "Your account request is still pending approval. Please try again later.");
                 } else {
                     ErrorHelper.showError(btnLogin, "No account found with this University ID.");
                 }
@@ -240,7 +244,8 @@ public class UserLoginActivity extends AppCompatActivity {
         });
     }
 
-    private void performSupabaseLogin(String email, String password, String userType, boolean isMainAdmin, String dbId, User user) {
+    private void performSupabaseLogin(String email, String password, String userType, boolean isMainAdmin, String dbId,
+            User user) {
 
         SupabaseAuthHelper.login(email, password, new SupabaseAuthHelper.AuthCallback() {
             @Override
@@ -263,7 +268,8 @@ public class UserLoginActivity extends AppCompatActivity {
         });
     }
 
-    private void saveLoginState(String userType, boolean isMainAdmin, String dbId, String authId, String accessToken, String refreshToken, User user) {
+    private void saveLoginState(String userType, boolean isMainAdmin, String dbId, String authId, String accessToken,
+            String refreshToken, User user) {
         SharedPreferences prefs = getSharedPreferences("MyApp", MODE_PRIVATE);
         SharedPreferences.Editor editor = prefs.edit()
                 .putString("userType", userType)
@@ -281,19 +287,19 @@ public class UserLoginActivity extends AppCompatActivity {
                 name = user.getFullName();
             }
             editor.putString("cachedUserName", name)
-                  .putString("cachedUserEmail", user.getEmail())
-                  .putString("cachedUserPhone", user.getPhone())
-                  .putString("cachedUserGender", user.getGender())
-                  .putString("cachedUserDepartment", user.getDepartment())
-                  .putString("cachedUserBatch", user.getBatch())
-                  .putString("cachedUserLevelTerm", user.getLevelTerm())
-                  .putString("cachedUserSection", user.getSection())
-                  .putString("cachedUserDesignation", user.getDesignation())
-                  .putString("cachedProfileImageUrl", user.getProfileImageUrl());
+                    .putString("cachedUserEmail", user.getEmail())
+                    .putString("cachedUserPhone", user.getPhone())
+                    .putString("cachedUserGender", user.getGender())
+                    .putString("cachedUserDepartment", user.getDepartment())
+                    .putString("cachedUserBatch", user.getBatch())
+                    .putString("cachedUserLevelTerm", user.getLevelTerm())
+                    .putString("cachedUserSection", user.getSection())
+                    .putString("cachedUserDesignation", user.getDesignation())
+                    .putString("cachedProfileImageUrl", user.getProfileImageUrl());
         }
 
         editor.apply();
-        
+
         // Update helper with token
         SupabaseDatabaseHelper.setAuthToken(accessToken);
     }
@@ -333,7 +339,8 @@ public class UserLoginActivity extends AppCompatActivity {
     }
 
     private void setupKeyboardListener() {
-        if (loginRoot == null || keyboardSpacer == null) return;
+        if (loginRoot == null || keyboardSpacer == null)
+            return;
 
         loginRoot.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
             @Override

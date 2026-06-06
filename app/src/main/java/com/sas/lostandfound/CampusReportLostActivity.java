@@ -294,11 +294,11 @@ public class CampusReportLostActivity extends AppCompatActivity {
             }
             toolbar.setNavigationOnClickListener(v -> onBackPressed());
 
-            // HeaderColorHelper setup is commented out to lock the header bar statically in color/height
-            // com.google.android.material.appbar.AppBarLayout appBarLayout = findViewById(R.id.appBarLayout);
-            // if (appBarLayout != null) {
-            //     HeaderColorHelper.setup(this, appBarLayout, toolbar);
-            // }
+            // HeaderColorHelper setup to style the header dynamically/consistently
+            com.google.android.material.appbar.AppBarLayout appBarLayout = findViewById(R.id.appBarLayout);
+            if (appBarLayout != null) {
+                HeaderColorHelper.setup(this, appBarLayout, toolbar);
+            }
         }
     }
 

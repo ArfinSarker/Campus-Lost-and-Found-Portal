@@ -11,7 +11,7 @@
         android:id="@+id/appBarLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@color/primaryColor"
+        android:background="#F8FAFC"
         android:fitsSystemWindows="true"
         app:elevation="0dp">
 
@@ -20,60 +20,81 @@
             android:layout_height="65dp"
             android:paddingHorizontal="16dp">
 
-            <com.google.android.material.imageview.ShapeableImageView
-                android:id="@+id/ivLogo"
-                android:layout_width="40dp"
-                android:layout_height="40dp"
-                android:src="@drawable/logo"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                app:shapeAppearanceOverlay="@style/ShapeAppearance.App.Circle" />
-
+            <!-- Left-aligned branding (Logo + App Name) -->
             <LinearLayout
+                android:id="@+id/layoutBranding"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
+                android:gravity="center_vertical"
+                app:layout_constraintTop_toTopOf="parent"
                 app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent">
+                app:layout_constraintStart_toStartOf="parent">
 
-                <TextView
+                <com.google.android.material.imageview.ShapeableImageView
+                    android:id="@+id/ivLogo"
+                    android:layout_width="32dp"
+                    android:layout_height="32dp"
+                    android:src="@drawable/logo"
+                    app:shapeAppearanceOverlay="@style/ShapeAppearance.App.Circle" />
+
+                <LinearLayout
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:fontFamily="sans-serif-black"
-                    android:text="@string/lost_part"
-                    android:textColor="@color/white"
-                    android:textSize="20sp" />
+                    android:layout_marginStart="10dp"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical">
 
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:fontFamily="sans-serif-black"
-                    android:text="@string/found_part"
-                    android:textColor="@color/cyan"
-                    android:textSize="20sp" />
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="sans-serif-medium"
+                        android:text="@string/lost_part"
+                        android:textColor="#0F172A"
+                        android:textSize="18sp"
+                        android:textStyle="bold"
+                        android:letterSpacing="0.02" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="sans-serif-medium"
+                        android:text="@string/found_part"
+                        android:textColor="@color/primaryDarkColor"
+                        android:textSize="18sp"
+                        android:textStyle="bold"
+                        android:letterSpacing="0.02" />
+                </LinearLayout>
             </LinearLayout>
 
+            <!-- Modern Pill Gradient Sign In Button -->
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnSignIn"
-                style="@style/Widget.Material3.Button"
                 android:layout_width="wrap_content"
-                android:layout_height="40dp"
-                android:paddingHorizontal="16dp"
+                android:layout_height="38dp"
+                android:paddingHorizontal="18dp"
                 android:text="@string/sign_in"
-                android:textColor="@color/primaryDarkColor"
-                android:textSize="13sp"
+                android:textColor="@color/white"
+                android:textSize="12.5sp"
                 android:textStyle="bold"
+                android:fontFamily="sans-serif-medium"
                 android:insetTop="0dp"
                 android:insetBottom="0dp"
-                app:backgroundTint="@color/white"
-                app:cornerRadius="20dp"
+                android:background="@drawable/bg_btn_signin_accent"
+                app:backgroundTint="@null"
                 app:elevation="0dp"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
+
+            <!-- Elegant hairline bottom border divider -->
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="#E2E8F0"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
     </com.google.android.material.appbar.AppBarLayout>
@@ -95,32 +116,58 @@
                 android:orientation="vertical"
                 android:padding="16dp">
 
-                <TextView
-                    android:id="@+id/dashboardHeadline"
-                    style="@style/TextAppearance.App.Headline"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="0dp"
-                    android:text="@string/dashboardHeadline"
-                    android:textColor="@color/textPrimary"
-                    android:textStyle="bold"
-                    android:gravity="center" />
-
-                <TextView
-                    android:id="@+id/dashboardDescription"
+                <com.google.android.material.card.MaterialCardView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="12dp"
-                    android:paddingStart="0dp"
-                    android:paddingEnd="0dp"
-                    android:text="@string/dashboardDescription"
-                    android:textColor="@color/textSecondary"
-                    android:textSize="13sp"
-                    android:lineSpacingExtra="4dp"
-                    android:letterSpacing="0.0"
-                    android:fontFamily="sans-serif-medium"
-                    android:justificationMode="inter_word"
-                    android:gravity="center_vertical"/>
+                    android:layout_marginBottom="16dp"
+                    app:cardCornerRadius="16dp"
+                    app:cardElevation="3dp"
+                    app:strokeWidth="0dp"
+                    app:cardPreventCornerOverlap="false">
+
+                    <FrameLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:background="@drawable/bg_dashboard_intro">
+
+                        <!-- Semi-transparent decorative search icon on the right (visible perfectly) -->
+                        <ImageView
+                            android:layout_width="100dp"
+                            android:layout_height="100dp"
+                            android:layout_gravity="end|center_vertical"
+                            android:layout_marginEnd="-10dp"
+                            android:alpha="0.25"
+                            android:src="@drawable/ic_search"
+                            app:tint="@color/white"
+                            android:contentDescription="@null" />
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="vertical"
+                            android:paddingHorizontal="16dp"
+                            android:paddingVertical="18dp"
+                            android:gravity="center">
+
+                            <TextView
+                                android:id="@+id/dashboardHeadline"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:text="@string/dashboardHeadline"
+                                android:textColor="@color/white"
+                                android:textSize="18sp"
+                                android:textStyle="bold"
+                                android:fontFamily="sans-serif-black"
+                                android:gravity="center"
+                                android:shadowColor="#3F000000"
+                                android:shadowDx="0"
+                                android:shadowDy="2"
+                                android:shadowRadius="6"
+                                android:letterSpacing="0.01" />
+                        </LinearLayout>
+                    </FrameLayout>
+                </com.google.android.material.card.MaterialCardView>
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -128,7 +175,7 @@
                     android:layout_marginTop="24dp"
                     android:orientation="horizontal">
 
-                    <!-- Report Lost Button -->
+                    <!-- Report Lost Button (Redesigned Modern Glassmorphism Hybrid) -->
                     <com.google.android.material.button.MaterialButton
                         android:id="@+id/btnReportLost"
                         android:layout_width="0dp"
@@ -137,22 +184,27 @@
                         android:layout_weight="1"
                         android:text="@string/report_lost_btn"
                         android:textAllCaps="false"
-                        android:textSize="13sp"
+                        android:textSize="12.5sp"
                         android:textStyle="bold"
-                        android:textColor="@color/white"
-                        android:paddingStart="8dp"
-                        android:paddingEnd="8dp"
+                        android:fontFamily="sans-serif-medium"
+                        android:textColor="@color/statusLost"
                         android:insetTop="0dp"
                         android:insetBottom="0dp"
-                        app:backgroundTint="@color/statusLost"
-                        app:cornerRadius="12dp"
+                        android:paddingHorizontal="16dp"
+                        android:singleLine="true"
+                        android:maxLines="1"
+                        android:ellipsize="none"
+                        android:minWidth="110dp"
+                        android:background="@drawable/bg_btn_report_lost"
+                        app:backgroundTint="@null"
                         app:icon="@drawable/ic_alert_circle"
                         app:iconGravity="textStart"
-                        app:iconTint="@color/white"
+                        app:iconTint="@color/statusLost"
                         app:iconSize="16dp"
-                        app:iconPadding="4dp" />
+                        app:iconPadding="4dp"
+                        app:elevation="0dp" />
 
-                    <!-- Report Found Button -->
+                    <!-- Report Found Button (Redesigned Modern Glassmorphism Hybrid) -->
                     <com.google.android.material.button.MaterialButton
                         android:id="@+id/btnReportFound"
                         android:layout_width="0dp"
@@ -161,20 +213,25 @@
                         android:layout_weight="1"
                         android:text="@string/report_found_btn"
                         android:textAllCaps="false"
-                        android:textSize="13sp"
+                        android:textSize="12.5sp"
                         android:textStyle="bold"
-                        android:textColor="@color/white"
-                        android:paddingStart="8dp"
-                        android:paddingEnd="8dp"
+                        android:fontFamily="sans-serif-medium"
+                        android:textColor="@color/statusFound"
                         android:insetTop="0dp"
                         android:insetBottom="0dp"
-                        app:backgroundTint="@color/statusFound"
-                        app:cornerRadius="12dp"
+                        android:paddingHorizontal="16dp"
+                        android:singleLine="true"
+                        android:maxLines="1"
+                        android:ellipsize="none"
+                        android:minWidth="110dp"
+                        android:background="@drawable/bg_btn_report_found"
+                        app:backgroundTint="@null"
                         app:icon="@drawable/ic_check_circle"
                         app:iconGravity="textStart"
-                        app:iconTint="@color/white"
+                        app:iconTint="@color/statusFound"
                         app:iconSize="16dp"
-                        app:iconPadding="4dp" />
+                        app:iconPadding="4dp"
+                        app:elevation="0dp" />
                 </LinearLayout>
 
                 <TextView
@@ -196,9 +253,27 @@
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/btnViewMore"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
+                    android:layout_height="48dp"
                     android:layout_marginTop="16dp"
-                    android:text="@string/view_more" />
+                    android:text="@string/view_more"
+                    android:textAllCaps="false"
+                    android:textColor="#4F46E5"
+                    android:textSize="14sp"
+                    android:textStyle="bold"
+                    android:fontFamily="sans-serif-medium"
+                    android:insetTop="0dp"
+                    android:insetBottom="0dp"
+                    app:backgroundTint="#1A4F46E5"
+                    app:strokeColor="#334F46E5"
+                    app:strokeWidth="1dp"
+                    app:cornerRadius="14dp"
+                    app:rippleColor="#334F46E5"
+                    app:icon="@drawable/ic_chevron_down"
+                    app:iconGravity="textEnd"
+                    app:iconTint="#4F46E5"
+                    app:iconSize="18dp"
+                    app:iconPadding="8dp"
+                    app:elevation="0dp" />
 
                 <View
                     android:layout_width="match_parent"

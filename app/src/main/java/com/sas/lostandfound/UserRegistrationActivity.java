@@ -73,6 +73,7 @@ public class UserRegistrationActivity extends AppCompatActivity {
     private CheckBox cbPolicy;
     private View keyboardSpacer;
     private View registrationRoot;
+    private com.google.android.material.appbar.AppBarLayout appBarLayout;
 
     private static final int REQUEST_IMAGE_PICK = 101;
     private static final int REQUEST_IMAGE_CAPTURE = 102;
@@ -87,6 +88,9 @@ public class UserRegistrationActivity extends AppCompatActivity {
         setContentView(R.layout.activity_user_registration);
 
         initializeViews();
+        if (appBarLayout != null) {
+            HeaderColorHelper.setup(this, appBarLayout);
+        }
         setupDropdowns();
         setupListeners();
         setupPolicyText();
@@ -147,6 +151,7 @@ public class UserRegistrationActivity extends AppCompatActivity {
         cbPolicy = findViewById(R.id.cbPolicy);
         etPassword = findViewById(R.id.etPassword);
         etConfirmPassword = findViewById(R.id.etConfirmPassword);
+        appBarLayout = findViewById(R.id.appBarLayout);
     }
 
     private void setupKeyboardListener() {

@@ -78,6 +78,7 @@ public class CampusDashboardActivity extends AppCompatActivity {
     };
 
     private Intent pendingIntent;
+    private int currentSelectedDrawerItemId = -1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -181,6 +182,11 @@ public class CampusDashboardActivity extends AppCompatActivity {
         fetchUserData();
         fetchRecentItems();
         badgeHandler.post(badgeRunnable);
+
+        // Reset TabLayout selection to Home tab (index 0)
+        if (tabLayout != null && tabLayout.getTabAt(0) != null) {
+            tabLayout.getTabAt(0).select();
+        }
     }
 
     @Override
@@ -207,7 +213,9 @@ public class CampusDashboardActivity extends AppCompatActivity {
                 drawerLayout.openDrawer(GravityCompat.START);
                 int selectedId = intent.getIntExtra("selectedItemId", -1);
                 if (selectedId != -1 && navigationView != null) {
+                    currentSelectedDrawerItemId = selectedId;
                     navigationView.setCheckedItem(selectedId);
+                    customizeNavigationViewIcons();
                 }
             }
         }
@@ -279,6 +287,9 @@ public class CampusDashboardActivity extends AppCompatActivity {
                 @Override
                 public void onDrawerClosed(View drawerView) {
                     super.onDrawerClosed(drawerView);
+                    if (pendingIntent == null) {
+                        currentSelectedDrawerItemId = -1;
+                    }
                     resetNavigationSelection();
                     if (pendingIntent != null) {
                         final Intent intentToLaunch = pendingIntent;
@@ -302,11 +313,14 @@ public class CampusDashboardActivity extends AppCompatActivity {
                 if (item.hasSubMenu()) {
                     android.view.Menu subMenu = item.getSubMenu();
                     for (int j = 0; j < subMenu.size(); j++) {
-                        subMenu.getItem(j).setChecked(false);
+                        android.view.MenuItem subItem = subMenu.getItem(j);
+                        subItem.setChecked(subItem.getItemId() == currentSelectedDrawerItemId);
                     }
-                } else
-                    item.setChecked(false);
+                } else {
+                    item.setChecked(item.getItemId() == currentSelectedDrawerItemId);
+                }
             }
+            customizeNavigationViewIcons();
         }
     }
 
@@ -324,6 +338,8 @@ public class CampusDashboardActivity extends AppCompatActivity {
                 if (!ItemNavigationUtils.canNavigate())
                     return false;
                 int id = item.getItemId();
+                currentSelectedDrawerItemId = id;
+                customizeNavigationViewIcons();
                 if (id == R.id.nav_profile) {
                     pendingIntent = new Intent(this, UserProfileActivity.class);
                     pendingIntent.putExtra("fromDrawer", true);
@@ -359,6 +375,7 @@ public class CampusDashboardActivity extends AppCompatActivity {
                     drawerLayout.closeDrawer(GravityCompat.START);
                 return true;
             });
+            customizeNavigationViewIcons();
         }
     }
 
@@ -744,35 +761,34 @@ public class CampusDashboardActivity extends AppCompatActivity {
             themeColor = ContextCompat.getColor(this, R.color.primaryColor);
         }
 
-        // Generate dynamic ColorStateLists for background and text/icon colors to support active/pressed states with excellent contrast
+        // Generate dynamic ColorStateLists for background and text/icon colors to
+        // support active/pressed states with excellent contrast
         int pressedBgColor = (themeColor & 0x00FFFFFF) | 0x40000000; // 25% alpha
-        int normalBgColor = (themeColor & 0x00FFFFFF) | 0x1A000000;  // 10% alpha
+        int normalBgColor = (themeColor & 0x00FFFFFF) | 0x1A000000; // 10% alpha
         int disabledBgColor = android.graphics.Color.parseColor("#1A808080"); // 10% alpha gray
         int disabledTextColor = ContextCompat.getColor(this, R.color.textSecondary);
 
         android.content.res.ColorStateList bgStatesList = new android.content.res.ColorStateList(
-            new int[][] {
-                new int[] { android.R.attr.state_pressed },
-                new int[] { -android.R.attr.state_enabled },
-                new int[] {}
-            },
-            new int[] {
-                pressedBgColor,
-                disabledBgColor,
-                normalBgColor
-            }
-        );
+                new int[][] {
+                        new int[] { android.R.attr.state_pressed },
+                        new int[] { -android.R.attr.state_enabled },
+                        new int[] {}
+                },
+                new int[] {
+                        pressedBgColor,
+                        disabledBgColor,
+                        normalBgColor
+                });
 
         android.content.res.ColorStateList textStatesList = new android.content.res.ColorStateList(
-            new int[][] {
-                new int[] { -android.R.attr.state_enabled },
-                new int[] {}
-            },
-            new int[] {
-                disabledTextColor,
-                themeColor
-            }
-        );
+                new int[][] {
+                        new int[] { -android.R.attr.state_enabled },
+                        new int[] {}
+                },
+                new int[] {
+                        disabledTextColor,
+                        themeColor
+                });
 
         if (btnViewMore instanceof com.google.android.material.button.MaterialButton) {
             com.google.android.material.button.MaterialButton mBtn = (com.google.android.material.button.MaterialButton) btnViewMore;
@@ -793,14 +809,14 @@ public class CampusDashboardActivity extends AppCompatActivity {
             return;
         }
         lastWelcomeKey = key;
-        
+
         // Stop any running animations and handlers
         if (tvWelcome != null) {
             tvWelcome.animate().cancel();
         }
         welcomeLoopHandler.removeCallbacksAndMessages(null);
         typingHandler.removeCallbacksAndMessages(null);
-        
+
         String welcomeText = "Welcome back, " + name + "!";
         startWelcomeLoop(tvWelcome, welcomeText);
     }
@@ -817,33 +833,33 @@ public class CampusDashboardActivity extends AppCompatActivity {
 
         // Slide up + Fade in
         textView.animate()
-            .alpha(1f)
-            .translationY(0f)
-            .setDuration(800)
-            .setInterpolator(new android.view.animation.DecelerateInterpolator())
-            .withEndAction(() -> {
-                // When entrance completes, start typing
-                animateTextTyping(textView, welcomeText, () -> {
-                    // When typing finishes, wait 4 seconds, then slide up + fade out
-                    welcomeLoopRunnable = () -> {
-                        if (isFinishing() || isDestroyed() || !textView.isAttachedToWindow()) {
-                            return;
-                        }
-                        textView.animate()
-                            .alpha(0f)
-                            .translationY(-20f)
-                            .setDuration(800)
-                            .setInterpolator(new android.view.animation.AccelerateInterpolator())
-                            .withEndAction(() -> {
-                                // Restart the welcome loop
-                                startWelcomeLoop(textView, welcomeText);
-                            })
-                            .start();
-                    };
-                    welcomeLoopHandler.postDelayed(welcomeLoopRunnable, 4000);
-                });
-            })
-            .start();
+                .alpha(1f)
+                .translationY(0f)
+                .setDuration(800)
+                .setInterpolator(new android.view.animation.DecelerateInterpolator())
+                .withEndAction(() -> {
+                    // When entrance completes, start typing
+                    animateTextTyping(textView, welcomeText, () -> {
+                        // When typing finishes, wait 4 seconds, then slide up + fade out
+                        welcomeLoopRunnable = () -> {
+                            if (isFinishing() || isDestroyed() || !textView.isAttachedToWindow()) {
+                                return;
+                            }
+                            textView.animate()
+                                    .alpha(0f)
+                                    .translationY(-20f)
+                                    .setDuration(800)
+                                    .setInterpolator(new android.view.animation.AccelerateInterpolator())
+                                    .withEndAction(() -> {
+                                        // Restart the welcome loop
+                                        startWelcomeLoop(textView, welcomeText);
+                                    })
+                                    .start();
+                        };
+                        welcomeLoopHandler.postDelayed(welcomeLoopRunnable, 4000);
+                    });
+                })
+                .start();
     }
 
     private void animateTextTyping(final TextView textView, final String fullText, final Runnable onComplete) {
@@ -851,6 +867,7 @@ public class CampusDashboardActivity extends AppCompatActivity {
         final int delay = 60; // ms per character
         typingRunnable = new Runnable() {
             private int index = 0;
+
             @Override
             public void run() {
                 if (isFinishing() || isDestroyed()) {
@@ -1008,5 +1025,36 @@ public class CampusDashboardActivity extends AppCompatActivity {
                 tabLayoutIndicator = v.findViewById(R.id.tabLayoutIndicator);
             }
         }
+    }
+
+    private void customizeNavigationViewIcons() {
+        if (navigationView == null) return;
+        navigationView.setItemIconTintList(null); // Clear layout override
+        
+        android.view.Menu menu = navigationView.getMenu();
+        int uncheckedColor = ContextCompat.getColor(this, R.color.textSecondary);
+        
+        setItemIconTint(menu.findItem(R.id.nav_profile), ContextCompat.getColor(this, R.color.primaryColor), uncheckedColor);
+        setItemIconTint(menu.findItem(R.id.nav_reported_items), ContextCompat.getColor(this, R.color.statusFound), uncheckedColor);
+        setItemIconTint(menu.findItem(R.id.nav_find_items), ContextCompat.getColor(this, R.color.statusLost), uncheckedColor);
+        setItemIconTint(menu.findItem(R.id.nav_resolved_items), ContextCompat.getColor(this, R.color.primaryColor), uncheckedColor);
+        setItemIconTint(menu.findItem(R.id.nav_admin_reports), ContextCompat.getColor(this, R.color.admin_accent), uncheckedColor);
+        setItemIconTint(menu.findItem(R.id.nav_admin_dashboard), ContextCompat.getColor(this, R.color.admin_accent), uncheckedColor);
+        setItemIconTint(menu.findItem(R.id.nav_logout), ContextCompat.getColor(this, R.color.errorColor), uncheckedColor);
+    }
+
+    private void setItemIconTint(android.view.MenuItem item, int checkedColor, int uncheckedColor) {
+        if (item == null) return;
+        int[][] states = new int[][] {
+            new int[] { android.R.attr.state_checked },
+            new int[] { android.R.attr.state_selected },
+            new int[] {}
+        };
+        int[] colors = new int[] {
+            checkedColor,
+            checkedColor,
+            uncheckedColor
+        };
+        item.setIconTintList(new android.content.res.ColorStateList(states, colors));
     }
 }

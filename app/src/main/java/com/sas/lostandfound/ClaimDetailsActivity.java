@@ -32,11 +32,12 @@ public class ClaimDetailsActivity extends AppCompatActivity {
 
     private TextView tvHeaderTitle, tvNameHeader, tvUniversityId, tvGender, tvBatch, tvLevelTerm, tvDepartment, tvSection, tvPhone, tvEmail, tvPreferredContact, tvDesignation, tvReportId;
     private TextView tvItemName, tvCategory, tvDescription, tvItemDetails, tvOwnershipVerification, tvHandlingStatus, tvSecurityQuestion;
-    private TextView tvInformationLabel, tvContactLabel, tvItemHeaderLabel;
+    private TextView tvInformationLabel, tvContactLabel, tvItemHeaderLabel, tvClaimantRoleBadge;
+    private View llContactSectionContainer;
     private ImageView ivClaimantPhoto, ivItemImage;
     private ViewPager2 viewPagerImageSlider;
     private TabLayout tabLayoutIndicator;
-    private LinearLayout llSection, llBatch, llLevelTerm, llDesignation, llDepartment, llOwnershipVerification, llFoundSpecifics;
+    private LinearLayout llSection, llBatch, llLevelTerm, llDesignation, llDepartment, llOwnershipVerification, llFoundSpecifics, llPreferredContact;
     private MaterialButton btnCall, btnEmail, btnMarkReturned;
     private String itemId, senderId, itemStatus, notificationType, currentUnivId;
     private Item currentItem;
@@ -66,6 +67,9 @@ public class ClaimDetailsActivity extends AppCompatActivity {
         // Immediate visibility check to prevent flicker
         if (senderId != null && senderId.equals(currentUnivId)) {
             tvContactLabel.setVisibility(View.GONE);
+            if (llContactSectionContainer != null) {
+                llContactSectionContainer.setVisibility(View.GONE);
+            }
             btnCall.setVisibility(View.GONE);
             btnEmail.setVisibility(View.GONE);
         }
@@ -100,6 +104,70 @@ public class ClaimDetailsActivity extends AppCompatActivity {
         });
         
         btnMarkReturned.setOnClickListener(v -> markAsReturned());
+
+        // Make University ID copyable on long press
+        tvUniversityId.setOnLongClickListener(v -> {
+            String univId = tvUniversityId.getText().toString().trim();
+            if (!univId.isEmpty() && !"Not Specified".equalsIgnoreCase(univId)) {
+                android.content.ClipboardManager clipboard = (android.content.ClipboardManager) getSystemService(android.content.Context.CLIPBOARD_SERVICE);
+                if (clipboard != null) {
+                    android.content.ClipData clip = android.content.ClipData.newPlainText("University ID", univId);
+                    clipboard.setPrimaryClip(clip);
+                    SnackbarManager.show(SnackbarManager.Type.SUCCESS, "University ID Copied to Clipboard");
+                    return true;
+                }
+            }
+            return false;
+        });
+
+        // Make Phone Number interactive
+        tvPhone.setOnClickListener(v -> {
+            String phone = tvPhone.getText().toString().trim();
+            if (!phone.isEmpty() && !"Not Specified".equalsIgnoreCase(phone)) {
+                Intent intent = new Intent(Intent.ACTION_DIAL);
+                intent.setData(Uri.parse("tel:" + phone));
+                startActivity(intent);
+            }
+        });
+
+        tvPhone.setOnLongClickListener(v -> {
+            String phone = tvPhone.getText().toString().trim();
+            if (!phone.isEmpty() && !"Not Specified".equalsIgnoreCase(phone)) {
+                android.content.ClipboardManager clipboard = (android.content.ClipboardManager) getSystemService(android.content.Context.CLIPBOARD_SERVICE);
+                if (clipboard != null) {
+                    android.content.ClipData clip = android.content.ClipData.newPlainText("Phone Number", phone);
+                    clipboard.setPrimaryClip(clip);
+                    SnackbarManager.show(SnackbarManager.Type.SUCCESS, "Copied to Clipboard");
+                    return true;
+                }
+            }
+            return false;
+        });
+
+        // Make Email Address interactive
+        tvEmail.setOnClickListener(v -> {
+            String email = tvEmail.getText().toString().trim();
+            if (!email.isEmpty() && !"Not Specified".equalsIgnoreCase(email)) {
+                Intent intent = new Intent(Intent.ACTION_SENDTO);
+                intent.setData(Uri.parse("mailto:" + email));
+                intent.putExtra(Intent.EXTRA_SUBJECT, "Regarding " + (itemName != null ? itemName : "reported item"));
+                startActivity(intent);
+            }
+        });
+
+        tvEmail.setOnLongClickListener(v -> {
+            String email = tvEmail.getText().toString().trim();
+            if (!email.isEmpty() && !"Not Specified".equalsIgnoreCase(email)) {
+                android.content.ClipboardManager clipboard = (android.content.ClipboardManager) getSystemService(android.content.Context.CLIPBOARD_SERVICE);
+                if (clipboard != null) {
+                    android.content.ClipData clip = android.content.ClipData.newPlainText("Email Address", email);
+                    clipboard.setPrimaryClip(clip);
+                    SnackbarManager.show(SnackbarManager.Type.SUCCESS, "Copied to Clipboard");
+                    return true;
+                }
+            }
+            return false;
+        });
 
         getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
             @Override
@@ -150,6 +218,9 @@ public class ClaimDetailsActivity extends AppCompatActivity {
 
         tvInformationLabel = findViewById(R.id.tvInformationLabel);
         tvContactLabel = findViewById(R.id.tvContactLabel);
+        llContactSectionContainer = findViewById(R.id.llContactSectionContainer);
+        tvClaimantRoleBadge = findViewById(R.id.tvClaimantRoleBadge);
+        llPreferredContact = findViewById(R.id.tilPreferredContact);
         tvItemHeaderLabel = findViewById(R.id.tvItemHeaderLabel);
         tvReportId = findViewById(R.id.tvReportId);
         viewPagerImageSlider = findViewById(R.id.viewPagerImageSlider);
@@ -214,6 +285,22 @@ public class ClaimDetailsActivity extends AppCompatActivity {
                         boolean isStudent = "Student".equalsIgnoreCase(userType);
                         boolean isStaffOrAdmin = "Staff".equalsIgnoreCase(userType) || "Admin".equalsIgnoreCase(userType);
 
+                        if (tvClaimantRoleBadge != null) {
+                            if (!TextUtils.isEmpty(userType)) {
+                                tvClaimantRoleBadge.setText(userType);
+                                tvClaimantRoleBadge.setVisibility(View.VISIBLE);
+                                if (isStudent) {
+                                    tvClaimantRoleBadge.setTextColor(getResources().getColor(R.color.primaryColor));
+                                    tvClaimantRoleBadge.setBackgroundResource(R.drawable.bg_circle_accent_light);
+                                } else {
+                                    tvClaimantRoleBadge.setTextColor(getResources().getColor(R.color.admin_accent));
+                                    tvClaimantRoleBadge.setBackgroundResource(R.drawable.bg_circle_neutral_light);
+                                }
+                            } else {
+                                tvClaimantRoleBadge.setVisibility(View.GONE);
+                            }
+                        }
+
                         // Role-based visibility
                         llDesignation.setVisibility(isStaffOrAdmin ? View.VISIBLE : View.GONE);
                         llBatch.setVisibility(isStudent ? View.VISIBLE : View.GONE);
@@ -234,10 +321,16 @@ public class ClaimDetailsActivity extends AppCompatActivity {
                         // Contact visibility check
                         if (currentUnivId != null && currentUnivId.equals(claimantId)) {
                             tvContactLabel.setVisibility(View.GONE);
+                            if (llContactSectionContainer != null) {
+                                llContactSectionContainer.setVisibility(View.GONE);
+                            }
                             btnCall.setVisibility(View.GONE);
                             btnEmail.setVisibility(View.GONE);
                         } else {
                             tvContactLabel.setVisibility(View.VISIBLE);
+                            if (llContactSectionContainer != null) {
+                                llContactSectionContainer.setVisibility(View.VISIBLE);
+                            }
                             btnCall.setVisibility(View.VISIBLE);
                             btnEmail.setVisibility(View.VISIBLE);
                         }
@@ -406,7 +499,14 @@ public class ClaimDetailsActivity extends AppCompatActivity {
 
     private void setupPreferredContactLink(Item item, String method) {
         if (method == null || method.isEmpty() || "Not Specified".equals(method)) {
+            if (llPreferredContact != null) {
+                llPreferredContact.setVisibility(View.GONE);
+            }
             return;
+        }
+        
+        if (llPreferredContact != null) {
+            llPreferredContact.setVisibility(View.VISIBLE);
         }
         
         String fullText = "Preferred Contact: " + method;

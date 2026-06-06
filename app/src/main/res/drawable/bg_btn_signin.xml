@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ripple xmlns:android="http://schemas.android.com/apk/res/android"
+    android:color="#262AABEE"> <!-- Subtle primary tint ripple -->
+    <item>
+        <selector>
+            <!-- Pressed State -->
+            <item android:state_pressed="true">
+                <shape android:shape="rectangle">
+                    <gradient
+                        android:startColor="#E2E8F0"
+                        android:endColor="#F1F5F9"
+                        android:angle="45"
+                        android:type="linear" />
+                    <corners android:radius="100dp" />
+                </shape>
+            </item>
+            <!-- Hovered State -->
+            <item android:state_hovered="true">
+                <shape android:shape="rectangle">
+                    <gradient
+                        android:startColor="#F1F5F9"
+                        android:endColor="#FFFFFF"
+                        android:angle="45"
+                        android:type="linear" />
+                    <corners android:radius="100dp" />
+                </shape>
+            </item>
+            <!-- Default State -->
+            <item>
+                <shape android:shape="rectangle">
+                    <gradient
+                        android:startColor="#FFFFFF"
+                        android:endColor="#F8FAFC"
+                        android:angle="45"
+                        android:type="linear" />
+                    <corners android:radius="100dp" />
+                </shape>
+            </item>
+        </selector>
+    </item>
+</ripple>

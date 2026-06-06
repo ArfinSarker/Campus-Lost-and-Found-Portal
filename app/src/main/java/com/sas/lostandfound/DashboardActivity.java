@@ -110,6 +110,30 @@ public class DashboardActivity extends AppCompatActivity {
                 }
             });
         }
+
+        // Smooth continuous breathing & floating animation for the main dashboard headline
+        TextView dashboardHeadline = findViewById(R.id.dashboardHeadline);
+        if (dashboardHeadline != null) {
+            // Fading alpha breathing
+            android.animation.ObjectAnimator fadeAnim = android.animation.ObjectAnimator.ofFloat(
+                    dashboardHeadline, "alpha", 0.8f, 1.0f);
+            fadeAnim.setDuration(2200);
+            fadeAnim.setRepeatMode(android.animation.ValueAnimator.REVERSE);
+            fadeAnim.setRepeatCount(android.animation.ValueAnimator.INFINITE);
+            fadeAnim.setInterpolator(new android.view.animation.AccelerateDecelerateInterpolator());
+
+            // Floating vertical translation
+            android.animation.ObjectAnimator floatAnim = android.animation.ObjectAnimator.ofFloat(
+                    dashboardHeadline, "translationY", 0f, -6f); // moves up gently
+            floatAnim.setDuration(2200);
+            floatAnim.setRepeatMode(android.animation.ValueAnimator.REVERSE);
+            floatAnim.setRepeatCount(android.animation.ValueAnimator.INFINITE);
+            floatAnim.setInterpolator(new android.view.animation.AccelerateDecelerateInterpolator());
+
+            android.animation.AnimatorSet animSet = new android.animation.AnimatorSet();
+            animSet.playTogether(fadeAnim, floatAnim);
+            animSet.start();
+        }
     }
 
     private void setupSwipeRefresh() {

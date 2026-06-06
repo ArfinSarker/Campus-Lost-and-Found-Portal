@@ -3,29 +3,31 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="260dp"
+    android:layout_height="wrap_content"
     android:layout_margin="8dp"
     android:clickable="true"
     android:focusable="true"
-    app:cardCornerRadius="12dp"
-    app:cardElevation="2dp"
-    app:strokeColor="@color/dividerColor"
-    app:strokeWidth="1dp">
+    app:cardCornerRadius="16dp"
+    app:cardElevation="3dp"
+    app:strokeWidth="0dp"
+    app:cardPreventCornerOverlap="false"
+    app:cardUseCompatPadding="false">
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
         android:orientation="vertical">
 
+        <!-- Image and Badge Frame -->
         <FrameLayout
             android:layout_width="match_parent"
-            android:layout_height="150dp">
+            android:layout_height="155dp">
 
             <TextView
                 android:id="@+id/tvIcon"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:background="@color/lightGrey"
+                android:background="#F8FAFC"
                 android:gravity="center"
                 android:text="📦"
                 android:textSize="48sp" />
@@ -41,7 +43,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:scaleType="centerCrop"
-                android:visibility="gone" />
+                android:visibility="gone"
+                android:contentDescription="@null" />
 
             <com.google.android.material.tabs.TabLayout
                 android:id="@+id/tabLayoutIndicator"
@@ -61,80 +64,151 @@
                 app:tabMode="fixed"
                 app:tabRippleColor="@null" />
 
+            <!-- Clean status bar line indicator -->
             <View
                 android:id="@+id/viewStatus"
                 android:layout_width="match_parent"
-                android:layout_height="4dp"
+                android:layout_height="3.5dp"
                 android:layout_gravity="bottom"
                 android:background="@color/primaryColor" />
 
-            <!-- Unique ID Badge Overlay (Top Right) -->
-            <com.google.android.material.card.MaterialCardView
-                android:id="@+id/cardReportId"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_margin="8dp"
-                android:layout_gravity="top|end"
-                app:cardCornerRadius="6dp"
-                app:cardElevation="4dp"
-                app:cardBackgroundColor="@color/primaryDarkColor"
-                app:strokeWidth="0dp">
-
-                <TextView
-                    android:id="@+id/tvReportId"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:paddingHorizontal="8dp"
-                    android:paddingVertical="3dp"
-                    android:textColor="@color/white"
-                    android:textSize="10sp"
-                    android:textStyle="bold"
-                    tools:text="L1" />
-            </com.google.android.material.card.MaterialCardView>
-        </FrameLayout>
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:orientation="vertical"
-            android:padding="12dp">
-
-            <TextView
-                android:id="@+id/tvItemName"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:ellipsize="end"
-                android:maxLines="1"
-                android:textColor="@color/textPrimary"
-                android:textSize="16sp"
-                android:textStyle="bold"
-                tools:text="Item Name" />
-
-            <TextView
-                android:id="@+id/tvItemLocation"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="4dp"
-                android:alpha="0.7"
-                android:ellipsize="end"
-                android:maxLines="1"
-                android:textColor="@color/textSecondary"
-                android:textSize="13sp"
-                tools:text="Location" />
-
+            <!-- Translucent top contrast scrim for floating badges -->
             <View
                 android:layout_width="match_parent"
-                android:layout_height="0dp"
-                android:layout_weight="1" />
+                android:layout_height="55dp"
+                android:layout_gravity="top"
+                android:background="@drawable/bg_top_gradient_overlay"
+                android:alpha="0.8" />
 
+            <!-- Floating Type/Status Badge Overlay (Top Left) -->
             <TextView
-                android:id="@+id/tvTimeAgo"
+                android:id="@+id/tvItemType"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="10dp"
+                android:layout_gravity="top|start"
+                android:paddingHorizontal="10dp"
+                android:paddingVertical="4.5dp"
+                android:textColor="@color/white"
+                android:textSize="9.5sp"
+                android:textStyle="bold"
+                android:letterSpacing="0.05"
+                tools:text="LOST"
+                tools:background="@drawable/bg_status_badge_lost" />
+
+        </FrameLayout>
+
+        <!-- Information Content Area -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="14dp">
+
+            <!-- Item Name -->
+            <HorizontalScrollView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:textColor="@color/vibrantBlue"
-                android:textSize="11sp"
-                android:textStyle="bold"
-                tools:text="2h ago" />
+                android:scrollbars="none"
+                android:fillViewport="true">
+
+                <TextView
+                    android:id="@+id/tvItemName"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:singleLine="true"
+                    android:textColor="@color/textPrimary"
+                    android:textSize="15.5sp"
+                    android:textStyle="bold"
+                    android:fontFamily="sans-serif-medium"
+                    tools:text="Black Leather Wallet" />
+            </HorizontalScrollView>
+
+            <!-- Thin divider spacer -->
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="@color/dividerColor"
+                android:layout_marginTop="8dp"
+                android:layout_marginBottom="8dp" />
+
+            <!-- Metadata: Location -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <ImageView
+                    android:layout_width="13dp"
+                    android:layout_height="13dp"
+                    android:src="@drawable/ic_location"
+                    android:contentDescription="@null"
+                    app:tint="@color/primaryColor" />
+
+                <HorizontalScrollView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="6dp"
+                    android:scrollbars="none"
+                    android:fillViewport="true">
+
+                    <TextView
+                        android:id="@+id/tvItemLocation"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:singleLine="true"
+                        android:textColor="@color/textSecondary"
+                        android:textSize="12sp"
+                        android:fontFamily="sans-serif"
+                        tools:text="Location Details" />
+                </HorizontalScrollView>
+            </LinearLayout>
+
+            <!-- Bottom Metadata & Chevron Row -->
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:gravity="center_vertical">
+
+                <!-- Metadata: Time Ago -->
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_vertical"
+                    android:layout_alignParentStart="true"
+                    android:orientation="horizontal">
+
+                    <ImageView
+                        android:layout_width="12dp"
+                        android:layout_height="12dp"
+                        android:src="@drawable/ic_clock"
+                        android:contentDescription="@null"
+                        app:tint="@color/vibrantBlue" />
+
+                    <TextView
+                        android:id="@+id/tvTimeAgo"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="6dp"
+                        android:textColor="@color/vibrantBlue"
+                        android:textSize="11sp"
+                        android:textStyle="bold"
+                        android:fontFamily="sans-serif"
+                        tools:text="2h ago" />
+                </LinearLayout>
+
+                <!-- Chevron Right Icon -->
+                <ImageView
+                    android:layout_width="14dp"
+                    android:layout_height="14dp"
+                    android:layout_alignParentEnd="true"
+                    android:layout_centerVertical="true"
+                    android:src="@drawable/ic_chevron_right_small"
+                    android:contentDescription="@null"
+                    app:tint="@color/primaryColor" />
+            </RelativeLayout>
         </LinearLayout>
     </LinearLayout>
 </com.google.android.material.card.MaterialCardView>
