@@ -133,7 +133,7 @@ public class SupabaseDatabaseHelper {
     public static <T> void select(String table, String query, Type type, DatabaseCallback<T> callback) {
         String baseUrl = getBaseUrl();
         if (baseUrl == null || baseUrl.isEmpty()) {
-            mainHandler.post(() -> callback.onFailure("Supabase URL is not configured. buildConfig: " + SupabaseConfig.getDebugStatus()));
+            mainHandler.post(() -> callback.onFailure("Supabase URL is not configured."));
             return;
         }
         
