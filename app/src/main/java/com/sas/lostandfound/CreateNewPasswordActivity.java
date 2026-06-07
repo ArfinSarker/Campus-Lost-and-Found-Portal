@@ -217,13 +217,10 @@ public class CreateNewPasswordActivity extends AppCompatActivity {
                 stopLoading();
                 android.util.Log.d("CreateNewPassword", "Reset Success: " + result);
                 SnackbarManager.show(SnackbarManager.Type.SUCCESS, "Password updated successfully! You can now log in.");
-                
-                new android.os.Handler().postDelayed(() -> {
-                    Intent intent = new Intent(CreateNewPasswordActivity.this, UserLoginActivity.class);
-                    intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                    startActivity(intent);
-                    finish();
-                }, 2000);
+                Intent intent = new Intent(CreateNewPasswordActivity.this, UserLoginActivity.class);
+                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                startActivity(intent);
+                finish();
             }
 
             @Override

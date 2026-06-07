@@ -174,7 +174,7 @@ public class AdminReportReviewActivity extends AppCompatActivity {
                         intent.setData(Uri.parse("tel:" + currentReport.getPhone().trim()));
                         startActivity(intent);
                     } catch (Exception e) {
-                        Toast.makeText(this, "Failed to open phone dialer", Toast.LENGTH_SHORT).show();
+                        SnackbarManager.show(SnackbarManager.Type.ERROR, "Failed to open phone dialer");
                     }
                 }
             });
@@ -191,7 +191,7 @@ public class AdminReportReviewActivity extends AppCompatActivity {
                         intent.putExtra(Intent.EXTRA_SUBJECT, subject);
                         startActivity(Intent.createChooser(intent, "Send Email"));
                     } catch (Exception e) {
-                        Toast.makeText(this, "Failed to open email app", Toast.LENGTH_SHORT).show();
+                        SnackbarManager.show(SnackbarManager.Type.ERROR, "Failed to open email app");
                     }
                 }
             });
@@ -314,7 +314,7 @@ public class AdminReportReviewActivity extends AppCompatActivity {
                 android.content.ClipData clip = android.content.ClipData.newPlainText("University ID", reporterIdVal);
                 if (clipboard != null) {
                     clipboard.setPrimaryClip(clip);
-                    Toast.makeText(this, "University ID copied to clipboard", Toast.LENGTH_SHORT).show();
+                    SnackbarManager.show(SnackbarManager.Type.SUCCESS, "University ID copied to clipboard");
                 }
             });
             layoutRowUniversityId.setOnLongClickListener(v -> {
@@ -322,7 +322,7 @@ public class AdminReportReviewActivity extends AppCompatActivity {
                 android.content.ClipData clip = android.content.ClipData.newPlainText("University ID", reporterIdVal);
                 if (clipboard != null) {
                     clipboard.setPrimaryClip(clip);
-                    Toast.makeText(this, "University ID copied to clipboard", Toast.LENGTH_SHORT).show();
+                    SnackbarManager.show(SnackbarManager.Type.SUCCESS, "University ID copied to clipboard");
                 }
                 return true;
             });
@@ -597,6 +597,7 @@ public class AdminReportReviewActivity extends AppCompatActivity {
                         @Override
                         public void onSuccess(Void result) {
                             progressBar.setVisibility(View.GONE);
+                            SnackbarManager.show(SnackbarManager.Type.SUCCESS, "Report deleted successfully");
                             finish();
                         }
 

@@ -974,7 +974,7 @@ public class ItemDetailActivity extends AppCompatActivity {
             String table = "lost".equalsIgnoreCase(status) ? "lost_reports" : "found_reports";
             SupabaseDatabaseHelper.delete(table, "id=eq." + itemId, new SupabaseDatabaseHelper.DatabaseCallback<Void>() {
                 @Override public void onSuccess(Void r) { 
-                    SnackbarManager.show(SnackbarManager.Type.SUCCESS, "Deleted"); 
+                    SnackbarManager.show(SnackbarManager.Type.SUCCESS, "Report deleted successfully"); 
                     finish(); 
                 }
                 @Override public void onFailure(String e) { 

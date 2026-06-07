@@ -5,21 +5,25 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_margin="16dp"
-    app:cardCornerRadius="12dp"
-    app:cardElevation="8dp"
-    app:strokeWidth="0dp">
+    app:cardCornerRadius="16dp"
+    app:cardElevation="6dp"
+    app:strokeWidth="1dp"
+    app:strokeColor="#1AFFFFFF">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:gravity="center_vertical"
         android:orientation="horizontal"
-        android:padding="12dp">
+        android:paddingStart="16dp"
+        android:paddingEnd="16dp"
+        android:paddingTop="14dp"
+        android:paddingBottom="14dp">
 
         <ImageView
             android:id="@+id/ivIcon"
-            android:layout_width="24dp"
-            android:layout_height="24dp"
+            android:layout_width="22dp"
+            android:layout_height="22dp"
             android:layout_marginEnd="12dp"
             android:contentDescription="@string/label_status_icon"
             app:tint="@color/white" />
@@ -30,28 +34,31 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:textColor="@color/white"
-            android:textSize="14sp" />
+            android:textSize="14.5sp"
+            android:fontFamily="sans-serif-medium"
+            android:lineSpacingMultiplier="1.1" />
 
         <TextView
             android:id="@+id/tvAction"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="12dp"
-            android:background="?attr/selectableItemBackground"
+            android:layout_marginStart="16dp"
             android:clickable="true"
             android:focusable="true"
             android:fontFamily="sans-serif-medium"
-            android:padding="8dp"
+            android:paddingHorizontal="12dp"
+            android:paddingVertical="6dp"
             android:textAllCaps="true"
             android:textColor="@color/white"
-            android:textSize="12sp"
+            android:textSize="12.5sp"
             android:visibility="gone" />
 
         <ImageView
             android:id="@+id/btnClose"
             android:layout_width="20dp"
             android:layout_height="20dp"
-            android:layout_marginStart="8dp"
+            android:layout_marginStart="12dp"
+            android:padding="2dp"
             android:background="?attr/selectableItemBackgroundBorderless"
             android:clickable="true"
             android:focusable="true"

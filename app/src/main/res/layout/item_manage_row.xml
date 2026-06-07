@@ -1,131 +1,235 @@
 <?xml version="1.0" encoding="utf-8"?>
-<com.google.android.material.card.MaterialCardView
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_marginHorizontal="16dp"
+    android:layout_marginHorizontal="0dp"
     android:layout_marginVertical="8dp"
+    android:clipChildren="true"
+    android:clipToPadding="true"
+    android:clipToOutline="true"
     android:clickable="true"
     android:focusable="true"
+    android:foreground="?attr/selectableItemBackground"
     app:cardCornerRadius="16dp"
-    app:cardElevation="3dp"
-    app:strokeWidth="0dp">
+    app:cardElevation="0dp"
+    app:cardBackgroundColor="@color/surfaceColor"
+    app:strokeWidth="1dp"
+    app:strokeColor="@color/dividerColor"
+    app:cardPreventCornerOverlap="false"
+    app:cardUseCompatPadding="false">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:padding="12dp">
+        android:layout_height="wrap_content">
 
-        <!-- LEFT SIDE: Item image/thumbnail -->
-        <com.google.android.material.card.MaterialCardView
-            android:id="@+id/cardImage"
-            android:layout_width="80dp"
-            android:layout_height="80dp"
-            app:cardCornerRadius="12dp"
-            app:cardElevation="0dp"
-            app:strokeWidth="0dp"
-            app:layout_constraintBottom_toBottomOf="parent"
+        <!-- Image Container with fixed Aspect Ratio for uniformity -->
+        <FrameLayout
+            android:id="@+id/flImageContainer"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            app:layout_constraintDimensionRatio="H,16:10"
+            app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent">
 
-            <FrameLayout
+            <androidx.viewpager2.widget.ViewPager2
+                android:id="@+id/viewPagerSlider"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent">
+                android:layout_height="match_parent"
+                android:visibility="gone" />
 
-                <TextView
-                    android:id="@+id/tvIcon"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:background="#F3F4F6"
-                    android:gravity="center"
-                    android:text="📦"
-                    android:textSize="28sp" />
+            <ImageView
+                android:id="@+id/ivItemImage"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:scaleType="centerCrop"
+                android:src="@drawable/ic_package"
+                android:background="#F8FAFC"
+                android:contentDescription="@string/item_image_description" />
 
-                <androidx.viewpager2.widget.ViewPager2
-                    android:id="@+id/viewPagerSlider"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:visibility="gone" />
+            <TextView
+                android:id="@+id/tvIcon"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="#F8FAFC"
+                android:gravity="center"
+                android:text="📦"
+                android:textSize="36sp"
+                android:visibility="gone" />
 
-                <ImageView
-                    android:id="@+id/ivItemImage"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:scaleType="centerCrop"
-                    android:contentDescription="@string/item_image_description" />
+            <com.google.android.material.tabs.TabLayout
+                android:id="@+id/tabLayoutIndicator"
+                android:layout_width="wrap_content"
+                android:layout_height="16dp"
+                android:layout_gravity="bottom|center_horizontal"
+                android:layout_marginBottom="8dp"
+                android:background="@android:color/transparent"
+                android:visibility="gone"
+                app:tabBackground="@drawable/slider_indicator_selector"
+                app:tabGravity="center"
+                app:tabIndicatorHeight="0dp"
+                app:tabMaxWidth="10dp"
+                app:tabMinWidth="10dp"
+                app:tabPaddingStart="0dp"
+                app:tabPaddingEnd="0dp"
+                app:tabMode="fixed"
+                app:tabRippleColor="@null" />
 
-                <com.google.android.material.tabs.TabLayout
-                    android:id="@+id/tabLayoutIndicator"
-                    android:layout_width="wrap_content"
-                    android:layout_height="16dp"
-                    android:layout_gravity="bottom|center_horizontal"
-                    android:layout_marginBottom="4dp"
-                    android:background="@android:color/transparent"
-                    android:visibility="gone"
-                    app:tabBackground="@drawable/slider_indicator_selector"
-                    app:tabGravity="center"
-                    app:tabIndicatorHeight="0dp"
-                    app:tabMaxWidth="8dp"
-                    app:tabMinWidth="8dp"
-                    app:tabPaddingStart="0dp"
-                    app:tabPaddingEnd="0dp"
-                    app:tabMode="fixed"
-                    app:tabRippleColor="@null" />
-            </FrameLayout>
-        </com.google.android.material.card.MaterialCardView>
+            <!-- Soft top gradient scrim to ensure overlay badge text is always readable -->
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:layout_gravity="top"
+                android:background="@drawable/bg_top_gradient_overlay"
+                android:alpha="0.8" />
+        </FrameLayout>
 
-        <!-- RIGHT SIDE: Item details -->
+        <!-- Status Badge Overlay (Floating Top Left) -->
+        <TextView
+            android:id="@+id/tvItemType"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="10dp"
+            android:paddingHorizontal="10dp"
+            android:paddingVertical="4.5dp"
+            android:textAllCaps="true"
+            android:textColor="@color/white"
+            android:textSize="10sp"
+            android:textStyle="bold"
+            android:letterSpacing="0.05"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:background="@drawable/bg_status_badge_lost"
+            tools:text="LOST" />
+
+        <!-- Report ID Badge Overlay (Floating Top Right) -->
+        <TextView
+            android:id="@+id/tvReportId"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="10dp"
+            android:paddingHorizontal="10dp"
+            android:paddingVertical="4.5dp"
+            android:textColor="@color/white"
+            android:textSize="10sp"
+            android:textStyle="bold"
+            android:letterSpacing="0.05"
+            android:background="@drawable/bg_report_id_badge"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:text="#L102" />
+
+        <!-- Clean, subtle separator line directly below the image -->
+        <View
+            android:id="@+id/vImageSeparator"
+            android:layout_width="0dp"
+            android:layout_height="1dp"
+            android:background="@color/dividerColor"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/flImageContainer" />
+
+        <!-- Info Content Section with balanced padding and modern typography -->
         <LinearLayout
             android:id="@+id/llDetails"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginStart="16dp"
             android:orientation="vertical"
+            android:padding="14dp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toEndOf="@id/cardImage"
-            app:layout_constraintTop_toTopOf="parent">
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/vImageSeparator">
 
-            <!-- Item name (Single line, bold, truncated) -->
+            <!-- Item Title / Name -->
             <TextView
                 android:id="@+id/tvItemName"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:ellipsize="end"
+                android:fontFamily="sans-serif-medium"
                 android:maxLines="1"
-                android:textColor="#111827"
-                android:textSize="17sp"
+                android:textColor="@color/textPrimary"
+                android:textSize="16sp"
                 android:textStyle="bold"
-                tools:text="Black Lenovo Backpack with Charger" />
+                tools:text="Black Lenovo Backpack" />
 
-            <!-- Date (Blue color, smaller text) -->
-            <TextView
-                android:id="@+id/tvItemDate"
-                android:layout_width="wrap_content"
+            <!-- Location Row -->
+            <LinearLayout
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="6dp"
-                android:textColor="#2563EB"
-                android:textSize="13sp"
-                android:textStyle="bold"
-                tools:text="15 May 2024" />
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:layout_marginTop="8dp">
 
-            <!-- Report Number (Clean typography, unique background) -->
-            <TextView
-                android:id="@+id/tvReportId"
-                android:layout_width="wrap_content"
+                <ImageView
+                    android:layout_width="12dp"
+                    android:layout_height="12dp"
+                    android:src="@drawable/ic_location"
+                    android:contentDescription="@null"
+                    app:tint="@color/primaryColor" />
+
+                <TextView
+                    android:id="@+id/tvItemLocation"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="6dp"
+                    android:ellipsize="end"
+                    android:maxLines="1"
+                    android:textColor="@color/textSecondary"
+                    android:textSize="12sp"
+                    android:fontFamily="sans-serif"
+                    tools:text="Library Ground Floor" />
+            </LinearLayout>
+
+            <!-- Bottom Row: Date & Action Link -->
+            <RelativeLayout
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
-                android:background="@drawable/bg_report_id_badge"
-                android:paddingHorizontal="10dp"
-                android:paddingVertical="3dp"
-                android:textColor="#FFFFFF"
-                android:textSize="11sp"
-                android:textStyle="bold"
-                tools:text="#L102" />
+                android:gravity="center_vertical">
 
+                <!-- Date/Time -->
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_vertical"
+                    android:layout_alignParentStart="true"
+                    android:orientation="horizontal">
+
+                    <ImageView
+                        android:layout_width="12dp"
+                        android:layout_height="12dp"
+                        android:src="@drawable/ic_clock"
+                        android:contentDescription="@null"
+                        app:tint="@color/textSecondary" />
+
+                    <TextView
+                        android:id="@+id/tvItemDate"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="6dp"
+                        android:textColor="@color/textSecondary"
+                        android:textSize="12sp"
+                        android:fontFamily="sans-serif"
+                        tools:text="15 May 2024" />
+                </LinearLayout>
+
+                <!-- Chevron Right Link -->
+                <ImageView
+                    android:layout_width="14dp"
+                    android:layout_height="14dp"
+                    android:layout_alignParentEnd="true"
+                    android:layout_centerVertical="true"
+                    android:src="@drawable/ic_chevron_right_small"
+                    android:contentDescription="@null"
+                    app:tint="@color/primaryColor" />
+
+            </RelativeLayout>
         </LinearLayout>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
+
 </com.google.android.material.card.MaterialCardView>

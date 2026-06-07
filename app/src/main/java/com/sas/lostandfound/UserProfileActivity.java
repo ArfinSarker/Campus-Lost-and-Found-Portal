@@ -961,8 +961,7 @@ public class UserProfileActivity extends AppCompatActivity {
                 android.content.ClipData clip = android.content.ClipData.newPlainText("Email Address", email);
                 if (clipboard != null) {
                     clipboard.setPrimaryClip(clip);
-                    android.widget.Toast.makeText(this, "Email copied to clipboard", android.widget.Toast.LENGTH_SHORT)
-                            .show();
+                    SnackbarManager.show(SnackbarManager.Type.SUCCESS, "Email copied to clipboard");
                 }
                 return true; // Consumes the long press, preventing selection cursor handle "|"
             });
@@ -1007,9 +1006,7 @@ public class UserProfileActivity extends AppCompatActivity {
                 android.content.ClipData clip = android.content.ClipData.newPlainText("Phone Number", fullPhone);
                 if (clipboard != null) {
                     clipboard.setPrimaryClip(clip);
-                    android.widget.Toast
-                            .makeText(this, "Phone number copied to clipboard", android.widget.Toast.LENGTH_SHORT)
-                            .show();
+                    SnackbarManager.show(SnackbarManager.Type.SUCCESS, "Phone number copied to clipboard");
                 }
                 return true; // Consumes the long press, preventing selection cursor handle "|"
             });
@@ -1051,8 +1048,7 @@ public class UserProfileActivity extends AppCompatActivity {
                                 fullPhone);
                         if (clipboard != null) {
                             clipboard.setPrimaryClip(clip);
-                            android.widget.Toast.makeText(this, "Phone number copied to clipboard",
-                                    android.widget.Toast.LENGTH_SHORT).show();
+                            SnackbarManager.show(SnackbarManager.Type.SUCCESS, "Phone number copied to clipboard");
                         }
                         return true; // Consumes the long press, preventing selection cursor handle "|"
                     });
@@ -1075,9 +1071,7 @@ public class UserProfileActivity extends AppCompatActivity {
                 android.content.ClipData clip = android.content.ClipData.newPlainText("University ID", universityIdVal);
                 if (clipboard != null) {
                     clipboard.setPrimaryClip(clip);
-                    android.widget.Toast
-                            .makeText(this, "University ID copied to clipboard", android.widget.Toast.LENGTH_SHORT)
-                            .show();
+                    SnackbarManager.show(SnackbarManager.Type.SUCCESS, "University ID copied to clipboard");
                 }
                 return true; // Consumes the long press, preventing selection cursor handle "|"
             });

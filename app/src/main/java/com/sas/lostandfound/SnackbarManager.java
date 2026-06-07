@@ -27,6 +27,12 @@ import java.util.Queue;
 
 public class SnackbarManager implements Application.ActivityLifecycleCallbacks {
 
+    private static final int COLOR_SUCCESS = android.graphics.Color.parseColor("#10B981");
+    private static final int COLOR_ERROR = android.graphics.Color.parseColor("#EF4444");
+    private static final int COLOR_WARNING = android.graphics.Color.parseColor("#F59E0B");
+    private static final int COLOR_INFO = android.graphics.Color.parseColor("#3B82F6");
+    private static final int COLOR_GENERAL = android.graphics.Color.parseColor("#1F2937");
+
     public enum Type {
         PRIMARY, SUCCESS, ERROR, WARNING, GENERAL
     }
@@ -46,10 +52,12 @@ public class SnackbarManager implements Application.ActivityLifecycleCallbacks {
     }
 
     private static SnackbarManager instance;
-    private final Queue<SnackbarRequest> snackbarQueue = new LinkedList<>();
+    private final LinkedList<SnackbarRequest> snackbarQueue = new LinkedList<>();
     private boolean isShowing = false;
     private WeakReference<Activity> currentActivityRef;
     private View currentSnackbarView;
+    private SnackbarRequest currentRequest;
+    private long showStartTime;
     private final Handler handler = new Handler(Looper.getMainLooper());
     private Runnable dismissRunnable;
     private long remainingTime = 4000;
@@ -114,34 +122,42 @@ public class SnackbarManager implements Application.ActivityLifecycleCallbacks {
 
         switch (request.type) {
             case SUCCESS:
-                backgroundColor = R.color.success;
+                backgroundColor = COLOR_SUCCESS;
                 iconRes = R.drawable.ic_check_circle;
                 break;
             case ERROR:
-                backgroundColor = R.color.error;
+                backgroundColor = COLOR_ERROR;
                 iconRes = R.drawable.ic_alert_circle;
                 break;
             case WARNING:
-                backgroundColor = R.color.warningColor;
+                backgroundColor = COLOR_WARNING;
                 iconRes = R.drawable.ic_warning;
                 break;
             case PRIMARY:
-                backgroundColor = R.color.primaryColor;
+                backgroundColor = COLOR_INFO;
                 iconRes = R.drawable.ic_info;
                 break;
             case GENERAL:
             default:
-                backgroundColor = R.color.generalColor;
+                backgroundColor = COLOR_GENERAL;
                 iconRes = R.drawable.ic_info;
                 break;
         }
 
-        cardView.setCardBackgroundColor(ContextCompat.getColor(activity, backgroundColor));
+        cardView.setCardBackgroundColor(android.content.res.ColorStateList.valueOf(backgroundColor));
         ivIcon.setImageResource(iconRes);
 
         if (request.actionLabel != null && request.actionCallback != null) {
             tvAction.setVisibility(View.VISIBLE);
             tvAction.setText(request.actionLabel);
+            
+            // Programmatically apply a rounded capsule background for a modern chip look
+            android.graphics.drawable.GradientDrawable actionBg = new android.graphics.drawable.GradientDrawable();
+            actionBg.setShape(android.graphics.drawable.GradientDrawable.RECTANGLE);
+            actionBg.setCornerRadius(100);
+            actionBg.setColor(android.graphics.Color.parseColor("#33FFFFFF")); // 20% transparent white
+            tvAction.setBackground(actionBg);
+
             tvAction.setOnClickListener(v -> {
                 request.actionCallback.run();
                 dismiss();
@@ -150,14 +166,51 @@ public class SnackbarManager implements Application.ActivityLifecycleCallbacks {
 
         btnClose.setOnClickListener(v -> dismiss());
 
+        // Calculate status bar height dynamically to avoid phone status bar / notches
+        int statusBarHeight = 0;
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
+            android.view.WindowInsets insets = activity.getWindow().getDecorView().getRootWindowInsets();
+            if (insets != null) {
+                if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.R) {
+                    statusBarHeight = insets.getInsets(android.view.WindowInsets.Type.statusBars()).top;
+                } else {
+                    statusBarHeight = insets.getSystemWindowInsetTop();
+                }
+            }
+        }
+        if (statusBarHeight == 0) {
+            int resourceId = activity.getResources().getIdentifier("status_bar_height", "dimen", "android");
+            if (resourceId > 0) {
+                statusBarHeight = activity.getResources().getDimensionPixelSize(resourceId);
+            }
+        }
+        if (statusBarHeight == 0) {
+            statusBarHeight = (int) (24 * activity.getResources().getDisplayMetrics().density);
+        }
+
+        // Apply margins programmatically
+        int margin16 = (int) (16 * activity.getResources().getDisplayMetrics().density);
+        android.widget.FrameLayout.LayoutParams lp = new android.widget.FrameLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT
+        );
+        lp.leftMargin = margin16;
+        lp.rightMargin = margin16;
+        lp.topMargin = statusBarHeight + margin16;
+        lp.bottomMargin = margin16;
+        currentSnackbarView.setLayoutParams(lp);
+
+        currentRequest = request;
+        showStartTime = System.currentTimeMillis();
+
         rootView.addView(currentSnackbarView);
 
-        // Slide in animation from top
-        currentSnackbarView.setTranslationY(-300);
+        // Slide in animation from top with a premium Overshoot spring effect
+        currentSnackbarView.setTranslationY(-500);
         currentSnackbarView.animate()
                 .translationY(0)
-                .setDuration(300)
-                .setInterpolator(new DecelerateInterpolator())
+                .setDuration(450)
+                .setInterpolator(new android.view.animation.OvershootInterpolator(1.2f))
                 .start();
 
         startDismissTimer(4000);
@@ -200,12 +253,13 @@ public class SnackbarManager implements Application.ActivityLifecycleCallbacks {
     private void dismiss() {
         if (currentSnackbarView == null || !isShowing) return;
 
+        currentRequest = null;
         handler.removeCallbacks(dismissRunnable);
 
         currentSnackbarView.animate()
-                .translationY(-300)
-                .setDuration(300)
-                .setInterpolator(new AccelerateInterpolator())
+                .translationY(-500)
+                .setDuration(350)
+                .setInterpolator(new AccelerateInterpolator(1.5f))
                 .withEndAction(() -> {
                     ViewGroup rootView = (ViewGroup) currentSnackbarView.getParent();
                     if (rootView != null) {
@@ -229,11 +283,28 @@ public class SnackbarManager implements Application.ActivityLifecycleCallbacks {
     @Override
     public void onActivityResumed(@NonNull Activity activity) {
         this.currentActivityRef = new WeakReference<>(activity);
+        handler.post(this::processQueue);
     }
 
     @Override
     public void onActivityPaused(@NonNull Activity activity) {
         if (this.currentActivityRef != null && this.currentActivityRef.get() == activity) {
+            if (isShowing && currentRequest != null) {
+                long elapsed = System.currentTimeMillis() - showStartTime;
+                if (elapsed < 2000) {
+                    snackbarQueue.addFirst(currentRequest);
+                }
+            }
+            if (currentSnackbarView != null) {
+                android.view.ViewParent parent = currentSnackbarView.getParent();
+                if (parent instanceof ViewGroup) {
+                    ((ViewGroup) parent).removeView(currentSnackbarView);
+                }
+                currentSnackbarView = null;
+            }
+            isShowing = false;
+            currentRequest = null;
+            handler.removeCallbacks(dismissRunnable);
             this.currentActivityRef = null;
         }
     }
@@ -266,6 +337,7 @@ public class SnackbarManager implements Application.ActivityLifecycleCallbacks {
             if (isLinked) {
                 currentSnackbarView = null;
                 isShowing = false;
+                currentRequest = null;
             }
         }
     }

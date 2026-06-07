@@ -365,6 +365,7 @@ public class CampusDashboardActivity extends AppCompatActivity {
                 } else if (id == R.id.nav_logout) {
                     SupabaseAuthHelper.signOut();
                     getSharedPreferences("MyApp", MODE_PRIVATE).edit().clear().apply();
+                    SnackbarManager.show(SnackbarManager.Type.SUCCESS, "Logged out successfully");
                     Intent intent = new Intent(this, UserLoginActivity.class);
                     intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
                     startActivity(intent);

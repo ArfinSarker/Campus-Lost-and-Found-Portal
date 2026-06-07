@@ -280,7 +280,7 @@ public class AdminReportDetailsActivity extends AppCompatActivity {
                 android.content.ClipData clip = android.content.ClipData.newPlainText("University ID", reporterIdVal);
                 if (clipboard != null) {
                     clipboard.setPrimaryClip(clip);
-                    android.widget.Toast.makeText(this, "University ID copied to clipboard", android.widget.Toast.LENGTH_SHORT).show();
+                    SnackbarManager.show(SnackbarManager.Type.SUCCESS, "University ID copied to clipboard");
                 }
             });
             layoutRowUniversityId.setOnLongClickListener(v -> {
@@ -288,7 +288,7 @@ public class AdminReportDetailsActivity extends AppCompatActivity {
                 android.content.ClipData clip = android.content.ClipData.newPlainText("University ID", reporterIdVal);
                 if (clipboard != null) {
                     clipboard.setPrimaryClip(clip);
-                    android.widget.Toast.makeText(this, "University ID copied to clipboard", android.widget.Toast.LENGTH_SHORT).show();
+                    SnackbarManager.show(SnackbarManager.Type.SUCCESS, "University ID copied to clipboard");
                 }
                 return true;
             });
@@ -325,7 +325,7 @@ public class AdminReportDetailsActivity extends AppCompatActivity {
                     android.content.ClipData clip = android.content.ClipData.newPlainText("Phone Number", reporterPhoneVal);
                     if (clipboard != null) {
                         clipboard.setPrimaryClip(clip);
-                        android.widget.Toast.makeText(this, "Phone number copied to clipboard", android.widget.Toast.LENGTH_SHORT).show();
+                        SnackbarManager.show(SnackbarManager.Type.SUCCESS, "Phone number copied to clipboard");
                     }
                     return true;
                 });
@@ -368,7 +368,7 @@ public class AdminReportDetailsActivity extends AppCompatActivity {
                     android.content.ClipData clip = android.content.ClipData.newPlainText("Email Address", reporterEmailVal);
                     if (clipboard != null) {
                         clipboard.setPrimaryClip(clip);
-                        android.widget.Toast.makeText(this, "Email copied to clipboard", android.widget.Toast.LENGTH_SHORT).show();
+                        SnackbarManager.show(SnackbarManager.Type.SUCCESS, "Email copied to clipboard");
                     }
                     return true;
                 });
@@ -569,6 +569,7 @@ public class AdminReportDetailsActivity extends AppCompatActivity {
                 @Override
                 public void onSuccess(Void result) {
                     if (progressBar != null) progressBar.setVisibility(View.GONE);
+                    SnackbarManager.show(SnackbarManager.Type.SUCCESS, "Report deleted successfully");
                     finish();
                 }
 

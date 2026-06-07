@@ -167,6 +167,7 @@ public class NotificationsActivity extends AppCompatActivity {
                 .setPositiveButton("Delete", (dialog, which) -> SupabaseDatabaseHelper.delete("notifications", "id=eq." + notification.getId(), new SupabaseDatabaseHelper.DatabaseCallback<>() {
                     @Override
                     public void onSuccess(Void result) {
+                        SnackbarManager.show(SnackbarManager.Type.SUCCESS, "Notification deleted successfully");
                         if (resolvedUserId != null) fetchNotifications(resolvedUserId);
                     }
 
