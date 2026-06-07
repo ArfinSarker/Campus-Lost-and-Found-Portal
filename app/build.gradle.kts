@@ -6,6 +6,10 @@ plugins {
 }
 
 fun getLocalProperty(key: String): String? {
+    // Check environment variables first (for CI builds)
+    val envValue = System.getenv(key)
+    if (envValue != null) return envValue
+
     val properties = Properties()
     val localPropertiesFile = project.rootProject.file("local.properties")
     if (localPropertiesFile.exists()) {

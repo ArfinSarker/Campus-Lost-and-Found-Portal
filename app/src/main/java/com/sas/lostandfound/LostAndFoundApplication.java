@@ -17,10 +17,18 @@ public class LostAndFoundApplication extends Application {
         super.onCreate();
         instance = getApplicationContext();
 
-        // Register SnackbarManager to track activity lifecycle
-        registerActivityLifecycleCallbacks(SnackbarManager.getInstance());
+        try {
+            // Register SnackbarManager to track activity lifecycle
+            registerActivityLifecycleCallbacks(SnackbarManager.getInstance());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 
-        // Initialize Database Helper
-        SupabaseDatabaseHelper.init(this);
+        try {
+            // Initialize Database Helper
+            SupabaseDatabaseHelper.init(this);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 }
