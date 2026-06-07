@@ -34,6 +34,11 @@ jobs:
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
 
+      - name: Verify Secrets Presence
+        run: |
+          if [ -z "${{ secrets.SUPABASE_URL }}" ]; then echo "WARNING: SUPABASE_URL secret is empty!"; else echo "SUPABASE_URL secret is present."; fi
+          if [ -z "${{ secrets.SUPABASE_KEY }}" ]; then echo "WARNING: SUPABASE_KEY secret is empty!"; else echo "SUPABASE_KEY secret is present."; fi
+
       - name: Build Release APK
         run: ./gradlew assembleRelease
         env:
