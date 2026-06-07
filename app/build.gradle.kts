@@ -5,6 +5,11 @@ plugins {
     alias(libs.plugins.android.application)
 }
 
+// Set base name for all generated artifacts (APKs and AABs)
+base {
+    archivesName.set("Lost&Found")
+}
+
 fun getLocalProperty(key: String): String? {
     // Check environment variables first (for CI builds)
     val envValue = System.getenv(key)
