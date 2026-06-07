@@ -66,12 +66,25 @@ android {
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
+
+            // Custom output names for release builds
+            applicationVariants.all {
+                val variant = this
+                if (variant.buildType.name == "release") {
+                    variant.outputs.all {
+                        val output = this as com.android.build.gradle.internal.api.BaseVariantOutputImpl
+                        output.outputFileName = "Lost&Found.apk"
+                    }
+                }
+            }
         }
     }
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
     }
+
+    setProperty("archivesBaseName", "Lost&Found")
 }
 
 dependencies {
