@@ -87,6 +87,10 @@ androidComponents {
             variant.outputs.forEach { output ->
                 output.outputFileName.set("Lost&Found.apk")
             }
+            // Ensure the App Bundle is named exactly Lost&Found.aab
+            tasks.named("bundle${variant.name.replaceFirstChar { it.uppercase() }}") {
+                setProperty("archiveFileName", "Lost&Found.aab")
+            }
         }
     }
 }
