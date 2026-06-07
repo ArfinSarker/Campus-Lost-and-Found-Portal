@@ -48,6 +48,13 @@ jobs:
           KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
           KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
 
+      - name: List Artifacts for Debugging
+        run: |
+          echo "Listing APKs:"
+          ls -R app/build/outputs/apk/release/ || echo "No APKs found"
+          echo "Listing Bundles:"
+          ls -R app/build/outputs/bundle/release/ || echo "No Bundles found"
+
       - name: Upload Release Artifacts
         uses: softprops/action-gh-release@v2
         if: startsWith(github.ref, 'refs/tags/')
