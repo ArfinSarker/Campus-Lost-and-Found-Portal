@@ -173,7 +173,7 @@ public class UserProfileActivity extends AppCompatActivity {
         } else {
             android.content.SharedPreferences prefs = getSharedPreferences("MyApp", MODE_PRIVATE);
             currentUniversityId = prefs.getString("universityId", null);
-            userEmail = prefs.getString("email", null);
+            userEmail = prefs.getString("cachedUserEmail", null);
 
             if (currentUniversityId != null) {
                 loadUserData(currentUniversityId);
@@ -432,30 +432,46 @@ public class UserProfileActivity extends AppCompatActivity {
 
             showLoading(true);
             reauthenticateAndChangePassword(oldPass, newPass, () -> {
-                Map<String, Object> passUpdate = new HashMap<>();
-                passUpdate.put("password", newPass);
-                SupabaseDatabaseHelper.update("profiles", "university_id=eq." + currentUniversityId, passUpdate,
-                        new SupabaseDatabaseHelper.DatabaseCallback<String>() {
-                            @Override
-                            public void onSuccess(String result) {
-                                showLoading(false);
-                                etOldPassword.setText("");
-                                etNewPassword.setText("");
-                                etConfirmPassword.setText("");
-                                ErrorHelper.clearFieldError(tilOldPassword);
-                                ErrorHelper.clearFieldError(tilNewPassword);
-                                ErrorHelper.clearFieldError(tilConfirmPassword);
-                                btnConfirmPasswordChange.setVisibility(View.GONE);
-                                SnackbarManager.show(SnackbarManager.Type.SUCCESS, "Password updated successfully");
-                            }
+                SupabaseAuthHelper.updateUserPassword(oldPass, newPass, new SupabaseAuthHelper.AuthCallback() {
+                    @Override
+                    public void onSuccess(String userId, String accessToken, String refreshToken) {
+                        Map<String, Object> passUpdate = new HashMap<>();
+                        passUpdate.put("password", newPass);
+                        SupabaseDatabaseHelper.update("profiles", "university_id=eq." + currentUniversityId, passUpdate,
+                                new SupabaseDatabaseHelper.DatabaseCallback<String>() {
+                                    @Override
+                                    public void onSuccess(String result) {
+                                        showLoading(false);
+                                        etOldPassword.setText("");
+                                        etNewPassword.setText("");
+                                        etConfirmPassword.setText("");
+                                        ErrorHelper.clearFieldError(tilOldPassword);
+                                        ErrorHelper.clearFieldError(tilNewPassword);
+                                        ErrorHelper.clearFieldError(tilConfirmPassword);
+                                        btnConfirmPasswordChange.setVisibility(View.GONE);
+                                        SnackbarManager.show(SnackbarManager.Type.SUCCESS, "Password updated successfully");
+                                        
+                                        // Update auth token if a new one was provided
+                                        if (accessToken != null) {
+                                            SupabaseDatabaseHelper.setAuthToken(accessToken);
+                                        }
+                                    }
 
-                            @Override
-                            public void onFailure(String errorMessage) {
-                                showLoading(false);
-                                SnackbarManager.show(SnackbarManager.Type.ERROR,
-                                        "Database password update failed: " + errorMessage);
-                            }
-                        });
+                                    @Override
+                                    public void onFailure(String errorMessage) {
+                                        showLoading(false);
+                                        SnackbarManager.show(SnackbarManager.Type.ERROR,
+                                                "Database sync failed: " + errorMessage);
+                                    }
+                                });
+                    }
+
+                    @Override
+                    public void onFailure(String errorMessage) {
+                        showLoading(false);
+                        ErrorHelper.showError(btnConfirmPasswordChange, "Auth update failed: " + errorMessage);
+                    }
+                });
             });
         });
     }
@@ -784,7 +800,7 @@ public class UserProfileActivity extends AppCompatActivity {
     private void searchUserByEmail() {
         if (userEmail == null) {
             android.content.SharedPreferences prefs = getSharedPreferences("MyApp", MODE_PRIVATE);
-            userEmail = prefs.getString("email", null);
+            userEmail = prefs.getString("cachedUserEmail", null);
         }
 
         if (userEmail == null) {
@@ -843,6 +859,7 @@ public class UserProfileActivity extends AppCompatActivity {
 
                                 etUniversityId.setText(originalUser.getUniversityId());
                                 etEmail.setText(originalUser.getEmail());
+                                userEmail = originalUser.getEmail();
 
                                 String fullPhone = originalUser.getPhone();
                                 String[] parsedPhone = ValidationUtils.parsePhoneNumber(fullPhone);
@@ -1155,11 +1172,6 @@ public class UserProfileActivity extends AppCompatActivity {
                         if (updates.containsKey("email")) {
                             String newEmail = (String) updates.get("email");
                             userEmail = newEmail;
-
-                            // Update SharedPreferences if it was being used to cache email
-                            if (prefs.contains("email")) {
-                                editor.putString("email", newEmail);
-                            }
                             editor.putString("cachedUserEmail", newEmail);
                         }
                         if (updates.containsKey("full_name"))
@@ -1237,7 +1249,13 @@ public class UserProfileActivity extends AppCompatActivity {
     }
 
     private void reauthenticateAndChangePassword(String oldPass, String newPass, Runnable onComplete) {
-        if (userEmail == null) {
+        if (userEmail == null && originalUser != null) {
+            userEmail = originalUser.getEmail();
+        }
+        if (userEmail == null || userEmail.isEmpty()) {
+            userEmail = etEmail.getText().toString().trim();
+        }
+        if (userEmail == null || userEmail.isEmpty()) {
             showLoading(false);
             ErrorHelper.showError(btnConfirmPasswordChange, "Email not found. Please try again.");
             return;

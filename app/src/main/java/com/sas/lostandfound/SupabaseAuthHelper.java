@@ -136,6 +136,32 @@ public class SupabaseAuthHelper {
         }
     }
 
+    public static void updateUserPassword(String currentPassword, String newPassword, AuthCallback callback) {
+        String baseUrl = sanitizeUrl(SupabaseConfig.SUPABASE_URL);
+        String url = baseUrl + "/auth/v1/user";
+
+        try {
+            JSONObject json = new JSONObject();
+            json.put("password", newPassword);
+            if (currentPassword != null && !currentPassword.isEmpty()) {
+                json.put("current_password", currentPassword);
+            }
+
+            Request request = new Request.Builder()
+                    .url(url)
+                    .addHeader("apikey", SupabaseConfig.SUPABASE_KEY)
+                    .addHeader("Authorization", "Bearer " + SupabaseDatabaseHelper.getAuthToken())
+                    .addHeader("Content-Type", "application/json")
+                    .put(RequestBody.create(json.toString(), JSON))
+                    .build();
+
+            enqueueRequest(request, callback);
+
+        } catch (Exception e) {
+            callback.onFailure("Password update failed. Please try again.");
+        }
+    }
+
     public static void signOut() {
         // Clear the static auth token to ensure security after logout
         SupabaseDatabaseHelper.setAuthToken(null);

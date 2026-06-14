@@ -7,7 +7,7 @@ plugins {
 
 // Set base name for all generated artifacts (APKs and AABs)
 base {
-    archivesName.set("Lost&Found")
+    archivesName.set("LostAndFound")
 }
 
 fun getLocalProperty(key: String): String? {
@@ -38,6 +38,10 @@ android {
         // Enable BuildConfig generation
         buildConfigField("String", "SUPABASE_URL", "\"${getLocalProperty("SUPABASE_URL") ?: ""}\"")
         buildConfigField("String", "SUPABASE_KEY", "\"${getLocalProperty("SUPABASE_KEY") ?: ""}\"")
+        buildConfigField("String", "FIREBASE_API_KEY", "\"${getLocalProperty("FIREBASE_API_KEY") ?: ""}\"")
+        buildConfigField("String", "FIREBASE_APP_ID", "\"${getLocalProperty("FIREBASE_APP_ID") ?: ""}\"")
+        buildConfigField("String", "FIREBASE_SENDER_ID", "\"${getLocalProperty("FIREBASE_SENDER_ID") ?: ""}\"")
+        buildConfigField("String", "FIREBASE_PROJECT_ID", "\"${getLocalProperty("FIREBASE_PROJECT_ID") ?: ""}\"")
     }
 
     buildFeatures {
@@ -85,15 +89,12 @@ androidComponents {
     onVariants { variant ->
         if (variant.buildType == "release") {
             variant.outputs.forEach { output ->
-                output.outputFileName.set("Lost&Found.apk")
-            }
-            // Ensure the App Bundle is named exactly Lost&Found.aab
-            tasks.named("bundle${variant.name.replaceFirstChar { it.uppercase() }}") {
-                setProperty("archiveFileName", "Lost&Found.aab")
+                output.outputFileName.set("LostAndFound.apk")
             }
         }
     }
 }
+
 
 dependencies {
     implementation(libs.appcompat)
@@ -109,7 +110,6 @@ dependencies {
     // Glide for image loading
     implementation("com.github.bumptech.glide:glide:4.16.0")
     annotationProcessor("com.github.bumptech.glide:compiler:4.16.0")
-    implementation("com.airbnb.android:lottie:6.0.0")
 
     // Gson for JSON parsing
     implementation("com.google.code.gson:gson:2.14.0")
@@ -117,8 +117,13 @@ dependencies {
     // PhotoView for zoom
     implementation("com.github.chrisbanes:PhotoView:2.3.0")
 
+    // WorkManager for background worker polling
+    implementation("androidx.work:work-runtime:2.9.0")
+
     // Add the dependencies for any other desired Firebase products
     // https://firebase.google.com/docs/android/setup#available-libraries
+    implementation(platform("com.google.firebase:firebase-bom:33.1.0"))
+    implementation("com.google.firebase:firebase-messaging")
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.ext.junit)

@@ -4,6 +4,9 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.util.Log;
 import android.os.Bundle;
+import android.os.Build;
+import androidx.core.app.ActivityCompat;
+import android.content.pm.PackageManager;
 import android.os.Handler;
 import android.os.Looper;
 import android.view.LayoutInflater;
@@ -95,6 +98,7 @@ public class CampusDashboardActivity extends AppCompatActivity {
         setupNavigationView();
         setupNavigationDrawerBehavior();
         setupSwipeRefresh();
+        checkNotificationPermission();
 
         if (btnMenu != null) {
             btnMenu.setOnClickListener(v -> {
@@ -208,8 +212,8 @@ public class CampusDashboardActivity extends AppCompatActivity {
     }
 
     private void applyNavigationStateFromIntent(Intent intent) {
-        if (intent != null && drawerLayout != null) {
-            if (intent.getBooleanExtra("openDrawer", false)) {
+        if (intent != null) {
+            if (intent.getBooleanExtra("openDrawer", false) && drawerLayout != null) {
                 drawerLayout.openDrawer(GravityCompat.START);
                 int selectedId = intent.getIntExtra("selectedItemId", -1);
                 if (selectedId != -1 && navigationView != null) {
@@ -217,6 +221,68 @@ public class CampusDashboardActivity extends AppCompatActivity {
                     navigationView.setCheckedItem(selectedId);
                     customizeNavigationViewIcons();
                 }
+            }
+            if (intent.getBooleanExtra("from_notification", false)) {
+                handleNotificationIntent(intent);
+            }
+        }
+    }
+
+    private void handleNotificationIntent(Intent intent) {
+        if (intent == null || !intent.getBooleanExtra("from_notification", false)) {
+            return;
+        }
+
+        String type = intent.getStringExtra("notification_type");
+        String itemId = intent.getStringExtra("item_id");
+
+        if (type == null) {
+            Intent nextIntent = new Intent(this, NotificationsActivity.class);
+            startActivity(nextIntent);
+            return;
+        }
+
+        if ("admin_report".equals(type)) {
+            Intent nextIntent = new Intent(this, AdminReportDetailsActivity.class);
+            nextIntent.putExtra("reportId", itemId);
+            startActivity(nextIntent);
+        } else if ("admin_report_new".equals(type)) {
+            Intent nextIntent = new Intent(this, AdminReportReviewActivity.class);
+            nextIntent.putExtra("reportId", itemId);
+            startActivity(nextIntent);
+        } else if ("admin_request".equals(type)) {
+            Intent nextIntent = new Intent(this, AdminRequestsActivity.class);
+            startActivity(nextIntent);
+        } else if ("item_claimed".equals(type) || "item_return".equals(type)) {
+            Intent nextIntent = new Intent(this, ClaimDetailsActivity.class);
+            nextIntent.putExtra("senderId", intent.getStringExtra("sender_id"));
+            nextIntent.putExtra("claimerId", intent.getStringExtra("claimer_id"));
+            nextIntent.putExtra("senderName", intent.getStringExtra("sender_name"));
+            nextIntent.putExtra("senderPhone", intent.getStringExtra("sender_phone"));
+            nextIntent.putExtra("senderEmail", intent.getStringExtra("sender_email"));
+            nextIntent.putExtra("itemId", itemId);
+            nextIntent.putExtra("itemName", intent.getStringExtra("item_name"));
+            nextIntent.putExtra("type", type);
+            startActivity(nextIntent);
+        } else {
+            Intent nextIntent = new Intent(this, ClaimDetailsActivity.class);
+            nextIntent.putExtra("senderId", intent.getStringExtra("sender_id"));
+            nextIntent.putExtra("claimerId", intent.getStringExtra("claimer_id"));
+            nextIntent.putExtra("senderName", intent.getStringExtra("sender_name"));
+            nextIntent.putExtra("senderPhone", intent.getStringExtra("sender_phone"));
+            nextIntent.putExtra("senderEmail", intent.getStringExtra("sender_email"));
+            nextIntent.putExtra("itemId", itemId);
+            nextIntent.putExtra("itemName", intent.getStringExtra("item_name"));
+            nextIntent.putExtra("additionalDetails", intent.getStringExtra("additional_details"));
+            nextIntent.putExtra("type", type);
+            startActivity(nextIntent);
+        }
+    }
+
+    private void checkNotificationPermission() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
+                ActivityCompat.requestPermissions(this, new String[]{android.Manifest.permission.POST_NOTIFICATIONS}, 101);
             }
         }
     }
@@ -593,9 +659,7 @@ public class CampusDashboardActivity extends AppCompatActivity {
     private void listenForNotifications() {
         if (currentUniversityId == null)
             return;
-        // Filter for user types only
-        String filter = "recipient_id=eq." + currentUniversityId
-                + "&is_read=eq.false&type=in.(lost_item,found_item,item_claimed,item_return,admin_report)&select=count";
+        String filter = "recipient_id=eq." + currentUniversityId + "&is_read=eq.false&select=count";
         SupabaseDatabaseHelper.select("notifications", filter, new TypeToken<List<Map<String, Object>>>() {
         }.getType(), new SupabaseDatabaseHelper.DatabaseCallback<List<Map<String, Object>>>() {
             @Override

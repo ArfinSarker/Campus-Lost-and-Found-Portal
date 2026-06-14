@@ -136,6 +136,7 @@ public class SplashActivity extends AppCompatActivity {
         Intent intent;
         if (user != null) {
             intent = new Intent(SplashActivity.this, CampusDashboardActivity.class);
+            copyNotificationExtras(getIntent(), intent);
         } else {
             intent = new Intent(SplashActivity.this, DashboardActivity.class);
         }
@@ -149,10 +150,27 @@ public class SplashActivity extends AppCompatActivity {
         Intent intent;
         if (!userType.isEmpty()) {
             intent = new Intent(SplashActivity.this, CampusDashboardActivity.class);
+            copyNotificationExtras(getIntent(), intent);
         } else {
             intent = new Intent(SplashActivity.this, DashboardActivity.class);
         }
         startActivity(intent);
         finish();
+    }
+
+    private void copyNotificationExtras(Intent source, Intent target) {
+        if (source != null && (source.getBooleanExtra("from_notification", false) || "true".equals(source.getStringExtra("from_notification")))) {
+            target.putExtra("from_notification", true);
+            target.putExtra("notification_id", source.getStringExtra("notification_id"));
+            target.putExtra("notification_type", source.getStringExtra("notification_type"));
+            target.putExtra("item_id", source.getStringExtra("item_id"));
+            target.putExtra("sender_id", source.getStringExtra("sender_id"));
+            target.putExtra("claimer_id", source.getStringExtra("claimer_id"));
+            target.putExtra("sender_name", source.getStringExtra("sender_name"));
+            target.putExtra("sender_phone", source.getStringExtra("sender_phone"));
+            target.putExtra("sender_email", source.getStringExtra("sender_email"));
+            target.putExtra("item_name", source.getStringExtra("item_name"));
+            target.putExtra("additional_details", source.getStringExtra("additional_details"));
+        }
     }
 }

@@ -107,7 +107,15 @@ public class SupabaseDatabaseHelper {
         authToken = token;
     }
 
-    private static String getAuthHeader() {
+    public static String getAuthToken() {
+        return authToken;
+    }
+
+    public static OkHttpClient getClient() {
+        return client;
+    }
+
+    public static String getAuthHeader() {
         if (authToken != null && !authToken.isEmpty()) {
             return "Bearer " + authToken;
         }

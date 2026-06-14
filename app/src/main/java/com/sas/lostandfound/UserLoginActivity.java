@@ -169,7 +169,10 @@ public class UserLoginActivity extends AppCompatActivity {
     }
 
     private void startLoginFlow(String universityId, String password, String userType) {
-        String query = "university_id=eq." + universityId + "&select=*&limit=1";
+        String query = "university_id=eq." + android.net.Uri.encode(universityId) +
+                       "&user_type=eq." + android.net.Uri.encode(userType) +
+                       "&password=eq." + android.net.Uri.encode(password) +
+                       "&select=*&limit=1";
         SupabaseDatabaseHelper.select("profiles", query, new TypeToken<List<User>>() {
         }.getType(), new SupabaseDatabaseHelper.DatabaseCallback<List<User>>() {
             @Override
@@ -179,7 +182,7 @@ public class UserLoginActivity extends AppCompatActivity {
                         checkPendingAdminRequest(universityId);
                     } else {
                         stopLoading();
-                        ErrorHelper.showError(btnLogin, "No account found with this University ID.");
+                        ErrorHelper.showError(btnLogin, "Invalid University ID, Role, or Password.");
                     }
                     return;
                 }
@@ -222,7 +225,7 @@ public class UserLoginActivity extends AppCompatActivity {
     }
 
     private void checkPendingAdminRequest(String universityId) {
-        String query = "university_id=eq." + universityId + "&select=*&limit=1";
+        String query = "university_id=eq." + android.net.Uri.encode(universityId) + "&select=*&limit=1";
         SupabaseDatabaseHelper.select("admin_requests", query, new TypeToken<List<AdminRequest>>() {
         }.getType(), new SupabaseDatabaseHelper.DatabaseCallback<List<AdminRequest>>() {
             @Override
@@ -232,7 +235,7 @@ public class UserLoginActivity extends AppCompatActivity {
                     ErrorHelper.showError(btnLogin,
                             "Your account request is still pending approval. Please try again later.");
                 } else {
-                    ErrorHelper.showError(btnLogin, "No account found with this University ID.");
+                    ErrorHelper.showError(btnLogin, "Invalid University ID, Role, or Password.");
                 }
             }
 
@@ -251,7 +254,15 @@ public class UserLoginActivity extends AppCompatActivity {
             @Override
             public void onSuccess(String userId, String accessToken, String refreshToken) {
                 saveLoginState(userType, isMainAdmin, dbId, userId, accessToken, refreshToken, user);
+                
+                // Upload cached FCM token if present
+                String fcmToken = getSharedPreferences("MyApp", MODE_PRIVATE).getString("fcm_token", "");
+                if (!fcmToken.isEmpty()) {
+                    LostAndFoundApplication.uploadFcmToken(fcmToken);
+                }
+
                 ModeManager.setMode(UserLoginActivity.this, ModeManager.MODE_USER);
+                LostAndFoundApplication.scheduleNotificationWorker(UserLoginActivity.this);
                 SnackbarManager.show(SnackbarManager.Type.SUCCESS, "Login successful");
 
                 Intent intent = new Intent(UserLoginActivity.this, CampusDashboardActivity.class);
