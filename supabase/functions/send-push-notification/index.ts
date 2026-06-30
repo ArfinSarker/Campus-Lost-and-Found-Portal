@@ -1,19 +1,20 @@
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
+import { createClient } from "@supabase/supabase-js";
 
-const SUPABASE_URL = Deno.env.get('SUPABASE_URL') || '';
-const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') || '';
-const FIREBASE_SERVICE_ACCOUNT_ENV = Deno.env.get('FIREBASE_SERVICE_ACCOUNT');
+const SUPABASE_URL = Deno.env.get("SUPABASE_URL") || "";
+const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ||
+  "";
+const FIREBASE_SERVICE_ACCOUNT_ENV = Deno.env.get("FIREBASE_SERVICE_ACCOUNT");
 
 Deno.serve(async (req) => {
   // Handle CORS preflight requests
-  if (req.method === 'OPTIONS') {
-    return new Response('ok', {
+  if (req.method === "OPTIONS") {
+    return new Response("ok", {
       headers: {
-        'Access-Control-Allow-Origin': '*',
-        'Access-Control-Allow-Methods': 'POST, GET, OPTIONS',
-        'Access-Control-Allow-Headers': 'Content-Type, Authorization, apikey',
-      }
-    })
+        "Access-Control-Allow-Origin": "*",
+        "Access-Control-Allow-Methods": "POST, GET, OPTIONS",
+        "Access-Control-Allow-Headers": "Content-Type, Authorization, apikey",
+      },
+    });
   }
 
   try {
@@ -24,17 +25,26 @@ Deno.serve(async (req) => {
     if (!notification) {
       return new Response(JSON.stringify({ error: "Missing record object" }), {
         status: 400,
-        headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' }
+        headers: {
+          "Content-Type": "application/json",
+          "Access-Control-Allow-Origin": "*",
+        },
       });
     }
 
     const recipientId = notification.recipient_id;
     if (!recipientId) {
       console.log("No recipient_id on notification, skipping.");
-      return new Response(JSON.stringify({ message: "No recipient_id, skipped." }), {
-        status: 200,
-        headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' }
-      });
+      return new Response(
+        JSON.stringify({ message: "No recipient_id, skipped." }),
+        {
+          status: 200,
+          headers: {
+            "Content-Type": "application/json",
+            "Access-Control-Allow-Origin": "*",
+          },
+        },
+      );
     }
 
     // Initialize Supabase Client with Service Role key
@@ -42,26 +52,37 @@ Deno.serve(async (req) => {
 
     // Fetch the recipient's FCM token from profiles
     const { data: profile, error: profileError } = await supabase
-      .from('profiles')
-      .select('fcm_token')
-      .eq('university_id', recipientId)
+      .from("profiles")
+      .select("fcm_token")
+      .eq("university_id", recipientId)
       .single();
 
     if (profileError || !profile) {
       console.error("Error fetching recipient profile:", profileError);
       return new Response(JSON.stringify({ error: "Profile search failed" }), {
         status: 500,
-        headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' }
+        headers: {
+          "Content-Type": "application/json",
+          "Access-Control-Allow-Origin": "*",
+        },
       });
     }
 
     const fcmToken = profile.fcm_token;
     if (!fcmToken) {
-      console.log(`No FCM token registered for recipient ${recipientId}, skipping push notification.`);
-      return new Response(JSON.stringify({ message: "No FCM token registered, skipped." }), {
-        status: 200,
-        headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' }
-      });
+      console.log(
+        `No FCM token registered for recipient ${recipientId}, skipping push notification.`,
+      );
+      return new Response(
+        JSON.stringify({ message: "No FCM token registered, skipped." }),
+        {
+          status: 200,
+          headers: {
+            "Content-Type": "application/json",
+            "Access-Control-Allow-Origin": "*",
+          },
+        },
+      );
     }
 
     // Verify service account exists
@@ -78,7 +99,6 @@ Deno.serve(async (req) => {
     // Get OAuth2 access token
     const accessToken = await getAccessToken(serviceAccount);
 
-    // Derive notification title
     const getNotificationTitle = (type: string): string => {
       if (!type) return "Lost & Found Update";
       switch (type) {
@@ -97,6 +117,12 @@ Deno.serve(async (req) => {
           return "Admin Report Update";
         case "admin_request":
           return "Admin Request Update";
+        case "chat_request":
+          return "New Chat Request";
+        case "chat_accepted":
+          return "Chat Request Accepted";
+        case "chat_message":
+          return "New Message";
         default:
           return "Campus Lost & Found Update";
       }
@@ -110,11 +136,11 @@ Deno.serve(async (req) => {
       message: {
         token: fcmToken,
         android: {
-          priority: "HIGH"
+          priority: "HIGH",
         },
         notification: {
           title: title,
-          body: bodyText
+          body: bodyText,
         },
         data: {
           from_notification: "true",
@@ -127,21 +153,23 @@ Deno.serve(async (req) => {
           sender_phone: String(notification.sender_phone || ""),
           sender_email: String(notification.sender_email || ""),
           item_name: String(notification.item_name || ""),
+          recipient_id: String(notification.recipient_id || ""),
           additional_details: String(notification.additional_details || ""),
-          message: bodyText
-        }
-      }
+          message: bodyText,
+        },
+      },
     };
 
     console.log(`Sending FCM notification to token ${fcmToken}...`);
-    const fcmUrl = `https://fcm.googleapis.com/v1/projects/${projectId}/messages:send`;
+    const fcmUrl =
+      `https://fcm.googleapis.com/v1/projects/${projectId}/messages:send`;
     const fcmResponse = await fetch(fcmUrl, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "Authorization": `Bearer ${accessToken}`
+        "Authorization": `Bearer ${accessToken}`,
       },
-      body: JSON.stringify(fcmPayload)
+      body: JSON.stringify(fcmPayload),
     });
 
     const fcmResult = await fcmResponse.json();
@@ -149,33 +177,60 @@ Deno.serve(async (req) => {
 
     if (!fcmResponse.ok) {
       console.error("FCM API error response:", fcmResult);
-      return new Response(JSON.stringify({ error: "FCM API error", details: fcmResult }), {
-        status: 500,
-        headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' }
-      });
+      return new Response(
+        JSON.stringify({ error: "FCM API error", details: fcmResult }),
+        {
+          status: 500,
+          headers: {
+            "Content-Type": "application/json",
+            "Access-Control-Allow-Origin": "*",
+          },
+        },
+      );
     }
 
-    return new Response(JSON.stringify({ message: "Notification sent successfully", result: fcmResult }), {
-      status: 200,
-      headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' }
-    });
-
+    return new Response(
+      JSON.stringify({
+        message: "Notification sent successfully",
+        result: fcmResult,
+      }),
+      {
+        status: 200,
+        headers: {
+          "Content-Type": "application/json",
+          "Access-Control-Allow-Origin": "*",
+        },
+      },
+    );
   } catch (error) {
     console.error("Function error:", error);
-    return new Response(JSON.stringify({ error: error.message }), {
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    return new Response(JSON.stringify({ error: errorMessage }), {
       status: 500,
-      headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' }
+      headers: {
+        "Content-Type": "application/json",
+        "Access-Control-Allow-Origin": "*",
+      },
     });
   }
 });
 
 // Helper function to sign JWT and request Google OAuth2 access token
-async function getAccessToken(serviceAccount: any): Promise<string> {
+interface ServiceAccount {
+  private_key: string;
+  client_email: string;
+  project_id: string;
+}
+
+async function getAccessToken(serviceAccount: ServiceAccount): Promise<string> {
   const privateKeyPem = serviceAccount.private_key;
   const pemHeader = "-----BEGIN PRIVATE KEY-----";
   const pemFooter = "-----END PRIVATE KEY-----";
   const pemContents = privateKeyPem
-    .substring(privateKeyPem.indexOf(pemHeader) + pemHeader.length, privateKeyPem.indexOf(pemFooter))
+    .substring(
+      privateKeyPem.indexOf(pemHeader) + pemHeader.length,
+      privateKeyPem.indexOf(pemFooter),
+    )
     .replace(/\s+/g, "");
   const binaryDerString = atob(pemContents);
   const binaryDer = new Uint8Array(binaryDerString.length);
@@ -191,7 +246,7 @@ async function getAccessToken(serviceAccount: any): Promise<string> {
       hash: "SHA-256",
     },
     false,
-    ["sign"]
+    ["sign"],
   );
 
   const header = {
@@ -222,10 +277,12 @@ async function getAccessToken(serviceAccount: any): Promise<string> {
   const signature = await crypto.subtle.sign(
     "RSASSA-PKCS1-v1_5",
     key,
-    textEncoder.encode(stringToSign)
+    textEncoder.encode(stringToSign),
   );
 
-  const encodedSignature = btoa(String.fromCharCode(...new Uint8Array(signature)))
+  const encodedSignature = btoa(
+    String.fromCharCode(...new Uint8Array(signature)),
+  )
     .replace(/=/g, "")
     .replace(/\+/g, "-")
     .replace(/\//g, "_");
@@ -245,7 +302,9 @@ async function getAccessToken(serviceAccount: any): Promise<string> {
 
   const data = await response.json();
   if (data.error) {
-    throw new Error(`Google Auth error: ${data.error_description || data.error}`);
+    throw new Error(
+      `Google Auth error: ${data.error_description || data.error}`,
+    );
   }
   return data.access_token;
 }

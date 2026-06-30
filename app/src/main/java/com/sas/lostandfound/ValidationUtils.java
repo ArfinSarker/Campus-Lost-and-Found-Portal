@@ -413,4 +413,52 @@ public class ValidationUtils {
     public static String getPasswordRequirements() {
         return "Password must be at least 8 characters and include uppercase, lowercase, and a number.";
     }
+
+    /**
+     * Helper to parse ISO 8601 timestamps robustly, handling milliseconds, microseconds,
+     * and timezone offsets.
+     */
+    public static java.util.Date parseIso8601(String isoString) {
+        if (isoString == null || isoString.isEmpty()) return null;
+        // Clean timezone Z
+        if (isoString.endsWith("Z")) {
+            isoString = isoString.substring(0, isoString.length() - 1) + "+0000";
+        } else {
+            // Replace +00:00 with +0000 (remove colon from offset for SimpleDateFormat RFC 822)
+            int lastColonIndex = isoString.lastIndexOf(":");
+            int lastPlusIndex = isoString.lastIndexOf("+");
+            int lastMinusIndex = isoString.lastIndexOf("-");
+            int lastSignIndex = Math.max(lastPlusIndex, lastMinusIndex);
+            if (lastColonIndex > lastSignIndex && lastSignIndex > 0) {
+                isoString = isoString.substring(0, lastColonIndex) + isoString.substring(lastColonIndex + 1);
+            }
+        }
+        
+        // Remove fractional seconds because SimpleDateFormat's S millisecond pattern doesn't handle variable number of digits (like micro/nano seconds)
+        // Format: yyyy-MM-dd'T'HH:mm:ss.SSSSSS+0000 or yyyy-MM-dd'T'HH:mm:ss+0000
+        int dotIndex = isoString.indexOf(".");
+        int signIndex = isoString.lastIndexOf("+");
+        if (signIndex == -1) {
+            signIndex = isoString.lastIndexOf("-");
+        }
+        if (dotIndex != -1 && signIndex != -1 && dotIndex < signIndex) {
+            isoString = isoString.substring(0, dotIndex) + isoString.substring(signIndex);
+        } else if (dotIndex != -1 && signIndex == -1) {
+            isoString = isoString.substring(0, dotIndex);
+        }
+
+        String[] formats = {
+            "yyyy-MM-dd'T'HH:mm:ssZ",
+            "yyyy-MM-dd'T'HH:mm:ss",
+            "yyyy-MM-dd"
+        };
+        for (String format : formats) {
+            try {
+                java.text.SimpleDateFormat sdf = new java.text.SimpleDateFormat(format, java.util.Locale.US);
+                sdf.setTimeZone(java.util.TimeZone.getTimeZone("UTC"));
+                return sdf.parse(isoString);
+            } catch (Exception ignored) {}
+        }
+        return null;
+    }
 }

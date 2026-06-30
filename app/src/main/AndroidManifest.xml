@@ -124,6 +124,11 @@
             android:theme="@style/Theme.App.FullScreen"
             android:launchMode="singleTop" />
 
+        <!-- Messaging System Activities -->
+        <activity android:name=".MessagingActivity" />
+        <activity android:name=".ChatRequestActivity" />
+        <activity android:name=".ChatActivity" />
+
         <!-- Firebase Messaging Service -->
         <service
             android:name=".MyFirebaseMessagingService"

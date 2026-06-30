@@ -48,6 +48,20 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
 
     @SuppressLint("MissingPermission")
     private void handleNow(Map<String, String> data) {
+        SharedPreferences prefs = getSharedPreferences("MyApp", MODE_PRIVATE);
+        String currentUnivId = prefs.getString("universityId", "");
+        String recipientId = data.get("recipient_id");
+
+        if (currentUnivId == null || currentUnivId.isEmpty()) {
+            Log.d(TAG, "No user is currently logged in. Dropping notification.");
+            return;
+        }
+
+        if (recipientId != null && !recipientId.isEmpty() && !recipientId.equals(currentUnivId)) {
+            Log.d(TAG, "Notification recipient (" + recipientId + ") does not match current user (" + currentUnivId + "). Dropping notification.");
+            return;
+        }
+
         String id = data.get("notification_id");
         String type = data.get("notification_type");
         String itemId = data.get("item_id");
@@ -59,6 +73,22 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
         String itemName = data.get("item_name");
         String additionalDetails = data.get("additional_details");
         String message = data.get("message");
+
+        if ("chat_message".equals(type) && additionalDetails != null && !additionalDetails.isEmpty()) {
+            Map<String, Object> updateData = new java.util.HashMap<>();
+            updateData.put("is_delivered", true);
+            String query = "conversation_id=eq." + additionalDetails + "&sender_id=neq." + currentUnivId + "&is_delivered=eq.false";
+            SupabaseDatabaseHelper.update("messages", query, updateData, new SupabaseDatabaseHelper.DatabaseCallback<String>() {
+                @Override
+                public void onSuccess(String result) {
+                    Log.d(TAG, "Marked message as delivered successfully");
+                }
+                @Override
+                public void onFailure(String errorMessage) {
+                    Log.e(TAG, "Failed to mark message as delivered: " + errorMessage);
+                }
+            });
+        }
 
         if (message == null || message.isEmpty()) {
             message = "You have a new update.";
@@ -138,6 +168,12 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
                 return "Admin Report Update";
             case "admin_request":
                 return "Admin Request Update";
+            case "chat_request":
+                return "New Chat Request";
+            case "chat_accepted":
+                return "Chat Request Accepted";
+            case "chat_message":
+                return "New Message";
             default:
                 return "Campus Lost & Found Update";
         }

@@ -68,6 +68,9 @@ public class User {
     @SerializedName("reset_token_used")
     private Boolean resetTokenUsed;
 
+    @SerializedName("last_active_at")
+    private String lastActiveAt;
+
     // Derived or UI-specific fields (not in DB but kept for compatibility or temporary use)
     private transient String name;
     private transient String phone;
@@ -210,4 +213,7 @@ public class User {
 
     public Boolean getResetTokenUsed() { return resetTokenUsed != null ? resetTokenUsed : false; }
     public void setResetTokenUsed(Boolean resetTokenUsed) { this.resetTokenUsed = resetTokenUsed; }
+
+    public String getLastActiveAt() { return lastActiveAt; }
+    public void setLastActiveAt(String lastActiveAt) { this.lastActiveAt = lastActiveAt; }
 }

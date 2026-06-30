@@ -137,9 +137,7 @@ public class CreateNewPasswordActivity extends AppCompatActivity {
                 // Check if token expired (1 hour limit)
                 if (user.getResetTokenExpiresAt() != null) {
                     try {
-                        java.text.SimpleDateFormat sdf = new java.text.SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", java.util.Locale.US);
-                        sdf.setTimeZone(java.util.TimeZone.getTimeZone("UTC"));
-                        java.util.Date expiryDate = sdf.parse(user.getResetTokenExpiresAt());
+                        java.util.Date expiryDate = ValidationUtils.parseIso8601(user.getResetTokenExpiresAt());
                         
                         if (expiryDate != null && expiryDate.before(new java.util.Date())) {
                             android.util.Log.e("CreateNewPassword", "Token EXPIRED: " + user.getResetTokenExpiresAt());

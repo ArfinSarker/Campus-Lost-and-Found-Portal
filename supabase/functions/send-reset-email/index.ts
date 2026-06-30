@@ -1,29 +1,31 @@
+import { createClient } from "@supabase/supabase-js";
 // Use Deno.serve for better compatibility and performance
-const RESEND_API_KEY = Deno.env.get('RESEND_API_KEY')
-const SUPABASE_URL = Deno.env.get('SUPABASE_URL')
+const RESEND_API_KEY = Deno.env.get("RESEND_API_KEY") || "";
+const SUPABASE_URL = Deno.env.get("SUPABASE_URL") || "";
 
 Deno.serve(async (req) => {
   const url = new URL(req.url);
-  
+
   // Handle CORS preflight requests
-  if (req.method === 'OPTIONS') {
-    return new Response('ok', { 
-        headers: { 
-            'Access-Control-Allow-Origin': '*',
-            'Access-Control-Allow-Methods': 'POST, GET',
-            'Access-Control-Allow-Headers': 'Content-Type, Authorization, apikey',
-        } 
-    })
+  if (req.method === "OPTIONS") {
+    return new Response("ok", {
+      headers: {
+        "Access-Control-Allow-Origin": "*",
+        "Access-Control-Allow-Methods": "POST, GET",
+        "Access-Control-Allow-Headers": "Content-Type, Authorization, apikey",
+      },
+    });
   }
 
   // Handle Redirect (GET)
-  if (req.method === 'GET') {
-    const token = url.searchParams.get('token');
+  if (req.method === "GET") {
+    const token = url.searchParams.get("token");
     if (!token) {
-      return new Response('Missing token', { status: 400 });
+      return new Response("Missing token", { status: 400 });
     }
 
-    const intentLink = `intent://reset-password?token=${token}#Intent;scheme=campus-lost-found;package=com.sas.lostandfound;S.token=${token};S.reset_token=${token};action=android.intent.action.VIEW;category=android.intent.category.BROWSABLE;end`;
+    const intentLink =
+      `intent://reset-password?token=${token}#Intent;scheme=campus-lost-found;package=com.sas.lostandfound;S.token=${token};S.reset_token=${token};action=android.intent.action.VIEW;category=android.intent.category.BROWSABLE;end`;
     const appLink = `campus-lost-found://reset-password?token=${token}`;
 
     const html = `<!DOCTYPE html>
@@ -55,12 +57,14 @@ Deno.serve(async (req) => {
   </body>
 </html>`;
 
-    return new Response(null, {
+    return new Response(html, {
       status: 302,
       headers: {
         "Location": intentLink,
+        "Content-Type": "text/html; charset=utf-8",
         "Access-Control-Allow-Origin": "*",
-        "Cache-Control": "no-store, no-cache, must-revalidate, proxy-revalidate",
+        "Cache-Control":
+          "no-store, no-cache, must-revalidate, proxy-revalidate",
         "Pragma": "no-cache",
         "Expires": "0",
       },
@@ -69,26 +73,26 @@ Deno.serve(async (req) => {
 
   // Handle POST requests
   try {
-    const body = await req.json()
-    const { action, email, token, password, university_id } = body
+    const body = await req.json();
+    const { action, email, token, password } = body;
 
     // 1. Action: SEND EMAIL
-    if (!action || action === 'send-email') {
-      const bridgeUrl = `${SUPABASE_URL}/functions/v1/send-reset-email?token=${token}`;
-      const appLink = `campus-lost-found://reset-password?token=${token}`;
+    if (!action || action === "send-email") {
+      const bridgeUrl =
+        `${SUPABASE_URL}/functions/v1/send-reset-email?token=${token}`;
 
       console.log(`Sending reset email to ${email}`);
 
-      const res = await fetch('https://api.resend.com/emails', {
-        method: 'POST',
+      const res = await fetch("https://api.resend.com/emails", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${RESEND_API_KEY}`,
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${RESEND_API_KEY}`,
         },
         body: JSON.stringify({
-          from: 'Lost&Found <onboarding@resend.dev>',
+          from: "Lost&Found <onboarding@resend.dev>",
           to: [email],
-          subject: 'Reset Your Password - Campus Lost&Found',
+          subject: "Reset Your Password - Campus Lost&Found",
           html: `
             <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e5e7eb; border-radius: 8px;">
               <div style="text-align: center; margin-bottom: 20px;">
@@ -104,85 +108,137 @@ Deno.serve(async (req) => {
             </div>
           `,
         }),
-      })
+      });
 
-      const data = await res.json()
+      const data = await res.json();
       return new Response(JSON.stringify(data), {
-        headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' },
+        headers: {
+          "Content-Type": "application/json",
+          "Access-Control-Allow-Origin": "*",
+        },
         status: 200,
-      })
+      });
     }
 
     // 2. Action: UPDATE PASSWORD (Admin API)
-    if (action === 'update-password') {
+    if (action === "update-password") {
       console.log(`Updating password for user with token ${token}`);
-      
-      const SERVICE_ROLE_KEY = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')
+
+      const SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
       if (!SERVICE_ROLE_KEY) {
-        throw new Error('Missing SUPABASE_SERVICE_ROLE_KEY')
+        throw new Error("Missing SUPABASE_SERVICE_ROLE_KEY");
       }
 
       // Initialize Supabase Client with Service Role
-      const supabase = createClient(SUPABASE_URL, SERVICE_ROLE_KEY)
+      const supabase = createClient(SUPABASE_URL, SERVICE_ROLE_KEY);
 
       // A. Find the user in profiles by token
       const { data: profile, error: profileError } = await supabase
-        .from('profiles')
-        .select('auth_id, university_id, reset_token_expires_at, reset_token_used')
-        .eq('reset_token', token)
-        .single()
+        .from("profiles")
+        .select(
+          "auth_id, university_id, reset_token_expires_at, reset_token_used",
+        )
+        .eq("reset_token", token)
+        .single();
 
       if (profileError || !profile) {
-        return new Response(JSON.stringify({ error: 'Invalid or expired token' }), { status: 400, headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' } })
+        return new Response(
+          JSON.stringify({ error: "Invalid or expired token" }),
+          {
+            status: 400,
+            headers: {
+              "Content-Type": "application/json",
+              "Access-Control-Allow-Origin": "*",
+            },
+          },
+        );
       }
 
       if (profile.reset_token_used) {
-        return new Response(JSON.stringify({ error: 'Token already used' }), { status: 400, headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' } })
+        return new Response(JSON.stringify({ error: "Token already used" }), {
+          status: 400,
+          headers: {
+            "Content-Type": "application/json",
+            "Access-Control-Allow-Origin": "*",
+          },
+        });
       }
 
       // B. Update the password in auth.users
       const { error: authError } = await supabase.auth.admin.updateUserById(
         profile.auth_id,
-        { password: password }
-      )
+        { password: password },
+      );
 
       if (authError) {
-        console.error('Auth update error:', authError)
-        return new Response(JSON.stringify({ error: 'Failed to update auth password: ' + authError.message }), { status: 500, headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' } })
+        console.error("Auth update error:", authError);
+        return new Response(
+          JSON.stringify({
+            error: "Failed to update auth password: " + authError.message,
+          }),
+          {
+            status: 500,
+            headers: {
+              "Content-Type": "application/json",
+              "Access-Control-Allow-Origin": "*",
+            },
+          },
+        );
       }
 
       // C. Update the profiles table
       const { error: updateError } = await supabase
-        .from('profiles')
-        .update({ 
-          password: password, 
-          reset_token: null, 
-          reset_token_used: true 
+        .from("profiles")
+        .update({
+          password: password,
+          reset_token: null,
+          reset_token_used: true,
         })
-        .eq('university_id', profile.university_id)
+        .eq("university_id", profile.university_id);
 
       if (updateError) {
-        console.error('Profile update error:', updateError)
-        return new Response(JSON.stringify({ error: 'Failed to update profile password: ' + updateError.message }), { status: 500, headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' } })
+        console.error("Profile update error:", updateError);
+        return new Response(
+          JSON.stringify({
+            error: "Failed to update profile password: " + updateError.message,
+          }),
+          {
+            status: 500,
+            headers: {
+              "Content-Type": "application/json",
+              "Access-Control-Allow-Origin": "*",
+            },
+          },
+        );
       }
 
-      return new Response(JSON.stringify({ message: 'Password updated successfully' }), {
-        headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' },
-        status: 200,
-      })
+      return new Response(
+        JSON.stringify({ message: "Password updated successfully" }),
+        {
+          headers: {
+            "Content-Type": "application/json",
+            "Access-Control-Allow-Origin": "*",
+          },
+          status: 200,
+        },
+      );
     }
 
-    return new Response(JSON.stringify({ error: 'Invalid action' }), { status: 400, headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' } })
-
-  } catch (error) {
-    return new Response(JSON.stringify({ error: error.message }), {
-      headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' },
+    return new Response(JSON.stringify({ error: "Invalid action" }), {
       status: 400,
-    })
+      headers: {
+        "Content-Type": "application/json",
+        "Access-Control-Allow-Origin": "*",
+      },
+    });
+  } catch (error) {
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    return new Response(JSON.stringify({ error: errorMessage }), {
+      headers: {
+        "Content-Type": "application/json",
+        "Access-Control-Allow-Origin": "*",
+      },
+      status: 400,
+    });
   }
-})
-
-// Mock createClient if not imported (Supabase Edge Functions usually have it available via import)
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
-
-
+});

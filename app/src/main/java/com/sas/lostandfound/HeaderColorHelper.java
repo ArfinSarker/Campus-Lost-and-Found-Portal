@@ -148,7 +148,7 @@ public class HeaderColorHelper {
 
         // Skip specific views that have their own custom branding or styling
         int id = view.getId();
-        if (id == R.id.btnSignIn || id == R.id.ivLogo) {
+        if (id == R.id.btnSignIn || id == R.id.ivLogo || id == R.id.ivHeaderAvatar) {
             return;
         }
 
@@ -162,7 +162,23 @@ public class HeaderColorHelper {
 
         if (view instanceof TextView) {
             TextView tv = (TextView) view;
-            tv.setTextColor(textColor);
+            boolean lightTheme = textColor == Color.parseColor("#0F172A");
+            int viewId = tv.getId();
+            boolean isSubtitle = false;
+            if (viewId != -1 && viewId > 0) {
+                try {
+                    String entryName = tv.getContext().getResources().getResourceEntryName(viewId).toLowerCase();
+                    if (entryName.contains("subtitle") || entryName.contains("status")) {
+                        isSubtitle = true;
+                    }
+                } catch (Exception ignored) {}
+            }
+
+            if (isSubtitle) {
+                tv.setTextColor(lightTheme ? Color.parseColor("#475569") : Color.parseColor("#94A3B8"));
+            } else {
+                tv.setTextColor(textColor);
+            }
             tv.setTypeface(android.graphics.Typeface.create("sans-serif-medium", android.graphics.Typeface.BOLD));
             if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP) {
                 tv.setLetterSpacing(0.01f);
@@ -170,7 +186,6 @@ public class HeaderColorHelper {
 
             // Center header titles programmatically
             float sizeInSp = tv.getTextSize() / tv.getContext().getResources().getDisplayMetrics().scaledDensity;
-            int viewId = tv.getId();
             boolean isTitleId = false;
             if (viewId != -1 && viewId > 0) {
                 try {
@@ -183,7 +198,9 @@ public class HeaderColorHelper {
                 }
             }
 
-            if (viewId == R.id.tvHeaderTitle || isTitleId || sizeInSp >= 15f) {
+            if ("centered".equals(tv.getTag())) {
+                // Skip centering/gravity modifications entirely for views explicitly tagged
+            } else if (viewId == R.id.tvHeaderTitle || isTitleId || sizeInSp >= 15f) {
                 tv.setGravity(android.view.Gravity.CENTER);
                 ViewGroup.LayoutParams params = tv.getLayoutParams();
                 if (params instanceof Toolbar.LayoutParams) {

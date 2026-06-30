@@ -53,6 +53,15 @@ public class UserLoginActivity extends AppCompatActivity {
         setContentView(R.layout.activity_user_login);
 
         initializeViews();
+        
+        // Reset fields, errors and loading state for a clean new login session
+        if (etUniversityId != null) etUniversityId.setText("");
+        if (etPassword != null) etPassword.setText("");
+        if (tilUniversityId != null) ErrorHelper.clearFieldError(tilUniversityId);
+        if (tilPassword != null) ErrorHelper.clearFieldError(tilPassword);
+        if (tilUserType != null) ErrorHelper.clearFieldError(tilUserType);
+        stopLoading();
+
         if (appBarLayout != null) {
             HeaderColorHelper.setup(this, appBarLayout);
         }
@@ -255,10 +264,30 @@ public class UserLoginActivity extends AppCompatActivity {
             public void onSuccess(String userId, String accessToken, String refreshToken) {
                 saveLoginState(userType, isMainAdmin, dbId, userId, accessToken, refreshToken, user);
                 
-                // Upload cached FCM token if present
-                String fcmToken = getSharedPreferences("MyApp", MODE_PRIVATE).getString("fcm_token", "");
-                if (!fcmToken.isEmpty()) {
-                    LostAndFoundApplication.uploadFcmToken(fcmToken);
+                // Fetch fresh FCM token and upload it
+                try {
+                    com.google.firebase.messaging.FirebaseMessaging.getInstance().getToken()
+                        .addOnCompleteListener(task -> {
+                            String token = null;
+                            if (task.isSuccessful() && task.getResult() != null) {
+                                token = task.getResult();
+                                getSharedPreferences("MyApp", MODE_PRIVATE)
+                                        .edit()
+                                        .putString("fcm_token", token)
+                                        .apply();
+                            } else {
+                                token = getSharedPreferences("MyApp", MODE_PRIVATE).getString("fcm_token", "");
+                            }
+                            if (token != null && !token.isEmpty()) {
+                                LostAndFoundApplication.uploadFcmToken(token);
+                            }
+                        });
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    String cachedToken = getSharedPreferences("MyApp", MODE_PRIVATE).getString("fcm_token", "");
+                    if (!cachedToken.isEmpty()) {
+                        LostAndFoundApplication.uploadFcmToken(cachedToken);
+                    }
                 }
 
                 ModeManager.setMode(UserLoginActivity.this, ModeManager.MODE_USER);

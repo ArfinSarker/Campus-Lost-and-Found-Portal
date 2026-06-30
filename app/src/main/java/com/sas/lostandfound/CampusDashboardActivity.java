@@ -253,6 +253,18 @@ public class CampusDashboardActivity extends AppCompatActivity {
         } else if ("admin_request".equals(type)) {
             Intent nextIntent = new Intent(this, AdminRequestsActivity.class);
             startActivity(nextIntent);
+        } else if ("chat_request".equals(type) || "chat_accepted".equals(type)) {
+            Intent nextIntent = new Intent(this, MessagingActivity.class);
+            nextIntent.putExtra("selectRequestsTab", "chat_request".equals(type));
+            startActivity(nextIntent);
+        } else if ("chat_message".equals(type)) {
+            Intent nextIntent = new Intent(this, ChatActivity.class);
+            nextIntent.putExtra("conversationId", intent.getStringExtra("additional_details"));
+            nextIntent.putExtra("otherUserId", intent.getStringExtra("sender_id"));
+            nextIntent.putExtra("otherUserName", intent.getStringExtra("sender_name"));
+            nextIntent.putExtra("reportId", itemId);
+            nextIntent.putExtra("itemName", intent.getStringExtra("item_name"));
+            startActivity(nextIntent);
         } else if ("item_claimed".equals(type) || "item_return".equals(type)) {
             Intent nextIntent = new Intent(this, ClaimDetailsActivity.class);
             nextIntent.putExtra("senderId", intent.getStringExtra("sender_id"));
@@ -429,13 +441,7 @@ public class CampusDashboardActivity extends AppCompatActivity {
                     pendingIntent = new Intent(this, AdminDashboardActivity.class);
                     pendingIntent.putExtra("fromDrawer", true);
                 } else if (id == R.id.nav_logout) {
-                    SupabaseAuthHelper.signOut();
-                    getSharedPreferences("MyApp", MODE_PRIVATE).edit().clear().apply();
-                    SnackbarManager.show(SnackbarManager.Type.SUCCESS, "Logged out successfully");
-                    Intent intent = new Intent(this, UserLoginActivity.class);
-                    intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                    startActivity(intent);
-                    finish();
+                    performLogout();
                     return true;
                 }
                 if (drawerLayout != null)
@@ -454,8 +460,8 @@ public class CampusDashboardActivity extends AppCompatActivity {
                     String tabText = tab.getText() != null ? tab.getText().toString() : "";
                     if ("Search Items".equals(tabText) || "Search".equals(tabText)) {
                         startActivity(new Intent(CampusDashboardActivity.this, BrowseItemsActivity.class));
-                    } else if ("Report".equals(tabText)) {
-                        startActivity(new Intent(CampusDashboardActivity.this, ReportToAdminActivity.class));
+                    } else if ("Message".equals(tabText)) {
+                        startActivity(new Intent(CampusDashboardActivity.this, MessagingActivity.class));
                     }
                 }
 
@@ -659,7 +665,10 @@ public class CampusDashboardActivity extends AppCompatActivity {
     private void listenForNotifications() {
         if (currentUniversityId == null)
             return;
-        String filter = "recipient_id=eq." + currentUniversityId + "&is_read=eq.false&select=count";
+        
+        // Count actual notifications (excluding chat notifications)
+        String typeFilter = "type=in.(lost_item,found_item,item_claimed,item_return,admin_report)";
+        String filter = "recipient_id=eq." + currentUniversityId + "&is_read=eq.false&" + typeFilter + "&select=count";
         SupabaseDatabaseHelper.select("notifications", filter, new TypeToken<List<Map<String, Object>>>() {
         }.getType(), new SupabaseDatabaseHelper.DatabaseCallback<List<Map<String, Object>>>() {
             @Override
@@ -668,6 +677,8 @@ public class CampusDashboardActivity extends AppCompatActivity {
                     long count = ((Number) res.get(0).get("count")).longValue();
                     tvNotificationBadge.setVisibility(count > 0 ? View.VISIBLE : View.GONE);
                     tvNotificationBadge.setText(String.valueOf(count));
+                } else {
+                    tvNotificationBadge.setVisibility(View.GONE);
                 }
             }
 
@@ -675,6 +686,55 @@ public class CampusDashboardActivity extends AppCompatActivity {
             public void onFailure(String e) {
             }
         });
+
+        // Count unread chat messages
+        String msgFilter = "sender_id=neq." + currentUniversityId + "&is_read=eq.false&select=count";
+        SupabaseDatabaseHelper.select("messages", msgFilter, new TypeToken<List<Map<String, Object>>>() {
+        }.getType(), new SupabaseDatabaseHelper.DatabaseCallback<List<Map<String, Object>>>() {
+            @Override
+            public void onSuccess(List<Map<String, Object>> res) {
+                if (res != null && !res.isEmpty() && res.get(0).get("count") != null) {
+                    long count = ((Number) res.get(0).get("count")).longValue();
+                    updateMessageTabBadge(count);
+                } else {
+                    updateMessageTabBadge(0);
+                }
+            }
+
+            @Override
+            public void onFailure(String e) {
+            }
+        });
+    }
+
+    private int getMessageTabIndex() {
+        if (tabLayout == null) return -1;
+        for (int i = 0; i < tabLayout.getTabCount(); i++) {
+            TabLayout.Tab tab = tabLayout.getTabAt(i);
+            if (tab != null) {
+                CharSequence text = tab.getText();
+                if (text != null && ("Message".contentEquals(text) || getString(R.string.tab_message).contentEquals(text))) {
+                    return i;
+                }
+            }
+        }
+        return -1;
+    }
+
+    private void updateMessageTabBadge(long count) {
+        int index = getMessageTabIndex();
+        if (index != -1 && tabLayout != null) {
+            TabLayout.Tab messageTab = tabLayout.getTabAt(index);
+            if (messageTab != null) {
+                if (count > 0) {
+                    com.google.android.material.badge.BadgeDrawable badge = messageTab.getOrCreateBadge();
+                    badge.setVisible(true);
+                    badge.setNumber((int) count);
+                } else {
+                    messageTab.removeBadge();
+                }
+            }
+        }
     }
 
     private void fetchRecentItems() {
@@ -1121,5 +1181,118 @@ public class CampusDashboardActivity extends AppCompatActivity {
             uncheckedColor
         };
         item.setIconTintList(new android.content.res.ColorStateList(states, colors));
+    }
+
+    private void performLogout() {
+        android.app.ProgressDialog progressDialog = new android.app.ProgressDialog(this);
+        progressDialog.setMessage("Logging out...");
+        progressDialog.setCancelable(false);
+        progressDialog.show();
+
+        SharedPreferences prefs = getSharedPreferences("MyApp", MODE_PRIVATE);
+        String universityId = prefs.getString("universityId", "");
+
+        Runnable completeLocalLogout = () -> {
+            try {
+                if (progressDialog.isShowing()) {
+                    progressDialog.dismiss();
+                }
+            } catch (Exception ignored) {}
+
+            // Cancel any ongoing network requests to prevent callbacks writing old session data
+            SupabaseDatabaseHelper.cancelAllCalls();
+            SupabaseAuthHelper.cancelAllCalls();
+
+            // Clear handlers/runnables and welcome animations
+            try {
+                welcomeLoopHandler.removeCallbacksAndMessages(null);
+                typingHandler.removeCallbacksAndMessages(null);
+                badgeHandler.removeCallbacksAndMessages(null);
+                if (tvWelcome != null) {
+                    tvWelcome.animate().cancel();
+                }
+            } catch (Exception ignored) {}
+
+            try {
+                androidx.work.WorkManager.getInstance(CampusDashboardActivity.this).cancelUniqueWork("CampusNotificationWorker");
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
+            // Clear SharedPreferences but preserve fcm_token
+            String fcmToken = prefs.getString("fcm_token", "");
+            prefs.edit().clear().apply();
+            if (!fcmToken.isEmpty()) {
+                prefs.edit().putString("fcm_token", fcmToken).apply();
+            }
+            getSharedPreferences("NotificationPrefs", MODE_PRIVATE).edit().clear().apply();
+
+            SupabaseAuthHelper.signOut();
+
+            SnackbarManager.show(SnackbarManager.Type.SUCCESS, "Logged out successfully");
+            Intent intent = new Intent(CampusDashboardActivity.this, UserLoginActivity.class);
+            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+            startActivity(intent);
+            finish();
+        };
+
+        if (!universityId.isEmpty()) {
+            java.util.HashMap<String, Object> data = new java.util.HashMap<>();
+            data.put("fcm_token", null);
+
+            String query = "university_id=eq." + android.net.Uri.encode(universityId);
+
+            Handler timeoutHandler = new Handler(Looper.getMainLooper());
+            Runnable timeoutRunnable = new Runnable() {
+                private boolean executed = false;
+                @Override
+                public void run() {
+                    if (!executed) {
+                        executed = true;
+                        Log.w(TAG, "Database logout update timed out. Proceeding with local logout.");
+                        completeLocalLogout.run();
+                    }
+                }
+            };
+            timeoutHandler.postDelayed(timeoutRunnable, 3000);
+
+            SupabaseDatabaseHelper.update("profiles", query, data, new SupabaseDatabaseHelper.DatabaseCallback<String>() {
+                private boolean callbackExecuted = false;
+
+                private synchronized void runOnce() {
+                    if (!callbackExecuted) {
+                        callbackExecuted = true;
+                        timeoutHandler.removeCallbacks(timeoutRunnable);
+                        completeLocalLogout.run();
+                    }
+                }
+
+                @Override
+                public void onSuccess(String result) {
+                    Log.d(TAG, "Cleared FCM token in database.");
+                    runOnce();
+                }
+
+                @Override
+                public void onFailure(String errorMessage) {
+                    Log.e(TAG, "Failed to clear FCM token in database: " + errorMessage);
+                    runOnce();
+                }
+            });
+        } else {
+            completeLocalLogout.run();
+        }
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        try {
+            welcomeLoopHandler.removeCallbacksAndMessages(null);
+            typingHandler.removeCallbacksAndMessages(null);
+            badgeHandler.removeCallbacksAndMessages(null);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 }

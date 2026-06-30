@@ -452,4 +452,46 @@ public class SupabaseDatabaseHelper {
             mainHandler.post(() -> callback.onFailure("Invalid Supabase URL."));
         }
     }
+
+    /**
+     * Update current user's activity status in profiles table, throttled to once every 30 seconds.
+     */
+    public static void updateUserActivityStatus() {
+        Context context = LostAndFoundApplication.getContext();
+        if (context == null) return;
+
+        SharedPreferences prefs = context.getSharedPreferences("MyApp", Context.MODE_PRIVATE);
+        String universityId = prefs.getString("universityId", "");
+        if (universityId == null || universityId.isEmpty()) return;
+
+        long now = System.currentTimeMillis();
+        long lastUpdate = prefs.getLong("last_activity_update_time", 0);
+        if (now - lastUpdate < 30000) {
+            return;
+        }
+        prefs.edit().putLong("last_activity_update_time", now).apply();
+
+        java.text.SimpleDateFormat df = new java.text.SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", java.util.Locale.US);
+        df.setTimeZone(java.util.TimeZone.getTimeZone("UTC"));
+        String nowIso = df.format(new java.util.Date());
+
+        java.util.HashMap<String, Object> data = new java.util.HashMap<>();
+        data.put("last_active_at", nowIso);
+
+        String query = "university_id=eq." + android.net.Uri.encode(universityId);
+        update("profiles", query, data, new DatabaseCallback<String>() {
+            @Override public void onSuccess(String result) {}
+            @Override public void onFailure(String error) {}
+        });
+    }
+
+    public static void cancelAllCalls() {
+        try {
+            if (client != null) {
+                client.dispatcher().cancelAll();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 }

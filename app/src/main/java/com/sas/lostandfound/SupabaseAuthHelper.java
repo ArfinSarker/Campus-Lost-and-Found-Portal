@@ -313,4 +313,14 @@ public class SupabaseAuthHelper {
         }
         return "Authentication error. Please try again.";
     }
+
+    public static void cancelAllCalls() {
+        try {
+            if (client != null) {
+                client.dispatcher().cancelAll();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 }

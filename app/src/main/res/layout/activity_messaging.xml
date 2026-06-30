@@ -1,0 +1,196 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/backgroundColor"
+    android:fitsSystemWindows="true">
+
+    <com.google.android.material.appbar.AppBarLayout
+        android:id="@+id/appBarLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/primaryDarkColor"
+        android:fitsSystemWindows="true"
+        app:elevation="0dp">
+
+        <com.google.android.material.appbar.MaterialToolbar
+            android:id="@+id/toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            app:navigationIcon="@drawable/ic_arrow_back"
+            app:navigationIconTint="@color/white">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/title_messages"
+                android:textColor="@color/white"
+                android:textSize="19sp"
+                android:textStyle="bold" />
+
+        </com.google.android.material.appbar.MaterialToolbar>
+
+        <com.google.android.material.tabs.TabLayout
+            android:id="@+id/tabLayout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@android:color/transparent"
+            app:tabIndicatorColor="@color/primaryColor"
+            app:tabIndicatorHeight="3dp"
+            app:tabMode="fixed"
+            app:tabSelectedTextColor="@color/primaryColor"
+            app:tabTextColor="#A0AABF"
+            app:tabRippleColor="#262AABEE"
+            app:tabBackground="@android:color/transparent">
+
+            <com.google.android.material.tabs.TabItem
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/tab_chats" />
+
+            <com.google.android.material.tabs.TabItem
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/tab_requests" />
+        </com.google.android.material.tabs.TabLayout>
+    </com.google.android.material.appbar.AppBarLayout>
+
+    <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+        android:id="@+id/swipeRefreshLayout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior">
+
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="vertical">
+
+                <!-- Messenger-Style Search Bar -->
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/cardSearchBar"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginHorizontal="16dp"
+                    android:layout_marginVertical="8dp"
+                    app:cardCornerRadius="20dp"
+                    app:cardElevation="0dp"
+                    app:strokeWidth="1dp"
+                    app:strokeColor="#E5E7EB"
+                    app:cardBackgroundColor="#F3F4F6">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="40dp"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical"
+                        android:paddingHorizontal="14dp">
+
+                        <ImageView
+                            android:layout_width="16dp"
+                            android:layout_height="16dp"
+                            android:src="@drawable/ic_search"
+                            app:tint="#64748B"
+                            android:contentDescription="Search Icon" />
+
+                        <EditText
+                            android:id="@+id/etSearchChats"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:background="@null"
+                            android:hint="Search Messenger"
+                            android:textColorHint="#64748B"
+                            android:textColor="@color/textPrimary"
+                            android:textSize="14sp"
+                            android:paddingHorizontal="8dp"
+                            android:maxLines="1"
+                            android:inputType="textPersonName"
+                            android:imeOptions="actionSearch" />
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+
+                <FrameLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="0dp"
+                    android:layout_weight="1">
+
+                    <androidx.recyclerview.widget.RecyclerView
+                        android:id="@+id/rvConversations"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:clipToPadding="false"
+                        android:paddingTop="4dp"
+                        android:paddingBottom="16dp"
+                        tools:listitem="@layout/item_conversation" />
+
+                    <androidx.recyclerview.widget.RecyclerView
+                        android:id="@+id/rvRequests"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:clipToPadding="false"
+                        android:paddingTop="4dp"
+                        android:paddingBottom="16dp"
+                        android:visibility="gone"
+                        tools:listitem="@layout/item_chat_request" />
+
+                    <LinearLayout
+                        android:id="@+id/llEmptyState"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:gravity="center"
+                        android:paddingHorizontal="32dp"
+                        android:orientation="vertical"
+                        android:visibility="gone">
+
+                        <com.google.android.material.card.MaterialCardView
+                            android:layout_width="80dp"
+                            android:layout_height="80dp"
+                            app:cardCornerRadius="40dp"
+                            app:cardElevation="0dp"
+                            app:strokeWidth="0dp"
+                            app:cardBackgroundColor="@color/primaryLightColor">
+
+                            <ImageView
+                                android:layout_width="38dp"
+                                android:layout_height="38dp"
+                                android:layout_gravity="center"
+                                android:src="@drawable/ic_inbox"
+                                app:tint="@color/primaryColor"
+                                android:contentDescription="@null" />
+                        </com.google.android.material.card.MaterialCardView>
+
+                        <TextView
+                            android:id="@+id/tvEmptyTitle"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="20dp"
+                            android:text="@string/no_conversations"
+                            android:textColor="@color/textPrimary"
+                            android:textSize="18sp"
+                            android:fontFamily="sans-serif-bold"
+                            android:gravity="center" />
+
+                        <TextView
+                            android:id="@+id/tvEmptyDesc"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="8dp"
+                            android:text="Start chat requests with other campus reporters to initiate conversation."
+                            android:textColor="@color/textSecondary"
+                            android:textSize="14sp"
+                            android:fontFamily="sans-serif"
+                            android:gravity="center" />
+                    </LinearLayout>
+                </FrameLayout>
+            </LinearLayout>
+        </FrameLayout>
+    </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
+
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

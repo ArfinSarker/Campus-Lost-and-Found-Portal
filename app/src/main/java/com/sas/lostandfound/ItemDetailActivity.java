@@ -368,6 +368,8 @@ public class ItemDetailActivity extends AppCompatActivity {
                     } else {
                         SnackbarManager.show(SnackbarManager.Type.ERROR, "Phone number not available");
                     }
+                } else if ("In-app chat".equalsIgnoreCase(method)) {
+                    handleInAppChatContact();
                 }
             }
 
@@ -383,6 +385,77 @@ public class ItemDetailActivity extends AppCompatActivity {
         tvPreferredContact.setText(spannableString);
         tvPreferredContact.setMovementMethod(LinkMovementMethod.getInstance());
         tvPreferredContact.setHighlightColor(Color.TRANSPARENT);
+    }
+
+    private void handleInAppChatContact() {
+        if (currentItem == null || currentUnivId == null) return;
+        if (currentUnivId.equals(currentItem.getReporterId())) {
+            SnackbarManager.show(SnackbarManager.Type.ERROR, "You cannot chat with yourself.");
+            return;
+        }
+
+        Map<String, Object> params = new HashMap<>();
+        params.put("p_report_id", UUID.fromString(currentItem.getId()));
+        params.put("p_user_id", currentUnivId);
+
+        SupabaseDatabaseHelper.rpc("check_chat_state", params, new SupabaseDatabaseHelper.DatabaseCallback<String>() {
+            @Override
+            public void onSuccess(String result) {
+                try {
+                    org.json.JSONArray jsonArray = new org.json.JSONArray(result);
+                    if (jsonArray.length() > 0) {
+                        org.json.JSONObject obj = jsonArray.getJSONObject(0);
+                        String status = obj.optString("request_status", "null");
+                        String conversationId = obj.optString("conversation_id", "null");
+
+                        if ("accepted".equalsIgnoreCase(status) && !"null".equals(conversationId) && !conversationId.isEmpty()) {
+                            Intent intent = new Intent(ItemDetailActivity.this, ChatActivity.class);
+                            intent.putExtra("conversationId", conversationId);
+                            intent.putExtra("otherUserId", currentItem.getReporterId());
+                            intent.putExtra("otherUserName", currentItem.getUserName());
+                            intent.putExtra("reportId", currentItem.getId());
+                            intent.putExtra("itemName", currentItem.getName());
+                            startActivity(intent);
+                        } else if ("pending".equalsIgnoreCase(status)) {
+                            new AlertDialog.Builder(ItemDetailActivity.this)
+                                    .setTitle("Request Pending")
+                                    .setMessage("Your chat request is pending reporter approval.")
+                                    .setPositiveButton("OK", null)
+                                    .show();
+                        } else if ("rejected".equalsIgnoreCase(status)) {
+                            new AlertDialog.Builder(ItemDetailActivity.this)
+                                    .setTitle("Request Declined")
+                                    .setMessage("The reporter has declined messaging for this request.")
+                                    .setPositiveButton("OK", null)
+                                    .show();
+                        } else {
+                            openChatRequestActivity();
+                        }
+                    } else {
+                        openChatRequestActivity();
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    openChatRequestActivity();
+                }
+            }
+
+            @Override
+            public void onFailure(String errorMessage) {
+                openChatRequestActivity();
+            }
+        });
+    }
+
+    private void openChatRequestActivity() {
+        Intent intent = new Intent(this, ChatRequestActivity.class);
+        intent.putExtra("reportId", currentItem.getId());
+        intent.putExtra("reporterId", currentItem.getReporterId());
+        intent.putExtra("itemName", currentItem.getName());
+        intent.putExtra("itemDescription", currentItem.getDescription());
+        intent.putExtra("itemImageUrl", currentItem.getImageUrl());
+        intent.putExtra("reporterName", currentItem.getUserName());
+        startActivity(intent);
     }
 
     private void updateUI(String name, String description, String location, String manualLocation, String additionalDetails, String category, String date, String time, String imageUrl, boolean isEdited, List<String> imageUrls) {
@@ -698,7 +771,8 @@ public class ItemDetailActivity extends AppCompatActivity {
     }
 
     private void showContactOptions(User user) {
-        String[] options = {"Email", "Phone"};
+        boolean hasInAppChat = currentItem != null && "In-app chat".equalsIgnoreCase(currentItem.getPreferredContactMethod());
+        String[] options = hasInAppChat ? new String[]{"Email", "Phone", "In-app Chat"} : new String[]{"Email", "Phone"};
         new AlertDialog.Builder(this)
                 .setTitle("Contact Information")
                 .setItems(options, (dialog, which) -> {
@@ -712,7 +786,7 @@ public class ItemDetailActivity extends AppCompatActivity {
                             intent.putExtra(Intent.EXTRA_SUBJECT, "Regarding item: " + tvItemName.getText().toString());
                             startActivity(Intent.createChooser(intent, "Send Email"));
                         } else SnackbarManager.show(SnackbarManager.Type.ERROR, "Email not available");
-                    } else {
+                    } else if (which == 1) {
                         String phone = (currentItem != null && currentItem.getUserPhone() != null && !currentItem.getUserPhone().isEmpty())
                                 ? currentItem.getUserPhone()
                                 : user.getPhone();
@@ -721,6 +795,8 @@ public class ItemDetailActivity extends AppCompatActivity {
                             intent.setData(Uri.parse("tel:" + phone));
                             startActivity(intent);
                         } else SnackbarManager.show(SnackbarManager.Type.ERROR, "Phone not available");
+                    } else if (which == 2) {
+                        handleInAppChatContact();
                     }
                 }).show();
     }
