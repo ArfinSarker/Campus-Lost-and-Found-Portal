@@ -135,6 +135,10 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
                 .setAutoCancel(true)
                 .setContentIntent(pendingIntent);
 
+        // Broadcast badge update to active activities
+        android.content.Intent broadcastIntent = new android.content.Intent("com.sas.lostandfound.UPDATE_BADGES");
+        sendBroadcast(broadcastIntent);
+
         // Check permission for Android 13+
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             if (androidx.core.content.ContextCompat.checkSelfPermission(

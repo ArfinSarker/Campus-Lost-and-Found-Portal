@@ -15,12 +15,14 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.appcompat.widget.PopupMenu;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.google.android.material.button.MaterialButton;
+import com.google.android.material.card.MaterialCardView;
 import com.google.android.material.tabs.TabLayout;
 import com.google.gson.reflect.TypeToken;
 
@@ -44,36 +46,46 @@ import android.content.res.ColorStateList;
 public class MessagingActivity extends AppCompatActivity {
 
     private Toolbar toolbar;
-    private TabLayout tabLayout;
     private SwipeRefreshLayout swipeRefreshLayout;
-    private RecyclerView rvConversations, rvRequests;
+    private RecyclerView rvConversations;
     private LinearLayout llEmptyState;
     private TextView tvEmptyTitle, tvEmptyDesc;
 
     private String currentUnivId;
-    private boolean isChatsTabSelected = true;
 
     private List<Conversation> conversationList = new ArrayList<>();
-    private List<ChatRequest> requestList = new ArrayList<>();
     private ConversationsAdapter conversationsAdapter;
-    private ChatRequestsAdapter chatRequestsAdapter;
 
     private View cardSearchBar;
     private EditText etSearchChats;
     private List<Conversation> fullConversationList = new ArrayList<>();
+    private final List<String> blockedUserIds = new ArrayList<>();
+    private final List<String> usersWhoBlockedMe = new ArrayList<>();
 
     private final Handler pollHandler = new Handler(Looper.getMainLooper());
     private final Runnable pollRunnable = new Runnable() {
         @Override
         public void run() {
-            if (isChatsTabSelected) {
-                loadConversationsSilently();
-            } else {
-                loadChatRequestsSilently();
-            }
+            loadConversationsSilently();
             pollHandler.postDelayed(this, 5000); // Poll every 5 seconds
         }
     };
+
+    private final Handler debounceHandler = new Handler(Looper.getMainLooper());
+    private Runnable debounceRunnable;
+
+    private final android.content.BroadcastReceiver badgeUpdateReceiver = new android.content.BroadcastReceiver() {
+        @Override
+        public void onReceive(android.content.Context context, android.content.Intent intent) {
+            reloadConversationsDebounced();
+        }
+    };
+
+    private void reloadConversationsDebounced() {
+        debounceHandler.removeCallbacks(debounceRunnable);
+        debounceRunnable = () -> loadConversationsSilently();
+        debounceHandler.postDelayed(debounceRunnable, 300); // 300ms debounce
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -85,17 +97,30 @@ public class MessagingActivity extends AppCompatActivity {
 
         initializeViews();
         setupToolbar();
-        setupTabLayout();
         setupRecyclerViews();
         setupSwipeRefresh();
 
-        // Check if redirected from a specific request notification
-        boolean selectRequests = getIntent().getBooleanExtra("selectRequestsTab", false);
-        if (selectRequests && tabLayout != null && tabLayout.getTabAt(1) != null) {
-            tabLayout.getTabAt(1).select();
-        } else {
-            loadConversations();
-        }
+        loadConversations();
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        androidx.core.content.ContextCompat.registerReceiver(
+                this,
+                badgeUpdateReceiver,
+                new android.content.IntentFilter("com.sas.lostandfound.UPDATE_BADGES"),
+                androidx.core.content.ContextCompat.RECEIVER_NOT_EXPORTED
+        );
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        try {
+            unregisterReceiver(badgeUpdateReceiver);
+        } catch (Exception ignored) {}
+        debounceHandler.removeCallbacks(debounceRunnable);
     }
 
     @Override
@@ -127,11 +152,9 @@ public class MessagingActivity extends AppCompatActivity {
 
     private void markAllReceivedMessagesAsDelivered() {
         if (currentUnivId == null) return;
-        Map<String, Object> data = new HashMap<>();
-        data.put("is_delivered", true);
-
-        String query = "sender_id=neq." + currentUnivId + "&is_delivered=eq.false";
-        SupabaseDatabaseHelper.update("messages", query, data, new SupabaseDatabaseHelper.DatabaseCallback<String>() {
+        Map<String, Object> params = new HashMap<>();
+        params.put("p_user_id", currentUnivId);
+        SupabaseDatabaseHelper.rpc("mark_messages_as_delivered", params, new SupabaseDatabaseHelper.DatabaseCallback<String>() {
             @Override public void onSuccess(String result) {}
             @Override public void onFailure(String errorMessage) {}
         });
@@ -139,10 +162,8 @@ public class MessagingActivity extends AppCompatActivity {
 
     private void initializeViews() {
         toolbar = findViewById(R.id.toolbar);
-        tabLayout = findViewById(R.id.tabLayout);
         swipeRefreshLayout = findViewById(R.id.swipeRefreshLayout);
         rvConversations = findViewById(R.id.rvConversations);
-        rvRequests = findViewById(R.id.rvRequests);
         llEmptyState = findViewById(R.id.llEmptyState);
         tvEmptyTitle = findViewById(R.id.tvEmptyTitle);
         tvEmptyDesc = findViewById(R.id.tvEmptyDesc);
@@ -174,33 +195,10 @@ public class MessagingActivity extends AppCompatActivity {
         }
     }
 
-    private void setupTabLayout() {
-        if (tabLayout != null) {
-            tabLayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
-                @Override
-                public void onTabSelected(TabLayout.Tab tab) {
-                    isChatsTabSelected = (tab.getPosition() == 0);
-                    toggleTabViews();
-                    refreshCurrentTab();
-                }
-
-                @Override
-                public void onTabUnselected(TabLayout.Tab tab) {}
-
-                @Override
-                public void onTabReselected(TabLayout.Tab tab) {}
-            });
-        }
-    }
-
     private void setupRecyclerViews() {
         rvConversations.setLayoutManager(new LinearLayoutManager(this));
         conversationsAdapter = new ConversationsAdapter(conversationList, this, currentUnivId);
         rvConversations.setAdapter(conversationsAdapter);
-
-        rvRequests.setLayoutManager(new LinearLayoutManager(this));
-        chatRequestsAdapter = new ChatRequestsAdapter(requestList, this);
-        rvRequests.setAdapter(chatRequestsAdapter);
     }
 
     private void setupSwipeRefresh() {
@@ -210,43 +208,69 @@ public class MessagingActivity extends AppCompatActivity {
         }
     }
 
-    private void toggleTabViews() {
-        if (isChatsTabSelected) {
-            rvConversations.setVisibility(View.VISIBLE);
-            rvRequests.setVisibility(View.GONE);
-            if (cardSearchBar != null) {
-                cardSearchBar.setVisibility(View.VISIBLE);
-            }
-        } else {
-            rvConversations.setVisibility(View.GONE);
-            rvRequests.setVisibility(View.VISIBLE);
-            if (cardSearchBar != null) {
-                cardSearchBar.setVisibility(View.GONE);
-            }
-            if (etSearchChats != null) {
-                etSearchChats.setText("");
-            }
-        }
-        llEmptyState.setVisibility(View.GONE);
-    }
-
     private void refreshCurrentTab() {
         if (swipeRefreshLayout != null) {
             swipeRefreshLayout.setRefreshing(true);
         }
-        if (isChatsTabSelected) {
-            loadConversations();
-        } else {
-            loadChatRequests();
-        }
+        loadConversations();
     }
 
     private void loadConversations() {
+        fetchBlockListsAndLoadConversations(false);
+    }
+
+    private void loadConversationsSilently() {
+        fetchBlockListsAndLoadConversations(true);
+    }
+
+    private void fetchBlockListsAndLoadConversations(boolean silent) {
         if (currentUnivId == null) {
-            if (swipeRefreshLayout != null) swipeRefreshLayout.setRefreshing(false);
+            if (!silent && swipeRefreshLayout != null) swipeRefreshLayout.setRefreshing(false);
             return;
         }
 
+        String query = "or=(blocker_id.eq." + currentUnivId + ",blocked_id.eq." + currentUnivId + ")";
+        SupabaseDatabaseHelper.select("blocked_users", query, new TypeToken<List<ChatActivity.BlockedRecord>>(){}.getType(), new SupabaseDatabaseHelper.DatabaseCallback<List<ChatActivity.BlockedRecord>>() {
+            @Override
+            public void onSuccess(List<ChatActivity.BlockedRecord> result) {
+                blockedUserIds.clear();
+                usersWhoBlockedMe.clear();
+                if (result != null) {
+                    for (ChatActivity.BlockedRecord record : result) {
+                        if (currentUnivId.equals(record.getBlockerId())) {
+                            blockedUserIds.add(record.getBlockedId());
+                        } else if (currentUnivId.equals(record.getBlockedId())) {
+                            usersWhoBlockedMe.add(record.getBlockerId());
+                        }
+                    }
+                }
+                if (conversationsAdapter != null) {
+                    conversationsAdapter.setBlockLists(blockedUserIds, usersWhoBlockedMe);
+                }
+                if (silent) {
+                    loadConversationsSilentlyFromServer();
+                } else {
+                    loadConversationsFromServer();
+                }
+            }
+
+            @Override
+            public void onFailure(String error) {
+                blockedUserIds.clear();
+                usersWhoBlockedMe.clear();
+                if (conversationsAdapter != null) {
+                    conversationsAdapter.setBlockLists(blockedUserIds, usersWhoBlockedMe);
+                }
+                if (silent) {
+                    loadConversationsSilentlyFromServer();
+                } else {
+                    loadConversationsFromServer();
+                }
+            }
+        });
+    }
+
+    private void loadConversationsFromServer() {
         Map<String, Object> params = new HashMap<>();
         params.put("p_user_id", currentUnivId);
 
@@ -275,44 +299,7 @@ public class MessagingActivity extends AppCompatActivity {
         });
     }
 
-    private void loadChatRequests() {
-        if (currentUnivId == null) {
-            if (swipeRefreshLayout != null) swipeRefreshLayout.setRefreshing(false);
-            return;
-        }
-
-        Map<String, Object> params = new HashMap<>();
-        params.put("p_user_id", currentUnivId);
-
-        SupabaseDatabaseHelper.rpc("get_user_chat_requests", params, new SupabaseDatabaseHelper.DatabaseCallback<String>() {
-            @Override
-            public void onSuccess(String result) {
-                if (swipeRefreshLayout != null) swipeRefreshLayout.setRefreshing(false);
-                try {
-                    List<ChatRequest> list = new com.google.gson.Gson().fromJson(result, new TypeToken<List<ChatRequest>>(){}.getType());
-                    requestList.clear();
-                    if (list != null) {
-                        requestList.addAll(list);
-                    }
-                    chatRequestsAdapter.notifyDataSetChanged();
-                    updateEmptyState();
-                } catch (Exception e) {
-                    e.printStackTrace();
-                    updateEmptyState();
-                }
-            }
-
-            @Override
-            public void onFailure(String errorMessage) {
-                if (swipeRefreshLayout != null) swipeRefreshLayout.setRefreshing(false);
-                updateEmptyState();
-            }
-        });
-    }
-
-    private void loadConversationsSilently() {
-        if (currentUnivId == null) return;
-
+    private void loadConversationsSilentlyFromServer() {
         Map<String, Object> params = new HashMap<>();
         params.put("p_user_id", currentUnivId);
 
@@ -352,48 +339,13 @@ public class MessagingActivity extends AppCompatActivity {
         updateEmptyState();
     }
 
-    private void loadChatRequestsSilently() {
-        if (currentUnivId == null) return;
-
-        Map<String, Object> params = new HashMap<>();
-        params.put("p_user_id", currentUnivId);
-
-        SupabaseDatabaseHelper.rpc("get_user_chat_requests", params, new SupabaseDatabaseHelper.DatabaseCallback<String>() {
-            @Override
-            public void onSuccess(String result) {
-                try {
-                    List<ChatRequest> list = new com.google.gson.Gson().fromJson(result, new TypeToken<List<ChatRequest>>(){}.getType());
-                    if (list != null) {
-                        requestList.clear();
-                        requestList.addAll(list);
-                        chatRequestsAdapter.notifyDataSetChanged();
-                        updateEmptyState();
-                    }
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            }
-            @Override public void onFailure(String errorMessage) {}
-        });
-    }
-
     private void updateEmptyState() {
-        if (isChatsTabSelected) {
-            if (conversationList.isEmpty()) {
-                tvEmptyTitle.setText(R.string.no_conversations);
-                tvEmptyDesc.setText("Ongoing chats will appear here after reporters accept requests.");
-                llEmptyState.setVisibility(View.VISIBLE);
-            } else {
-                llEmptyState.setVisibility(View.GONE);
-            }
+        if (conversationList.isEmpty()) {
+            tvEmptyTitle.setText(R.string.no_conversations);
+            tvEmptyDesc.setText("Ongoing chats and message requests will appear here.");
+            llEmptyState.setVisibility(View.VISIBLE);
         } else {
-            if (requestList.isEmpty()) {
-                tvEmptyTitle.setText(R.string.no_chat_requests);
-                tvEmptyDesc.setText("Chat requests for items with 'In-app Chat' enabled will appear here.");
-                llEmptyState.setVisibility(View.VISIBLE);
-            } else {
-                llEmptyState.setVisibility(View.GONE);
-            }
+            llEmptyState.setVisibility(View.GONE);
         }
     }
 
@@ -402,11 +354,23 @@ public class MessagingActivity extends AppCompatActivity {
         private final List<Conversation> list;
         private final Context context;
         private final String currentUserId;
+        private final List<String> blockedUserIds = new ArrayList<>();
+        private final List<String> usersWhoBlockedMe = new ArrayList<>();
 
         public ConversationsAdapter(List<Conversation> list, Context context, String currentUserId) {
             this.list = list;
             this.context = context;
             this.currentUserId = currentUserId;
+        }
+
+        public void setBlockLists(List<String> blockedUserIds, List<String> usersWhoBlockedMe) {
+            this.blockedUserIds.clear();
+            if (blockedUserIds != null) this.blockedUserIds.addAll(blockedUserIds);
+            
+            this.usersWhoBlockedMe.clear();
+            if (usersWhoBlockedMe != null) this.usersWhoBlockedMe.addAll(usersWhoBlockedMe);
+            
+            notifyDataSetChanged();
         }
 
         @NonNull
@@ -422,49 +386,58 @@ public class MessagingActivity extends AppCompatActivity {
             holder.tvUserName.setText(c.getOtherUserName());
             
             // Online & Last Active Status calculation
+            boolean isBlockedRelationship = blockedUserIds.contains(c.getOtherUserId()) || usersWhoBlockedMe.contains(c.getOtherUserId());
+            boolean showActiveStatus = "accepted".equals(c.getRequestStatus()) && !isBlockedRelationship;
             String lastActiveIso = c.getOtherUserLastActive();
             boolean isOnline = false;
             String statusText = "";
             
-            if (lastActiveIso != null && !lastActiveIso.isEmpty()) {
-                try {
-                    Date lastActiveDate = ValidationUtils.parseIso8601(lastActiveIso);
-                    if (lastActiveDate != null) {
-                        long diffMs = System.currentTimeMillis() - lastActiveDate.getTime();
-                        if (diffMs < 0) diffMs = 0;
-                        long diffMinutes = diffMs / (60 * 1000);
-                        
-                        if (diffMinutes < 2) {
-                            isOnline = true;
-                            statusText = "Active Now";
-                        } else if (diffMinutes < 60) {
-                            statusText = "Last active " + diffMinutes + " minutes ago";
-                        } else {
-                            Calendar nowCal = Calendar.getInstance();
-                            Calendar activeCal = Calendar.getInstance();
-                            activeCal.setTime(lastActiveDate);
+            if (showActiveStatus) {
+                if (lastActiveIso != null && !lastActiveIso.isEmpty()) {
+                    try {
+                        Date lastActiveDate = ValidationUtils.parseIso8601(lastActiveIso);
+                        if (lastActiveDate != null) {
+                            long diffMs = System.currentTimeMillis() - lastActiveDate.getTime();
+                            if (diffMs < 0) diffMs = 0;
+                            long diffMinutes = diffMs / (60 * 1000);
                             
-                            boolean isToday = nowCal.get(Calendar.YEAR) == activeCal.get(Calendar.YEAR) &&
-                                              nowCal.get(Calendar.DAY_OF_YEAR) == activeCal.get(Calendar.DAY_OF_YEAR);
-                                              
-                            Calendar yesterdayCal = Calendar.getInstance();
-                            yesterdayCal.add(Calendar.DAY_OF_YEAR, -1);
-                            boolean isYesterday = yesterdayCal.get(Calendar.YEAR) == activeCal.get(Calendar.YEAR) &&
-                                                  yesterdayCal.get(Calendar.DAY_OF_YEAR) == activeCal.get(Calendar.DAY_OF_YEAR);
-                                                  
-                            SimpleDateFormat timeFormat = new SimpleDateFormat("h:mm a", Locale.getDefault());
-                            
-                            if (isToday) {
-                                statusText = "Last active today at " + timeFormat.format(lastActiveDate);
-                            } else if (isYesterday) {
-                                statusText = "Last active yesterday";
+                            if (diffMinutes < 2) {
+                                isOnline = true;
+                                statusText = "Active Now";
+                            } else if (diffMinutes < 60) {
+                                statusText = "Last active " + diffMinutes + " minutes ago";
                             } else {
-                                SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault());
-                                statusText = "Last active on " + dateFormat.format(lastActiveDate);
+                                Calendar nowCal = Calendar.getInstance();
+                                Calendar activeCal = Calendar.getInstance();
+                                activeCal.setTime(lastActiveDate);
+                                
+                                boolean isToday = nowCal.get(Calendar.YEAR) == activeCal.get(Calendar.YEAR) &&
+                                                  nowCal.get(Calendar.DAY_OF_YEAR) == activeCal.get(Calendar.DAY_OF_YEAR);
+                                                  
+                                Calendar yesterdayCal = Calendar.getInstance();
+                                yesterdayCal.add(Calendar.DAY_OF_YEAR, -1);
+                                boolean isYesterday = yesterdayCal.get(Calendar.YEAR) == activeCal.get(Calendar.YEAR) &&
+                                                      yesterdayCal.get(Calendar.DAY_OF_YEAR) == activeCal.get(Calendar.DAY_OF_YEAR);
+                                                      
+                                SimpleDateFormat timeFormat = new SimpleDateFormat("h:mm a", Locale.getDefault());
+                                
+                                if (isToday) {
+                                    statusText = "Last active today at " + timeFormat.format(lastActiveDate);
+                                } else if (isYesterday) {
+                                    statusText = "Last active yesterday";
+                                } else {
+                                    SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault());
+                                    statusText = "Last active on " + dateFormat.format(lastActiveDate);
+                                }
                             }
                         }
-                    }
-                } catch (Exception ignored) {}
+                    } catch (Exception ignored) {}
+                }
+            } else {
+                // Not accepted. If incoming pending/rejected, receiver sees "New Message Request"
+                if (!isBlockedRelationship && currentUserId != null && !currentUserId.equals(c.getRequestSenderId())) {
+                    statusText = "New Message Request";
+                }
             }
 
             // Bind active status TextView
@@ -474,6 +447,9 @@ public class MessagingActivity extends AppCompatActivity {
                     holder.tvUserStatus.setVisibility(View.VISIBLE);
                     if (isOnline) {
                         holder.tvUserStatus.setTextColor(Color.parseColor("#34C759")); // Messenger Green
+                        holder.tvUserStatus.setTypeface(null, Typeface.BOLD);
+                    } else if ("New Message Request".equals(statusText)) {
+                        holder.tvUserStatus.setTextColor(Color.parseColor("#0084FF")); // Messenger Blue
                         holder.tvUserStatus.setTypeface(null, Typeface.BOLD);
                     } else {
                         holder.tvUserStatus.setTextColor(context.getResources().getColor(R.color.textSecondary));
@@ -486,7 +462,7 @@ public class MessagingActivity extends AppCompatActivity {
 
             // Bind active status green dot indicator
             if (holder.viewActiveIndicator != null) {
-                holder.viewActiveIndicator.setVisibility(isOnline ? View.VISIBLE : View.GONE);
+                holder.viewActiveIndicator.setVisibility((isOnline && showActiveStatus) ? View.VISIBLE : View.GONE);
             }
 
             // Bind last message & timestamp
@@ -517,10 +493,10 @@ public class MessagingActivity extends AppCompatActivity {
                 if (holder.ivLastMessageStatus != null) {
                     if (c.getLastMessageSenderId() != null && c.getLastMessageSenderId().equals(currentUserId)) {
                         holder.ivLastMessageStatus.setVisibility(View.VISIBLE);
-                        if (c.getLastMessageIsRead() != null && c.getLastMessageIsRead()) {
+                        if (!usersWhoBlockedMe.contains(c.getOtherUserId()) && c.getLastMessageIsRead() != null && c.getLastMessageIsRead()) {
                             holder.ivLastMessageStatus.setImageResource(R.drawable.ic_double_check);
                             holder.ivLastMessageStatus.setImageTintList(ColorStateList.valueOf(Color.parseColor("#0084FF"))); // Messenger Blue
-                        } else if (c.getLastMessageIsDelivered() != null && c.getLastMessageIsDelivered()) {
+                        } else if (!usersWhoBlockedMe.contains(c.getOtherUserId()) && c.getLastMessageIsDelivered() != null && c.getLastMessageIsDelivered()) {
                             holder.ivLastMessageStatus.setImageResource(R.drawable.ic_double_check);
                             holder.ivLastMessageStatus.setImageTintList(ColorStateList.valueOf(Color.parseColor("#8E9AA6"))); // Medium Gray
                         } else {
@@ -544,6 +520,10 @@ public class MessagingActivity extends AppCompatActivity {
                 holder.ivUserAvatar.setImageResource(R.drawable.ic_user);
             }
 
+            holder.cardUserAvatar.setOnClickListener(v -> {
+                holder.itemView.performClick();
+            });
+
             holder.itemView.setOnClickListener(v -> {
                 Intent intent = new Intent(context, ChatActivity.class);
                 intent.putExtra("conversationId", c.getConversationId());
@@ -551,6 +531,10 @@ public class MessagingActivity extends AppCompatActivity {
                 intent.putExtra("otherUserName", c.getOtherUserName());
                 intent.putExtra("reportId", c.getReportId());
                 intent.putExtra("itemName", c.getItemName());
+                intent.putExtra("requestStatus", c.getRequestStatus());
+                intent.putExtra("requestSenderId", c.getRequestSenderId());
+                intent.putExtra("initialMessage", c.getLastMessage());
+                intent.putExtra("requestCreatedAt", c.getLastMessageTime());
                 context.startActivity(intent);
             });
         }
@@ -561,12 +545,14 @@ public class MessagingActivity extends AppCompatActivity {
         }
 
         public static class ViewHolder extends RecyclerView.ViewHolder {
+            MaterialCardView cardUserAvatar;
             ImageView ivUserAvatar, ivLastMessageStatus;
             TextView tvUserName, tvUserStatus, tvLastMessage, tvTimestamp, tvUnreadBadge;
             View viewActiveIndicator;
 
             public ViewHolder(@NonNull View itemView) {
                 super(itemView);
+                cardUserAvatar = itemView.findViewById(R.id.cardUserAvatar);
                 ivUserAvatar = itemView.findViewById(R.id.ivUserAvatar);
                 ivLastMessageStatus = itemView.findViewById(R.id.ivLastMessageStatus);
                 tvUserName = itemView.findViewById(R.id.tvUserName);
@@ -579,179 +565,7 @@ public class MessagingActivity extends AppCompatActivity {
         }
     }
 
-    private static class ChatRequestsAdapter extends RecyclerView.Adapter<ChatRequestsAdapter.ViewHolder> {
-        private final List<ChatRequest> list;
-        private final MessagingActivity activity;
 
-        public ChatRequestsAdapter(List<ChatRequest> list, MessagingActivity activity) {
-            this.list = list;
-            this.activity = activity;
-        }
-
-        @NonNull
-        @Override
-        public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-            View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_chat_request, parent, false);
-            return new ViewHolder(v);
-        }
-
-        @Override
-        public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-            ChatRequest cr = list.get(position);
-            boolean isIncoming = cr.getReceiverId().equals(activity.currentUnivId);
-
-            if (isIncoming) {
-                holder.tvRequesterName.setText(cr.getSenderName());
-                if (cr.getSenderImageUrl() != null && !cr.getSenderImageUrl().isEmpty()) {
-                    GlideApp.with(activity)
-                            .load(cr.getSenderImageUrl())
-                            .placeholder(R.drawable.ic_user)
-                            .diskCacheStrategy(DiskCacheStrategy.ALL)
-                            .circleCrop()
-                            .into(holder.ivSenderAvatar);
-                } else {
-                    holder.ivSenderAvatar.setImageResource(R.drawable.ic_user);
-                }
-            } else {
-                holder.tvRequesterName.setText(cr.getReceiverName() + " (Reporter)");
-                holder.ivSenderAvatar.setImageResource(R.drawable.ic_user);
-            }
-
-            holder.tvRequestItemBadge.setText(cr.getItemName());
-            holder.tvInitialMessage.setText(cr.getInitialMessage());
-            holder.tvRequestTime.setText(formatDate(cr.getCreatedAt()));
-
-            // Setup linked report details navigation on click of badge
-            holder.tvRequestItemBadge.setOnClickListener(v -> {
-                Intent intent = new Intent(activity, ItemDetailActivity.class);
-                intent.putExtra("itemId", cr.getReportId());
-                intent.putExtra("itemStatus", cr.getItemType());
-                intent.putExtra("userId", isIncoming ? cr.getSenderId() : cr.getReceiverId());
-                activity.startActivity(intent);
-            });
-
-            // Action / Status Visibility
-            if ("pending".equalsIgnoreCase(cr.getStatus())) {
-                if (isIncoming) {
-                    holder.llActionsContainer.setVisibility(View.VISIBLE);
-                    holder.tvRequestStatusBadge.setVisibility(View.GONE);
-
-                    holder.btnAcceptRequest.setOnClickListener(v -> activity.acceptRequest(cr));
-                    holder.btnRejectRequest.setOnClickListener(v -> activity.rejectRequest(cr));
-                } else {
-                    holder.llActionsContainer.setVisibility(View.GONE);
-                    holder.tvRequestStatusBadge.setText("Pending Reporter Approval");
-                    holder.tvRequestStatusBadge.setVisibility(View.VISIBLE);
-                }
-            } else {
-                holder.llActionsContainer.setVisibility(View.GONE);
-                if ("accepted".equalsIgnoreCase(cr.getStatus())) {
-                    holder.tvRequestStatusBadge.setText("Accepted");
-                    holder.tvRequestStatusBadge.setTextColor(activity.getResources().getColor(R.color.statusFound));
-                } else {
-                    holder.tvRequestStatusBadge.setText("Declined");
-                    holder.tvRequestStatusBadge.setTextColor(activity.getResources().getColor(R.color.statusLost));
-                }
-                holder.tvRequestStatusBadge.setVisibility(View.VISIBLE);
-            }
-        }
-
-        @Override
-        public int getItemCount() {
-            return list.size();
-        }
-
-        public static class ViewHolder extends RecyclerView.ViewHolder {
-            ImageView ivSenderAvatar;
-            TextView tvRequesterName, tvRequestItemBadge, tvInitialMessage, tvRequestTime, tvRequestStatusBadge;
-            LinearLayout llActionsContainer;
-            MaterialButton btnAcceptRequest, btnRejectRequest;
-
-            public ViewHolder(@NonNull View itemView) {
-                super(itemView);
-                ivSenderAvatar = itemView.findViewById(R.id.ivSenderAvatar);
-                tvRequesterName = itemView.findViewById(R.id.tvRequesterName);
-                tvRequestItemBadge = itemView.findViewById(R.id.tvRequestItemBadge);
-                tvInitialMessage = itemView.findViewById(R.id.tvInitialMessage);
-                tvRequestTime = itemView.findViewById(R.id.tvRequestTime);
-                tvRequestStatusBadge = itemView.findViewById(R.id.tvRequestStatusBadge);
-                llActionsContainer = itemView.findViewById(R.id.llActionsContainer);
-                btnAcceptRequest = itemView.findViewById(R.id.btnAcceptRequest);
-                btnRejectRequest = itemView.findViewById(R.id.btnRejectRequest);
-            }
-        }
-    }
-
-    private void acceptRequest(ChatRequest cr) {
-        if (cr == null) return;
-        Map<String, Object> params = new HashMap<>();
-        params.put("p_request_id", UUID.fromString(cr.getRequestId()));
-
-        if (swipeRefreshLayout != null) swipeRefreshLayout.setRefreshing(true);
-
-        SupabaseDatabaseHelper.rpc("accept_chat_request", params, new SupabaseDatabaseHelper.DatabaseCallback<String>() {
-            @Override
-            public void onSuccess(String result) {
-                if (swipeRefreshLayout != null) swipeRefreshLayout.setRefreshing(false);
-                try {
-                    // Result will be the conversation ID (UUID)
-                    String conversationId = result.replace("\"", "").trim();
-                    SnackbarManager.show(SnackbarManager.Type.SUCCESS, "Request accepted!");
-                    
-                    // Open the ChatActivity directly
-                    Intent intent = new Intent(MessagingActivity.this, ChatActivity.class);
-                    intent.putExtra("conversationId", conversationId);
-                    intent.putExtra("otherUserId", cr.getSenderId());
-                    intent.putExtra("otherUserName", cr.getSenderName());
-                    intent.putExtra("reportId", cr.getReportId());
-                    intent.putExtra("itemName", cr.getItemName());
-                    startActivity(intent);
-
-                    // Refresh requests list
-                    loadChatRequests();
-                } catch (Exception e) {
-                    e.printStackTrace();
-                    refreshCurrentTab();
-                }
-            }
-
-            @Override
-            public void onFailure(String errorMessage) {
-                if (swipeRefreshLayout != null) swipeRefreshLayout.setRefreshing(false);
-                SnackbarManager.show(SnackbarManager.Type.ERROR, "Failed: " + errorMessage);
-            }
-        });
-    }
-
-    private void rejectRequest(ChatRequest cr) {
-        if (cr == null) return;
-        new AlertDialog.Builder(this)
-                .setTitle("Decline Request")
-                .setMessage("Are you sure you want to decline this chat request?")
-                .setPositiveButton("Decline", (dialog, which) -> {
-                    Map<String, Object> params = new HashMap<>();
-                    params.put("p_request_id", UUID.fromString(cr.getRequestId()));
-
-                    if (swipeRefreshLayout != null) swipeRefreshLayout.setRefreshing(true);
-
-                    SupabaseDatabaseHelper.rpc("reject_chat_request", params, new SupabaseDatabaseHelper.DatabaseCallback<String>() {
-                        @Override
-                        public void onSuccess(String result) {
-                            if (swipeRefreshLayout != null) swipeRefreshLayout.setRefreshing(false);
-                            SnackbarManager.show(SnackbarManager.Type.SUCCESS, "Request declined.");
-                            loadChatRequests();
-                        }
-
-                        @Override
-                        public void onFailure(String errorMessage) {
-                            if (swipeRefreshLayout != null) swipeRefreshLayout.setRefreshing(false);
-                            SnackbarManager.show(SnackbarManager.Type.ERROR, "Failed: " + errorMessage);
-                        }
-                    });
-                })
-                .setNegativeButton("Cancel", null)
-                .show();
-    }
 
     private static String formatTime(String isoTime) {
         if (isoTime == null || isoTime.isEmpty()) return "";

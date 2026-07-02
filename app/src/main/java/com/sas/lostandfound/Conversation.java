@@ -48,6 +48,12 @@ public class Conversation {
     @SerializedName("last_message_is_delivered")
     private Boolean lastMessageIsDelivered;
 
+    @SerializedName("request_status")
+    private String requestStatus;
+
+    @SerializedName("request_sender_id")
+    private String requestSenderId;
+
     public Conversation() {}
 
     public String getConversationId() { return conversationId; }
@@ -94,4 +100,26 @@ public class Conversation {
 
     public Boolean getLastMessageIsDelivered() { return lastMessageIsDelivered != null ? lastMessageIsDelivered : false; }
     public void setLastMessageIsDelivered(Boolean lastMessageIsDelivered) { this.lastMessageIsDelivered = lastMessageIsDelivered; }
+
+    public String getRequestStatus() { return requestStatus != null ? requestStatus : "accepted"; }
+    public void setRequestStatus(String requestStatus) { this.requestStatus = requestStatus; }
+
+    public String getRequestSenderId() { return requestSenderId; }
+    public void setRequestSenderId(String requestSenderId) { this.requestSenderId = requestSenderId; }
+
+    public boolean isPendingRequest(String currentUserId) {
+        return "pending".equals(requestStatus) && !currentUserId.equals(requestSenderId);
+    }
+
+    public boolean isRejectedRequest(String currentUserId) {
+        return "rejected".equals(requestStatus) && !currentUserId.equals(requestSenderId);
+    }
+    
+    public boolean isIncomingRequest(String currentUserId) {
+        return ("pending".equals(requestStatus) || "rejected".equals(requestStatus)) && !currentUserId.equals(requestSenderId);
+    }
+
+    public boolean isOutgoingRequest(String currentUserId) {
+        return ("pending".equals(requestStatus) || "rejected".equals(requestStatus)) && currentUserId.equals(requestSenderId);
+    }
 }

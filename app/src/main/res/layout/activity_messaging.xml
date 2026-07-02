@@ -31,30 +31,6 @@
                 android:textStyle="bold" />
 
         </com.google.android.material.appbar.MaterialToolbar>
-
-        <com.google.android.material.tabs.TabLayout
-            android:id="@+id/tabLayout"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:background="@android:color/transparent"
-            app:tabIndicatorColor="@color/primaryColor"
-            app:tabIndicatorHeight="3dp"
-            app:tabMode="fixed"
-            app:tabSelectedTextColor="@color/primaryColor"
-            app:tabTextColor="#A0AABF"
-            app:tabRippleColor="#262AABEE"
-            app:tabBackground="@android:color/transparent">
-
-            <com.google.android.material.tabs.TabItem
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/tab_chats" />
-
-            <com.google.android.material.tabs.TabItem
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/tab_requests" />
-        </com.google.android.material.tabs.TabLayout>
     </com.google.android.material.appbar.AppBarLayout>
 
     <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
@@ -128,16 +104,6 @@
                         android:paddingTop="4dp"
                         android:paddingBottom="16dp"
                         tools:listitem="@layout/item_conversation" />
-
-                    <androidx.recyclerview.widget.RecyclerView
-                        android:id="@+id/rvRequests"
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:clipToPadding="false"
-                        android:paddingTop="4dp"
-                        android:paddingBottom="16dp"
-                        android:visibility="gone"
-                        tools:listitem="@layout/item_chat_request" />
 
                     <LinearLayout
                         android:id="@+id/llEmptyState"

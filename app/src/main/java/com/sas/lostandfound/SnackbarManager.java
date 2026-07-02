@@ -90,6 +90,11 @@ public class SnackbarManager implements Application.ActivityLifecycleCallbacks {
     private void processQueue() {
         if (isShowing || snackbarQueue.isEmpty() || currentActivityRef == null || currentActivityRef.get() == null) return;
 
+        Activity activity = currentActivityRef.get();
+        if (activity.isFinishing() || activity.isDestroyed()) {
+            return;
+        }
+
         isShowing = true;
         SnackbarRequest request = snackbarQueue.poll();
         if (request != null) {
@@ -100,12 +105,18 @@ public class SnackbarManager implements Application.ActivityLifecycleCallbacks {
     @SuppressLint("ClickableViewAccessibility")
     private void displaySnackbar(SnackbarRequest request) {
         Activity activity = currentActivityRef.get();
-        if (activity == null) {
+        if (activity == null || activity.isFinishing() || activity.isDestroyed()) {
             isShowing = false;
+            snackbarQueue.addFirst(request);
             return;
         }
 
         ViewGroup rootView = activity.findViewById(android.R.id.content);
+        if (rootView == null) {
+            isShowing = false;
+            snackbarQueue.addFirst(request);
+            return;
+        }
         LayoutInflater inflater = LayoutInflater.from(activity);
         currentSnackbarView = inflater.inflate(R.layout.layout_custom_snackbar, rootView, false);
 

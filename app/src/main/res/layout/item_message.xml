@@ -5,6 +5,19 @@
     android:layout_height="wrap_content"
     android:padding="6dp">
 
+    <!-- Receiver Avatar -->
+    <ImageView
+        android:id="@+id/ivUserAvatar"
+        android:layout_width="28dp"
+        android:layout_height="28dp"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentBottom="true"
+        android:layout_marginStart="4dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginBottom="4dp"
+        android:src="@drawable/ic_user"
+        android:visibility="gone" />
+
     <!-- Message bubble card -->
     <com.google.android.material.card.MaterialCardView
         android:id="@+id/cardMessageBubble"

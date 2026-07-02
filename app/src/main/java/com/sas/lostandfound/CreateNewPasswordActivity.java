@@ -214,6 +214,17 @@ public class CreateNewPasswordActivity extends AppCompatActivity {
             public void onSuccess(String result) {
                 stopLoading();
                 android.util.Log.d("CreateNewPassword", "Reset Success: " + result);
+                
+                // Clear session state and tokens to ensure a clean login environment
+                android.content.SharedPreferences prefs = getSharedPreferences("MyApp", MODE_PRIVATE);
+                String fcmToken = prefs.getString("fcm_token", "");
+                prefs.edit().clear().apply();
+                if (!fcmToken.isEmpty()) {
+                    prefs.edit().putString("fcm_token", fcmToken).apply();
+                }
+                getSharedPreferences("NotificationPrefs", MODE_PRIVATE).edit().clear().apply();
+                SupabaseAuthHelper.signOut();
+
                 SnackbarManager.show(SnackbarManager.Type.SUCCESS, "Password updated successfully! You can now log in.");
                 Intent intent = new Intent(CreateNewPasswordActivity.this, UserLoginActivity.class);
                 intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);

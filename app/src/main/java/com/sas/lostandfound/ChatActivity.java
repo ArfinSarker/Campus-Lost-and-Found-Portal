@@ -18,6 +18,7 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.PopupMenu;
 import androidx.appcompat.widget.Toolbar;
@@ -47,10 +48,19 @@ public class ChatActivity extends AppCompatActivity {
     private EditText etMessageInput;
     private MaterialCardView btnSendMessageCard;
 
-    private String conversationId, otherUserId, otherUserName, reportId, itemName;
-    private String currentUnivId;
-    private boolean isOtherUserBlockedByMe = false;
-    private boolean amIBlockedByOtherUser = false;
+    private View layoutInputArea, layoutRequestActions;
+    private com.google.android.material.button.MaterialButton btnAcceptRequest, btnRejectRequest;
+    private String requestStatus;
+    private String requestSenderId;
+    private String initialMessage;
+    private String requestCreatedAt;
+
+    private String conversationId, reportId, itemName;
+    String otherUserId, otherUserName;
+    String currentUnivId;
+    boolean isOtherUserBlockedByMe = false;
+    boolean amIBlockedByOtherUser = false;
+    private int defaultHeaderStatusColor;
 
     private List<Message> messageList = new ArrayList<>();
     private MessagesAdapter adapter;
@@ -60,6 +70,9 @@ public class ChatActivity extends AppCompatActivity {
         @Override
         public void run() {
             loadMessages(false);
+            if (!"accepted".equals(requestStatus)) {
+                queryRequestStatus();
+            }
             queryOtherUserProfile();
             SupabaseDatabaseHelper.updateUserActivityStatus();
             pollHandler.postDelayed(this, 3000); // Poll every 3 seconds
@@ -82,14 +95,29 @@ public class ChatActivity extends AppCompatActivity {
 
         initializeViews();
         setupToolbar();
+        
+        if (tvHeaderStatus != null) {
+            defaultHeaderStatusColor = tvHeaderStatus.getCurrentTextColor();
+        }
+
         setupRecyclerView();
 
         btnSendMessageCard.setOnClickListener(v -> sendMessage());
         btnSettings.setOnClickListener(v -> showSettingsMenu(v));
-        llHeaderTitle.setOnClickListener(v -> openOtherUserProfile());
+        llHeaderTitle.setOnClickListener(v -> showProfileContextMenu(v));
+
+        requestStatus = getIntent().getStringExtra("requestStatus");
+        if (requestStatus == null) requestStatus = "accepted";
+        requestSenderId = getIntent().getStringExtra("requestSenderId");
+        initialMessage = getIntent().getStringExtra("initialMessage");
+        requestCreatedAt = getIntent().getStringExtra("requestCreatedAt");
+
+        updateRequestLayoutUI();
 
         loadMessages(true);
-        markMessagesAsRead();
+        if ("accepted".equals(requestStatus)) {
+            markMessagesAsRead();
+        }
         
         loadMissingDetails();
     }
@@ -117,6 +145,11 @@ public class ChatActivity extends AppCompatActivity {
         rvMessages = findViewById(R.id.rvMessages);
         etMessageInput = findViewById(R.id.etMessageInput);
         btnSendMessageCard = findViewById(R.id.btnSendMessageCard);
+        
+        layoutInputArea = findViewById(R.id.layoutInputArea);
+        layoutRequestActions = findViewById(R.id.layoutRequestActions);
+        btnAcceptRequest = findViewById(R.id.btnAcceptRequest);
+        btnRejectRequest = findViewById(R.id.btnRejectRequest);
     }
 
     private void setupToolbar() {
@@ -146,6 +179,7 @@ public class ChatActivity extends AppCompatActivity {
         layoutManager.setStackFromEnd(true); // Always show last messages first
         rvMessages.setLayoutManager(layoutManager);
         adapter = new MessagesAdapter(messageList, currentUnivId, this);
+        adapter.setRequestStatus(requestStatus);
         rvMessages.setAdapter(adapter);
     }
 
@@ -222,13 +256,25 @@ public class ChatActivity extends AppCompatActivity {
                                 .circleCrop()
                                 .into(ivHeaderAvatar);
                     }
+                    if (adapter != null) {
+                        adapter.setOtherUserProfileImageUrl(imgUrl);
+                    }
 
                     if (tvHeaderStatus != null) {
-                        String lastActiveIso = user.getLastActiveAt();
-                        String statusText = formatLastActiveStatus(lastActiveIso);
-                        if (!android.text.TextUtils.isEmpty(statusText)) {
-                            tvHeaderStatus.setText(statusText);
-                            tvHeaderStatus.setVisibility(View.VISIBLE);
+                        if ("accepted".equals(requestStatus) && !isOtherUserBlockedByMe && !amIBlockedByOtherUser) {
+                            String lastActiveIso = user.getLastActiveAt();
+                            String statusText = formatLastActiveStatus(lastActiveIso);
+                            if (!android.text.TextUtils.isEmpty(statusText)) {
+                                tvHeaderStatus.setText(statusText);
+                                if ("Active now".equals(statusText)) {
+                                    tvHeaderStatus.setTextColor(Color.parseColor("#34C759"));
+                                } else {
+                                    tvHeaderStatus.setTextColor(defaultHeaderStatusColor);
+                                }
+                                tvHeaderStatus.setVisibility(View.VISIBLE);
+                            } else {
+                                tvHeaderStatus.setVisibility(View.GONE);
+                            }
                         } else {
                             tvHeaderStatus.setVisibility(View.GONE);
                         }
@@ -256,9 +302,9 @@ public class ChatActivity extends AppCompatActivity {
             
             long diffMinutes = diffMs / (60 * 1000);
             
-            // 2 minutes threshold for "Active Now"
+            // 2 minutes threshold for "Active now"
             if (diffMinutes < 2) {
-                return "Active Now";
+                return "Active now";
             }
             
             if (diffMinutes < 60) {
@@ -326,20 +372,32 @@ public class ChatActivity extends AppCompatActivity {
     }
 
     private void updateChatMessagingUI() {
+        int horizontalPadding = (int) (16 * getResources().getDisplayMetrics().density);
+        int verticalPadding = (int) (10 * getResources().getDisplayMetrics().density);
+
         if (isOtherUserBlockedByMe) {
             etMessageInput.setEnabled(false);
+            etMessageInput.setSingleLine(true);
+            etMessageInput.setPadding(horizontalPadding, verticalPadding, horizontalPadding, verticalPadding);
             etMessageInput.setText("");
             etMessageInput.setHint("Unblock this user to send messages");
             btnSendMessageCard.setEnabled(false);
             btnSendMessageCard.setCardBackgroundColor(ColorStateList.valueOf(Color.parseColor("#94A3B8")));
+            if (tvHeaderStatus != null) tvHeaderStatus.setVisibility(View.GONE);
         } else if (amIBlockedByOtherUser) {
             etMessageInput.setEnabled(false);
+            etMessageInput.setSingleLine(true);
+            etMessageInput.setPadding(horizontalPadding, verticalPadding, horizontalPadding, verticalPadding);
             etMessageInput.setText("");
             etMessageInput.setHint("You cannot send messages to this user");
             btnSendMessageCard.setEnabled(false);
             btnSendMessageCard.setCardBackgroundColor(ColorStateList.valueOf(Color.parseColor("#94A3B8")));
+            if (tvHeaderStatus != null) tvHeaderStatus.setVisibility(View.GONE);
         } else {
             etMessageInput.setEnabled(true);
+            etMessageInput.setSingleLine(false);
+            etMessageInput.setMaxLines(4);
+            etMessageInput.setPadding(horizontalPadding, verticalPadding, horizontalPadding, verticalPadding);
             etMessageInput.setHint(getString(R.string.hint_type_message));
             btnSendMessageCard.setEnabled(true);
             btnSendMessageCard.setCardBackgroundColor(ColorStateList.valueOf(getResources().getColor(R.color.primaryColor)));
@@ -348,43 +406,11 @@ public class ChatActivity extends AppCompatActivity {
 
     private void toggleUserBlock() {
         if (currentUnivId == null || otherUserId == null) return;
-        
-        if (isOtherUserBlockedByMe) {
-            // Unblock
-            String query = "blocker_id=eq." + currentUnivId + "&blocked_id=eq." + otherUserId;
-            SupabaseDatabaseHelper.delete("blocked_users", query, new SupabaseDatabaseHelper.DatabaseCallback<Void>() {
-                @Override
-                public void onSuccess(Void result) {
-                    isOtherUserBlockedByMe = false;
-                    updateChatMessagingUI();
-                    SnackbarManager.show(SnackbarManager.Type.SUCCESS, "User unblocked successfully.");
-                }
-                
-                @Override
-                public void onFailure(String error) {
-                    SnackbarManager.show(SnackbarManager.Type.ERROR, "Failed to unblock user: " + error);
-                }
-            });
-        } else {
-            // Block
-            Map<String, String> blockData = new HashMap<>();
-            blockData.put("blocker_id", currentUnivId);
-            blockData.put("blocked_id", otherUserId);
-            
-            SupabaseDatabaseHelper.insert("blocked_users", blockData, new SupabaseDatabaseHelper.DatabaseCallback<String>() {
-                @Override
-                public void onSuccess(String result) {
-                    isOtherUserBlockedByMe = true;
-                    updateChatMessagingUI();
-                    SnackbarManager.show(SnackbarManager.Type.SUCCESS, "User blocked successfully.");
-                }
-                
-                @Override
-                public void onFailure(String error) {
-                    SnackbarManager.show(SnackbarManager.Type.ERROR, "Failed to block user: " + error);
-                }
-            });
-        }
+        ProfileContextMenuHelper.toggleUserBlock(this, currentUnivId, otherUserId, isOtherUserBlockedByMe, isBlocked -> {
+            isOtherUserBlockedByMe = isBlocked;
+            updateChatMessagingUI();
+            queryOtherUserProfile();
+        });
     }
 
     private void showSettingsMenu(View anchor) {
@@ -412,9 +438,34 @@ public class ChatActivity extends AppCompatActivity {
         popup.show();
     }
 
+    private void showProfileContextMenu(View anchor) {
+        View stableAnchor = anchor;
+        View dummy = findViewById(R.id.popupAnchorDummy);
+        if (dummy != null) {
+            int[] loc = new int[2];
+            anchor.getLocationInWindow(loc);
+            dummy.setX(loc[0]);
+            dummy.setY(loc[1]);
+            stableAnchor = dummy;
+        }
+        ProfileContextMenuHelper.show(this, stableAnchor, currentUnivId, otherUserId, otherUserName, isOtherUserBlockedByMe, amIBlockedByOtherUser, isBlocked -> {
+            isOtherUserBlockedByMe = isBlocked;
+            updateChatMessagingUI();
+            queryOtherUserProfile();
+        });
+    }
+
     private void openOtherUserProfile() {
         if (otherUserId == null) {
             SnackbarManager.show(SnackbarManager.Type.ERROR, "User details not loaded yet.");
+            return;
+        }
+        if (amIBlockedByOtherUser) {
+            new AlertDialog.Builder(this)
+                    .setTitle("Profile Unavailable")
+                    .setMessage("This profile is not available right now.")
+                    .setPositiveButton("OK", null)
+                    .show();
             return;
         }
         Intent intent = new Intent(ChatActivity.this, UserProfileActivity.class);
@@ -440,14 +491,16 @@ public class ChatActivity extends AppCompatActivity {
                 if (newSize > oldSize || areMessageListsDifferent(messageList, messages)) {
                     messageList.clear();
                     messageList.addAll(messages);
-                    adapter.notifyDataSetChanged();
+                    adapter.setMessages(messageList);
                     
                     if (forceScroll || oldSize == 0) {
-                        rvMessages.scrollToPosition(messageList.size() - 1);
+                        rvMessages.scrollToPosition(adapter.getItemCount() - 1);
                     } else {
-                        rvMessages.smoothScrollToPosition(messageList.size() - 1);
+                        rvMessages.smoothScrollToPosition(adapter.getItemCount() - 1);
                     }
-                    markMessagesAsRead();
+                    if ("accepted".equals(requestStatus)) {
+                        markMessagesAsRead();
+                    }
                 }
             }
 
@@ -478,7 +531,10 @@ public class ChatActivity extends AppCompatActivity {
 
         String query = "conversation_id=eq." + conversationId + "&sender_id=neq." + currentUnivId + "&is_read=eq.false";
         SupabaseDatabaseHelper.update("messages", query, data, new SupabaseDatabaseHelper.DatabaseCallback<String>() {
-            @Override public void onSuccess(String result) {}
+            @Override public void onSuccess(String result) {
+                android.content.Intent broadcastIntent = new android.content.Intent("com.sas.lostandfound.UPDATE_BADGES");
+                sendBroadcast(broadcastIntent);
+            }
             @Override public void onFailure(String errorMessage) {}
         });
 
@@ -498,12 +554,29 @@ public class ChatActivity extends AppCompatActivity {
 
         if (conversationId == null || currentUnivId == null) return;
 
+        if (isOtherUserBlockedByMe) {
+            SnackbarManager.show(SnackbarManager.Type.ERROR, "Unblock this user to send messages.");
+            return;
+        }
+        if (amIBlockedByOtherUser) {
+            SnackbarManager.show(SnackbarManager.Type.ERROR, "You cannot send messages to this user.");
+            return;
+        }
+
         etMessageInput.setText(""); // Clear input immediately
         Message msg = new Message(conversationId, currentUnivId, text);
+
+        boolean isReceiver = currentUnivId != null && !currentUnivId.equals(requestSenderId);
+        if (!"accepted".equals(requestStatus) && isReceiver) {
+            requestStatus = "accepted";
+            updateRequestLayoutUI();
+        }
 
         SupabaseDatabaseHelper.insert("messages", msg, new SupabaseDatabaseHelper.DatabaseCallback<String>() {
             @Override
             public void onSuccess(String result) {
+                android.content.Intent broadcastIntent = new android.content.Intent("com.sas.lostandfound.UPDATE_BADGES");
+                sendBroadcast(broadcastIntent);
                 loadMessages(false);
             }
 
@@ -513,6 +586,134 @@ public class ChatActivity extends AppCompatActivity {
                 SnackbarManager.show(SnackbarManager.Type.ERROR, "Failed to send: " + errorMessage);
             }
         });
+    }
+
+    private void acceptChatRequest() {
+        if (conversationId == null) return;
+        
+        if (btnAcceptRequest != null) btnAcceptRequest.setEnabled(false);
+        if (btnRejectRequest != null) btnRejectRequest.setEnabled(false);
+
+        Map<String, Object> params = new java.util.HashMap<>();
+        params.put("p_request_id", java.util.UUID.fromString(conversationId));
+
+        SupabaseDatabaseHelper.rpc("accept_chat_request", params, new SupabaseDatabaseHelper.DatabaseCallback<String>() {
+            @Override
+            public void onSuccess(String result) {
+                try {
+                    String activeConversationId = result.replace("\"", "").trim();
+                    SnackbarManager.show(SnackbarManager.Type.SUCCESS, "Request accepted!");
+
+                    conversationId = activeConversationId;
+                    requestStatus = "accepted";
+
+                    updateRequestLayoutUI();
+                    loadMessages(true);
+                    markMessagesAsRead();
+
+                    android.content.Intent broadcastIntent = new android.content.Intent("com.sas.lostandfound.UPDATE_BADGES");
+                    sendBroadcast(broadcastIntent);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    finish();
+                }
+            }
+
+            @Override
+            public void onFailure(String errorMessage) {
+                if (btnAcceptRequest != null) btnAcceptRequest.setEnabled(true);
+                if (btnRejectRequest != null) btnRejectRequest.setEnabled(true);
+                SnackbarManager.show(SnackbarManager.Type.ERROR, "Failed to accept request: " + errorMessage);
+            }
+        });
+    }
+
+    private void rejectChatRequest() {
+        if (conversationId == null) return;
+
+        new AlertDialog.Builder(this)
+                .setTitle("Decline Request")
+                .setMessage("Are you sure you want to decline this chat request?")
+                .setPositiveButton("Decline", (dialog, which) -> {
+                    if (btnAcceptRequest != null) btnAcceptRequest.setEnabled(false);
+                    if (btnRejectRequest != null) btnRejectRequest.setEnabled(false);
+
+                    Map<String, Object> params = new java.util.HashMap<>();
+                    params.put("p_request_id", java.util.UUID.fromString(conversationId));
+
+                    SupabaseDatabaseHelper.rpc("reject_chat_request", params, new SupabaseDatabaseHelper.DatabaseCallback<String>() {
+                        @Override
+                        public void onSuccess(String result) {
+                            SnackbarManager.show(SnackbarManager.Type.SUCCESS, "Request declined.");
+                            requestStatus = "rejected";
+                            updateRequestLayoutUI();
+
+                            android.content.Intent broadcastIntent = new android.content.Intent("com.sas.lostandfound.UPDATE_BADGES");
+                            sendBroadcast(broadcastIntent);
+                        }
+
+                        @Override
+                        public void onFailure(String errorMessage) {
+                            if (btnAcceptRequest != null) btnAcceptRequest.setEnabled(true);
+                            if (btnRejectRequest != null) btnRejectRequest.setEnabled(true);
+                            SnackbarManager.show(SnackbarManager.Type.ERROR, "Failed to decline request: " + errorMessage);
+                        }
+                    });
+                })
+                .setNegativeButton("Cancel", null)
+                .show();
+    }
+
+    private void queryRequestStatus() {
+        if (reportId == null || otherUserId == null || currentUnivId == null) return;
+        boolean isReceiver = !currentUnivId.equals(requestSenderId);
+        String senderId = isReceiver ? otherUserId : currentUnivId;
+        
+        String query = "report_id=eq." + reportId + "&sender_id=eq." + senderId + "&limit=1";
+        SupabaseDatabaseHelper.select("chat_requests", query, new TypeToken<List<ChatRequest>>(){}.getType(), new SupabaseDatabaseHelper.DatabaseCallback<List<ChatRequest>>() {
+            @Override
+            public void onSuccess(List<ChatRequest> list) {
+                if (list != null && !list.isEmpty()) {
+                    String newStatus = list.get(0).getStatus();
+                    if (newStatus != null && !newStatus.equals(requestStatus)) {
+                        requestStatus = newStatus;
+                        updateRequestLayoutUI();
+                    }
+                }
+            }
+            @Override public void onFailure(String error) {}
+        });
+    }
+
+    private void updateRequestLayoutUI() {
+        if (adapter != null) {
+            adapter.setRequestStatus(requestStatus);
+        }
+        boolean isReceiver = currentUnivId != null && !currentUnivId.equals(requestSenderId);
+        
+        if (!"accepted".equals(requestStatus)) {
+            if (isReceiver) {
+                if ("pending".equals(requestStatus)) {
+                    if (layoutInputArea != null) layoutInputArea.setVisibility(View.GONE);
+                    if (layoutRequestActions != null) layoutRequestActions.setVisibility(View.VISIBLE);
+                    if (btnAcceptRequest != null) btnAcceptRequest.setOnClickListener(v -> acceptChatRequest());
+                    if (btnRejectRequest != null) btnRejectRequest.setOnClickListener(v -> rejectChatRequest());
+                } else {
+                    // rejected/declined
+                    if (layoutRequestActions != null) layoutRequestActions.setVisibility(View.GONE);
+                    if (layoutInputArea != null) layoutInputArea.setVisibility(View.VISIBLE);
+                    updateChatMessagingUI();
+                }
+            } else {
+                if (layoutInputArea != null) layoutInputArea.setVisibility(View.VISIBLE);
+                if (layoutRequestActions != null) layoutRequestActions.setVisibility(View.GONE);
+                updateChatMessagingUI();
+            }
+        } else {
+            if (layoutInputArea != null) layoutInputArea.setVisibility(View.VISIBLE);
+            if (layoutRequestActions != null) layoutRequestActions.setVisibility(View.GONE);
+            updateChatMessagingUI();
+        }
     }
 
     private void queryAndOpenReportDetails() {
@@ -552,81 +753,290 @@ public class ChatActivity extends AppCompatActivity {
     }
 
     // Message bubble Adapter
-    private static class MessagesAdapter extends RecyclerView.Adapter<MessagesAdapter.ViewHolder> {
+    private static class MessagesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
+        private static final int TYPE_DATE_HEADER = 0;
+        private static final int TYPE_MESSAGE_SENDER = 1;
+        private static final int TYPE_MESSAGE_RECEIVER = 2;
+
         private final List<Message> list;
+        private final List<Object> displayItems = new ArrayList<>();
         private final String currentUserId;
         private final Context context;
+        private String otherUserProfileImageUrl;
+        private String requestStatus;
 
         public MessagesAdapter(List<Message> list, String currentUserId, Context context) {
             this.list = list;
             this.currentUserId = currentUserId;
             this.context = context;
+            rebuildDisplayItems();
+        }
+
+        public void setMessages(List<Message> newMessages) {
+            if (newMessages != this.list) {
+                this.list.clear();
+                if (newMessages != null) {
+                    this.list.addAll(newMessages);
+                }
+            }
+            rebuildDisplayItems();
+            notifyDataSetChanged();
+        }
+
+        public void setOtherUserProfileImageUrl(String url) {
+            if (url == null && this.otherUserProfileImageUrl == null) return;
+            if (url != null && url.equals(this.otherUserProfileImageUrl)) return;
+            this.otherUserProfileImageUrl = url;
+            notifyDataSetChanged();
+        }
+
+        public void setRequestStatus(String requestStatus) {
+            if (requestStatus == null && this.requestStatus == null) return;
+            if (requestStatus != null && requestStatus.equals(this.requestStatus)) return;
+            this.requestStatus = requestStatus;
+            notifyDataSetChanged();
+        }
+
+        private void rebuildDisplayItems() {
+            displayItems.clear();
+            if (list == null || list.isEmpty()) {
+                return;
+            }
+            
+            Date lastDate = null;
+            for (Message msg : list) {
+                Date msgDate = parseDate(msg.getCreatedAt());
+                if (lastDate == null || !isSameDay(lastDate, msgDate)) {
+                    displayItems.add(getDayLabel(msgDate));
+                    lastDate = msgDate;
+                }
+                displayItems.add(msg);
+            }
+        }
+
+        private static Date parseDate(String isoTime) {
+            if (isoTime == null || isoTime.isEmpty()) {
+                return new Date();
+            }
+            try {
+                Date date = ValidationUtils.parseIso8601(isoTime);
+                if (date != null) {
+                    return date;
+                }
+            } catch (Exception ignored) {}
+            return new Date();
+        }
+
+        private static boolean isSameDay(Date d1, Date d2) {
+            if (d1 == null || d2 == null) return false;
+            java.util.Calendar cal1 = java.util.Calendar.getInstance();
+            cal1.setTime(d1);
+            java.util.Calendar cal2 = java.util.Calendar.getInstance();
+            cal2.setTime(d2);
+            return cal1.get(java.util.Calendar.YEAR) == cal2.get(java.util.Calendar.YEAR) &&
+                   cal1.get(java.util.Calendar.DAY_OF_YEAR) == cal2.get(java.util.Calendar.DAY_OF_YEAR);
+        }
+
+        private static String getDayLabel(Date date) {
+            java.util.Calendar now = java.util.Calendar.getInstance();
+            java.util.Calendar cal = java.util.Calendar.getInstance();
+            cal.setTime(date);
+            
+            if (now.get(java.util.Calendar.YEAR) == cal.get(java.util.Calendar.YEAR) &&
+                now.get(java.util.Calendar.DAY_OF_YEAR) == cal.get(java.util.Calendar.DAY_OF_YEAR)) {
+                return "Today";
+            }
+            
+            java.util.Calendar yesterday = java.util.Calendar.getInstance();
+            yesterday.add(java.util.Calendar.DAY_OF_YEAR, -1);
+            if (yesterday.get(java.util.Calendar.YEAR) == cal.get(java.util.Calendar.YEAR) &&
+                yesterday.get(java.util.Calendar.DAY_OF_YEAR) == cal.get(java.util.Calendar.DAY_OF_YEAR)) {
+                return "Yesterday";
+            }
+            
+            SimpleDateFormat sdf = new SimpleDateFormat("MMMM d, yyyy", Locale.getDefault());
+            return sdf.format(date);
+        }
+
+        @Override
+        public int getItemViewType(int position) {
+            Object item = displayItems.get(position);
+            if (item instanceof String) {
+                return TYPE_DATE_HEADER;
+            } else {
+                Message msg = (Message) item;
+                if (msg.getSenderId() != null && msg.getSenderId().equals(currentUserId)) {
+                    return TYPE_MESSAGE_SENDER;
+                } else {
+                    return TYPE_MESSAGE_RECEIVER;
+                }
+            }
         }
 
         @NonNull
         @Override
-        public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-            View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_message, parent, false);
-            return new ViewHolder(v);
+        public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+            if (viewType == TYPE_DATE_HEADER) {
+                View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_chat_date_header, parent, false);
+                return new DateHeaderViewHolder(v);
+            } else {
+                View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_message, parent, false);
+                return new MessageViewHolder(v);
+            }
         }
 
         @Override
-        public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-            Message msg = list.get(position);
-            holder.tvMessageText.setText(msg.getMessageText());
-            holder.tvMessageTime.setText(formatTime(msg.getCreatedAt()));
+        public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
+            if (holder instanceof DateHeaderViewHolder) {
+                DateHeaderViewHolder dateHolder = (DateHeaderViewHolder) holder;
+                String dateStr = (String) displayItems.get(position);
+                dateHolder.tvDateHeader.setText(dateStr);
+            } else if (holder instanceof MessageViewHolder) {
+                MessageViewHolder msgHolder = (MessageViewHolder) holder;
+                Message msg = (Message) displayItems.get(position);
+                msgHolder.tvMessageText.setText(msg.getMessageText());
+                msgHolder.tvMessageTime.setText(formatTime(msg.getCreatedAt()));
 
-            RelativeLayout.LayoutParams lp = (RelativeLayout.LayoutParams) holder.cardMessageBubble.getLayoutParams();
-            if (msg.getSenderId() != null && msg.getSenderId().equals(currentUserId)) {
-                lp.addRule(RelativeLayout.ALIGN_PARENT_END);
-                lp.removeRule(RelativeLayout.ALIGN_PARENT_START);
-                holder.cardMessageBubble.setCardBackgroundColor(ColorStateList.valueOf(Color.parseColor("#0084FF")));
-                holder.tvMessageText.setTextColor(Color.WHITE);
-                holder.tvMessageTime.setTextColor(Color.parseColor("#D8EEFF"));
-                
-                if (holder.ivMessageStatus != null) {
-                    holder.ivMessageStatus.setVisibility(View.VISIBLE);
-                    if (msg.isRead()) {
-                        holder.ivMessageStatus.setImageResource(R.drawable.ic_double_check);
-                        holder.ivMessageStatus.setImageTintList(ColorStateList.valueOf(Color.parseColor("#00FFFF"))); // Electric Cyan
-                    } else if (msg.isDelivered()) {
-                        holder.ivMessageStatus.setImageResource(R.drawable.ic_double_check);
-                        holder.ivMessageStatus.setImageTintList(ColorStateList.valueOf(Color.parseColor("#D8EEFF"))); // Light Blue Gray
-                    } else {
-                        holder.ivMessageStatus.setImageResource(R.drawable.ic_single_check);
-                        holder.ivMessageStatus.setImageTintList(ColorStateList.valueOf(Color.parseColor("#D8EEFF"))); // Light Blue Gray
+                int viewType = getItemViewType(position);
+                float density = context.getResources().getDisplayMetrics().density;
+                float roundedCorner = 18 * density;
+                float sharpCorner = 4 * density;
+
+                RelativeLayout.LayoutParams lp = (RelativeLayout.LayoutParams) msgHolder.cardMessageBubble.getLayoutParams();
+
+                if (viewType == TYPE_MESSAGE_SENDER) {
+                    lp.addRule(RelativeLayout.ALIGN_PARENT_END);
+                    lp.removeRule(RelativeLayout.ALIGN_PARENT_START);
+                    lp.removeRule(RelativeLayout.END_OF);
+                    lp.setMargins((int) (64 * density), 0, (int) (8 * density), 0);
+
+                    msgHolder.ivUserAvatar.setVisibility(View.GONE);
+                    msgHolder.cardMessageBubble.setCardBackgroundColor(ColorStateList.valueOf(Color.parseColor("#0084FF")));
+                    msgHolder.tvMessageText.setTextColor(Color.WHITE);
+                    msgHolder.tvMessageTime.setTextColor(Color.parseColor("#D8EEFF"));
+
+                    msgHolder.cardMessageBubble.setShapeAppearanceModel(
+                        msgHolder.cardMessageBubble.getShapeAppearanceModel().toBuilder()
+                            .setTopLeftCornerSize(roundedCorner)
+                            .setBottomLeftCornerSize(roundedCorner)
+                            .setTopRightCornerSize(roundedCorner)
+                            .setBottomRightCornerSize(sharpCorner)
+                            .build()
+                    );
+
+                    if (msgHolder.ivMessageStatus != null) {
+                        msgHolder.ivMessageStatus.setVisibility(View.VISIBLE);
+                        boolean blocked = false;
+                        if (context instanceof ChatActivity) {
+                            blocked = ((ChatActivity) context).amIBlockedByOtherUser;
+                        }
+                        if (!blocked && "accepted".equals(requestStatus) && msg.isRead()) {
+                            msgHolder.ivMessageStatus.setImageResource(R.drawable.ic_double_check);
+                            msgHolder.ivMessageStatus.setImageTintList(ColorStateList.valueOf(Color.parseColor("#00FFFF"))); // Electric Cyan
+                        } else if (!blocked && "accepted".equals(requestStatus) && msg.isDelivered()) {
+                            msgHolder.ivMessageStatus.setImageResource(R.drawable.ic_double_check);
+                            msgHolder.ivMessageStatus.setImageTintList(ColorStateList.valueOf(Color.parseColor("#D8EEFF"))); // Light Blue Gray
+                        } else {
+                            msgHolder.ivMessageStatus.setImageResource(R.drawable.ic_single_check);
+                            msgHolder.ivMessageStatus.setImageTintList(ColorStateList.valueOf(Color.parseColor("#D8EEFF"))); // Light Blue Gray
+                        }
                     }
+                } else {
+                    // Receiver message
+                    lp.addRule(RelativeLayout.END_OF, R.id.ivUserAvatar);
+                    lp.removeRule(RelativeLayout.ALIGN_PARENT_END);
+                    lp.removeRule(RelativeLayout.ALIGN_PARENT_START);
+                    lp.setMargins(0, 0, (int) (64 * density), 0);
+
+                    msgHolder.cardMessageBubble.setCardBackgroundColor(ColorStateList.valueOf(Color.parseColor("#F0F2F5")));
+                    msgHolder.tvMessageText.setTextColor(Color.parseColor("#0F172A"));
+                    msgHolder.tvMessageTime.setTextColor(Color.parseColor("#65676B"));
+
+                    msgHolder.cardMessageBubble.setShapeAppearanceModel(
+                        msgHolder.cardMessageBubble.getShapeAppearanceModel().toBuilder()
+                            .setTopLeftCornerSize(roundedCorner)
+                            .setBottomLeftCornerSize(sharpCorner)
+                            .setTopRightCornerSize(roundedCorner)
+                            .setBottomRightCornerSize(roundedCorner)
+                            .build()
+                    );
+
+                    if (msgHolder.ivMessageStatus != null) {
+                        msgHolder.ivMessageStatus.setVisibility(View.GONE);
+                    }
+
+                    msgHolder.ivUserAvatar.setVisibility(View.VISIBLE);
+                    if (otherUserProfileImageUrl != null && !otherUserProfileImageUrl.isEmpty()) {
+                        GlideApp.with(context)
+                                .load(otherUserProfileImageUrl)
+                                .placeholder(R.drawable.ic_user)
+                                .diskCacheStrategy(DiskCacheStrategy.ALL)
+                                .circleCrop()
+                                .into(msgHolder.ivUserAvatar);
+                    } else {
+                        msgHolder.ivUserAvatar.setImageResource(R.drawable.ic_user);
+                    }
+
+                    msgHolder.ivUserAvatar.setOnClickListener(v -> {
+                        if (context instanceof ChatActivity) {
+                            ChatActivity chatAct = (ChatActivity) context;
+                            View stableAnchor = msgHolder.ivUserAvatar;
+                            View dummy = chatAct.findViewById(R.id.popupAnchorDummy);
+                            if (dummy != null) {
+                                int[] loc = new int[2];
+                                msgHolder.ivUserAvatar.getLocationInWindow(loc);
+                                dummy.setX(loc[0]);
+                                dummy.setY(loc[1]);
+                                stableAnchor = dummy;
+                            }
+                            ProfileContextMenuHelper.show(
+                                    context,
+                                    stableAnchor,
+                                    chatAct.currentUnivId,
+                                    chatAct.otherUserId,
+                                    chatAct.otherUserName,
+                                    chatAct.isOtherUserBlockedByMe,
+                                    chatAct.amIBlockedByOtherUser,
+                                    isBlocked -> {
+                                        chatAct.isOtherUserBlockedByMe = isBlocked;
+                                        chatAct.updateChatMessagingUI();
+                                        chatAct.queryOtherUserProfile();
+                                    }
+                            );
+                        }
+                    });
                 }
-            } else {
-                lp.addRule(RelativeLayout.ALIGN_PARENT_START);
-                lp.removeRule(RelativeLayout.ALIGN_PARENT_END);
-                holder.cardMessageBubble.setCardBackgroundColor(ColorStateList.valueOf(Color.parseColor("#F0F2F5")));
-                holder.tvMessageText.setTextColor(Color.parseColor("#0F172A"));
-                holder.tvMessageTime.setTextColor(Color.parseColor("#65676B"));
-                
-                if (holder.ivMessageStatus != null) {
-                    holder.ivMessageStatus.setVisibility(View.GONE);
-                }
+                msgHolder.cardMessageBubble.setLayoutParams(lp);
             }
-            holder.cardMessageBubble.setLayoutParams(lp);
         }
 
         @Override
         public int getItemCount() {
-            return list.size();
+            return displayItems.size();
         }
 
-        public static class ViewHolder extends RecyclerView.ViewHolder {
+        public static class MessageViewHolder extends RecyclerView.ViewHolder {
+            ImageView ivUserAvatar;
             MaterialCardView cardMessageBubble;
             TextView tvMessageText, tvMessageTime;
             ImageView ivMessageStatus;
 
-            public ViewHolder(@NonNull View itemView) {
+            public MessageViewHolder(@NonNull View itemView) {
                 super(itemView);
+                ivUserAvatar = itemView.findViewById(R.id.ivUserAvatar);
                 cardMessageBubble = itemView.findViewById(R.id.cardMessageBubble);
                 tvMessageText = itemView.findViewById(R.id.tvMessageText);
                 tvMessageTime = itemView.findViewById(R.id.tvMessageTime);
                 ivMessageStatus = itemView.findViewById(R.id.ivMessageStatus);
+            }
+        }
+
+        public static class DateHeaderViewHolder extends RecyclerView.ViewHolder {
+            TextView tvDateHeader;
+
+            public DateHeaderViewHolder(@NonNull View itemView) {
+                super(itemView);
+                tvDateHeader = itemView.findViewById(R.id.tvDateHeader);
             }
         }
 

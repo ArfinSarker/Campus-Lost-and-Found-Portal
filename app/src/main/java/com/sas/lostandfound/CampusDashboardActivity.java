@@ -80,6 +80,13 @@ public class CampusDashboardActivity extends AppCompatActivity {
         }
     };
 
+    private final android.content.BroadcastReceiver badgeUpdateReceiver = new android.content.BroadcastReceiver() {
+        @Override
+        public void onReceive(android.content.Context context, android.content.Intent intent) {
+            listenForNotifications();
+        }
+    };
+
     private Intent pendingIntent;
     private int currentSelectedDrawerItemId = -1;
 
@@ -177,6 +184,25 @@ public class CampusDashboardActivity extends AppCompatActivity {
     }
 
     @Override
+    protected void onStart() {
+        super.onStart();
+        androidx.core.content.ContextCompat.registerReceiver(
+                this,
+                badgeUpdateReceiver,
+                new android.content.IntentFilter("com.sas.lostandfound.UPDATE_BADGES"),
+                androidx.core.content.ContextCompat.RECEIVER_NOT_EXPORTED
+        );
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        try {
+            unregisterReceiver(badgeUpdateReceiver);
+        } catch (Exception ignored) {}
+    }
+
+    @Override
     protected void onResume() {
         super.onResume();
         // Admins should behave like normal users when on the main dashboard
@@ -255,7 +281,6 @@ public class CampusDashboardActivity extends AppCompatActivity {
             startActivity(nextIntent);
         } else if ("chat_request".equals(type) || "chat_accepted".equals(type)) {
             Intent nextIntent = new Intent(this, MessagingActivity.class);
-            nextIntent.putExtra("selectRequestsTab", "chat_request".equals(type));
             startActivity(nextIntent);
         } else if ("chat_message".equals(type)) {
             Intent nextIntent = new Intent(this, ChatActivity.class);
@@ -687,23 +712,9 @@ public class CampusDashboardActivity extends AppCompatActivity {
             }
         });
 
-        // Count unread chat messages
-        String msgFilter = "sender_id=neq." + currentUniversityId + "&is_read=eq.false&select=count";
-        SupabaseDatabaseHelper.select("messages", msgFilter, new TypeToken<List<Map<String, Object>>>() {
-        }.getType(), new SupabaseDatabaseHelper.DatabaseCallback<List<Map<String, Object>>>() {
-            @Override
-            public void onSuccess(List<Map<String, Object>> res) {
-                if (res != null && !res.isEmpty() && res.get(0).get("count") != null) {
-                    long count = ((Number) res.get(0).get("count")).longValue();
-                    updateMessageTabBadge(count);
-                } else {
-                    updateMessageTabBadge(0);
-                }
-            }
-
-            @Override
-            public void onFailure(String e) {
-            }
+        // Count unread chat messages using the participant-aware RPC helper
+        UnreadBadgeHelper.fetchUnreadCount(currentUniversityId, count -> {
+            updateMessageTabBadge(count);
         });
     }
 
@@ -730,6 +741,8 @@ public class CampusDashboardActivity extends AppCompatActivity {
                     com.google.android.material.badge.BadgeDrawable badge = messageTab.getOrCreateBadge();
                     badge.setVisible(true);
                     badge.setNumber((int) count);
+                    badge.setBackgroundColor(android.graphics.Color.parseColor("#FF3B30"));
+                    badge.setBadgeTextColor(android.graphics.Color.WHITE);
                 } else {
                     messageTab.removeBadge();
                 }

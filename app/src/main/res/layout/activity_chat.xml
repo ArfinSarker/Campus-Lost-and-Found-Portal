@@ -109,81 +109,149 @@
         android:clipToPadding="false"
         android:padding="8dp"
         app:layout_constraintTop_toBottomOf="@id/appBarLayout"
-        app:layout_constraintBottom_toTopOf="@id/layoutInputArea"
+        app:layout_constraintBottom_toTopOf="@id/layoutBottomArea"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         tools:listitem="@layout/item_message" />
 
-    <!-- Input Box Area -->
+    <!-- Bottom Area Container -->
     <LinearLayout
-        android:id="@+id/layoutInputArea"
+        android:id="@+id/layoutBottomArea"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:background="@color/backgroundColor"
-        app:layout_constraintBottom_toBottomOf="parent">
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
 
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:background="#E5E7EB" />
-
+        <!-- Input Box Area -->
         <LinearLayout
+            android:id="@+id/layoutInputArea"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:paddingHorizontal="16dp"
-            android:paddingVertical="12dp"
-            android:gravity="center_vertical">
+            android:orientation="vertical"
+            android:background="@color/backgroundColor">
 
-            <com.google.android.material.card.MaterialCardView
-                android:layout_width="0dp"
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="#E5E7EB" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
-                app:cardCornerRadius="22dp"
-                app:cardElevation="0dp"
-                app:strokeWidth="1dp"
-                app:strokeColor="#E5E7EB"
-                app:cardBackgroundColor="#F3F4F6"
-                android:layout_marginEnd="12dp">
+                android:orientation="horizontal"
+                android:paddingHorizontal="16dp"
+                android:paddingVertical="12dp"
+                android:gravity="center_vertical">
 
-                <EditText
-                    android:id="@+id/etMessageInput"
-                    android:layout_width="match_parent"
+                <com.google.android.material.card.MaterialCardView
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:minHeight="44dp"
-                    android:maxLines="4"
-                    android:paddingHorizontal="16dp"
-                    android:paddingVertical="10dp"
-                    android:hint="@string/hint_type_message"
-                    android:textColorHint="#64748B"
-                    android:background="@null"
-                    android:inputType="textShortMessage|textAutoCorrect|textCapSentences|textMultiLine"
-                    android:textColor="@color/textPrimary"
-                    android:textSize="15sp" />
-            </com.google.android.material.card.MaterialCardView>
+                    android:layout_weight="1"
+                    app:cardCornerRadius="22dp"
+                    app:cardElevation="0dp"
+                    app:strokeWidth="1dp"
+                    app:strokeColor="#E5E7EB"
+                    app:cardBackgroundColor="#F3F4F6"
+                    android:layout_marginEnd="12dp">
 
-            <com.google.android.material.card.MaterialCardView
-                android:id="@+id/btnSendMessageCard"
-                android:layout_width="44dp"
-                android:layout_height="44dp"
-                app:cardCornerRadius="22dp"
-                app:cardElevation="0dp"
-                app:strokeWidth="0dp"
-                app:cardBackgroundColor="@color/primaryColor"
-                android:clickable="true"
-                android:focusable="true">
+                    <EditText
+                        android:id="@+id/etMessageInput"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:minHeight="44dp"
+                        android:maxLines="4"
+                        android:paddingHorizontal="16dp"
+                        android:paddingVertical="10dp"
+                        android:hint="@string/hint_type_message"
+                        android:textColorHint="#64748B"
+                        android:background="@null"
+                        android:inputType="textShortMessage|textAutoCorrect|textCapSentences|textMultiLine"
+                        android:textColor="@color/textPrimary"
+                        android:textSize="15sp" />
+                </com.google.android.material.card.MaterialCardView>
 
-                <ImageView
-                    android:layout_width="18dp"
-                    android:layout_height="18dp"
-                    android:layout_gravity="center"
-                    android:src="@drawable/ic_send"
-                    app:tint="@color/white"
-                    android:contentDescription="Send Message" />
-            </com.google.android.material.card.MaterialCardView>
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/btnSendMessageCard"
+                    android:layout_width="44dp"
+                    android:layout_height="44dp"
+                    app:cardCornerRadius="22dp"
+                    app:cardElevation="0dp"
+                    app:strokeWidth="0dp"
+                    app:cardBackgroundColor="@color/primaryColor"
+                    android:clickable="true"
+                    android:focusable="true">
 
+                    <ImageView
+                        android:layout_width="18dp"
+                        android:layout_height="18dp"
+                        android:layout_gravity="center"
+                        android:src="@drawable/ic_send"
+                        app:tint="@color/white"
+                        android:contentDescription="Send Message" />
+                </com.google.android.material.card.MaterialCardView>
+
+            </LinearLayout>
+        </LinearLayout>
+
+        <!-- Request Actions Area -->
+        <LinearLayout
+            android:id="@+id/layoutRequestActions"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:background="@color/backgroundColor"
+            android:visibility="gone">
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="#E5E7EB" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:paddingHorizontal="16dp"
+                android:paddingVertical="12dp"
+                android:gravity="center">
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnRejectRequest"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:layout_marginEnd="8dp"
+                    android:text="Decline"
+                    android:backgroundTint="#FF3B30"
+                    android:textColor="@color/white"
+                    app:icon="@drawable/ic_close"
+                    app:iconTint="@color/white"
+                    app:cornerRadius="20dp" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnAcceptRequest"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:layout_marginStart="8dp"
+                    android:text="Accept"
+                    android:backgroundTint="#34C759"
+                    android:textColor="@color/white"
+                    app:icon="@drawable/ic_check"
+                    app:iconTint="@color/white"
+                    app:cornerRadius="20dp" />
+            </LinearLayout>
         </LinearLayout>
     </LinearLayout>
+
+    <View
+        android:id="@+id/popupAnchorDummy"
+        android:layout_width="1dp"
+        android:layout_height="1dp"
+        android:visibility="invisible"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
