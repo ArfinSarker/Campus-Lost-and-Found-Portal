@@ -9,7 +9,7 @@
     app:cardCornerRadius="14dp"
     app:cardElevation="0dp"
     app:strokeWidth="1dp"
-    app:strokeColor="@color/dividerColor"
+    app:strokeColor="@color/notification_card_stroke_read"
     app:cardPreventCornerOverlap="false"
     app:cardUseCompatPadding="false"
     android:clickable="true"
@@ -88,22 +88,22 @@
                 android:id="@+id/tvNotificationMessage"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:textColor="@color/textPrimary"
+                android:textColor="@color/notification_text_primary"
                 android:textSize="14sp"
                 android:lineSpacingMultiplier="1.2"
-                android:textColorLink="@color/primaryColor" />
+                android:textColorLink="@color/notification_link_color" />
 
             <TextView
                 android:id="@+id/tvNotificationTime"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="5dp"
-                android:textColor="@color/textSecondary"
+                android:textColor="@color/notification_timestamp_text"
                 android:textSize="12sp"
                 android:gravity="center_vertical"
                 app:drawableStartCompat="@drawable/ic_clock"
                 android:drawablePadding="5dp"
-                app:drawableTint="@color/textSecondary" />
+                app:drawableTint="@color/notification_clock_icon" />
 
         </LinearLayout>
 
@@ -114,7 +114,7 @@
             android:layout_height="8dp"
             android:layout_marginEnd="8dp"
             android:background="@drawable/bg_notification_badge"
-            android:backgroundTint="@color/primaryColor"
+            android:backgroundTint="@color/notification_unread_indicator"
             android:visibility="gone"
             app:layout_constraintEnd_toStartOf="@id/btnDeleteNotification"
             app:layout_constraintStart_toEndOf="@id/llTextContainer"
@@ -128,7 +128,7 @@
             android:layout_height="36dp"
             android:background="?attr/selectableItemBackgroundBorderless"
             android:src="@drawable/ic_delete"
-            app:tint="@color/statusLost"
+            app:tint="@color/notification_delete_icon"
             android:contentDescription="@string/btn_delete"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent"

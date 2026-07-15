@@ -5,7 +5,7 @@
     android:id="@+id/loginRoot"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/backgroundColor"
+    android:background="@color/login_register_background"
     android:fitsSystemWindows="true">
 
     <com.google.android.material.appbar.AppBarLayout
@@ -61,7 +61,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:fillViewport="true"
-        android:background="@color/backgroundColor"
+        android:background="@color/login_register_background"
         app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
         <LinearLayout
@@ -83,8 +83,8 @@
                 app:cardCornerRadius="50dp"
                 app:cardElevation="2dp"
                 app:strokeWidth="2dp"
-                app:strokeColor="@color/divider_e2e8f0"
-                app:cardBackgroundColor="@color/cardBackgroundColor">
+                app:strokeColor="@color/login_register_logo_border"
+                app:cardBackgroundColor="@color/login_register_input_bg">
 
                 <ImageView
                     android:id="@+id/ivLogo"
@@ -115,7 +115,7 @@
                     android:layout_height="wrap_content"
                     android:fontFamily="sans-serif-black"
                     android:text="@string/found_part"
-                    android:textColor="@color/text_black_dynamic"
+                    android:textColor="@color/login_register_title_text"
                     android:textSize="22sp" />
             </LinearLayout>
 
@@ -126,6 +126,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="5dp"
                 android:gravity="center"
+                android:textColor="@color/login_register_title_text"
                 android:text="@string/login_welcome_back" />
 
             <!-- 4. Subtitle text (centered) -->
@@ -137,7 +138,7 @@
                 android:layout_marginBottom="0dp"
                 android:gravity="center"
                 android:text="@string/login_subtitle_new"
-                android:textColor="@color/textSecondary" />
+                android:textColor="@color/login_register_body_text" />
 
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/tilUserType"
@@ -151,15 +152,21 @@
                 app:boxCornerRadiusBottomStart="8dp"
                 app:boxCornerRadiusTopEnd="8dp"
                 app:boxCornerRadiusTopStart="8dp"
+                app:boxBackgroundColor="@color/login_register_input_bg"
+                app:boxStrokeColor="@color/login_register_box_stroke"
+                android:textColorHint="@color/login_register_input_hint"
+                app:hintTextColor="@color/login_register_border_color_focused"
                 app:startIconDrawable="@drawable/ic_users"
-                app:startIconTint="@color/primaryColor">
+                app:startIconTint="@color/login_register_icon_user_type"
+                app:endIconTint="@color/login_register_border_color_focused">
 
                 <AutoCompleteTextView
                     android:id="@+id/actvUserType"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:inputType="none"
-                    android:textColor="@color/text_black_dynamic" />
+                    android:textColor="@color/login_register_input_text"
+                    android:popupBackground="@color/login_register_dropdown_popup_bg" />
             </com.google.android.material.textfield.TextInputLayout>
 
             <com.google.android.material.textfield.TextInputLayout
@@ -173,15 +180,19 @@
                 app:boxCornerRadiusBottomStart="8dp"
                 app:boxCornerRadiusTopEnd="8dp"
                 app:boxCornerRadiusTopStart="8dp"
+                app:boxBackgroundColor="@color/login_register_input_bg"
+                app:boxStrokeColor="@color/login_register_box_stroke"
+                android:textColorHint="@color/login_register_input_hint"
+                app:hintTextColor="@color/login_register_border_color_focused"
                 app:startIconDrawable="@drawable/ic_id_card"
-                app:startIconTint="@color/primaryColor">
+                app:startIconTint="@color/login_register_icon_university_id">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/etUniversityId"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:inputType="text"
-                    android:textColor="@color/text_black_dynamic" />
+                    android:textColor="@color/login_register_input_text" />
             </com.google.android.material.textfield.TextInputLayout>
 
             <com.google.android.material.textfield.TextInputLayout
@@ -195,17 +206,21 @@
                 app:boxCornerRadiusBottomStart="8dp"
                 app:boxCornerRadiusTopEnd="8dp"
                 app:boxCornerRadiusTopStart="8dp"
+                app:boxBackgroundColor="@color/login_register_input_bg"
+                app:boxStrokeColor="@color/login_register_box_stroke"
+                android:textColorHint="@color/login_register_input_hint"
+                app:hintTextColor="@color/login_register_border_color_focused"
                 app:passwordToggleEnabled="true"
-                app:passwordToggleTint="@color/primaryColor"
+                app:passwordToggleTint="@color/login_register_password_toggle_color"
                 app:startIconDrawable="@drawable/ic_lock"
-                app:startIconTint="@color/primaryColor">
+                app:startIconTint="@color/login_register_icon_lock">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/etPassword"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:inputType="textPassword"
-                    android:textColor="@color/text_black_dynamic" />
+                    android:textColor="@color/login_register_input_text" />
             </com.google.android.material.textfield.TextInputLayout>
 
             <TextView
@@ -218,7 +233,7 @@
                 android:layout_marginBottom="16dp"
                 android:padding="8dp"
                 android:text="@string/forgot_password"
-                android:textColor="@color/primaryColor"
+                android:textColor="@color/login_register_link_text"
                 android:textStyle="bold" />
 
             <FrameLayout
@@ -231,8 +246,10 @@
                     android:layout_width="match_parent"
                     android:layout_height="55dp"
                     android:text="@string/sign_in"
+                    android:textColor="@color/login_register_button_text"
+                    app:backgroundTint="@color/login_register_button_bg"
                     android:textAllCaps="false"
-                    app:strokeColor="@color/primaryColor"
+                    app:strokeColor="@color/login_register_button_bg"
                     app:strokeWidth="2dp" />
 
                 <com.airbnb.lottie.LottieAnimationView
@@ -255,7 +272,7 @@
                 android:layout_marginBottom="24dp"
                 android:padding="2dp"
                 android:text="@string/register_link"
-                android:textColor="@color/textSecondary" />
+                android:textColor="@color/login_register_body_text" />
 
             <View
                 android:id="@+id/keyboardSpacer"

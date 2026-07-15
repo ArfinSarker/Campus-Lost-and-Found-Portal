@@ -1,11 +1,143 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- Profile Page Specific Colors -->
+    <!-- Profile Page Specific Colors (Light Mode) -->
     <color name="profile_background">#F8FAFC</color>
     <color name="profile_card_bg">#FFFFFF</color>
     <color name="profile_card_stroke">#CBD5E1</color>
     <color name="profile_text_primary">#0F172A</color>
     <color name="profile_text_secondary">#475569</color>
+    <color name="profile_input_bg">@color/transparent</color>
+    <color name="profile_input_hint">@color/textHint</color>
+    <color name="profile_border_color_focused">@color/primaryColor</color>
+    <color name="profile_dropdown_popup_bg">@color/dropdown_popup_bg</color>
+    <color name="profile_dropdown_text">@color/text_black_dynamic</color>
+    <color name="profile_dropdown_item_hovered">@color/dropdown_item_hovered</color>
+    <color name="profile_dropdown_item_pressed">@color/dropdown_item_pressed</color>
+    <color name="profile_dropdown_item_selected">@color/dropdown_item_selected</color>
+    <color name="profile_button_bg">@color/primaryColor</color>
+    <color name="profile_button_text">@color/white</color>
+    <color name="profile_avatar_stroke">@color/primaryColor</color>
+    <color name="profile_edit_icon_color">@color/primaryColor</color>
+    <color name="profile_eye_icon_color">@color/primaryColor</color>
+    <color name="profile_fab_bg">@color/primaryColor</color>
+    <color name="profile_fab_tint">@color/white</color>
+    <color name="profile_header_bg">@color/white</color>
+    <color name="profile_header_text_color">#0F172A</color>
+    <color name="profile_section_title">@color/primaryColor</color>
+    <color name="profile_password_toggle_color">@color/primaryColor</color>
+    <color name="profile_swipe_refresh_color">@color/primaryColor</color>
+
+    <!-- Unique Colors for Profile Icons (Light Mode) -->
+    <color name="profile_icon_full_name">@color/primaryColor</color>
+    <color name="profile_icon_university_id">@color/primaryColor</color>
+    <color name="profile_icon_gender">@color/primaryColor</color>
+    <color name="profile_icon_designation">@color/primaryColor</color>
+    <color name="profile_icon_department">@color/primaryColor</color>
+    <color name="profile_icon_batch">@color/primaryColor</color>
+    <color name="profile_icon_level_term">@color/primaryColor</color>
+    <color name="profile_icon_section">@color/primaryColor</color>
+    <color name="profile_icon_email">@color/primaryColor</color>
+    <color name="profile_icon_phone">@color/primaryColor</color>
+    <color name="profile_icon_old_password">@color/primaryColor</color>
+    <color name="profile_icon_new_password">@color/primaryColor</color>
+    <color name="profile_icon_confirm_password">@color/primaryColor</color>
+
+    <!-- Navigation Panel Specific Colors (Light Mode) -->
+    <color name="nav_drawer_bg">@color/surfaceColor</color>
+    <color name="nav_drawer_item_indicator">@color/primaryLightColor</color>
+    <color name="nav_drawer_item_active_icon">@color/primaryColor</color>
+    <color name="nav_drawer_item_inactive_icon">@color/textSecondary</color>
+    <color name="nav_drawer_item_active_text">@color/primaryColor</color>
+    <color name="nav_drawer_item_inactive_text">@color/text_0f172a</color>
+    <color name="nav_drawer_divider_color">#CBD5E1</color>
+    <color name="nav_drawer_ripple">#22000000</color>
+    <color name="nav_drawer_header_bg">@color/surfaceColor</color>
+    <color name="nav_drawer_header_avatar_stroke">#FF000000</color>
+
+    <!-- Unique Dynamic Icon Colors for Drawer (Light Mode) -->
+    <color name="nav_drawer_icon_dark_mode">@color/primaryColor</color>
+    <color name="nav_drawer_icon_profile">@color/primaryColor</color>
+    <color name="nav_drawer_icon_reported">@color/statusFound</color>
+    <color name="nav_drawer_icon_find">@color/statusLost</color>
+    <color name="nav_drawer_icon_resolved">@color/primaryColor</color>
+    <color name="nav_drawer_icon_admin_reports">@color/admin_accent</color>
+    <color name="nav_drawer_icon_admin_dashboard">@color/admin_accent</color>
+    <color name="nav_drawer_icon_logout">@color/errorColor</color>
+
+    <!-- Campus Dashboard Specific Colors (Light Mode) -->
+    <color name="dashboard_background">@color/backgroundColor</color>
+    <color name="dashboard_header_bg">@color/white</color>
+    <color name="dashboard_header_icon_tint">#0F172A</color>
+    <color name="dashboard_tab_indicator_color">@color/primaryColor</color>
+    <color name="dashboard_tab_selected_text_color">@color/primaryColor</color>
+    <color name="dashboard_tab_text_color">@color/textSecondary</color>
+    <color name="dashboard_tab_ripple_color">#262AABEE</color>
+    <color name="dashboard_lost_card_bg">#0DFF3B30</color>
+    <color name="dashboard_lost_card_stroke">@color/transparent</color>
+    <color name="dashboard_found_card_bg">#0D34C759</color>
+    <color name="dashboard_found_card_stroke">@color/transparent</color>
+    <color name="dashboard_lost_count_color">@color/statusLost</color>
+    <color name="dashboard_found_count_color">@color/statusFound</color>
+    <color name="dashboard_card_label_color">@color/textSecondary</color>
+    <color name="dashboard_lost_icon_bg">#1AFF3B30</color>
+    <color name="dashboard_found_icon_bg">#1A34C759</color>
+    <color name="dashboard_lost_btn_text">@color/statusLost</color>
+    <color name="dashboard_found_btn_text">@color/statusFound</color>
+    
+    <!-- Report Lost Button Background Gradient (Light Mode) -->
+    <color name="dashboard_lost_btn_ripple">#4DFF3B30</color>
+    <color name="dashboard_lost_btn_pressed_start">#3DFF8A80</color>
+    <color name="dashboard_lost_btn_pressed_end">#3DFF3B30</color>
+    <color name="dashboard_lost_btn_pressed_stroke">#99FF3B30</color>
+    <color name="dashboard_lost_btn_hovered_start">#2BFF8A80</color>
+    <color name="dashboard_lost_btn_hovered_end">#2BFF3B30</color>
+    <color name="dashboard_lost_btn_hovered_stroke">#66FF3B30</color>
+    <color name="dashboard_lost_btn_default_start">#1FFF8A80</color>
+    <color name="dashboard_lost_btn_default_end">#1FFF3B30</color>
+    <color name="dashboard_lost_btn_default_stroke">#4DFF3B30</color>
+
+    <!-- Report Found Button Background Gradient (Light Mode) -->
+    <color name="dashboard_found_btn_ripple">#4D34C759</color>
+    <color name="dashboard_found_btn_pressed_start">#3D30E280</color>
+    <color name="dashboard_found_btn_pressed_end">#3D34C759</color>
+    <color name="dashboard_found_btn_pressed_stroke">#9934C759</color>
+    <color name="dashboard_found_btn_hovered_start">#2B30E280</color>
+    <color name="dashboard_found_btn_hovered_end">#2B34C759</color>
+    <color name="dashboard_found_btn_hovered_stroke">#6634C759</color>
+    <color name="dashboard_found_btn_default_start">#1F30E280</color>
+    <color name="dashboard_found_btn_default_end">#1F34C759</color>
+    <color name="dashboard_found_btn_default_stroke">#4D34C759</color>
+
+    <!-- View More/Less Buttons (Light Mode) -->
+    <color name="dashboard_view_more_text">@color/primaryColor</color>
+    <color name="dashboard_view_more_stroke">@color/divider_e2e8f0</color>
+    <color name="dashboard_view_more_bg">@color/dashboard_btn_bg</color>
+    <color name="dashboard_view_more_ripple">@color/primaryLightColor</color>
+    <color name="dashboard_browse_all_color">@color/primaryColor</color>
+
+    <!-- Recent Items Layout Elements (Light Mode) -->
+    <color name="dashboard_item_card_bg">@color/surfaceColor</color>
+    <color name="dashboard_item_card_stroke">@color/dividerColor</color>
+    <color name="dashboard_item_image_bg">@color/bg_f8fafc</color>
+    <color name="dashboard_item_title">@color/textPrimary</color>
+    <color name="dashboard_item_location_icon">@color/primaryColor</color>
+    <color name="dashboard_item_time_icon">@color/textSecondary</color>
+    <color name="dashboard_item_metadata_text">@color/textSecondary</color>
+    <color name="dashboard_item_placeholder_tint">#9E9E9E</color>
+
+    <!-- Welcome / Help Banner Gradients (Light Mode) -->
+    <color name="dashboard_welcome_gradient_start">#2AABEE</color>
+    <color name="dashboard_welcome_gradient_center">#3A7BD5</color>
+    <color name="dashboard_welcome_gradient_end">#1565C0</color>
+    <color name="dashboard_help_gradient_start">#180410</color>
+    <color name="dashboard_help_gradient_center">#3B0B24</color>
+    <color name="dashboard_help_gradient_end">#5C133A</color>
+
+    <!-- Dynamic Status Badge Colors (Light Mode) -->
+    <color name="dashboard_status_resolved">#2AABEE</color>
+    <color name="dashboard_status_lost">#FF3B30</color>
+    <color name="dashboard_status_found">#34C759</color>
+    <color name="dashboard_status_default">#757575</color>
 
     <!-- Admin Request Cards Specific Colors -->
     <color name="admin_request_card_bg">#FFFFFF</color>
@@ -19,6 +151,40 @@
     <color name="admin_request_deny_btn_stroke">#DC2626</color>
     <color name="admin_request_deny_btn_text">#DC2626</color>
     <color name="admin_request_accept_btn_bg">#2563EB</color>
+
+    <!-- Notification Screens Specific Colors (Light Mode) -->
+    <color name="notification_screen_bg">@color/chatBackground</color>
+    <color name="notification_header_bg">@color/primaryDarkColor</color>
+    <color name="notification_header_icon_tint">@color/white</color>
+    <color name="notification_header_title_color">@color/white</color>
+    <color name="notification_card_bg_read">@color/surfaceColor</color>
+    <color name="notification_card_bg_unread">#0D2AABEE</color>
+    <color name="notification_card_stroke_read">@color/dividerColor</color>
+    <color name="notification_card_stroke_unread">#592AABEE</color>
+    <color name="notification_badge_stroke_read">@color/surfaceColor</color>
+    <color name="notification_badge_stroke_unread">#0D2AABEE</color>
+    <color name="notification_text_primary">@color/textPrimary</color>
+    <color name="notification_text_secondary">@color/textSecondary</color>
+    <color name="notification_timestamp_text">@color/textSecondary</color>
+    <color name="notification_unread_indicator">@color/primaryColor</color>
+    <color name="notification_delete_icon">@color/statusLost</color>
+    <color name="notification_link_color">@color/scienceBlue</color>
+    <color name="notification_sender_name_color">@color/orange</color>
+    <color name="notification_lost_item_color">@color/statusLost</color>
+    <color name="notification_found_item_color">@color/statusFound</color>
+    <color name="notification_admin_color">@color/admin_accent</color>
+    <color name="notification_admin_icon_color">@color/admin_accent</color>
+    <color name="notification_admin_text_color">@color/admin_accent</color>
+    <color name="notification_empty_card_bg">@color/primaryLightColor</color>
+    <color name="notification_empty_icon_tint">@color/primaryColor</color>
+    <color name="notification_swipe_refresh_color">@color/primaryColor</color>
+    <color name="notification_warning_badge_color">@color/warningColor</color>
+    <color name="notification_claimed_badge_color">@color/statusFound</color>
+    <color name="notification_date_icon">@color/textSecondary</color>
+    <color name="notification_icon_bg">@color/avatar_bg</color>
+    <color name="notification_clock_icon">@color/textSecondary</color>
+    <color name="default_avatar_fg">@color/primaryColor</color>
+    <color name="default_avatar_bg">@color/primaryLightColor</color>
 
     <!-- Brand Colors - Telegram X Style -->
     <color name="primaryColor">#2AABEE</color>
@@ -196,4 +362,43 @@
     <!-- Avatar Colors -->
     <color name="avatar_bg">#E2E8F0</color>
     <color name="avatar_icon_tint">#64748B</color>
+
+    <!-- Login/Registration Specific Colors (Light Mode) -->
+    <color name="login_register_background">@color/backgroundColor</color>
+    <color name="login_register_input_bg">@color/transparent</color>
+    <color name="login_register_input_text">@color/text_black_dynamic</color>
+    <color name="login_register_input_hint">@color/textHint</color>
+    <color name="login_register_border_color">#CBD5E1</color>
+    <color name="login_register_border_color_focused">@color/primaryColor</color>
+    <color name="login_register_dropdown_popup_bg">@color/dropdown_popup_bg</color>
+    <color name="login_register_dropdown_text">@color/text_black_dynamic</color>
+    <color name="login_register_dropdown_item_hovered">@color/dropdown_item_hovered</color>
+    <color name="login_register_dropdown_item_pressed">@color/dropdown_item_pressed</color>
+    <color name="login_register_dropdown_item_selected">@color/dropdown_item_selected</color>
+    <color name="login_register_dropdown_icon">@color/primaryColor</color>
+    <color name="login_register_link_text">@color/primaryColor</color>
+    <color name="login_register_title_text">@color/text_black_dynamic</color>
+    <color name="login_register_body_text">@color/textSecondary</color>
+    <color name="login_register_button_bg">@color/primaryColor</color>
+    <color name="login_register_button_text">@color/white</color>
+    <color name="login_register_logo_border">@color/divider_e2e8f0</color>
+    <color name="login_register_password_toggle_color">@color/primaryColor</color>
+    <color name="login_register_profile_icon_color">@color/avatar_icon_tint</color>
+    <color name="login_register_profile_border_color">@color/vibrantBlue</color>
+    <color name="login_register_camera_bg_color">@color/vibrantBlue</color>
+    <color name="login_register_camera_icon_color">@color/white</color>
+
+    <!-- Modern Icon Colors for Login/Registration (Light Mode) -->
+    <color name="login_register_icon_user_type">@color/primaryColor</color>
+    <color name="login_register_icon_university_id">@color/primaryColor</color>
+    <color name="login_register_icon_full_name">@color/primaryColor</color>
+    <color name="login_register_icon_email">@color/primaryColor</color>
+    <color name="login_register_icon_phone">@color/primaryColor</color>
+    <color name="login_register_icon_designation">@color/primaryColor</color>
+    <color name="login_register_icon_department">@color/primaryColor</color>
+    <color name="login_register_icon_admin_code">@color/primaryColor</color>
+    <color name="login_register_icon_batch">@color/primaryColor</color>
+    <color name="login_register_icon_level_term">@color/primaryColor</color>
+    <color name="login_register_icon_lock">@color/primaryColor</color>
+    <color name="login_register_icon_confirm_lock">@color/primaryColor</color>
 </resources>

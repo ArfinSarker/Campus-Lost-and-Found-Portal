@@ -61,6 +61,16 @@
         <item name="hintTextColor">@color/primaryColor</item>
     </style>
 
+    <!-- Theme Overlay for NavigationView to style the navigation panel dynamically -->
+    <style name="ThemeOverlay.App.NavigationView" parent="">
+        <item name="colorSurface">@color/nav_drawer_bg</item>
+        <item name="colorOnSurface">@color/nav_drawer_item_inactive_text</item>
+        <item name="colorOnSurfaceVariant">@color/nav_drawer_item_inactive_text</item>
+        <item name="colorSecondaryContainer">@color/nav_drawer_item_indicator</item>
+        <item name="colorOnSecondaryContainer">@color/nav_drawer_item_active_text</item>
+        <item name="colorOutline">@color/nav_drawer_divider_color</item>
+    </style>
+
     <style name="Theme.App.FullScreen" parent="Theme.Material3.DayNight.NoActionBar">
         <item name="android:windowFullscreen">true</item>
         <item name="android:windowContentOverlay">@null</item>

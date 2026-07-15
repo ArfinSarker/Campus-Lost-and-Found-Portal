@@ -277,7 +277,7 @@ public class UserProfileActivity extends AppCompatActivity {
 
     private void setupSwipeRefresh() {
         if (swipeRefreshLayout != null) {
-            swipeRefreshLayout.setColorSchemeColors(ContextCompat.getColor(this, R.color.primaryColor));
+            swipeRefreshLayout.setColorSchemeColors(ContextCompat.getColor(this, R.color.profile_swipe_refresh_color));
             swipeRefreshLayout.setOnRefreshListener(() -> {
                 if ((isAdminViewing || isViewOnly) && targetUserId != null) {
                     loadUserData(targetUserId);
@@ -575,7 +575,10 @@ public class UserProfileActivity extends AppCompatActivity {
             // HeaderColorHelper setup to style the header dynamically/consistently
             com.google.android.material.appbar.AppBarLayout appBarLayout = findViewById(R.id.appBarLayout);
             if (appBarLayout != null) {
-                HeaderColorHelper.setup(this, appBarLayout, toolbar);
+                int profileHeaderBg = ContextCompat.getColor(this, R.color.profile_header_bg);
+                boolean isNightMode = (getResources().getConfiguration().uiMode & android.content.res.Configuration.UI_MODE_NIGHT_MASK) 
+                        == android.content.res.Configuration.UI_MODE_NIGHT_YES;
+                HeaderColorHelper.setup(this, appBarLayout, profileHeaderBg, profileHeaderBg, !isNightMode);
             }
         }
     }
@@ -593,7 +596,7 @@ public class UserProfileActivity extends AppCompatActivity {
         });
 
         String[] genders = { "Male", "Female" };
-        ArrayAdapter<String> genderAdapter = new ArrayAdapter<>(this, R.layout.dropdown_item, genders);
+        ArrayAdapter<String> genderAdapter = new ArrayAdapter<>(this, R.layout.profile_dropdown_item, genders);
         actvGender.setAdapter(genderAdapter);
         actvGender.setOnClickListener(v -> {
             if (actvGender.isEnabled())
@@ -606,7 +609,7 @@ public class UserProfileActivity extends AppCompatActivity {
                 "Level 3 Term I", "Level 3 Term II",
                 "Level 4 Term I", "Level 4 Term II"
         };
-        ArrayAdapter<String> levelAdapter = new ArrayAdapter<>(this, R.layout.dropdown_item, levels);
+        ArrayAdapter<String> levelAdapter = new ArrayAdapter<>(this, R.layout.profile_dropdown_item, levels);
         actvLevelTerm.setAdapter(levelAdapter);
         actvLevelTerm.setOnClickListener(v -> {
             if (actvLevelTerm.isEnabled())
@@ -614,7 +617,7 @@ public class UserProfileActivity extends AppCompatActivity {
         });
 
         String[] sections = { "A", "B", "C", "D" };
-        ArrayAdapter<String> sectionAdapter = new ArrayAdapter<>(this, R.layout.dropdown_item, sections);
+        ArrayAdapter<String> sectionAdapter = new ArrayAdapter<>(this, R.layout.profile_dropdown_item, sections);
         actvSection.setAdapter(sectionAdapter);
         actvSection.setOnClickListener(v -> {
             if (actvSection.isEnabled())

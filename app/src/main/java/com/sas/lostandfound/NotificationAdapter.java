@@ -79,7 +79,7 @@ public class NotificationAdapter extends RecyclerView.Adapter<NotificationAdapte
                 int end = start + "Click to view details".length();
                 SpannableString spannableString = new SpannableString(fullMsg);
                 spannableString.setSpan(new UnderlineSpan(), start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-                spannableString.setSpan(new ForegroundColorSpan(ContextCompat.getColor(holder.itemView.getContext(), R.color.scienceBlue)), start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+                spannableString.setSpan(new ForegroundColorSpan(ContextCompat.getColor(holder.itemView.getContext(), R.color.notification_link_color)), start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
                 holder.tvMessage.setText(spannableString);
             } else {
                 holder.tvMessage.setText(fullMsg);
@@ -90,44 +90,44 @@ public class NotificationAdapter extends RecyclerView.Adapter<NotificationAdapte
 
         // Badge color and icon selection based on type
         int iconRes = R.drawable.ic_notification;
-        int tintColor = ContextCompat.getColor(context, R.color.primaryColor);
+        int tintColor = ContextCompat.getColor(context, R.color.notification_unread_indicator);
         boolean showBadge = true;
 
         if ("lost_item".equals(type)) {
             iconRes = R.drawable.ic_lost_tag;
-            tintColor = ContextCompat.getColor(context, R.color.statusLost);
+            tintColor = ContextCompat.getColor(context, R.color.notification_lost_item_color);
         } else if ("found_item".equals(type)) {
             iconRes = R.drawable.ic_found_tag;
-            tintColor = ContextCompat.getColor(context, R.color.statusFound);
+            tintColor = ContextCompat.getColor(context, R.color.notification_found_item_color);
         } else if ("lost_claim".equals(type)) {
             iconRes = R.drawable.ic_alert_match;
-            tintColor = ContextCompat.getColor(context, R.color.warningColor);
+            tintColor = ContextCompat.getColor(context, R.color.notification_warning_badge_color);
         } else if ("found_claim".equals(type)) {
             iconRes = R.drawable.ic_id_card;
-            tintColor = ContextCompat.getColor(context, R.color.warningColor);
+            tintColor = ContextCompat.getColor(context, R.color.notification_warning_badge_color);
         } else if ("item_claimed".equals(type)) {
             iconRes = R.drawable.ic_user_check;
-            tintColor = ContextCompat.getColor(context, R.color.statusFound);
+            tintColor = ContextCompat.getColor(context, R.color.notification_claimed_badge_color);
         } else if ("lost_claimed_confirmed".equals(type)) {
             iconRes = R.drawable.ic_check_square;
-            tintColor = ContextCompat.getColor(context, R.color.statusFound);
+            tintColor = ContextCompat.getColor(context, R.color.notification_claimed_badge_color);
         } else if ("item_return".equals(type)) {
             iconRes = R.drawable.ic_package;
-            tintColor = ContextCompat.getColor(context, R.color.statusFound);
+            tintColor = ContextCompat.getColor(context, R.color.notification_claimed_badge_color);
         } else if ("item_returned_confirmed".equals(type)) {
             iconRes = R.drawable.ic_check_circle;
-            tintColor = ContextCompat.getColor(context, R.color.statusFound);
+            tintColor = ContextCompat.getColor(context, R.color.notification_claimed_badge_color);
         } else if ("admin_report".equals(type)) {
             iconRes = R.drawable.ic_shield;
-            tintColor = ContextCompat.getColor(context, R.color.admin_accent);
+            tintColor = ContextCompat.getColor(context, R.color.notification_admin_icon_color);
             showBadge = false;
         } else if ("admin_report_new".equals(type)) {
             iconRes = R.drawable.ic_report_management;
-            tintColor = ContextCompat.getColor(context, R.color.admin_accent);
+            tintColor = ContextCompat.getColor(context, R.color.notification_admin_icon_color);
             showBadge = false;
         } else if ("admin_request".equals(type)) {
             iconRes = R.drawable.ic_status;
-            tintColor = ContextCompat.getColor(context, R.color.admin_accent);
+            tintColor = ContextCompat.getColor(context, R.color.notification_admin_icon_color);
             showBadge = false;
         }
 
@@ -162,8 +162,8 @@ public class NotificationAdapter extends RecyclerView.Adapter<NotificationAdapte
             int paddingPx = dpToPx(context, 10);
             holder.ivIcon.setPadding(paddingPx, paddingPx, paddingPx, paddingPx);
             holder.ivIcon.setBackgroundResource(R.drawable.bg_notification_icon_container);
-            int bgTint = ColorUtils.setAlphaComponent(tintColor, 21);
-            holder.ivIcon.setBackgroundTintList(android.content.res.ColorStateList.valueOf(bgTint));
+            int iconBgColor = ContextCompat.getColor(context, R.color.notification_icon_bg);
+            holder.ivIcon.setBackgroundTintList(android.content.res.ColorStateList.valueOf(iconBgColor));
             holder.ivIcon.setImageTintList(android.content.res.ColorStateList.valueOf(tintColor));
         }
 
@@ -172,8 +172,8 @@ public class NotificationAdapter extends RecyclerView.Adapter<NotificationAdapte
             holder.cvBadge.setVisibility(View.VISIBLE);
             holder.cvBadge.setCardBackgroundColor(android.content.res.ColorStateList.valueOf(tintColor));
             int badgeStrokeColor = notification.isRead() ? 
-                ContextCompat.getColor(context, R.color.surfaceColor) : 
-                ColorUtils.setAlphaComponent(ContextCompat.getColor(context, R.color.primaryColor), 10);
+                ContextCompat.getColor(context, R.color.notification_badge_stroke_read) : 
+                ContextCompat.getColor(context, R.color.notification_badge_stroke_unread);
             holder.cvBadge.setStrokeColor(badgeStrokeColor);
             holder.ivBadge.setImageResource(iconRes);
             holder.ivBadge.setImageTintList(android.content.res.ColorStateList.valueOf(ContextCompat.getColor(context, R.color.white)));
@@ -187,15 +187,15 @@ public class NotificationAdapter extends RecyclerView.Adapter<NotificationAdapte
         if (notification.isRead()) {
             holder.tvMessage.setTypeface(null, Typeface.NORMAL);
             holder.viewUnread.setVisibility(View.GONE);
-            holder.cardView.setCardBackgroundColor(ContextCompat.getColor(context, R.color.surfaceColor));
-            holder.cardView.setStrokeColor(ContextCompat.getColor(context, R.color.dividerColor));
+            holder.cardView.setCardBackgroundColor(ContextCompat.getColor(context, R.color.notification_card_bg_read));
+            holder.cardView.setStrokeColor(ContextCompat.getColor(context, R.color.notification_card_stroke_read));
             holder.cardView.setStrokeWidth(dpToPx(context, 1));
             holder.itemView.setAlpha(1.0f);
         } else {
             holder.tvMessage.setTypeface(null, Typeface.BOLD);
             holder.viewUnread.setVisibility(View.VISIBLE);
-            holder.cardView.setCardBackgroundColor(ColorUtils.setAlphaComponent(ContextCompat.getColor(context, R.color.primaryColor), 10));
-            holder.cardView.setStrokeColor(ColorUtils.setAlphaComponent(ContextCompat.getColor(context, R.color.primaryColor), 35));
+            holder.cardView.setCardBackgroundColor(ContextCompat.getColor(context, R.color.notification_card_bg_unread));
+            holder.cardView.setStrokeColor(ContextCompat.getColor(context, R.color.notification_card_stroke_unread));
             holder.cardView.setStrokeWidth(dpToPx(context, 1));
             holder.itemView.setAlpha(1.0f);
         }
@@ -222,17 +222,17 @@ public class NotificationAdapter extends RecyclerView.Adapter<NotificationAdapte
         
         if ("item_claimed".equals(type) || "lost_claimed_confirmed".equals(type) || "lost_claim".equals(type)) {
             action = " has marked that they received ";
-            itemColor = ContextCompat.getColor(context, R.color.statusLost);
+            itemColor = ContextCompat.getColor(context, R.color.notification_lost_item_color);
         } else {
             action = " has marked that they returned ";
-            itemColor = ContextCompat.getColor(context, R.color.statusFound);
+            itemColor = ContextCompat.getColor(context, R.color.notification_found_item_color);
         }
         
         String clickText = "Click to view details";
         String fullText = "\"" + name + "\"" + action + "\"" + itemName + "\" from you. " + clickText + ".";
         
         SpannableString ss = new SpannableString(fullText);
-        int nameColor = ContextCompat.getColor(context, R.color.orange);
+        int nameColor = ContextCompat.getColor(context, R.color.notification_sender_name_color);
         
         // 1. Style Name (Orange & Bold)
         int nameStart = fullText.indexOf("\"" + name + "\"");
@@ -251,7 +251,7 @@ public class NotificationAdapter extends RecyclerView.Adapter<NotificationAdapte
         // 3. Highlight "Click to view details" (Blue Link)
         int clickStart = fullText.indexOf(clickText);
         if (clickStart != -1) {
-            int linkColor = ContextCompat.getColor(context, R.color.scienceBlue);
+            int linkColor = ContextCompat.getColor(context, R.color.notification_link_color);
             ss.setSpan(new ForegroundColorSpan(linkColor), clickStart, clickStart + clickText.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
             ss.setSpan(new UnderlineSpan(), clickStart, clickStart + clickText.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
         }
@@ -272,9 +272,9 @@ public class NotificationAdapter extends RecyclerView.Adapter<NotificationAdapte
 
         SpannableString spannableString = new SpannableString(fullText);
         
-        int adminColor = ContextCompat.getColor(context, R.color.admin_accent);
-        int reportNameColor = ContextCompat.getColor(context, R.color.statusFound);
-        int linkColor = ContextCompat.getColor(context, R.color.scienceBlue);
+        int adminColor = ContextCompat.getColor(context, R.color.notification_admin_text_color);
+        int reportNameColor = ContextCompat.getColor(context, R.color.notification_found_item_color);
+        int linkColor = ContextCompat.getColor(context, R.color.notification_link_color);
 
         // 1. Style "Admin"
         int adminStart = fullText.indexOf("Admin");
@@ -314,8 +314,8 @@ public class NotificationAdapter extends RecyclerView.Adapter<NotificationAdapte
 
         SpannableString ss = new SpannableString(fullText);
         
-        int nameColor = ContextCompat.getColor(context, R.color.orange);
-        int linkColor = ContextCompat.getColor(context, R.color.scienceBlue);
+        int nameColor = ContextCompat.getColor(context, R.color.notification_sender_name_color);
+        int linkColor = ContextCompat.getColor(context, R.color.notification_link_color);
 
         // 1. Style Requester Name (inside quotes)
         int nameStart = fullText.indexOf("\"" + requesterName + "\"");
@@ -350,9 +350,9 @@ public class NotificationAdapter extends RecyclerView.Adapter<NotificationAdapte
         }
 
         SpannableString ss = new SpannableString(fullText);
-        int nameColor = ContextCompat.getColor(context, R.color.orange);
-        int itemColor = "lost_claim".equals(type) ? ContextCompat.getColor(context, R.color.statusLost) : ContextCompat.getColor(context, R.color.statusFound);
-        int linkColor = ContextCompat.getColor(context, R.color.scienceBlue);
+        int nameColor = ContextCompat.getColor(context, R.color.notification_sender_name_color);
+        int itemColor = "lost_claim".equals(type) ? ContextCompat.getColor(context, R.color.notification_lost_item_color) : ContextCompat.getColor(context, R.color.notification_found_item_color);
+        int linkColor = ContextCompat.getColor(context, R.color.notification_link_color);
 
         // 1. Style Claimer Name (Orange)
         int nameStart = fullText.indexOf("\"" + claimerName + "\"");

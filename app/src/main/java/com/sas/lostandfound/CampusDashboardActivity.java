@@ -346,7 +346,28 @@ public class CampusDashboardActivity extends AppCompatActivity {
         appBarLayout = findViewById(R.id.appBarLayout);
 
         if (appBarLayout != null) {
-            HeaderColorHelper.setup(this, appBarLayout);
+            int dashboardHeaderBg = ContextCompat.getColor(this, R.color.dashboard_header_bg);
+            boolean isNightMode = (getResources().getConfiguration().uiMode & android.content.res.Configuration.UI_MODE_NIGHT_MASK) 
+                    == android.content.res.Configuration.UI_MODE_NIGHT_YES;
+            HeaderColorHelper.setup(this, appBarLayout, dashboardHeaderBg, dashboardHeaderBg, !isNightMode);
+
+            // Programmatically apply custom menu button and notifications button tints
+            int headerIconColor = ContextCompat.getColor(this, R.color.dashboard_header_icon_tint);
+            if (btnMenu instanceof android.widget.ImageView) {
+                ((android.widget.ImageView) btnMenu).setImageTintList(android.content.res.ColorStateList.valueOf(headerIconColor));
+            }
+            if (btnNotifications != null) {
+                ImageView ivNotif = btnNotifications.findViewById(R.id.ivNotificationIcon);
+                if (ivNotif != null) {
+                    ivNotif.setImageTintList(android.content.res.ColorStateList.valueOf(headerIconColor));
+                }
+            }
+            if (tabLayout != null) {
+                int selectedColor = ContextCompat.getColor(this, R.color.dashboard_tab_selected_text_color);
+                int normalColor = ContextCompat.getColor(this, R.color.dashboard_tab_text_color);
+                tabLayout.setTabTextColors(normalColor, selectedColor);
+                tabLayout.setSelectedTabIndicatorColor(selectedColor);
+            }
         }
 
         if (navigationView != null && navigationView.getHeaderCount() > 0) {
@@ -1110,13 +1131,13 @@ public class CampusDashboardActivity extends AppCompatActivity {
             
             int color;
             if (res) {
-                color = 0xFF2AABEE; // Blue
+                color = ContextCompat.getColor(holder.itemView.getContext(), R.color.dashboard_status_resolved);
             } else if ("lost".equalsIgnoreCase(item.getStatus())) {
-                color = 0xFFFF3B30; // Red
+                color = ContextCompat.getColor(holder.itemView.getContext(), R.color.dashboard_status_lost);
             } else if ("found".equalsIgnoreCase(item.getStatus())) {
-                color = 0xFF34C759; // Green
+                color = ContextCompat.getColor(holder.itemView.getContext(), R.color.dashboard_status_found);
             } else {
-                color = 0xFF757575; // Gray
+                color = ContextCompat.getColor(holder.itemView.getContext(), R.color.dashboard_status_default);
             }
 
             if (holder.statusIndicator != null) {
@@ -1179,7 +1200,7 @@ public class CampusDashboardActivity extends AppCompatActivity {
                     h.ivIcon.setImageResource(R.drawable.ic_package);
                     h.ivIcon.setScaleType(ImageView.ScaleType.CENTER_INSIDE);
                     h.ivIcon.setImageTintList(android.content.res.ColorStateList
-                            .valueOf(ContextCompat.getColor(h.itemView.getContext(), R.color.textSecondary)));
+                            .valueOf(ContextCompat.getColor(h.itemView.getContext(), R.color.dashboard_item_placeholder_tint)));
                     h.ivIcon.setOnClickListener(v -> ItemNavigationUtils.navigateToDetail(v.getContext(), item));
                 }
             }
@@ -1243,16 +1264,16 @@ public class CampusDashboardActivity extends AppCompatActivity {
             darkModeItem.setIcon(isDark ? R.drawable.ic_sun : R.drawable.ic_moon);
         }
         
-        int uncheckedColor = ContextCompat.getColor(this, R.color.textSecondary);
+        int uncheckedColor = ContextCompat.getColor(this, R.color.nav_drawer_item_inactive_icon);
         
-        setItemIconTint(menu.findItem(R.id.nav_dark_mode), ContextCompat.getColor(this, R.color.primaryColor), uncheckedColor);
-        setItemIconTint(menu.findItem(R.id.nav_profile), ContextCompat.getColor(this, R.color.primaryColor), uncheckedColor);
-        setItemIconTint(menu.findItem(R.id.nav_reported_items), ContextCompat.getColor(this, R.color.statusFound), uncheckedColor);
-        setItemIconTint(menu.findItem(R.id.nav_find_items), ContextCompat.getColor(this, R.color.statusLost), uncheckedColor);
-        setItemIconTint(menu.findItem(R.id.nav_resolved_items), ContextCompat.getColor(this, R.color.primaryColor), uncheckedColor);
-        setItemIconTint(menu.findItem(R.id.nav_admin_reports), ContextCompat.getColor(this, R.color.admin_accent), uncheckedColor);
-        setItemIconTint(menu.findItem(R.id.nav_admin_dashboard), ContextCompat.getColor(this, R.color.admin_accent), uncheckedColor);
-        setItemIconTint(menu.findItem(R.id.nav_logout), ContextCompat.getColor(this, R.color.errorColor), uncheckedColor);
+        setItemIconTint(menu.findItem(R.id.nav_dark_mode), ContextCompat.getColor(this, R.color.nav_drawer_icon_dark_mode), uncheckedColor);
+        setItemIconTint(menu.findItem(R.id.nav_profile), ContextCompat.getColor(this, R.color.nav_drawer_icon_profile), uncheckedColor);
+        setItemIconTint(menu.findItem(R.id.nav_reported_items), ContextCompat.getColor(this, R.color.nav_drawer_icon_reported), uncheckedColor);
+        setItemIconTint(menu.findItem(R.id.nav_find_items), ContextCompat.getColor(this, R.color.nav_drawer_icon_find), uncheckedColor);
+        setItemIconTint(menu.findItem(R.id.nav_resolved_items), ContextCompat.getColor(this, R.color.nav_drawer_icon_resolved), uncheckedColor);
+        setItemIconTint(menu.findItem(R.id.nav_admin_reports), ContextCompat.getColor(this, R.color.nav_drawer_icon_admin_reports), uncheckedColor);
+        setItemIconTint(menu.findItem(R.id.nav_admin_dashboard), ContextCompat.getColor(this, R.color.nav_drawer_icon_admin_dashboard), uncheckedColor);
+        setItemIconTint(menu.findItem(R.id.nav_logout), ContextCompat.getColor(this, R.color.nav_drawer_icon_logout), uncheckedColor);
     }
 
     private void setItemIconTint(android.view.MenuItem item, int checkedColor, int uncheckedColor) {

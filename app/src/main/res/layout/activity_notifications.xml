@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/chatBackground"
+    android:background="@color/notification_screen_bg"
     android:fitsSystemWindows="true">
 
     <com.google.android.material.appbar.AppBarLayout
@@ -85,14 +85,14 @@
             app:cardCornerRadius="40dp"
             app:cardElevation="0dp"
             app:strokeWidth="0dp"
-            app:cardBackgroundColor="@color/primaryLightColor">
+            app:cardBackgroundColor="@color/notification_empty_card_bg">
 
             <ImageView
                 android:layout_width="38dp"
                 android:layout_height="38dp"
                 android:layout_gravity="center"
                 android:src="@drawable/ic_inbox"
-                app:tint="@color/primaryColor"
+                app:tint="@color/notification_empty_icon_tint"
                 android:contentDescription="@null" />
         </com.google.android.material.card.MaterialCardView>
 
@@ -101,7 +101,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="20dp"
             android:text="You're all caught up!"
-            android:textColor="@color/textPrimary"
+            android:textColor="@color/notification_text_primary"
             android:textSize="18sp"
             android:fontFamily="sans-serif-bold"
             android:gravity="center" />
@@ -112,7 +112,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
             android:text="We'll notify you here when claims or reports get updated."
-            android:textColor="@color/textSecondary"
+            android:textColor="@color/notification_text_secondary"
             android:textSize="14sp"
             android:fontFamily="sans-serif"
             android:gravity="center" />

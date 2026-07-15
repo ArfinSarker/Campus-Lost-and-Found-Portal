@@ -1,12 +1,144 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- Profile Page Specific Colors -->
-    <color name="profile_background">#0F0F12</color>
-    <color name="profile_card_bg">#1E1E24</color>
-    <color name="profile_card_stroke">#3E3E4A</color>
+    <!-- Profile Page Specific Colors (Night Mode) -->
+    <color name="profile_background">#0F172A</color>
+    <color name="profile_card_bg">#1E293B</color>
+    <color name="profile_card_stroke">#334155</color>
     <color name="profile_text_primary">#F8FAFC</color>
     <color name="profile_text_secondary">#94A3B8</color>
+    <color name="profile_input_bg">#0F172A</color>
+    <color name="profile_input_hint">#64748B</color>
+    <color name="profile_border_color_focused">#6366F1</color>
+    <color name="profile_dropdown_popup_bg">#1E293B</color>
+    <color name="profile_dropdown_text">#F8FAFC</color>
+    <color name="profile_dropdown_item_hovered">#334155</color>
+    <color name="profile_dropdown_item_pressed">#475569</color>
+    <color name="profile_dropdown_item_selected">#226366F1</color>
+    <color name="profile_button_bg">#6366F1</color>
+    <color name="profile_button_text">#FFFFFF</color>
+    <color name="profile_avatar_stroke">#8B5CF6</color>
+    <color name="profile_edit_icon_color">#38BDF8</color>
+    <color name="profile_eye_icon_color">#FDA4AF</color>
+    <color name="profile_fab_bg">#C084FC</color>
+    <color name="profile_fab_tint">#FFFFFF</color>
+    <color name="profile_header_bg">#1E293B</color>
+    <color name="profile_header_text_color">#F8FAFC</color>
+    <color name="profile_section_title">#818CF8</color>
+    <color name="profile_password_toggle_color">#818CF8</color>
+    <color name="profile_swipe_refresh_color">#6366F1</color>
 
+    <!-- Unique Colors for Profile Icons (Night Mode) -->
+    <color name="profile_icon_full_name">#34D399</color>
+    <color name="profile_icon_university_id">#22D3EE</color>
+    <color name="profile_icon_gender">#C084FC</color>
+    <color name="profile_icon_designation">#F472B6</color>
+    <color name="profile_icon_department">#F59E0B</color>
+    <color name="profile_icon_batch">#FB923C</color>
+    <color name="profile_icon_level_term">#2DD4BF</color>
+    <color name="profile_icon_section">#EC4899</color>
+    <color name="profile_icon_email">#FB7185</color>
+    <color name="profile_icon_phone">#60A5FA</color>
+    <color name="profile_icon_old_password">#FBBF24</color>
+    <color name="profile_icon_new_password">#A3E635</color>
+    <color name="profile_icon_confirm_password">#818CF8</color>
+
+    <!-- Navigation Panel Specific Colors (Night Mode) -->
+    <color name="nav_drawer_bg">#0F172A</color>
+    <color name="nav_drawer_item_indicator">#1E293B</color>
+    <color name="nav_drawer_item_active_icon">#38BDF8</color>
+    <color name="nav_drawer_item_inactive_icon">#94A3B8</color>
+    <color name="nav_drawer_item_active_text">#38BDF8</color>
+    <color name="nav_drawer_item_inactive_text">#94A3B8</color>
+    <color name="nav_drawer_divider_color">#334155</color>
+    <color name="nav_drawer_ripple">#334155</color>
+    <color name="nav_drawer_header_bg">#0F172A</color>
+    <color name="nav_drawer_header_avatar_stroke">#94A3B8</color>
+
+    <!-- Unique Dynamic Icon Colors for Drawer (Night Mode) -->
+    <color name="nav_drawer_icon_dark_mode">#FBBF24</color>
+    <color name="nav_drawer_icon_profile">#818CF8</color>
+    <color name="nav_drawer_icon_reported">#34D399</color>
+    <color name="nav_drawer_icon_find">#FB7185</color>
+    <color name="nav_drawer_icon_resolved">#22D3EE</color>
+    <color name="nav_drawer_icon_admin_reports">#F472B6</color>
+    <color name="nav_drawer_icon_admin_dashboard">#C084FC</color>
+    <color name="nav_drawer_icon_logout">#F87171</color>
+
+    <!-- Campus Dashboard Specific Colors (Night Mode) -->
+    <color name="dashboard_background">#0F172A</color>
+    <color name="dashboard_header_bg">#0F172A</color>
+    <color name="dashboard_header_icon_tint">#38BDF8</color>
+    <color name="dashboard_tab_indicator_color">#38BDF8</color>
+    <color name="dashboard_tab_selected_text_color">#38BDF8</color>
+    <color name="dashboard_tab_text_color">#94A3B8</color>
+    <color name="dashboard_tab_ripple_color">#1A38BDF8</color>
+    <color name="dashboard_lost_card_bg">#1E293B</color>
+    <color name="dashboard_lost_card_stroke">#FF7185</color>
+    <color name="dashboard_found_card_bg">#1E293B</color>
+    <color name="dashboard_found_card_stroke">#34D399</color>
+    <color name="dashboard_lost_count_color">#FF7185</color>
+    <color name="dashboard_found_count_color">#34D399</color>
+    <color name="dashboard_card_label_color">#94A3B8</color>
+    <color name="dashboard_lost_icon_bg">#1AFF7185</color>
+    <color name="dashboard_found_icon_bg">#1A34D399</color>
+    <color name="dashboard_lost_btn_text">#FF7185</color>
+    <color name="dashboard_found_btn_text">#34D399</color>
+    
+    <!-- Report Lost Button Background Gradient (Night Mode) -->
+    <color name="dashboard_lost_btn_ripple">#33FF7185</color>
+    <color name="dashboard_lost_btn_pressed_start">#3DFF7185</color>
+    <color name="dashboard_lost_btn_pressed_end">#3DFF7185</color>
+    <color name="dashboard_lost_btn_pressed_stroke">#99FF7185</color>
+    <color name="dashboard_lost_btn_hovered_start">#2BFF7185</color>
+    <color name="dashboard_lost_btn_hovered_end">#2BFF7185</color>
+    <color name="dashboard_lost_btn_hovered_stroke">#66FF7185</color>
+    <color name="dashboard_lost_btn_default_start">#1E293B</color>
+    <color name="dashboard_lost_btn_default_end">#1E293B</color>
+    <color name="dashboard_lost_btn_default_stroke">#4DFF7185</color>
+
+    <!-- Report Found Button Background Gradient (Night Mode) -->
+    <color name="dashboard_found_btn_ripple">#3334D399</color>
+    <color name="dashboard_found_btn_pressed_start">#3D34D399</color>
+    <color name="dashboard_found_btn_pressed_end">#3D34D399</color>
+    <color name="dashboard_found_btn_pressed_stroke">#9934D399</color>
+    <color name="dashboard_found_btn_hovered_start">#2B34D399</color>
+    <color name="dashboard_found_btn_hovered_end">#2B34D399</color>
+    <color name="dashboard_found_btn_hovered_stroke">#6634D399</color>
+    <color name="dashboard_found_btn_default_start">#1E293B</color>
+    <color name="dashboard_found_btn_default_end">#1E293B</color>
+    <color name="dashboard_found_btn_default_stroke">#4D34D399</color>
+
+    <!-- View More/Less Buttons (Night Mode) -->
+    <color name="dashboard_view_more_text">#38BDF8</color>
+    <color name="dashboard_view_more_stroke">#334155</color>
+    <color name="dashboard_view_more_bg">#1E293B</color>
+    <color name="dashboard_view_more_ripple">#334155</color>
+    <color name="dashboard_browse_all_color">#38BDF8</color>
+
+    <!-- Recent Items Layout Elements (Night Mode) -->
+    <color name="dashboard_item_card_bg">#1E293B</color>
+    <color name="dashboard_item_card_stroke">#334155</color>
+    <color name="dashboard_item_image_bg">#0F172A</color>
+    <color name="dashboard_item_title">#F8FAFC</color>
+    <color name="dashboard_item_location_icon">#34D399</color>
+    <color name="dashboard_item_time_icon">#60A5FA</color>
+    <color name="dashboard_item_metadata_text">#94A3B8</color>
+    <color name="dashboard_item_placeholder_tint">#64748B</color>
+
+    <!-- Welcome / Help Banner Gradients (Night Mode) -->
+    <color name="dashboard_welcome_gradient_start">#1E1B4B</color>
+    <color name="dashboard_welcome_gradient_center">#312E81</color>
+    <color name="dashboard_welcome_gradient_end">#4338CA</color>
+    <color name="dashboard_help_gradient_start">#0F172A</color>
+    <color name="dashboard_help_gradient_center">#1E1B4B</color>
+    <color name="dashboard_help_gradient_end">#312E81</color>
+
+    <!-- Dynamic Status Badge Colors (Night Mode) -->
+    <color name="dashboard_status_resolved">#38BDF8</color>
+    <color name="dashboard_status_lost">#FF7185</color>
+    <color name="dashboard_status_found">#34D399</color>
+    <color name="dashboard_status_default">#64748B</color>
+    
     <!-- Admin Request Cards Specific Colors -->
     <color name="admin_request_card_bg">#1E1E24</color>
     <color name="admin_request_card_stroke">#3E3E4A</color>
@@ -19,6 +151,40 @@
     <color name="admin_request_deny_btn_stroke">#EF4444</color>
     <color name="admin_request_deny_btn_text">#EF4444</color>
     <color name="admin_request_accept_btn_bg">#3B82F6</color>
+
+    <!-- Notification Screens Specific Colors (Night Mode) -->
+    <color name="notification_screen_bg">#0F172A</color>
+    <color name="notification_header_bg">#0F172A</color>
+    <color name="notification_header_icon_tint">#FB923C</color>
+    <color name="notification_header_title_color">#F8FAFC</color>
+    <color name="notification_card_bg_read">#1E293B</color>
+    <color name="notification_card_bg_unread">#1E1B4B</color>
+    <color name="notification_card_stroke_read">#334155</color>
+    <color name="notification_card_stroke_unread">#38BDF8</color>
+    <color name="notification_badge_stroke_read">#1E293B</color>
+    <color name="notification_badge_stroke_unread">#1E1B4B</color>
+    <color name="notification_text_primary">#E2E8F0</color>
+    <color name="notification_text_secondary">#94A3B8</color>
+    <color name="notification_timestamp_text">#94A3B8</color>
+    <color name="notification_unread_indicator">#38BDF8</color>
+    <color name="notification_delete_icon">#F87171</color>
+    <color name="notification_link_color">#F97316</color>
+    <color name="notification_sender_name_color">#FBBF24</color>
+    <color name="notification_lost_item_color">#FF7185</color>
+    <color name="notification_found_item_color">#34D399</color>
+    <color name="notification_admin_color">#C084FC</color>
+    <color name="notification_admin_icon_color">#D946EF</color>
+    <color name="notification_admin_text_color">#818CF8</color>
+    <color name="notification_empty_card_bg">#1E293B</color>
+    <color name="notification_empty_icon_tint">#38BDF8</color>
+    <color name="notification_swipe_refresh_color">#38BDF8</color>
+    <color name="notification_warning_badge_color">#FBBF24</color>
+    <color name="notification_claimed_badge_color">#2DD4BF</color>
+    <color name="notification_date_icon">#06B6D4</color>
+    <color name="notification_icon_bg">#0B0F19</color>
+    <color name="notification_clock_icon">#A78BFA</color>
+    <color name="default_avatar_fg">#60A5FA</color>
+    <color name="default_avatar_bg">#1E3A8A</color>
 
     <!-- Brand Colors - Night Mode (Discord/Spotify-like Purple/Green Accent) -->
     <color name="primaryColor">#FF5F15</color>
@@ -180,4 +346,43 @@
     <!-- Avatar Colors -->
     <color name="avatar_bg">#353538</color>
     <color name="avatar_icon_tint">#BFC5CD</color>
+
+    <!-- Login/Registration Specific Colors (Night Mode) -->
+    <color name="login_register_background">#0F172A</color>
+    <color name="login_register_input_bg">#1E293B</color>
+    <color name="login_register_input_text">#F8FAFC</color>
+    <color name="login_register_input_hint">#64748B</color>
+    <color name="login_register_border_color">#334155</color>
+    <color name="login_register_border_color_focused">#6366F1</color>
+    <color name="login_register_dropdown_popup_bg">#1E293B</color>
+    <color name="login_register_dropdown_text">#F8FAFC</color>
+    <color name="login_register_dropdown_item_hovered">#334155</color>
+    <color name="login_register_dropdown_item_pressed">#475569</color>
+    <color name="login_register_dropdown_item_selected">#226366F1</color>
+    <color name="login_register_dropdown_icon">#6366F1</color>
+    <color name="login_register_link_text">#818CF8</color>
+    <color name="login_register_title_text">#F8FAFC</color>
+    <color name="login_register_body_text">#94A3B8</color>
+    <color name="login_register_button_bg">#6366F1</color>
+    <color name="login_register_button_text">#FFFFFF</color>
+    <color name="login_register_logo_border">#334155</color>
+    <color name="login_register_password_toggle_color">#818CF8</color>
+    <color name="login_register_profile_icon_color">#60A5FA</color>
+    <color name="login_register_profile_border_color">#34D399</color>
+    <color name="login_register_camera_bg_color">#C084FC</color>
+    <color name="login_register_camera_icon_color">#FFFFFF</color>
+
+    <!-- Modern Icon Colors for Login/Registration (Night Mode) -->
+    <color name="login_register_icon_user_type">#C084FC</color>
+    <color name="login_register_icon_university_id">#22D3EE</color>
+    <color name="login_register_icon_full_name">#34D399</color>
+    <color name="login_register_icon_email">#FB7185</color>
+    <color name="login_register_icon_phone">#60A5FA</color>
+    <color name="login_register_icon_designation">#F472B6</color>
+    <color name="login_register_icon_department">#F59E0B</color>
+    <color name="login_register_icon_admin_code">#F87171</color>
+    <color name="login_register_icon_batch">#FB923C</color>
+    <color name="login_register_icon_level_term">#2DD4BF</color>
+    <color name="login_register_icon_lock">#FBBF24</color>
+    <color name="login_register_icon_confirm_lock">#A3E635</color>
 </resources>

@@ -63,7 +63,10 @@ public class UserLoginActivity extends AppCompatActivity {
         stopLoading();
 
         if (appBarLayout != null) {
-            HeaderColorHelper.setup(this, appBarLayout);
+            int loginBgColor = androidx.core.content.ContextCompat.getColor(this, R.color.login_register_background);
+            boolean isNightMode = (getResources().getConfiguration().uiMode & android.content.res.Configuration.UI_MODE_NIGHT_MASK) 
+                    == android.content.res.Configuration.UI_MODE_NIGHT_YES;
+            HeaderColorHelper.setup(this, appBarLayout, loginBgColor, loginBgColor, !isNightMode);
         }
         setupUserTypeDropdown();
         setupToolbar();
@@ -100,7 +103,7 @@ public class UserLoginActivity extends AppCompatActivity {
 
     private void setupUserTypeDropdown() {
         String[] userTypes = { "Student", "Staff", "Admin" };
-        ArrayAdapter<String> adapter = new ArrayAdapter<>(this, R.layout.dropdown_item, userTypes);
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(this, R.layout.login_register_dropdown_item, userTypes);
         actvUserType.setAdapter(adapter);
         actvUserType.setOnClickListener(v -> actvUserType.showDropDown());
     }
@@ -366,7 +369,7 @@ public class UserLoginActivity extends AppCompatActivity {
                 @Override
                 public void updateDrawState(@NonNull TextPaint ds) {
                     ds.setUnderlineText(false);
-                    ds.setColor(Color.parseColor("#2196F3"));
+                    ds.setColor(androidx.core.content.ContextCompat.getColor(UserLoginActivity.this, R.color.login_register_link_text));
                     ds.setFakeBoldText(true);
                 }
             };

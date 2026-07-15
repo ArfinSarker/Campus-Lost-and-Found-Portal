@@ -72,7 +72,7 @@
                         android:scaleType="centerCrop"
                         android:src="@drawable/ic_default_avatar"
                         app:shapeAppearanceOverlay="@style/ShapeAppearance.App.Circle"
-                        app:strokeColor="@color/primaryColor"
+                        app:strokeColor="@color/profile_avatar_stroke"
                         app:strokeWidth="2dp" />
 
                     <com.google.android.material.floatingactionbutton.FloatingActionButton
@@ -80,11 +80,11 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_gravity="bottom|end"
-                        android:backgroundTint="@color/primaryColor"
+                        android:backgroundTint="@color/profile_fab_bg"
                         android:src="@drawable/ic_edit"
                         app:fabCustomSize="36dp"
                         app:maxImageSize="18dp"
-                        app:tint="@color/white"
+                        app:tint="@color/profile_fab_tint"
                         android:contentDescription="@string/change_photo" />
                 </FrameLayout>
 
@@ -95,7 +95,7 @@
                     android:layout_marginBottom="12dp"
                     android:text="@string/label_information_profile"
                     android:textAppearance="?attr/textAppearanceSubtitle1"
-                    android:textColor="@color/primaryColor"
+                    android:textColor="@color/profile_section_title"
                     android:textStyle="bold" />
 
                 <com.google.android.material.card.MaterialCardView
@@ -122,10 +122,15 @@
                             android:layout_height="wrap_content"
                             android:layout_marginBottom="4dp"
                             android:hint="@string/hint_full_name"
+                            app:boxBackgroundColor="@color/profile_input_bg"
+                            app:boxStrokeColor="@color/profile_box_stroke"
+                            android:textColorHint="@color/profile_input_hint"
+                            app:hintTextColor="@color/profile_border_color_focused"
                             app:endIconDrawable="@drawable/ic_edit"
                             app:endIconMode="custom"
+                            app:endIconTint="@color/profile_edit_icon_color"
                             app:startIconDrawable="@drawable/ic_user"
-                            app:startIconTint="@color/primaryColor">
+                            app:startIconTint="@color/profile_icon_full_name">
 
                             <com.google.android.material.textfield.TextInputEditText
                                 android:id="@+id/etFullName"
@@ -144,9 +149,13 @@
                             android:layout_marginBottom="4dp"
                             android:enabled="false"
                             android:hint="@string/hint_university_id"
+                            app:boxBackgroundColor="@color/profile_input_bg"
+                            app:boxStrokeColor="@color/profile_box_stroke"
+                            android:textColorHint="@color/profile_input_hint"
+                            app:hintTextColor="@color/profile_border_color_focused"
                             app:helperText="@string/label_not_changeable"
                             app:startIconDrawable="@drawable/ic_id_card"
-                            app:startIconTint="@color/primaryColor">
+                            app:startIconTint="@color/profile_icon_university_id">
 
                             <com.google.android.material.textfield.TextInputEditText
                                 android:id="@+id/etUniversityId"
@@ -163,10 +172,15 @@
                             android:layout_height="wrap_content"
                             android:layout_marginBottom="4dp"
                             android:hint="@string/hint_gender"
+                            app:boxBackgroundColor="@color/profile_input_bg"
+                            app:boxStrokeColor="@color/profile_box_stroke"
+                            android:textColorHint="@color/profile_input_hint"
+                            app:hintTextColor="@color/profile_border_color_focused"
                             app:endIconDrawable="@drawable/ic_edit"
                             app:endIconMode="custom"
+                            app:endIconTint="@color/profile_edit_icon_color"
                             app:startIconDrawable="@drawable/ic_users"
-                            app:startIconTint="@color/primaryColor">
+                            app:startIconTint="@color/profile_icon_gender">
 
                             <AutoCompleteTextView
                                 android:id="@+id/actvGender"
@@ -174,7 +188,8 @@
                                 android:layout_height="wrap_content"
                                 android:enabled="false"
                                 android:inputType="none"
-                                android:textColor="@color/profile_field_text_color" />
+                                android:textColor="@color/profile_field_text_color"
+                                android:popupBackground="@color/profile_dropdown_popup_bg" />
                         </com.google.android.material.textfield.TextInputLayout>
 
                         <!-- Designation (Staff Only, Editable) -->
@@ -186,10 +201,15 @@
                             android:layout_marginBottom="4dp"
                             android:hint="Designation"
                             android:visibility="gone"
+                            app:boxBackgroundColor="@color/profile_input_bg"
+                            app:boxStrokeColor="@color/profile_box_stroke"
+                            android:textColorHint="@color/profile_input_hint"
+                            app:hintTextColor="@color/profile_border_color_focused"
                             app:endIconDrawable="@drawable/ic_edit"
                             app:endIconMode="custom"
+                            app:endIconTint="@color/profile_edit_icon_color"
                             app:startIconDrawable="@drawable/ic_list"
-                            app:startIconTint="@color/primaryColor">
+                            app:startIconTint="@color/profile_icon_designation">
 
                             <com.google.android.material.textfield.TextInputEditText
                                 android:id="@+id/etDesignation"
@@ -208,10 +228,15 @@
                             android:layout_height="wrap_content"
                             android:layout_marginBottom="4dp"
                             android:hint="@string/hint_department"
+                            app:boxBackgroundColor="@color/profile_input_bg"
+                            app:boxStrokeColor="@color/profile_box_stroke"
+                            android:textColorHint="@color/profile_input_hint"
+                            app:hintTextColor="@color/profile_border_color_focused"
                             app:endIconDrawable="@drawable/ic_edit"
                             app:endIconMode="custom"
+                            app:endIconTint="@color/profile_edit_icon_color"
                             app:startIconDrawable="@drawable/ic_building"
-                            app:startIconTint="@color/primaryColor">
+                            app:startIconTint="@color/profile_icon_department">
 
                             <com.google.android.material.textfield.TextInputEditText
                                 android:id="@+id/etDepartment"
@@ -230,10 +255,15 @@
                             android:layout_height="wrap_content"
                             android:layout_marginBottom="4dp"
                             android:hint="@string/hint_batch"
+                            app:boxBackgroundColor="@color/profile_input_bg"
+                            app:boxStrokeColor="@color/profile_box_stroke"
+                            android:textColorHint="@color/profile_input_hint"
+                            app:hintTextColor="@color/profile_border_color_focused"
                             app:endIconDrawable="@drawable/ic_edit"
                             app:endIconMode="custom"
+                            app:endIconTint="@color/profile_edit_icon_color"
                             app:startIconDrawable="@drawable/ic_users"
-                            app:startIconTint="@color/primaryColor">
+                            app:startIconTint="@color/profile_icon_batch">
 
                             <com.google.android.material.textfield.TextInputEditText
                                 android:id="@+id/etBatch"
@@ -252,10 +282,15 @@
                             android:layout_height="wrap_content"
                             android:layout_marginBottom="4dp"
                             android:hint="@string/label_level_term"
+                            app:boxBackgroundColor="@color/profile_input_bg"
+                            app:boxStrokeColor="@color/profile_box_stroke"
+                            android:textColorHint="@color/profile_input_hint"
+                            app:hintTextColor="@color/profile_border_color_focused"
                             app:endIconDrawable="@drawable/ic_edit"
                             app:endIconMode="custom"
+                            app:endIconTint="@color/profile_edit_icon_color"
                             app:startIconDrawable="@drawable/ic_layers"
-                            app:startIconTint="@color/primaryColor">
+                            app:startIconTint="@color/profile_icon_level_term">
 
                             <AutoCompleteTextView
                                 android:id="@+id/actvLevelTerm"
@@ -263,7 +298,8 @@
                                 android:layout_height="wrap_content"
                                 android:enabled="false"
                                 android:inputType="none"
-                                android:textColor="@color/profile_field_text_color" />
+                                android:textColor="@color/profile_field_text_color"
+                                android:popupBackground="@color/profile_dropdown_popup_bg" />
                         </com.google.android.material.textfield.TextInputLayout>
 
                         <!-- Section (Student Only, Editable Dropdown) -->
@@ -273,10 +309,15 @@
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:hint="@string/label_section"
+                            app:boxBackgroundColor="@color/profile_input_bg"
+                            app:boxStrokeColor="@color/profile_box_stroke"
+                            android:textColorHint="@color/profile_input_hint"
+                            app:hintTextColor="@color/profile_border_color_focused"
                             app:endIconDrawable="@drawable/ic_edit"
                             app:endIconMode="custom"
+                            app:endIconTint="@color/profile_edit_icon_color"
                             app:startIconDrawable="@drawable/ic_list"
-                            app:startIconTint="@color/primaryColor">
+                            app:startIconTint="@color/profile_icon_section">
 
                             <AutoCompleteTextView
                                 android:id="@+id/actvSection"
@@ -284,7 +325,8 @@
                                 android:layout_height="wrap_content"
                                 android:enabled="false"
                                 android:inputType="none"
-                                android:textColor="@color/profile_field_text_color" />
+                                android:textColor="@color/profile_field_text_color"
+                                android:popupBackground="@color/profile_dropdown_popup_bg" />
                         </com.google.android.material.textfield.TextInputLayout>
                     </LinearLayout>
                 </com.google.android.material.card.MaterialCardView>
@@ -296,7 +338,7 @@
                     android:layout_marginBottom="12dp"
                     android:text="@string/label_contact_profile"
                     android:textAppearance="?attr/textAppearanceSubtitle1"
-                    android:textColor="@color/primaryColor"
+                    android:textColor="@color/profile_section_title"
                     android:textStyle="bold" />
 
                 <com.google.android.material.card.MaterialCardView
@@ -322,10 +364,15 @@
                             android:layout_height="wrap_content"
                             android:layout_marginBottom="4dp"
                             android:hint="@string/hint_email"
+                            app:boxBackgroundColor="@color/profile_input_bg"
+                            app:boxStrokeColor="@color/profile_box_stroke"
+                            android:textColorHint="@color/profile_input_hint"
+                            app:hintTextColor="@color/profile_border_color_focused"
                             app:endIconDrawable="@drawable/ic_edit"
                             app:endIconMode="custom"
+                            app:endIconTint="@color/profile_edit_icon_color"
                             app:startIconDrawable="@drawable/ic_email"
-                            app:startIconTint="@color/primaryColor">
+                            app:startIconTint="@color/profile_icon_email">
 
                             <com.google.android.material.textfield.TextInputEditText
                                 android:id="@+id/etEmail"
@@ -347,12 +394,16 @@
                                 android:layout_width="153dp"
                                 android:layout_height="0dp"
                                 android:hint="Code"
+                                app:boxBackgroundColor="@color/profile_input_bg"
+                                app:boxStrokeColor="@color/profile_box_stroke"
+                                android:textColorHint="@color/profile_input_hint"
+                                app:hintTextColor="@color/profile_border_color_focused"
                                 app:boxCornerRadiusBottomEnd="8dp"
                                 app:boxCornerRadiusBottomStart="8dp"
                                 app:boxCornerRadiusTopEnd="8dp"
                                 app:boxCornerRadiusTopStart="8dp"
                                 app:startIconDrawable="@drawable/ic_phone"
-                                app:startIconTint="@color/primaryColor"
+                                app:startIconTint="@color/profile_icon_phone"
                                 app:endIconMode="none"
                                 app:layout_constraintStart_toStartOf="parent"
                                 app:layout_constraintTop_toTopOf="@+id/tilPhone"
@@ -367,7 +418,8 @@
                                     android:paddingTop="16dp"
                                     android:paddingBottom="16dp"
                                     android:inputType="text"
-                                    android:textColor="@color/profile_field_text_color" />
+                                    android:textColor="@color/profile_field_text_color"
+                                    android:popupBackground="@color/profile_dropdown_popup_bg" />
                             </com.google.android.material.textfield.TextInputLayout>
 
                             <!-- Phone Number Body -->
@@ -377,8 +429,13 @@
                                 android:layout_width="0dp"
                                 android:layout_height="wrap_content"
                                 android:hint="@string/hint_phone"
+                                app:boxBackgroundColor="@color/profile_input_bg"
+                                app:boxStrokeColor="@color/profile_box_stroke"
+                                android:textColorHint="@color/profile_input_hint"
+                                app:hintTextColor="@color/profile_border_color_focused"
                                 app:endIconDrawable="@drawable/ic_edit"
                                 app:endIconMode="custom"
+                                app:endIconTint="@color/profile_edit_icon_color"
                                 app:boxCornerRadiusBottomEnd="8dp"
                                 app:boxCornerRadiusBottomStart="8dp"
                                 app:boxCornerRadiusTopEnd="8dp"
@@ -418,7 +475,7 @@
                         android:layout_marginBottom="12dp"
                         android:text="@string/label_activity_info"
                         android:textAppearance="?attr/textAppearanceSubtitle1"
-                        android:textColor="@color/primaryColor"
+                        android:textColor="@color/profile_section_title"
                         android:textStyle="bold" />
 
                     <com.google.android.material.card.MaterialCardView
@@ -477,7 +534,7 @@
                         android:layout_marginBottom="12dp"
                         android:text="@string/label_change_password_profile"
                         android:textAppearance="?attr/textAppearanceSubtitle1"
-                        android:textColor="@color/primaryColor"
+                        android:textColor="@color/profile_section_title"
                         android:textStyle="bold" />
 
                     <com.google.android.material.card.MaterialCardView
@@ -503,10 +560,14 @@
                                 android:layout_height="wrap_content"
                                 android:layout_marginBottom="4dp"
                                 android:hint="@string/label_old_password"
+                                app:boxBackgroundColor="@color/profile_input_bg"
+                                app:boxStrokeColor="@color/profile_box_stroke"
+                                android:textColorHint="@color/profile_input_hint"
+                                app:hintTextColor="@color/profile_border_color_focused"
                                 app:passwordToggleEnabled="true"
-                                app:passwordToggleTint="@color/primaryColor"
+                                app:passwordToggleTint="@color/profile_eye_icon_color"
                                 app:startIconDrawable="@drawable/ic_lock"
-                                app:startIconTint="@color/primaryColor">
+                                app:startIconTint="@color/profile_icon_old_password">
 
                                 <com.google.android.material.textfield.TextInputEditText
                                     android:id="@+id/etOldPassword"
@@ -523,10 +584,14 @@
                                 android:layout_height="wrap_content"
                                 android:layout_marginBottom="4dp"
                                 android:hint="@string/hint_new_password"
+                                app:boxBackgroundColor="@color/profile_input_bg"
+                                app:boxStrokeColor="@color/profile_box_stroke"
+                                android:textColorHint="@color/profile_input_hint"
+                                app:hintTextColor="@color/profile_border_color_focused"
                                 app:passwordToggleEnabled="true"
-                                app:passwordToggleTint="@color/primaryColor"
+                                app:passwordToggleTint="@color/profile_eye_icon_color"
                                 app:startIconDrawable="@drawable/ic_lock"
-                                app:startIconTint="@color/primaryColor">
+                                app:startIconTint="@color/profile_icon_new_password">
 
                                 <com.google.android.material.textfield.TextInputEditText
                                     android:id="@+id/etNewPassword"
@@ -543,10 +608,14 @@
                                 android:layout_height="wrap_content"
                                 android:layout_marginBottom="8dp"
                                 android:hint="@string/hint_confirm_password"
+                                app:boxBackgroundColor="@color/profile_input_bg"
+                                app:boxStrokeColor="@color/profile_box_stroke"
+                                android:textColorHint="@color/profile_input_hint"
+                                app:hintTextColor="@color/profile_border_color_focused"
                                 app:passwordToggleEnabled="true"
-                                app:passwordToggleTint="@color/primaryColor"
+                                app:passwordToggleTint="@color/profile_eye_icon_color"
                                 app:startIconDrawable="@drawable/ic_lock"
-                                app:startIconTint="@color/primaryColor">
+                                app:startIconTint="@color/profile_icon_confirm_password">
 
                                 <com.google.android.material.textfield.TextInputEditText
                                     android:id="@+id/etConfirmPassword"
@@ -561,6 +630,8 @@
                                 android:layout_width="match_parent"
                                 android:layout_height="56dp"
                                 android:text="Confirm Change"
+                                android:textColor="@color/profile_button_text"
+                                android:backgroundTint="@color/profile_button_bg"
                                 android:textAllCaps="false"
                                 android:visibility="gone"
                                 app:cornerRadius="8dp" />
@@ -596,6 +667,9 @@
                         android:layout_width="match_parent"
                         android:layout_height="56dp"
                         android:text="@string/btn_save_changes"
+                        android:textColor="@color/profile_button_text"
+                        android:backgroundTint="@color/profile_button_bg"
+                        app:iconTint="@color/profile_button_text"
                         android:visibility="gone"
                         app:cornerRadius="8dp"
                         app:icon="@drawable/ic_check"

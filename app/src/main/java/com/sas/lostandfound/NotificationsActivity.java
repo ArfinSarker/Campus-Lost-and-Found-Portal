@@ -70,7 +70,23 @@ public class NotificationsActivity extends AppCompatActivity {
         
         AppBarLayout appBarLayout = findViewById(R.id.appBarLayout);
         if (appBarLayout != null) {
-            HeaderColorHelper.setup(this, appBarLayout, toolbar);
+            int headerBg = ContextCompat.getColor(this, R.color.notification_header_bg);
+            boolean isNightMode = (getResources().getConfiguration().uiMode & android.content.res.Configuration.UI_MODE_NIGHT_MASK) 
+                    == android.content.res.Configuration.UI_MODE_NIGHT_YES;
+            HeaderColorHelper.setup(this, appBarLayout, headerBg, headerBg, !isNightMode);
+            
+            // Programmatically tint the back navigation icon and the mark-all-read action button
+            int accentColor = ContextCompat.getColor(this, R.color.notification_header_icon_tint);
+            if (toolbar != null && toolbar.getNavigationIcon() != null) {
+                toolbar.getNavigationIcon().setTint(accentColor);
+            }
+            if (btnMarkAllRead != null) {
+                btnMarkAllRead.setImageTintList(android.content.res.ColorStateList.valueOf(accentColor));
+            }
+        }
+        if (tvToolbarTitle != null) {
+            int titleColor = ContextCompat.getColor(this, R.color.notification_header_title_color);
+            tvToolbarTitle.setTextColor(titleColor);
         }
         
         notificationList = new ArrayList<>();
@@ -162,7 +178,7 @@ public class NotificationsActivity extends AppCompatActivity {
 
     private void setupSwipeRefresh() {
         if (swipeRefreshLayout != null) {
-            swipeRefreshLayout.setColorSchemeColors(ContextCompat.getColor(this, R.color.primaryColor));
+            swipeRefreshLayout.setColorSchemeColors(ContextCompat.getColor(this, R.color.notification_swipe_refresh_color));
             swipeRefreshLayout.setOnRefreshListener(() -> {
                 if (resolvedUserId != null) fetchNotifications(resolvedUserId);
                 else resolveUserAndFetchNotifications();

@@ -6,7 +6,7 @@
     android:viewportHeight="24">
     <!-- Head Circle -->
     <path
-        android:strokeColor="#FF000000"
+        android:strokeColor="@color/nav_drawer_header_avatar_stroke"
         android:strokeWidth="2"
         android:strokeLineCap="round"
         android:strokeLineJoin="round"
@@ -14,7 +14,7 @@
         android:pathData="M12,3a4,4 0 1,1 0,8 4,4 0 1,1 0,-8z" />
     <!-- Shoulders Arc -->
     <path
-        android:strokeColor="#FF000000"
+        android:strokeColor="@color/nav_drawer_header_avatar_stroke"
         android:strokeWidth="2"
         android:strokeLineCap="round"
         android:strokeLineJoin="round"

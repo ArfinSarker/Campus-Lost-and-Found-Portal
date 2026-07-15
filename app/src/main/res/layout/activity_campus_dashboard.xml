@@ -11,7 +11,7 @@
     <androidx.coordinatorlayout.widget.CoordinatorLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="@color/backgroundColor"
+        android:background="@color/dashboard_background"
         android:fitsSystemWindows="true">
 
         <com.google.android.material.appbar.AppBarLayout
@@ -63,6 +63,7 @@
                     app:layout_constraintTop_toTopOf="parent">
 
                     <ImageView
+                        android:id="@+id/ivNotificationIcon"
                         android:layout_width="24dp"
                         android:layout_height="24dp"
                         android:layout_gravity="center"
@@ -135,7 +136,7 @@
                             android:id="@+id/layoutWelcomeBg"
                             android:layout_width="match_parent"
                             android:layout_height="130dp"
-                            android:background="@drawable/user_gradient_bg">
+                            android:background="@drawable/bg_dashboard_welcome">
 
                             <!-- Semi-transparent decorative graduation cap icon on the right -->
                             <ImageView
@@ -182,8 +183,9 @@
                             android:layout_weight="1"
                             app:cardCornerRadius="16dp"
                             app:cardElevation="0dp"
-                            app:cardBackgroundColor="#0DFF3B30"
-                            app:strokeWidth="0dp"
+                            app:cardBackgroundColor="@color/dashboard_lost_card_bg"
+                            app:strokeColor="@color/dashboard_lost_card_stroke"
+                            app:strokeWidth="@dimen/dashboard_card_stroke_width"
                             android:clickable="true"
                             android:focusable="true">
 
@@ -197,7 +199,7 @@
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
                                     android:text="0"
-                                    android:textColor="@color/statusLost"
+                                    android:textColor="@color/dashboard_lost_count_color"
                                     android:textSize="36sp"
                                     android:textStyle="bold"
                                     android:fontFamily="sans-serif-black"
@@ -210,7 +212,7 @@
                                     android:layout_height="wrap_content"
                                     android:layout_marginTop="4dp"
                                     android:text="Lost Reports"
-                                    android:textColor="@color/textSecondary"
+                                    android:textColor="@color/dashboard_card_label_color"
                                     android:textSize="13sp"
                                     android:fontFamily="sans-serif-medium"
                                     app:layout_constraintStart_toStartOf="parent"
@@ -223,7 +225,7 @@
                                     android:layout_width="40dp"
                                     android:layout_height="40dp"
                                     android:background="@drawable/bg_indicator_pill"
-                                    android:backgroundTint="#1AFF3B30"
+                                    android:backgroundTint="@color/dashboard_lost_icon_bg"
                                     app:layout_constraintEnd_toEndOf="parent"
                                     app:layout_constraintTop_toTopOf="parent"
                                     app:layout_constraintBottom_toBottomOf="parent">
@@ -233,7 +235,7 @@
                                         android:layout_height="20dp"
                                         android:layout_gravity="center"
                                         android:src="@drawable/ic_warning"
-                                        app:tint="@color/statusLost" />
+                                        app:tint="@color/dashboard_lost_count_color" />
                                 </FrameLayout>
 
                             </androidx.constraintlayout.widget.ConstraintLayout>
@@ -248,8 +250,9 @@
                             android:layout_marginStart="12dp"
                             app:cardCornerRadius="16dp"
                             app:cardElevation="0dp"
-                            app:cardBackgroundColor="#0D34C759"
-                            app:strokeWidth="0dp"
+                            app:cardBackgroundColor="@color/dashboard_found_card_bg"
+                            app:strokeColor="@color/dashboard_found_card_stroke"
+                            app:strokeWidth="@dimen/dashboard_card_stroke_width"
                             android:clickable="true"
                             android:focusable="true">
 
@@ -263,7 +266,7 @@
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
                                     android:text="0"
-                                    android:textColor="@color/statusFound"
+                                    android:textColor="@color/dashboard_found_count_color"
                                     android:textSize="36sp"
                                     android:textStyle="bold"
                                     android:fontFamily="sans-serif-black"
@@ -276,7 +279,7 @@
                                     android:layout_height="wrap_content"
                                     android:layout_marginTop="4dp"
                                     android:text="Found Reports"
-                                    android:textColor="@color/textSecondary"
+                                    android:textColor="@color/dashboard_card_label_color"
                                     android:textSize="13sp"
                                     android:fontFamily="sans-serif-medium"
                                     app:layout_constraintStart_toStartOf="parent"
@@ -289,7 +292,7 @@
                                     android:layout_width="40dp"
                                     android:layout_height="40dp"
                                     android:background="@drawable/bg_indicator_pill"
-                                    android:backgroundTint="#1A34C759"
+                                    android:backgroundTint="@color/dashboard_found_icon_bg"
                                     app:layout_constraintEnd_toEndOf="parent"
                                     app:layout_constraintTop_toTopOf="parent"
                                     app:layout_constraintBottom_toBottomOf="parent">
@@ -299,7 +302,7 @@
                                         android:layout_height="20dp"
                                         android:layout_gravity="center"
                                         android:src="@drawable/ic_check_circle"
-                                        app:tint="@color/statusFound" />
+                                        app:tint="@color/dashboard_found_count_color" />
                                 </FrameLayout>
 
                             </androidx.constraintlayout.widget.ConstraintLayout>
@@ -324,7 +327,7 @@
                             android:textSize="12.5sp"
                             android:textStyle="bold"
                             android:fontFamily="sans-serif-medium"
-                            android:textColor="@color/statusLost"
+                            android:textColor="@color/dashboard_lost_btn_text"
                             android:insetTop="0dp"
                             android:insetBottom="0dp"
                             android:paddingHorizontal="16dp"
@@ -336,7 +339,7 @@
                             app:backgroundTint="@null"
                             app:icon="@drawable/ic_alert_circle"
                             app:iconGravity="textStart"
-                            app:iconTint="@color/statusLost"
+                            app:iconTint="@color/dashboard_lost_btn_text"
                             app:iconSize="16dp"
                             app:iconPadding="4dp"
                             app:elevation="0dp" />
@@ -353,7 +356,7 @@
                             android:textSize="12.5sp"
                             android:textStyle="bold"
                             android:fontFamily="sans-serif-medium"
-                            android:textColor="@color/statusFound"
+                            android:textColor="@color/dashboard_found_btn_text"
                             android:insetTop="0dp"
                             android:insetBottom="0dp"
                             android:paddingHorizontal="16dp"
@@ -365,7 +368,7 @@
                             app:backgroundTint="@null"
                             app:icon="@drawable/ic_check_circle"
                             app:iconGravity="textStart"
-                            app:iconTint="@color/statusFound"
+                            app:iconTint="@color/dashboard_found_btn_text"
                             app:iconSize="16dp"
                             app:iconPadding="4dp"
                             app:elevation="0dp" />
@@ -393,7 +396,7 @@
                             android:clickable="true"
                             android:focusable="true"
                             android:text="@string/browse_all_arrow"
-                            android:textColor="@color/primaryColor"
+                            android:textColor="@color/dashboard_browse_all_color"
                             android:textStyle="bold" />
                     </RelativeLayout>
 
@@ -415,20 +418,20 @@
                         android:layout_marginTop="8dp"
                         android:text="View Less"
                         android:textAllCaps="false"
-                        android:textColor="@color/primaryColor"
+                        android:textColor="@color/dashboard_view_more_text"
                         android:textSize="14sp"
                         android:textStyle="bold"
                         android:fontFamily="sans-serif-medium"
                         android:insetTop="0dp"
                         android:insetBottom="0dp"
-                        app:backgroundTint="@color/dashboard_btn_bg"
-                        app:strokeColor="@color/divider_e2e8f0"
+                        app:backgroundTint="@color/dashboard_view_more_bg"
+                        app:strokeColor="@color/dashboard_view_more_stroke"
                         app:strokeWidth="1dp"
                         app:cornerRadius="14dp"
-                        app:rippleColor="@color/primaryLightColor"
+                        app:rippleColor="@color/dashboard_view_more_ripple"
                         app:icon="@drawable/ic_chevron_up"
                         app:iconGravity="textEnd"
-                        app:iconTint="@color/primaryColor"
+                        app:iconTint="@color/dashboard_view_more_text"
                         app:iconSize="18dp"
                         app:iconPadding="8dp"
                         app:elevation="0dp"
@@ -441,20 +444,20 @@
                         android:layout_marginTop="6dp"
                         android:text="View More"
                         android:textAllCaps="false"
-                        android:textColor="@color/primaryColor"
+                        android:textColor="@color/dashboard_view_more_text"
                         android:textSize="14sp"
                         android:textStyle="bold"
                         android:fontFamily="sans-serif-medium"
                         android:insetTop="0dp"
                         android:insetBottom="0dp"
-                        app:backgroundTint="@color/dashboard_btn_bg"
-                        app:strokeColor="@color/divider_e2e8f0"
+                        app:backgroundTint="@color/dashboard_view_more_bg"
+                        app:strokeColor="@color/dashboard_view_more_stroke"
                         app:strokeWidth="1dp"
                         app:cornerRadius="14dp"
-                        app:rippleColor="@color/primaryLightColor"
+                        app:rippleColor="@color/dashboard_view_more_ripple"
                         app:icon="@drawable/ic_chevron_down"
                         app:iconGravity="textEnd"
-                        app:iconTint="@color/primaryColor"
+                        app:iconTint="@color/dashboard_view_more_text"
                         app:iconSize="18dp"
                         app:iconPadding="8dp"
                         app:elevation="0dp"
@@ -467,14 +470,14 @@
                         android:layout_marginBottom="24dp"
                         app:cardCornerRadius="20dp"
                         app:cardElevation="2dp"
-                        app:strokeColor="@color/divider_e2e8f0"
+                        app:strokeColor="@color/dashboard_view_more_stroke"
                         app:strokeWidth="1dp"
                         app:cardPreventCornerOverlap="false">
 
                         <FrameLayout
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:background="@drawable/help_gradient_bg">
+                            android:background="@drawable/bg_dashboard_help">
 
                             <!-- Subtle background watermark icon on the right -->
                             <ImageView
@@ -593,10 +596,11 @@
         android:layout_height="match_parent"
         android:layout_gravity="start"
         android:fitsSystemWindows="true"
-        android:background="@color/surfaceColor"
+        android:theme="@style/ThemeOverlay.App.NavigationView"
         app:headerLayout="@layout/nav_header_main"
         app:menu="@menu/activity_campus_dashboard_drawer"
-        app:itemIconTint="@color/nav_item_icon_tint"
-        app:itemTextColor="@color/nav_item_text_color" />
+        app:itemIconTint="@color/nav_drawer_item_icon"
+        app:itemTextColor="@color/nav_drawer_item_text"
+        app:itemRippleColor="@color/nav_drawer_ripple" />
 
 </androidx.drawerlayout.widget.DrawerLayout>

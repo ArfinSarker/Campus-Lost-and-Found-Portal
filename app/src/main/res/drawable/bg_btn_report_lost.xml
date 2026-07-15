@@ -1,19 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ripple xmlns:android="http://schemas.android.com/apk/res/android"
-    android:color="#4DFF3B30">
+    android:color="@color/dashboard_lost_btn_ripple">
     <item>
         <selector>
             <!-- Pressed state -->
             <item android:state_pressed="true">
                 <shape android:shape="rectangle">
                     <gradient
-                        android:startColor="#3DFF8A80"
-                        android:endColor="#3DFF3B30"
+                        android:startColor="@color/dashboard_lost_btn_pressed_start"
+                        android:endColor="@color/dashboard_lost_btn_pressed_end"
                         android:angle="45"
                         android:type="linear" />
                     <stroke
                         android:width="1.5dp"
-                        android:color="#99FF3B30" />
+                        android:color="@color/dashboard_lost_btn_pressed_stroke" />
                     <corners android:radius="14dp" />
                 </shape>
             </item>
@@ -21,13 +21,13 @@
             <item android:state_hovered="true">
                 <shape android:shape="rectangle">
                     <gradient
-                        android:startColor="#2BFF8A80"
-                        android:endColor="#2BFF3B30"
+                        android:startColor="@color/dashboard_lost_btn_hovered_start"
+                        android:endColor="@color/dashboard_lost_btn_hovered_end"
                         android:angle="45"
                         android:type="linear" />
                     <stroke
                         android:width="1.2dp"
-                        android:color="#66FF3B30" />
+                        android:color="@color/dashboard_lost_btn_hovered_stroke" />
                     <corners android:radius="14dp" />
                 </shape>
             </item>
@@ -35,13 +35,13 @@
             <item>
                 <shape android:shape="rectangle">
                     <gradient
-                        android:startColor="#1FFF8A80"
-                        android:endColor="#1FFF3B30"
+                        android:startColor="@color/dashboard_lost_btn_default_start"
+                        android:endColor="@color/dashboard_lost_btn_default_end"
                         android:angle="45"
                         android:type="linear" />
                     <stroke
                         android:width="1dp"
-                        android:color="#4DFF3B30" />
+                        android:color="@color/dashboard_lost_btn_default_stroke" />
                     <corners android:radius="14dp" />
                 </shape>
             </item>

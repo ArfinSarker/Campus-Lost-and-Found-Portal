@@ -7,16 +7,16 @@
 
     <!-- Background Circle -->
     <path
-        android:fillColor="@color/primaryLightColor"
+        android:fillColor="@color/default_avatar_bg"
         android:pathData="M32,32m-30,0a30,30 0 1,1 60,0a30,30 0 1,1 -60,0" />
 
     <!-- Modern User Silhouette Head -->
     <path
-        android:fillColor="@color/primaryColor"
+        android:fillColor="@color/default_avatar_fg"
         android:pathData="M32,25m-8.5,0a8.5,8.5 0 1,1 17,0a8.5,8.5 0 1,1 -17,0" />
 
     <!-- Modern User Silhouette Shoulders -->
     <path
-        android:fillColor="@color/primaryColor"
+        android:fillColor="@color/default_avatar_fg"
         android:pathData="M16,51c0,-8.8 7.2,-16 16,-16s16,7.2 16,16z" />
 </vector>

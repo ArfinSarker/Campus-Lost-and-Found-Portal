@@ -89,7 +89,10 @@ public class UserRegistrationActivity extends AppCompatActivity {
 
         initializeViews();
         if (appBarLayout != null) {
-            HeaderColorHelper.setup(this, appBarLayout);
+            int registerBgColor = androidx.core.content.ContextCompat.getColor(this, R.color.login_register_background);
+            boolean isNightMode = (getResources().getConfiguration().uiMode & android.content.res.Configuration.UI_MODE_NIGHT_MASK) 
+                    == android.content.res.Configuration.UI_MODE_NIGHT_YES;
+            HeaderColorHelper.setup(this, appBarLayout, registerBgColor, registerBgColor, !isNightMode);
         }
         setupDropdowns();
         setupListeners();
@@ -195,12 +198,12 @@ public class UserRegistrationActivity extends AppCompatActivity {
                 "Level 3 Term I", "Level 3 Term II",
                 "Level 4 Term I", "Level 4 Term II"
         };
-        ArrayAdapter<String> levelTermAdapter = new ArrayAdapter<>(this, R.layout.dropdown_item, levelTermOptions);
+        ArrayAdapter<String> levelTermAdapter = new ArrayAdapter<>(this, R.layout.login_register_dropdown_item, levelTermOptions);
         actvLevelTerm.setAdapter(levelTermAdapter);
         actvLevelTerm.setOnClickListener(v -> actvLevelTerm.showDropDown());
 
         String[] userTypeOptions = {"Student", "Staff", "Admin"};
-        ArrayAdapter<String> userTypeAdapter = new ArrayAdapter<>(this, R.layout.dropdown_item, userTypeOptions);
+        ArrayAdapter<String> userTypeAdapter = new ArrayAdapter<>(this, R.layout.login_register_dropdown_item, userTypeOptions);
         actvUserType.setAdapter(userTypeAdapter);
         actvUserType.setOnClickListener(v -> actvUserType.showDropDown());
 
@@ -291,7 +294,7 @@ public class UserRegistrationActivity extends AppCompatActivity {
             };
 
             ss.setSpan(clickableSpan, startIndex, endIndex, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-            ss.setSpan(new ForegroundColorSpan(ContextCompat.getColor(this, R.color.primaryColor)),
+            ss.setSpan(new ForegroundColorSpan(ContextCompat.getColor(this, R.color.login_register_link_text)),
                     startIndex, endIndex, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
             ss.setSpan(new StyleSpan(Typeface.BOLD),
                     startIndex, endIndex, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
@@ -314,7 +317,7 @@ public class UserRegistrationActivity extends AppCompatActivity {
 
         if (startIndex != -1) {
             int endIndex = startIndex + loginText.length();
-            ss.setSpan(new ForegroundColorSpan(ContextCompat.getColor(this, R.color.primaryColor)),
+             ss.setSpan(new ForegroundColorSpan(ContextCompat.getColor(this, R.color.login_register_link_text)),
                     startIndex, endIndex, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
             ss.setSpan(new StyleSpan(Typeface.BOLD),
                     startIndex, endIndex, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
