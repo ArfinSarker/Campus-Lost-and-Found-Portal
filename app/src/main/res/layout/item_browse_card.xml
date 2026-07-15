@@ -25,7 +25,7 @@
             android:id="@+id/flImageContainer"
             android:layout_width="0dp"
             android:layout_height="0dp"
-            android:background="#F1F5F9"
+            android:background="@color/bg_f1f5f9"
             app:layout_constraintDimensionRatio="H,16:10"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -76,25 +76,59 @@
 
         </FrameLayout>
 
-        <!-- Overlaid Badges Row (ID and Type floating on the image) -->
-        <TextView
-            android:id="@+id/tvItemType"
-            style="@style/TextAppearance.App.Small"
+        <!-- Status Badge Overlay (Left) -->
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/cardStatusBadge"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="12dp"
-            android:layout_marginStart="12dp"
-            android:background="@drawable/bg_status_badge_lost"
-            android:paddingHorizontal="12dp"
-            android:paddingVertical="5dp"
-            android:textStyle="bold"
-            android:textColor="@color/white"
-            android:textSize="10sp"
-            android:letterSpacing="0.06"
-            android:textAllCaps="true"
+            android:layout_margin="12dp"
+            app:cardCornerRadius="100dp"
+            app:cardElevation="3dp"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            tools:text="Lost" />
+            app:strokeWidth="1.5dp"
+            app:strokeColor="#FFFFFF">
+
+            <TextView
+                android:id="@+id/tvStatusBadge"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:paddingHorizontal="12dp"
+                android:paddingVertical="5dp"
+                android:textAllCaps="true"
+                android:textColor="@color/white"
+                android:textSize="10sp"
+                android:letterSpacing="0.08"
+                android:fontFamily="sans-serif-medium"
+                tools:text="PENDING" />
+        </com.google.android.material.card.MaterialCardView>
+
+        <!-- Report ID Badge Overlay (Right) -->
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/cardReportId"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="12dp"
+            app:cardCornerRadius="100dp"
+            app:cardElevation="3dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:cardBackgroundColor="#CC0F172A"
+            app:strokeWidth="1dp"
+            app:strokeColor="#33FFFFFF">
+
+            <TextView
+                android:id="@+id/tvDisplayId"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:paddingHorizontal="12dp"
+                android:paddingVertical="5dp"
+                android:textColor="@color/white"
+                android:textSize="10sp"
+                android:letterSpacing="0.06"
+                android:fontFamily="sans-serif-medium"
+                tools:text="#R1" />
+        </com.google.android.material.card.MaterialCardView>
 
         <!-- Clean, subtle separator line directly below the image -->
         <View

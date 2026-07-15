@@ -1,5 +1,8 @@
 package com.sas.lostandfound;
 
+import android.content.Context;
+import android.content.Intent;
+import android.net.Uri;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -44,21 +47,76 @@ public class AdminRequestAdapter extends RecyclerView.Adapter<AdminRequestAdapte
         holder.tvName.setText(request.getFullName());
         holder.tvDesignation.setText(request.getDesignation());
         holder.tvId.setText("ID: " + request.getUniversityId());
+        
+        final String email = request.getEmail();
+        final String phone = request.getPhoneNumber();
+        final Context context = holder.itemView.getContext();
+
         holder.tvEmail.setText(
-                request.getEmail() != null && !request.getEmail().isEmpty() ? request.getEmail() : "No Email Provided");
-        holder.tvPhone.setText(request.getPhoneNumber());
+                email != null && !email.isEmpty() ? email : "No Email Provided");
+        holder.tvPhone.setText(phone);
         holder.tvCode.setText("Code: " + request.getVerificationCode());
+
+        if (email != null && !email.isEmpty()) {
+            holder.tvEmail.setOnClickListener(v -> {
+                Intent intent = new Intent(Intent.ACTION_SENDTO);
+                intent.setData(Uri.parse("mailto:" + email));
+                try {
+                    context.startActivity(Intent.createChooser(intent, "Send Email"));
+                } catch (android.content.ActivityNotFoundException e) {
+                    SnackbarManager.show(SnackbarManager.Type.ERROR, "No email client found on this device");
+                }
+            });
+
+            holder.tvEmail.setOnLongClickListener(v -> {
+                android.content.ClipboardManager clipboard = (android.content.ClipboardManager) context.getSystemService(Context.CLIPBOARD_SERVICE);
+                android.content.ClipData clip = android.content.ClipData.newPlainText("Email Address", email);
+                if (clipboard != null) {
+                    clipboard.setPrimaryClip(clip);
+                    SnackbarManager.show(SnackbarManager.Type.SUCCESS, "Email copied to clipboard");
+                }
+                return true;
+            });
+        } else {
+            holder.tvEmail.setOnClickListener(null);
+            holder.tvEmail.setOnLongClickListener(null);
+        }
+
+        if (phone != null && !phone.isEmpty()) {
+            holder.tvPhone.setOnClickListener(v -> {
+                Intent intent = new Intent(Intent.ACTION_DIAL);
+                intent.setData(Uri.parse("tel:" + phone));
+                try {
+                    context.startActivity(intent);
+                } catch (android.content.ActivityNotFoundException e) {
+                    SnackbarManager.show(SnackbarManager.Type.ERROR, "No phone dialer found on this device");
+                }
+            });
+
+            holder.tvPhone.setOnLongClickListener(v -> {
+                android.content.ClipboardManager clipboard = (android.content.ClipboardManager) context.getSystemService(Context.CLIPBOARD_SERVICE);
+                android.content.ClipData clip = android.content.ClipData.newPlainText("Phone Number", phone);
+                if (clipboard != null) {
+                    clipboard.setPrimaryClip(clip);
+                    SnackbarManager.show(SnackbarManager.Type.SUCCESS, "Phone number copied to clipboard");
+                }
+                return true;
+            });
+        } else {
+            holder.tvPhone.setOnClickListener(null);
+            holder.tvPhone.setOnLongClickListener(null);
+        }
 
         if (request.getProfileImageUrl() != null && !request.getProfileImageUrl().isEmpty()) {
             GlideApp.with(holder.itemView.getContext())
                     .load(SupabaseStorageHelper.ensurePublicUrl(request.getProfileImageUrl()))
-                    .placeholder(R.drawable.ic_user)
+                    .placeholder(R.drawable.ic_default_avatar)
                     .thumbnail(0.1f)
                     .diskCacheStrategy(DiskCacheStrategy.ALL)
                     .circleCrop()
                     .into(holder.ivProfile);
         } else {
-            holder.ivProfile.setImageResource(R.drawable.ic_user);
+            holder.ivProfile.setImageResource(R.drawable.ic_default_avatar);
         }
 
         holder.btnAccept.setOnClickListener(v -> listener.onAccept(request));

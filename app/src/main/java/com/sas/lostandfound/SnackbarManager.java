@@ -63,7 +63,8 @@ public class SnackbarManager implements Application.ActivityLifecycleCallbacks {
     private long remainingTime = 4000;
     private long startTime;
 
-    private SnackbarManager() {}
+    private SnackbarManager() {
+    }
 
     public static synchronized SnackbarManager getInstance() {
         if (instance == null) {
@@ -88,7 +89,8 @@ public class SnackbarManager implements Application.ActivityLifecycleCallbacks {
     }
 
     private void processQueue() {
-        if (isShowing || snackbarQueue.isEmpty() || currentActivityRef == null || currentActivityRef.get() == null) return;
+        if (isShowing || snackbarQueue.isEmpty() || currentActivityRef == null || currentActivityRef.get() == null)
+            return;
 
         Activity activity = currentActivityRef.get();
         if (activity.isFinishing() || activity.isDestroyed()) {
@@ -161,7 +163,7 @@ public class SnackbarManager implements Application.ActivityLifecycleCallbacks {
         if (request.actionLabel != null && request.actionCallback != null) {
             tvAction.setVisibility(View.VISIBLE);
             tvAction.setText(request.actionLabel);
-            
+
             // Programmatically apply a rounded capsule background for a modern chip look
             android.graphics.drawable.GradientDrawable actionBg = new android.graphics.drawable.GradientDrawable();
             actionBg.setShape(android.graphics.drawable.GradientDrawable.RECTANGLE);
@@ -203,8 +205,7 @@ public class SnackbarManager implements Application.ActivityLifecycleCallbacks {
         int margin16 = (int) (16 * activity.getResources().getDisplayMetrics().density);
         android.widget.FrameLayout.LayoutParams lp = new android.widget.FrameLayout.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT,
-                ViewGroup.LayoutParams.WRAP_CONTENT
-        );
+                ViewGroup.LayoutParams.WRAP_CONTENT);
         lp.leftMargin = margin16;
         lp.rightMargin = margin16;
         lp.topMargin = statusBarHeight + margin16;
@@ -226,19 +227,60 @@ public class SnackbarManager implements Application.ActivityLifecycleCallbacks {
 
         startDismissTimer(4000);
 
-        // Pause on touch
-        currentSnackbarView.setOnTouchListener((v, event) -> {
-            switch (event.getAction()) {
-                case MotionEvent.ACTION_DOWN:
-                    pauseDismissTimer();
-                    break;
-                case MotionEvent.ACTION_UP:
-                case MotionEvent.ACTION_CANCEL:
-                    v.performClick();
-                    resumeDismissTimer();
-                    break;
+        // Pause on touch, swipe-to-dismiss for success messages
+        final boolean isSwipeable = request.type == Type.SUCCESS;
+        currentSnackbarView.setOnTouchListener(new View.OnTouchListener() {
+            private float downX = 0f;
+            private boolean isSwiping = false;
+
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                switch (event.getAction()) {
+                    case MotionEvent.ACTION_DOWN:
+                        downX = event.getRawX();
+                        isSwiping = false;
+                        pauseDismissTimer();
+                        break;
+                    case MotionEvent.ACTION_MOVE:
+                        if (isSwipeable) {
+                            float dx = event.getRawX() - downX;
+                            if (Math.abs(dx) > 10 || isSwiping) {
+                                isSwiping = true;
+                                v.setTranslationX(dx);
+                                float fraction = Math.min(1f, Math.abs(dx) / (v.getWidth() * 0.7f));
+                                v.setAlpha(1f - fraction * 0.5f);
+                            }
+                        }
+                        break;
+                    case MotionEvent.ACTION_UP:
+                    case MotionEvent.ACTION_CANCEL:
+                        if (isSwipeable && isSwiping) {
+                            float dx = event.getRawX() - downX;
+                            float threshold = v.getWidth() * 0.25f;
+                            if (Math.abs(dx) > threshold) {
+                                float targetX = dx > 0 ? v.getWidth() : -v.getWidth();
+                                v.animate()
+                                        .translationX(targetX)
+                                        .alpha(0f)
+                                        .setDuration(250)
+                                        .withEndAction(() -> dismissSwiped())
+                                        .start();
+                            } else {
+                                v.animate()
+                                        .translationX(0f)
+                                        .alpha(1f)
+                                        .setDuration(200)
+                                        .withEndAction(() -> resumeDismissTimer())
+                                        .start();
+                            }
+                        } else {
+                            v.performClick();
+                            resumeDismissTimer();
+                        }
+                        break;
+                }
+                return true;
             }
-            return true;
         });
     }
 
@@ -253,7 +295,8 @@ public class SnackbarManager implements Application.ActivityLifecycleCallbacks {
         handler.removeCallbacks(dismissRunnable);
         long elapsed = System.currentTimeMillis() - startTime;
         remainingTime -= elapsed;
-        if (remainingTime < 0) remainingTime = 0;
+        if (remainingTime < 0)
+            remainingTime = 0;
     }
 
     private void resumeDismissTimer() {
@@ -262,7 +305,8 @@ public class SnackbarManager implements Application.ActivityLifecycleCallbacks {
     }
 
     private void dismiss() {
-        if (currentSnackbarView == null || !isShowing) return;
+        if (currentSnackbarView == null || !isShowing)
+            return;
 
         currentRequest = null;
         handler.removeCallbacks(dismissRunnable);
@@ -283,8 +327,25 @@ public class SnackbarManager implements Application.ActivityLifecycleCallbacks {
                 .start();
     }
 
+    private void dismissSwiped() {
+        if (currentSnackbarView == null || !isShowing)
+            return;
+
+        currentRequest = null;
+        handler.removeCallbacks(dismissRunnable);
+
+        ViewGroup rootView = (ViewGroup) currentSnackbarView.getParent();
+        if (rootView != null) {
+            rootView.removeView(currentSnackbarView);
+        }
+        currentSnackbarView = null;
+        isShowing = false;
+        processQueue();
+    }
+
     @Override
-    public void onActivityCreated(@NonNull Activity activity, @Nullable Bundle savedInstanceState) {}
+    public void onActivityCreated(@NonNull Activity activity, @Nullable Bundle savedInstanceState) {
+    }
 
     @Override
     public void onActivityStarted(@NonNull Activity activity) {
@@ -325,10 +386,12 @@ public class SnackbarManager implements Application.ActivityLifecycleCallbacks {
     }
 
     @Override
-    public void onActivityStopped(@NonNull Activity activity) {}
+    public void onActivityStopped(@NonNull Activity activity) {
+    }
 
     @Override
-    public void onActivitySaveInstanceState(@NonNull Activity activity, @NonNull Bundle outState) {}
+    public void onActivitySaveInstanceState(@NonNull Activity activity, @NonNull Bundle outState) {
+    }
 
     @Override
     public void onActivityDestroyed(@NonNull Activity activity) {

@@ -60,106 +60,125 @@ public class NotificationAdapter extends RecyclerView.Adapter<NotificationAdapte
         Notification notification = notifications.get(position);
         
         String type = notification.getType();
-        holder.tvMessage.setMovementMethod(LinkMovementMethod.getInstance());
         
         if ("item_claimed".equals(type) || "item_return".equals(type)) {
             holder.tvMessage.setText(styleEnhancedNotification(notification, holder.itemView.getContext()));
-            holder.itemView.setOnClickListener(null);
         } else if ("lost_claimed_confirmed".equals(type) || "item_returned_confirmed".equals(type)) {
             // Keep support for old types during transition
             holder.tvMessage.setText(styleEnhancedNotification(notification, holder.itemView.getContext()));
-            holder.itemView.setOnClickListener(null);
         } else if ("lost_claim".equals(type) || "found_claim".equals(type)) {
             holder.tvMessage.setText(styleClaimNotification(notification, holder.itemView.getContext()));
-            holder.itemView.setOnClickListener(null);
         } else if ("admin_report".equals(type) || "admin_report_new".equals(type)) {
             holder.tvMessage.setText(styleAdminReportNotification(notification, holder.itemView.getContext()));
-            holder.itemView.setOnClickListener(null);
         } else if ("admin_request".equals(type)) {
             holder.tvMessage.setText(styleAdminRequestNotification(notification, holder.itemView.getContext()));
-            holder.itemView.setOnClickListener(null);
         } else {
             String fullMsg = notification.getMessage();
             if (fullMsg != null && fullMsg.contains("Click to view details")) {
                 int start = fullMsg.indexOf("Click to view details");
                 int end = start + "Click to view details".length();
                 SpannableString spannableString = new SpannableString(fullMsg);
-                spannableString.setSpan(new UnderlineSpan(), start, end, 0);
-                spannableString.setSpan(new ForegroundColorSpan(ContextCompat.getColor(holder.itemView.getContext(), R.color.scienceBlue)), start, end, 0);
-                
-                // Add click for simple "Click to view details"
-                spannableString.setSpan(new ClickableSpan() {
-                    @Override public void onClick(@NonNull View widget) { listener.onNotificationClick(notification); }
-                    @Override public void updateDrawState(@NonNull android.text.TextPaint ds) { ds.setUnderlineText(true); ds.setColor(ContextCompat.getColor(holder.itemView.getContext(), R.color.scienceBlue)); }
-                }, start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-                
+                spannableString.setSpan(new UnderlineSpan(), start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+                spannableString.setSpan(new ForegroundColorSpan(ContextCompat.getColor(holder.itemView.getContext(), R.color.scienceBlue)), start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
                 holder.tvMessage.setText(spannableString);
-                holder.itemView.setOnClickListener(null);
             } else {
                 holder.tvMessage.setText(fullMsg);
-                holder.itemView.setOnClickListener(v -> listener.onNotificationClick(notification));
             }
         }
 
         android.content.Context context = holder.itemView.getContext();
 
-        // Load sender image if available, otherwise show type-specific icon
-        if (notification.getSenderImageUrl() != null && !notification.getSenderImageUrl().isEmpty()) {
-            GlideApp.with(context)
-                    .load(notification.getSenderImageUrl())
-                    .placeholder(R.drawable.ic_user)
-                    .into(holder.ivIcon);
-            holder.ivIcon.setPadding(0, 0, 0, 0);
-            holder.ivIcon.setBackgroundResource(R.drawable.bg_notification_icon_container);
-            holder.ivIcon.setBackgroundTintList(null);
-            holder.ivIcon.setImageTintList(null);
-        } else {
-            int iconRes = R.drawable.ic_notification;
-            int tintColor = ContextCompat.getColor(context, R.color.primaryColor);
+        // Badge color and icon selection based on type
+        int iconRes = R.drawable.ic_notification;
+        int tintColor = ContextCompat.getColor(context, R.color.primaryColor);
+        boolean showBadge = true;
 
-            if ("lost_item".equals(type)) {
-                iconRes = R.drawable.ic_lost_tag;
-                tintColor = ContextCompat.getColor(context, R.color.statusLost);
-            } else if ("found_item".equals(type)) {
-                iconRes = R.drawable.ic_found_tag;
-                tintColor = ContextCompat.getColor(context, R.color.statusFound);
-            } else if ("lost_claim".equals(type)) {
-                iconRes = R.drawable.ic_alert_match;
-                tintColor = ContextCompat.getColor(context, R.color.warningColor);
-            } else if ("found_claim".equals(type)) {
-                iconRes = R.drawable.ic_id_card;
-                tintColor = ContextCompat.getColor(context, R.color.warningColor);
-            } else if ("item_claimed".equals(type)) {
-                iconRes = R.drawable.ic_user_check;
-                tintColor = ContextCompat.getColor(context, R.color.statusFound);
-            } else if ("lost_claimed_confirmed".equals(type)) {
-                iconRes = R.drawable.ic_check_square;
-                tintColor = ContextCompat.getColor(context, R.color.statusFound);
-            } else if ("item_return".equals(type)) {
-                iconRes = R.drawable.ic_package;
-                tintColor = ContextCompat.getColor(context, R.color.statusFound);
-            } else if ("item_returned_confirmed".equals(type)) {
-                iconRes = R.drawable.ic_check_circle;
-                tintColor = ContextCompat.getColor(context, R.color.statusFound);
-            } else if ("admin_report".equals(type)) {
-                iconRes = R.drawable.ic_shield;
-                tintColor = ContextCompat.getColor(context, R.color.admin_accent);
-            } else if ("admin_report_new".equals(type)) {
-                iconRes = R.drawable.ic_report_management;
-                tintColor = ContextCompat.getColor(context, R.color.admin_accent);
-            } else if ("admin_request".equals(type)) {
-                iconRes = R.drawable.ic_status;
-                tintColor = ContextCompat.getColor(context, R.color.admin_accent);
+        if ("lost_item".equals(type)) {
+            iconRes = R.drawable.ic_lost_tag;
+            tintColor = ContextCompat.getColor(context, R.color.statusLost);
+        } else if ("found_item".equals(type)) {
+            iconRes = R.drawable.ic_found_tag;
+            tintColor = ContextCompat.getColor(context, R.color.statusFound);
+        } else if ("lost_claim".equals(type)) {
+            iconRes = R.drawable.ic_alert_match;
+            tintColor = ContextCompat.getColor(context, R.color.warningColor);
+        } else if ("found_claim".equals(type)) {
+            iconRes = R.drawable.ic_id_card;
+            tintColor = ContextCompat.getColor(context, R.color.warningColor);
+        } else if ("item_claimed".equals(type)) {
+            iconRes = R.drawable.ic_user_check;
+            tintColor = ContextCompat.getColor(context, R.color.statusFound);
+        } else if ("lost_claimed_confirmed".equals(type)) {
+            iconRes = R.drawable.ic_check_square;
+            tintColor = ContextCompat.getColor(context, R.color.statusFound);
+        } else if ("item_return".equals(type)) {
+            iconRes = R.drawable.ic_package;
+            tintColor = ContextCompat.getColor(context, R.color.statusFound);
+        } else if ("item_returned_confirmed".equals(type)) {
+            iconRes = R.drawable.ic_check_circle;
+            tintColor = ContextCompat.getColor(context, R.color.statusFound);
+        } else if ("admin_report".equals(type)) {
+            iconRes = R.drawable.ic_shield;
+            tintColor = ContextCompat.getColor(context, R.color.admin_accent);
+            showBadge = false;
+        } else if ("admin_report_new".equals(type)) {
+            iconRes = R.drawable.ic_report_management;
+            tintColor = ContextCompat.getColor(context, R.color.admin_accent);
+            showBadge = false;
+        } else if ("admin_request".equals(type)) {
+            iconRes = R.drawable.ic_status;
+            tintColor = ContextCompat.getColor(context, R.color.admin_accent);
+            showBadge = false;
+        }
+
+        // Set up the main circular icon (ivIcon)
+        boolean isUserImageLoaded = false;
+        boolean shouldShowUserAvatar = !"admin_report".equals(type);
+        
+        if (shouldShowUserAvatar) {
+            String imageUrl = notification.getSenderImageUrl();
+            if (imageUrl != null && !imageUrl.trim().isEmpty() && !"null".equalsIgnoreCase(imageUrl.trim())) {
+                GlideApp.with(context)
+                        .load(SupabaseStorageHelper.ensurePublicUrl(imageUrl))
+                        .placeholder(R.drawable.ic_default_avatar)
+                        .into(holder.ivIcon);
+                holder.ivIcon.setPadding(0, 0, 0, 0);
+                holder.ivIcon.setBackgroundResource(0);
+                holder.ivIcon.setBackgroundTintList(null);
+                holder.ivIcon.setImageTintList(null);
+                isUserImageLoaded = true;
+            } else {
+                holder.ivIcon.setImageResource(R.drawable.ic_default_avatar);
+                holder.ivIcon.setPadding(0, 0, 0, 0);
+                holder.ivIcon.setBackgroundResource(0);
+                holder.ivIcon.setBackgroundTintList(null);
+                holder.ivIcon.setImageTintList(null);
+                isUserImageLoaded = true;
             }
-
-            int bgTint = ColorUtils.setAlphaComponent(tintColor, 21);
-
+        }
+        
+        if (!isUserImageLoaded) {
             holder.ivIcon.setImageResource(iconRes);
             int paddingPx = dpToPx(context, 10);
             holder.ivIcon.setPadding(paddingPx, paddingPx, paddingPx, paddingPx);
             holder.ivIcon.setBackgroundResource(R.drawable.bg_notification_icon_container);
+            int bgTint = ColorUtils.setAlphaComponent(tintColor, 21);
             holder.ivIcon.setBackgroundTintList(android.content.res.ColorStateList.valueOf(bgTint));
             holder.ivIcon.setImageTintList(android.content.res.ColorStateList.valueOf(tintColor));
+        }
+
+        // Set up the type badge container and cut-out border stroke
+        if (showBadge) {
+            holder.cvBadge.setVisibility(View.VISIBLE);
+            holder.cvBadge.setCardBackgroundColor(android.content.res.ColorStateList.valueOf(tintColor));
+            int badgeStrokeColor = notification.isRead() ? 
+                ContextCompat.getColor(context, R.color.surfaceColor) : 
+                ColorUtils.setAlphaComponent(ContextCompat.getColor(context, R.color.primaryColor), 10);
+            holder.cvBadge.setStrokeColor(badgeStrokeColor);
+            holder.ivBadge.setImageResource(iconRes);
+            holder.ivBadge.setImageTintList(android.content.res.ColorStateList.valueOf(ContextCompat.getColor(context, R.color.white)));
+        } else {
+            holder.cvBadge.setVisibility(View.GONE);
         }
 
         SimpleDateFormat sdf = new SimpleDateFormat("dd MMM yyyy, hh:mm a", Locale.getDefault());
@@ -175,15 +194,18 @@ public class NotificationAdapter extends RecyclerView.Adapter<NotificationAdapte
         } else {
             holder.tvMessage.setTypeface(null, Typeface.BOLD);
             holder.viewUnread.setVisibility(View.VISIBLE);
-            holder.cardView.setCardBackgroundColor(ColorUtils.setAlphaComponent(ContextCompat.getColor(context, R.color.primaryColor), 12));
-            holder.cardView.setStrokeColor(ColorUtils.setAlphaComponent(ContextCompat.getColor(context, R.color.primaryColor), 50));
+            holder.cardView.setCardBackgroundColor(ColorUtils.setAlphaComponent(ContextCompat.getColor(context, R.color.primaryColor), 10));
+            holder.cardView.setStrokeColor(ColorUtils.setAlphaComponent(ContextCompat.getColor(context, R.color.primaryColor), 35));
             holder.cardView.setStrokeWidth(dpToPx(context, 1));
             holder.itemView.setAlpha(1.0f);
         }
 
-        if (!"admin_report".equals(type) && !"admin_report_new".equals(type) && !"admin_request".equals(type)) {
-            holder.itemView.setOnClickListener(v -> listener.onNotificationClick(notification));
-        }
+        holder.cardView.setOnClickListener(v -> {
+            if (listener != null) {
+                listener.onNotificationClick(notification);
+            }
+        });
+
         holder.btnDelete.setOnClickListener(v -> {
             if (deleteListener != null) {
                 deleteListener.onNotificationDelete(notification);
@@ -211,57 +233,30 @@ public class NotificationAdapter extends RecyclerView.Adapter<NotificationAdapte
         
         SpannableString ss = new SpannableString(fullText);
         int nameColor = ContextCompat.getColor(context, R.color.orange);
-        int linkColor = ContextCompat.getColor(context, R.color.scienceBlue);
         
-        // 1. Clickable Name (Orange)
+        // 1. Style Name (Orange & Bold)
         int nameStart = fullText.indexOf("\"" + name + "\"");
         if (nameStart != -1) {
-            ss.setSpan(new ClickableSpan() {
-                @Override public void onClick(@NonNull View widget) { 
-                    Intent intent = new Intent(context, UserProfileActivity.class);
-                    intent.putExtra("targetUserId", notification.getSenderId());
-                    intent.putExtra("isViewOnly", true);
-                    context.startActivity(intent);
-                }
-                @Override public void updateDrawState(@NonNull android.text.TextPaint ds) { 
-                    ds.setUnderlineText(false); ds.setColor(nameColor); ds.setFakeBoldText(true); 
-                }
-            }, nameStart, nameStart + name.length() + 2, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+            ss.setSpan(new ForegroundColorSpan(nameColor), nameStart, nameStart + name.length() + 2, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+            ss.setSpan(new StyleSpan(Typeface.BOLD), nameStart, nameStart + name.length() + 2, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
         }
         
-        // 2. Clickable Item (Red/Green)
+        // 2. Style Item (Red/Green & Bold)
         int itemStart = fullText.indexOf("\"" + itemName + "\"");
         if (itemStart != -1) {
-            ss.setSpan(new ClickableSpan() {
-                @Override public void onClick(@NonNull View widget) { 
-                    Intent intent = new Intent(context, ItemDetailActivity.class);
-                    intent.putExtra("itemId", notification.getItemId());
-                    // Deduce status for detail page navigation
-                    String status = "lost_claim".equals(type) || "lost_claimed_confirmed".equals(type) || "item_claimed".equals(type) ? "lost" : "found";
-                    intent.putExtra("itemStatus", status);
-                    intent.putExtra("userId", notification.getRecipientId());
-                    context.startActivity(intent);
-                }
-                @Override public void updateDrawState(@NonNull android.text.TextPaint ds) { 
-                    ds.setUnderlineText(false); ds.setColor(itemColor); ds.setFakeBoldText(true); 
-                }
-            }, itemStart, itemStart + itemName.length() + 2, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+            ss.setSpan(new ForegroundColorSpan(itemColor), itemStart, itemStart + itemName.length() + 2, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+            ss.setSpan(new StyleSpan(Typeface.BOLD), itemStart, itemStart + itemName.length() + 2, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
         }
         
-        // 3. Click to view details (Blue Link)
-        styleClickToViewDetails(ss, fullText, clickText, notification, linkColor);
-        
-        return ss;
-    }
-
-    private void styleClickToViewDetails(SpannableString ss, String fullText, String clickText, Notification notification, int blue) {
+        // 3. Highlight "Click to view details" (Blue Link)
         int clickStart = fullText.indexOf(clickText);
         if (clickStart != -1) {
-            ss.setSpan(new ClickableSpan() {
-                @Override public void onClick(@NonNull View widget) { listener.onNotificationClick(notification); }
-                @Override public void updateDrawState(@NonNull android.text.TextPaint ds) { ds.setUnderlineText(true); ds.setColor(blue); }
-            }, clickStart, clickStart + clickText.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+            int linkColor = ContextCompat.getColor(context, R.color.scienceBlue);
+            ss.setSpan(new ForegroundColorSpan(linkColor), clickStart, clickStart + clickText.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+            ss.setSpan(new UnderlineSpan(), clickStart, clickStart + clickText.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
         }
+        
+        return ss;
     }
 
     private SpannableString styleAdminReportNotification(Notification notification, android.content.Context context) {
@@ -270,16 +265,13 @@ public class NotificationAdapter extends RecyclerView.Adapter<NotificationAdapte
         String fullText = notification.getMessage();
 
         if (fullText == null || fullText.isEmpty()) {
-            // Fallback for old/legacy notifications
             fullText = "Admin has reviewed your \"" + reportName + "\". Click to view details";
         } else if (!fullText.contains(clickText)) {
-            // Append click text if missing
             fullText += " " + clickText;
         }
 
         SpannableString spannableString = new SpannableString(fullText);
         
-        // High-contrast professional colors
         int adminColor = ContextCompat.getColor(context, R.color.admin_accent);
         int reportNameColor = ContextCompat.getColor(context, R.color.statusFound);
         int linkColor = ContextCompat.getColor(context, R.color.scienceBlue);
@@ -287,34 +279,23 @@ public class NotificationAdapter extends RecyclerView.Adapter<NotificationAdapte
         // 1. Style "Admin"
         int adminStart = fullText.indexOf("Admin");
         if (adminStart != -1) {
-            spannableString.setSpan(new ForegroundColorSpan(adminColor), adminStart, adminStart + 5, 0);
-            spannableString.setSpan(new android.text.style.StyleSpan(android.graphics.Typeface.BOLD), adminStart, adminStart + 5, 0);
+            spannableString.setSpan(new ForegroundColorSpan(adminColor), adminStart, adminStart + 5, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+            spannableString.setSpan(new StyleSpan(Typeface.BOLD), adminStart, adminStart + 5, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
         }
 
         // 2. Style Report Name (inside quotes)
         int nameStart = fullText.indexOf("\"" + reportName + "\"");
         if (nameStart != -1) {
             int nameEnd = nameStart + reportName.length() + 2;
-            spannableString.setSpan(new ForegroundColorSpan(reportNameColor), nameStart, nameEnd, 0);
-            spannableString.setSpan(new android.text.style.StyleSpan(android.graphics.Typeface.BOLD), nameStart, nameEnd, 0);
-            
-            // Make report name clickable
-            spannableString.setSpan(new ClickableSpan() {
-                @Override public void onClick(@NonNull View widget) { if (listener != null) listener.onNotificationClick(notification); }
-                @Override public void updateDrawState(@NonNull android.text.TextPaint ds) { ds.setUnderlineText(false); ds.setColor(reportNameColor); }
-            }, nameStart, nameEnd, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+            spannableString.setSpan(new ForegroundColorSpan(reportNameColor), nameStart, nameEnd, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+            spannableString.setSpan(new StyleSpan(Typeface.BOLD), nameStart, nameEnd, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
         }
 
         // 3. Style "Click to view details"
         int clickStart = fullText.indexOf(clickText);
         if (clickStart != -1) {
-            spannableString.setSpan(new ForegroundColorSpan(linkColor), clickStart, clickStart + clickText.length(), 0);
-            spannableString.setSpan(new android.text.style.UnderlineSpan(), clickStart, clickStart + clickText.length(), 0);
-            
-            spannableString.setSpan(new ClickableSpan() {
-                @Override public void onClick(@NonNull View widget) { if (listener != null) listener.onNotificationClick(notification); }
-                @Override public void updateDrawState(@NonNull android.text.TextPaint ds) { ds.setUnderlineText(true); ds.setColor(linkColor); }
-            }, clickStart, clickStart + clickText.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+            spannableString.setSpan(new ForegroundColorSpan(linkColor), clickStart, clickStart + clickText.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+            spannableString.setSpan(new UnderlineSpan(), clickStart, clickStart + clickText.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
         }
 
         return spannableString;
@@ -340,12 +321,16 @@ public class NotificationAdapter extends RecyclerView.Adapter<NotificationAdapte
         int nameStart = fullText.indexOf("\"" + requesterName + "\"");
         if (nameStart != -1) {
             int nameEnd = nameStart + requesterName.length() + 2;
-            ss.setSpan(new ForegroundColorSpan(nameColor), nameStart, nameEnd, 0);
-            ss.setSpan(new StyleSpan(Typeface.BOLD), nameStart, nameEnd, 0);
+            ss.setSpan(new ForegroundColorSpan(nameColor), nameStart, nameEnd, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+            ss.setSpan(new StyleSpan(Typeface.BOLD), nameStart, nameEnd, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
         }
 
         // 2. Style "Click to view details"
-        styleClickToViewDetails(ss, fullText, clickText, notification, linkColor);
+        int clickStart = fullText.indexOf(clickText);
+        if (clickStart != -1) {
+            ss.setSpan(new ForegroundColorSpan(linkColor), clickStart, clickStart + clickText.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+            ss.setSpan(new UnderlineSpan(), clickStart, clickStart + clickText.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+        }
 
         return ss;
     }
@@ -372,32 +357,23 @@ public class NotificationAdapter extends RecyclerView.Adapter<NotificationAdapte
         // 1. Style Claimer Name (Orange)
         int nameStart = fullText.indexOf("\"" + claimerName + "\"");
         if (nameStart != -1) {
-            ss.setSpan(new ForegroundColorSpan(nameColor), nameStart, nameStart + claimerName.length() + 2, 0);
-            ss.setSpan(new StyleSpan(Typeface.BOLD), nameStart, nameStart + claimerName.length() + 2, 0);
+            ss.setSpan(new ForegroundColorSpan(nameColor), nameStart, nameStart + claimerName.length() + 2, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+            ss.setSpan(new StyleSpan(Typeface.BOLD), nameStart, nameStart + claimerName.length() + 2, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
         }
 
         // 2. Style Item Name (Red for Lost, Green for Found)
         int itemStart = fullText.indexOf("\"" + itemName + "\"");
         if (itemStart != -1) {
-            ss.setSpan(new ForegroundColorSpan(itemColor), itemStart, itemStart + itemName.length() + 2, 0);
-            ss.setSpan(new StyleSpan(Typeface.BOLD), itemStart, itemStart + itemName.length() + 2, 0);
+            ss.setSpan(new ForegroundColorSpan(itemColor), itemStart, itemStart + itemName.length() + 2, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+            ss.setSpan(new StyleSpan(Typeface.BOLD), itemStart, itemStart + itemName.length() + 2, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
         }
 
         // 3. Click to view details (Blue Link)
         String clickText = "Click to view details";
         int clickStart = fullText.indexOf(clickText);
         if (clickStart != -1) {
-            ss.setSpan(new ClickableSpan() {
-                @Override
-                public void onClick(@NonNull View widget) {
-                    if (listener != null) listener.onNotificationClick(notification);
-                }
-                @Override
-                public void updateDrawState(@NonNull android.text.TextPaint ds) {
-                    ds.setUnderlineText(true);
-                    ds.setColor(linkColor);
-                }
-            }, clickStart, clickStart + clickText.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+            ss.setSpan(new ForegroundColorSpan(linkColor), clickStart, clickStart + clickText.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+            ss.setSpan(new UnderlineSpan(), clickStart, clickStart + clickText.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
         }
 
         return ss;
@@ -416,8 +392,8 @@ public class NotificationAdapter extends RecyclerView.Adapter<NotificationAdapte
         TextView tvMessage, tvTime;
         View viewUnread, llRoot;
         ImageButton btnDelete;
-        ImageView ivIcon;
-        MaterialCardView cardView;
+        ImageView ivIcon, ivBadge;
+        MaterialCardView cardView, cvBadge;
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -428,6 +404,8 @@ public class NotificationAdapter extends RecyclerView.Adapter<NotificationAdapte
             btnDelete = itemView.findViewById(R.id.btnDeleteNotification);
             ivIcon = itemView.findViewById(R.id.ivNotificationIcon);
             cardView = itemView.findViewById(R.id.cvNotificationCard);
+            cvBadge = itemView.findViewById(R.id.cvBadgeContainer);
+            ivBadge = itemView.findViewById(R.id.ivTypeBadge);
         }
     }
 
@@ -457,6 +435,7 @@ public class NotificationAdapter extends RecyclerView.Adapter<NotificationAdapte
                 return oldItem.isRead() == newItem.isRead() &&
                        java.util.Objects.equals(oldItem.getMessage(), newItem.getMessage()) &&
                        java.util.Objects.equals(oldItem.getType(), newItem.getType()) &&
+                       java.util.Objects.equals(oldItem.getSenderImageUrl(), newItem.getSenderImageUrl()) &&
                        oldItem.getTimestamp() == newItem.getTimestamp();
             }
         });

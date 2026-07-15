@@ -85,8 +85,7 @@ public class ProfileContextMenuHelper {
             @Override
             public void onSuccess(String result) {
                 SnackbarManager.show(SnackbarManager.Type.SUCCESS, "User blocked successfully.");
-                android.content.Intent broadcastIntent = new android.content.Intent("com.sas.lostandfound.UPDATE_BADGES");
-                context.sendBroadcast(broadcastIntent);
+                UnreadBadgeHelper.sendBadgeUpdateBroadcast(context);
                 if (callback != null) {
                     callback.onBlockStatusChanged(true);
                 }
@@ -115,8 +114,7 @@ public class ProfileContextMenuHelper {
             @Override
             public void onSuccess(Void result) {
                 SnackbarManager.show(SnackbarManager.Type.SUCCESS, "User unblocked successfully.");
-                android.content.Intent broadcastIntent = new android.content.Intent("com.sas.lostandfound.UPDATE_BADGES");
-                context.sendBroadcast(broadcastIntent);
+                UnreadBadgeHelper.sendBadgeUpdateBroadcast(context);
                 if (callback != null) {
                     callback.onBlockStatusChanged(false);
                 }

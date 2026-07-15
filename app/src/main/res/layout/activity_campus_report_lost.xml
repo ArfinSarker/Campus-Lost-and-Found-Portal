@@ -88,7 +88,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:inputType="none"
-                    android:textColor="@color/black" />
+                    android:textColor="@color/text_black_dynamic" />
             </com.google.android.material.textfield.TextInputLayout>
 
             <com.google.android.material.textfield.TextInputLayout
@@ -303,7 +303,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:inputType="none"
-                    android:textColor="@color/black" />
+                    android:textColor="@color/text_black_dynamic" />
             </com.google.android.material.textfield.TextInputLayout>
 
             <com.google.android.material.textfield.TextInputLayout
@@ -416,7 +416,7 @@
                         android:paddingTop="16dp"
                         android:paddingBottom="16dp"
                         android:inputType="text"
-                        android:textColor="@color/black" />
+                        android:textColor="@color/text_black_dynamic" />
                 </com.google.android.material.textfield.TextInputLayout>
 
                 <!-- Phone Number Body -->
@@ -460,7 +460,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:inputType="textEmailAddress"
-                    android:textColor="@color/black" />
+                    android:textColor="@color/text_black_dynamic" />
             </com.google.android.material.textfield.TextInputLayout>
 
             <com.google.android.material.textfield.TextInputLayout
@@ -480,7 +480,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:inputType="none"
-                    android:textColor="@color/black" />
+                    android:textColor="@color/text_black_dynamic" />
             </com.google.android.material.textfield.TextInputLayout>
 
             <com.google.android.material.checkbox.MaterialCheckBox

@@ -306,7 +306,7 @@ public class AdminReportDetailsActivity extends AppCompatActivity {
                 tvReporterPhone.setText(phoneSpannable);
             } else {
                 tvReporterPhone.setText("N/A");
-                tvReporterPhone.setTextColor(Color.GRAY);
+                tvReporterPhone.setTextColor(androidx.core.content.ContextCompat.getColor(this, R.color.textSecondary));
             }
         }
         if (layoutRowPhone != null) {
@@ -349,7 +349,7 @@ public class AdminReportDetailsActivity extends AppCompatActivity {
                 tvReporterEmail.setText(emailSpannable);
             } else {
                 tvReporterEmail.setText("N/A");
-                tvReporterEmail.setTextColor(Color.GRAY);
+                tvReporterEmail.setTextColor(androidx.core.content.ContextCompat.getColor(this, R.color.textSecondary));
             }
         }
         if (layoutRowEmail != null) {
@@ -386,7 +386,7 @@ public class AdminReportDetailsActivity extends AppCompatActivity {
         if (related == null || related.isEmpty() || "None".equalsIgnoreCase(related)) {
             tvRelatedId.setText("Related Item: None");
             tvRelatedId.setEnabled(false);
-            tvRelatedId.setTextColor(Color.GRAY);
+            tvRelatedId.setTextColor(androidx.core.content.ContextCompat.getColor(this, R.color.textSecondary));
             if (layoutRelatedContainer != null) {
                 layoutRelatedContainer.setVisibility(View.GONE);
             }
@@ -408,28 +408,36 @@ public class AdminReportDetailsActivity extends AppCompatActivity {
         tvFinalReportId.setText("Report ID: " + displayId);
         
         // Status Timeline styling
+        int greenColor = androidx.core.content.ContextCompat.getColor(this, R.color.timeline_green);
+        int greenBgColor = androidx.core.content.ContextCompat.getColor(this, R.color.timeline_green_bg);
+        int orangeColor = androidx.core.content.ContextCompat.getColor(this, R.color.timeline_orange);
+        int orangeBgColor = androidx.core.content.ContextCompat.getColor(this, R.color.timeline_orange_bg);
+        int grayColor = androidx.core.content.ContextCompat.getColor(this, R.color.timeline_gray);
+        int grayBgColor = androidx.core.content.ContextCompat.getColor(this, R.color.timeline_gray_bg);
+        int lineInactiveColor = androidx.core.content.ContextCompat.getColor(this, R.color.timeline_line_inactive);
+
         boolean isReviewed = "Reviewed".equalsIgnoreCase(report.getStatus());
         if (isReviewed) {
             if (ivTimelineReviewStatusIcon != null) {
                 ivTimelineReviewStatusIcon.setImageResource(R.drawable.ic_check_circle);
-                ivTimelineReviewStatusIcon.setImageTintList(android.content.res.ColorStateList.valueOf(Color.parseColor("#10B981")));
+                ivTimelineReviewStatusIcon.setImageTintList(android.content.res.ColorStateList.valueOf(greenColor));
             }
             if (wrapperDot2 != null) {
-                wrapperDot2.setStrokeColor(android.content.res.ColorStateList.valueOf(Color.parseColor("#10B981")));
-                wrapperDot2.setCardBackgroundColor(android.content.res.ColorStateList.valueOf(Color.parseColor("#ECFDF5")));
+                wrapperDot2.setStrokeColor(android.content.res.ColorStateList.valueOf(greenColor));
+                wrapperDot2.setCardBackgroundColor(android.content.res.ColorStateList.valueOf(greenBgColor));
             }
             if (viewTimelineReviewLine != null) {
-                viewTimelineReviewLine.setBackgroundColor(Color.parseColor("#10B981"));
+                viewTimelineReviewLine.setBackgroundColor(greenColor);
             }
             if (wrapperDot3 != null) {
-                wrapperDot3.setStrokeColor(android.content.res.ColorStateList.valueOf(Color.parseColor("#10B981")));
-                wrapperDot3.setCardBackgroundColor(android.content.res.ColorStateList.valueOf(Color.parseColor("#ECFDF5")));
+                wrapperDot3.setStrokeColor(android.content.res.ColorStateList.valueOf(greenColor));
+                wrapperDot3.setCardBackgroundColor(android.content.res.ColorStateList.valueOf(greenBgColor));
             }
             if (ivTimelineNotesIcon != null) {
-                ivTimelineNotesIcon.setImageTintList(android.content.res.ColorStateList.valueOf(Color.parseColor("#10B981")));
+                ivTimelineNotesIcon.setImageTintList(android.content.res.ColorStateList.valueOf(greenColor));
             }
             if (viewNoteAccentStripe != null) {
-                viewNoteAccentStripe.setBackgroundColor(Color.parseColor("#10B981"));
+                viewNoteAccentStripe.setBackgroundColor(greenColor);
             }
 
             tvFinalStatus.setText("Status: Reviewed & Resolved");
@@ -467,24 +475,24 @@ public class AdminReportDetailsActivity extends AppCompatActivity {
         } else {
             if (ivTimelineReviewStatusIcon != null) {
                 ivTimelineReviewStatusIcon.setImageResource(R.drawable.ic_info);
-                ivTimelineReviewStatusIcon.setImageTintList(android.content.res.ColorStateList.valueOf(Color.parseColor("#F59E0B")));
+                ivTimelineReviewStatusIcon.setImageTintList(android.content.res.ColorStateList.valueOf(orangeColor));
             }
             if (wrapperDot2 != null) {
-                wrapperDot2.setStrokeColor(android.content.res.ColorStateList.valueOf(Color.parseColor("#F59E0B")));
-                wrapperDot2.setCardBackgroundColor(android.content.res.ColorStateList.valueOf(Color.parseColor("#FFFBEB")));
+                wrapperDot2.setStrokeColor(android.content.res.ColorStateList.valueOf(orangeColor));
+                wrapperDot2.setCardBackgroundColor(android.content.res.ColorStateList.valueOf(orangeBgColor));
             }
             if (viewTimelineReviewLine != null) {
-                viewTimelineReviewLine.setBackgroundColor(Color.parseColor("#E2E8F0"));
+                viewTimelineReviewLine.setBackgroundColor(lineInactiveColor);
             }
             if (wrapperDot3 != null) {
-                wrapperDot3.setStrokeColor(android.content.res.ColorStateList.valueOf(Color.parseColor("#94A3B8")));
-                wrapperDot3.setCardBackgroundColor(android.content.res.ColorStateList.valueOf(Color.parseColor("#F1F5F9")));
+                wrapperDot3.setStrokeColor(android.content.res.ColorStateList.valueOf(grayColor));
+                wrapperDot3.setCardBackgroundColor(android.content.res.ColorStateList.valueOf(grayBgColor));
             }
             if (ivTimelineNotesIcon != null) {
-                ivTimelineNotesIcon.setImageTintList(android.content.res.ColorStateList.valueOf(Color.parseColor("#94A3B8")));
+                ivTimelineNotesIcon.setImageTintList(android.content.res.ColorStateList.valueOf(grayColor));
             }
             if (viewNoteAccentStripe != null) {
-                viewNoteAccentStripe.setBackgroundColor(Color.parseColor("#94A3B8"));
+                viewNoteAccentStripe.setBackgroundColor(grayColor);
             }
 
             tvFinalStatus.setText("Status: Pending Review");

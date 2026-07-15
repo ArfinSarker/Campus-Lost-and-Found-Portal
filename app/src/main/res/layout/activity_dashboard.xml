@@ -11,7 +11,7 @@
         android:id="@+id/appBarLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="#F8FAFC"
+        android:background="@color/bg_f8fafc"
         android:fitsSystemWindows="true"
         app:elevation="0dp">
 
@@ -50,7 +50,7 @@
                         android:layout_height="wrap_content"
                         android:fontFamily="sans-serif-medium"
                         android:text="@string/lost_part"
-                        android:textColor="#0F172A"
+                        android:textColor="@color/text_0f172a"
                         android:textSize="18sp"
                         android:textStyle="bold"
                         android:letterSpacing="0.02" />
@@ -91,7 +91,7 @@
             <View
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
-                android:background="#E2E8F0"
+                android:background="@color/divider_e2e8f0"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintEnd_toEndOf="parent" />
@@ -257,20 +257,20 @@
                     android:layout_marginTop="16dp"
                     android:text="@string/view_more"
                     android:textAllCaps="false"
-                    android:textColor="#4F46E5"
+                    android:textColor="@color/primaryColor"
                     android:textSize="14sp"
                     android:textStyle="bold"
                     android:fontFamily="sans-serif-medium"
                     android:insetTop="0dp"
                     android:insetBottom="0dp"
-                    app:backgroundTint="#1A4F46E5"
-                    app:strokeColor="#334F46E5"
+                    app:backgroundTint="@color/dashboard_btn_bg"
+                    app:strokeColor="@color/divider_e2e8f0"
                     app:strokeWidth="1dp"
                     app:cornerRadius="14dp"
-                    app:rippleColor="#334F46E5"
+                    app:rippleColor="@color/primaryLightColor"
                     app:icon="@drawable/ic_chevron_down"
                     app:iconGravity="textEnd"
-                    app:iconTint="#4F46E5"
+                    app:iconTint="@color/primaryColor"
                     app:iconSize="18dp"
                     app:iconPadding="8dp"
                     app:elevation="0dp" />

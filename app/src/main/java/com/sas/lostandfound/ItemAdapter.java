@@ -69,38 +69,86 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ViewHolder> {
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         Item item = items.get(position);
-        
-        if (holder.tvName != null) holder.tvName.setText(item.getName());
-        if (holder.tvTitle != null) holder.tvTitle.setText(item.getName());
-        
+
+        if (holder.tvName != null)
+            holder.tvName.setText(item.getName());
+        if (holder.tvTitle != null)
+            holder.tvTitle.setText(item.getName());
+
         if (holder.tvLocation != null) {
             holder.tvLocation.setText(ReportLocationDisplay.formatFullLocation(
-                    item.getLocation(), 
-                    item.getManualLocation(), 
+                    item.getLocation(),
+                    item.getManualLocation(),
                     item.getAdditionalLocationDetails()));
         }
-        
-        if (holder.tvTimeAgo != null) holder.tvTimeAgo.setText(item.getDate());
-        if (holder.tvDate != null) holder.tvDate.setText(item.getDate());
-        
-        if (holder.tvReportId != null) {
+
+        if (holder.tvTimeAgo != null)
+            holder.tvTimeAgo.setText(item.getDate());
+        if (holder.tvDate != null)
+            holder.tvDate.setText(item.getDate());
+
+        if (holder.tvDisplayId != null) {
+            String displayId = item.getDisplayId();
+            if (displayId == null || displayId.isEmpty()) {
+                displayId = item.getReportId();
+            }
+            String formattedId = ReportIdFormatter.format(displayId);
+            if (!formattedId.isEmpty()) {
+                holder.tvDisplayId.setText(formattedId);
+                if (holder.cardReportId != null) {
+                    holder.cardReportId.setVisibility(View.VISIBLE);
+                }
+            } else {
+                holder.tvDisplayId.setText("");
+                if (holder.cardReportId != null) {
+                    holder.cardReportId.setVisibility(View.GONE);
+                }
+            }
+        } else if (holder.tvReportId != null) {
             String displayId = item.getDisplayId();
             if (displayId == null || displayId.isEmpty()) {
                 displayId = item.getReportId();
             }
             holder.tvReportId.setText(ReportIdFormatter.format(displayId));
 
-            // Status-based colors for the report ID badge
-            String adminStatus = item.getAdminStatus();
             int color;
-            if ("Claimed".equalsIgnoreCase(adminStatus) || "Returned".equalsIgnoreCase(adminStatus)) {
-                color = ContextCompat.getColor(holder.itemView.getContext(), R.color.orange); // Orange/Gold
-            } else if ("lost".equalsIgnoreCase(item.getStatus())) {
-                color = ContextCompat.getColor(holder.itemView.getContext(), R.color.badge_lost_bg); // Red
+            if (layoutId == R.layout.item_browse_card) {
+                // For Search Items, match the style used in the Activity Dashboard section
+                color = ContextCompat.getColor(holder.itemView.getContext(), R.color.badge_report_id_dark_bg);
             } else {
-                color = ContextCompat.getColor(holder.itemView.getContext(), R.color.badge_found_bg); // Green
+                // Status-based colors for the report ID badge
+                String adminStatus = item.getAdminStatus();
+                if ("Claimed".equalsIgnoreCase(adminStatus) || "Returned".equalsIgnoreCase(adminStatus)) {
+                    color = ContextCompat.getColor(holder.itemView.getContext(), R.color.badge_resolved_bg); // Blue
+                } else if ("lost".equalsIgnoreCase(item.getStatus())) {
+                    color = ContextCompat.getColor(holder.itemView.getContext(), R.color.badge_lost_bg); // Red
+                } else {
+                    color = ContextCompat.getColor(holder.itemView.getContext(), R.color.badge_found_bg); // Green
+                }
             }
             holder.tvReportId.setBackgroundTintList(android.content.res.ColorStateList.valueOf(color));
+        }
+
+        if (holder.tvStatusBadge != null) {
+            String adminStatus = item.getAdminStatus();
+            String statusText;
+            int statusColor;
+            
+            if ("Claimed".equalsIgnoreCase(adminStatus) || "Returned".equalsIgnoreCase(adminStatus)) {
+                statusText = holder.itemView.getContext().getString(R.string.status_resolved);
+                statusColor = ContextCompat.getColor(holder.itemView.getContext(), R.color.badge_resolved_bg);
+            } else if ("lost".equalsIgnoreCase(item.getStatus())) {
+                statusText = holder.itemView.getContext().getString(R.string.status_lost_label);
+                statusColor = ContextCompat.getColor(holder.itemView.getContext(), R.color.badge_lost_bg);
+            } else {
+                statusText = holder.itemView.getContext().getString(R.string.status_found_label);
+                statusColor = ContextCompat.getColor(holder.itemView.getContext(), R.color.badge_found_bg);
+            }
+            
+            holder.tvStatusBadge.setText(statusText.toUpperCase());
+            if (holder.cardStatusBadge != null) {
+                holder.cardStatusBadge.setCardBackgroundColor(statusColor);
+            }
         }
 
         if (holder.tvType != null) {
@@ -143,15 +191,18 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ViewHolder> {
     }
 
     private void setupImageOrSlider(ViewHolder holder, Item item, int position) {
-        if (holder.ivImage == null) return;
+        if (holder.ivImage == null)
+            return;
 
         List<String> urls = item.getImageUrls();
         if (urls != null && urls.size() > 1 && holder.viewPagerSlider != null) {
             holder.ivImage.setVisibility(View.GONE);
-            if (holder.tvEmoji != null) holder.tvEmoji.setVisibility(View.GONE);
+            if (holder.tvEmoji != null)
+                holder.tvEmoji.setVisibility(View.GONE);
             holder.viewPagerSlider.setVisibility(View.VISIBLE);
-            if (holder.tabLayoutIndicator != null) holder.tabLayoutIndicator.setVisibility(View.VISIBLE);
-            
+            if (holder.tabLayoutIndicator != null)
+                holder.tabLayoutIndicator.setVisibility(View.VISIBLE);
+
             // Use fitCenter (true) for multiple images to prevent zooming in cards
             ImageSliderAdapter sliderAdapter = new ImageSliderAdapter(urls, true);
             // Image click in slider also leads to details
@@ -162,12 +213,13 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ViewHolder> {
                     ItemNavigationUtils.navigateToDetail(holder.itemView.getContext(), item, isAdmin);
                 }
             });
-            
+
             holder.viewPagerSlider.setAdapter(sliderAdapter);
-            holder.viewPagerSlider.setUserInputEnabled(true); 
+            holder.viewPagerSlider.setUserInputEnabled(true);
 
             if (holder.tabLayoutIndicator != null) {
-                new TabLayoutMediator(holder.tabLayoutIndicator, holder.viewPagerSlider, (tab, pos) -> {}).attach();
+                new TabLayoutMediator(holder.tabLayoutIndicator, holder.viewPagerSlider, (tab, pos) -> {
+                }).attach();
             }
 
             stopSlider(position);
@@ -186,14 +238,17 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ViewHolder> {
             sliderHandler.postDelayed(runnable, 3000);
 
         } else {
-            if (holder.viewPagerSlider != null) holder.viewPagerSlider.setVisibility(View.GONE);
-            if (holder.tabLayoutIndicator != null) holder.tabLayoutIndicator.setVisibility(View.GONE);
+            if (holder.viewPagerSlider != null)
+                holder.viewPagerSlider.setVisibility(View.GONE);
+            if (holder.tabLayoutIndicator != null)
+                holder.tabLayoutIndicator.setVisibility(View.GONE);
             stopSlider(position);
 
             if (item.getImageUrl() != null && !item.getImageUrl().isEmpty()) {
                 holder.ivImage.setVisibility(View.VISIBLE);
                 holder.ivImage.setScaleType(ImageView.ScaleType.CENTER_CROP);
-                if (holder.tvEmoji != null) holder.tvEmoji.setVisibility(View.GONE);
+                if (holder.tvEmoji != null)
+                    holder.tvEmoji.setVisibility(View.GONE);
                 GlideApp.with(holder.itemView.getContext())
                         .load(SupabaseStorageHelper.ensurePublicUrl(item.getImageUrl()))
                         .placeholder(R.drawable.ic_package)
@@ -201,7 +256,7 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ViewHolder> {
                         .diskCacheStrategy(DiskCacheStrategy.ALL)
                         .centerCrop()
                         .into(holder.ivImage);
-                
+
                 // Single image click also leads to details
                 holder.ivImage.setOnClickListener(v -> {
                     if (listener != null) {
@@ -252,10 +307,11 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ViewHolder> {
 
     static class ViewHolder extends RecyclerView.ViewHolder {
         TextView tvEmoji, tvName, tvLocation, tvTimeAgo;
-        TextView tvTitle, tvType, tvDate, btnViewDetails, tvReportId;
+        TextView tvTitle, tvType, tvDate, btnViewDetails, tvReportId, tvStatusBadge, tvDisplayId;
         ImageView ivImage;
         ViewPager2 viewPagerSlider;
         TabLayout tabLayoutIndicator;
+        com.google.android.material.card.MaterialCardView cardStatusBadge, cardReportId;
 
         ViewHolder(View itemView) {
             super(itemView);
@@ -271,41 +327,48 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ViewHolder> {
             ivImage = itemView.findViewById(R.id.ivItemImage);
             viewPagerSlider = itemView.findViewById(R.id.viewPagerSlider);
             tabLayoutIndicator = itemView.findViewById(R.id.tabLayoutIndicator);
+
+            tvStatusBadge = itemView.findViewById(R.id.tvStatusBadge);
+            cardStatusBadge = itemView.findViewById(R.id.cardStatusBadge);
+            tvDisplayId = itemView.findViewById(R.id.tvDisplayId);
+            cardReportId = itemView.findViewById(R.id.cardReportId);
         }
     }
 
     public void updateItems(List<Item> newItems) {
-        androidx.recyclerview.widget.DiffUtil.DiffResult diffResult = androidx.recyclerview.widget.DiffUtil.calculateDiff(new androidx.recyclerview.widget.DiffUtil.Callback() {
-            @Override
-            public int getOldListSize() {
-                return items.size();
-            }
+        androidx.recyclerview.widget.DiffUtil.DiffResult diffResult = androidx.recyclerview.widget.DiffUtil
+                .calculateDiff(new androidx.recyclerview.widget.DiffUtil.Callback() {
+                    @Override
+                    public int getOldListSize() {
+                        return items.size();
+                    }
 
-            @Override
-            public int getNewListSize() {
-                return newItems.size();
-            }
+                    @Override
+                    public int getNewListSize() {
+                        return newItems.size();
+                    }
 
-            @Override
-            public boolean areItemsTheSame(int oldItemPosition, int newItemPosition) {
-                Item oldItem = items.get(oldItemPosition);
-                Item newItem = newItems.get(newItemPosition);
-                return oldItem.getId() != null && newItem.getId() != null && oldItem.getId().equals(newItem.getId());
-            }
+                    @Override
+                    public boolean areItemsTheSame(int oldItemPosition, int newItemPosition) {
+                        Item oldItem = items.get(oldItemPosition);
+                        Item newItem = newItems.get(newItemPosition);
+                        return oldItem.getId() != null && newItem.getId() != null
+                                && oldItem.getId().equals(newItem.getId());
+                    }
 
-            @Override
-            public boolean areContentsTheSame(int oldItemPosition, int newItemPosition) {
-                Item oldItem = items.get(oldItemPosition);
-                Item newItem = newItems.get(newItemPosition);
-                return java.util.Objects.equals(oldItem.getName(), newItem.getName()) &&
-                       java.util.Objects.equals(oldItem.getLocation(), newItem.getLocation()) &&
-                       java.util.Objects.equals(oldItem.getDate(), newItem.getDate()) &&
-                       java.util.Objects.equals(oldItem.getAdminStatus(), newItem.getAdminStatus()) &&
-                       java.util.Objects.equals(oldItem.getStatus(), newItem.getStatus()) &&
-                       java.util.Objects.equals(oldItem.getImageUrl(), newItem.getImageUrl()) &&
-                       java.util.Objects.equals(oldItem.getImageUrls(), newItem.getImageUrls());
-            }
-        });
+                    @Override
+                    public boolean areContentsTheSame(int oldItemPosition, int newItemPosition) {
+                        Item oldItem = items.get(oldItemPosition);
+                        Item newItem = newItems.get(newItemPosition);
+                        return java.util.Objects.equals(oldItem.getName(), newItem.getName()) &&
+                                java.util.Objects.equals(oldItem.getLocation(), newItem.getLocation()) &&
+                                java.util.Objects.equals(oldItem.getDate(), newItem.getDate()) &&
+                                java.util.Objects.equals(oldItem.getAdminStatus(), newItem.getAdminStatus()) &&
+                                java.util.Objects.equals(oldItem.getStatus(), newItem.getStatus()) &&
+                                java.util.Objects.equals(oldItem.getImageUrl(), newItem.getImageUrl()) &&
+                                java.util.Objects.equals(oldItem.getImageUrls(), newItem.getImageUrls());
+                    }
+                });
 
         this.items.clear();
         this.items.addAll(newItems);

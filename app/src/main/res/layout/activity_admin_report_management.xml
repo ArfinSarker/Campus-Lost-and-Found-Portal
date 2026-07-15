@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#F8FAFC"
+    android:background="@color/bg_f8fafc"
     android:fitsSystemWindows="true">
 
     <com.google.android.material.appbar.AppBarLayout
@@ -69,9 +69,9 @@
                         android:focusable="true"
                         app:cardCornerRadius="16dp"
                         app:cardElevation="2dp"
-                        app:strokeColor="#E2E8F0"
+                        app:strokeColor="@color/divider_e2e8f0"
                         app:strokeWidth="1dp"
-                        app:cardBackgroundColor="@color/white">
+                        app:cardBackgroundColor="@color/cardBackgroundColor">
                         <LinearLayout
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
@@ -86,13 +86,13 @@
                                 app:cardCornerRadius="18dp"
                                 app:cardElevation="0dp"
                                 app:strokeWidth="0dp"
-                                app:cardBackgroundColor="#EFF6FF">
+                                app:cardBackgroundColor="@color/blue_badge_bg">
                                 <ImageView
                                     android:layout_width="20dp"
                                     android:layout_height="20dp"
                                     android:layout_gravity="center"
                                     android:src="@drawable/ic_layers"
-                                    app:tint="#2563EB" />
+                                    app:tint="@color/blue_badge_icon" />
                             </com.google.android.material.card.MaterialCardView>
 
                             <TextView
@@ -101,7 +101,7 @@
                                 android:layout_height="wrap_content"
                                 android:layout_marginTop="8dp"
                                 android:text="0"
-                                android:textColor="#1E293B"
+                                android:textColor="@color/text_1e293b"
                                 android:fontFamily="sans-serif-black"
                                 android:textSize="24sp" />
 
@@ -110,7 +110,7 @@
                                 android:layout_height="wrap_content"
                                 android:layout_marginTop="2dp"
                                 android:text="@string/stat_total_reports"
-                                android:textColor="#64748B"
+                                android:textColor="@color/text_64748b"
                                 android:textSize="11sp"
                                 android:gravity="center"
                                 android:fontFamily="sans-serif-medium" />
@@ -128,9 +128,9 @@
                         android:focusable="true"
                         app:cardCornerRadius="16dp"
                         app:cardElevation="2dp"
-                        app:strokeColor="#E2E8F0"
+                        app:strokeColor="@color/divider_e2e8f0"
                         app:strokeWidth="1dp"
-                        app:cardBackgroundColor="@color/white">
+                        app:cardBackgroundColor="@color/cardBackgroundColor">
                         <LinearLayout
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
@@ -145,13 +145,13 @@
                                 app:cardCornerRadius="18dp"
                                 app:cardElevation="0dp"
                                 app:strokeWidth="0dp"
-                                app:cardBackgroundColor="#FFF7ED">
+                                app:cardBackgroundColor="@color/orange_badge_bg">
                                 <ImageView
                                     android:layout_width="20dp"
                                     android:layout_height="20dp"
                                     android:layout_gravity="center"
                                     android:src="@drawable/ic_warning"
-                                    app:tint="#EA580C" />
+                                    app:tint="@color/orange_badge_icon" />
                             </com.google.android.material.card.MaterialCardView>
 
                             <TextView
@@ -160,7 +160,7 @@
                                 android:layout_height="wrap_content"
                                 android:layout_marginTop="8dp"
                                 android:text="0"
-                                android:textColor="#1E293B"
+                                android:textColor="@color/text_1e293b"
                                 android:fontFamily="sans-serif-black"
                                 android:textSize="24sp" />
 
@@ -169,7 +169,7 @@
                                 android:layout_height="wrap_content"
                                 android:layout_marginTop="2dp"
                                 android:text="@string/stat_pending_reports"
-                                android:textColor="#64748B"
+                                android:textColor="@color/text_64748b"
                                 android:textSize="11sp"
                                 android:gravity="center"
                                 android:fontFamily="sans-serif-medium" />
@@ -187,9 +187,9 @@
                         android:focusable="true"
                         app:cardCornerRadius="16dp"
                         app:cardElevation="2dp"
-                        app:strokeColor="#E2E8F0"
+                        app:strokeColor="@color/divider_e2e8f0"
                         app:strokeWidth="1dp"
-                        app:cardBackgroundColor="@color/white">
+                        app:cardBackgroundColor="@color/cardBackgroundColor">
                         <LinearLayout
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
@@ -204,13 +204,13 @@
                                 app:cardCornerRadius="18dp"
                                 app:cardElevation="0dp"
                                 app:strokeWidth="0dp"
-                                app:cardBackgroundColor="#F0FDF4">
+                                app:cardBackgroundColor="@color/green_badge_bg">
                                 <ImageView
                                     android:layout_width="20dp"
                                     android:layout_height="20dp"
                                     android:layout_gravity="center"
                                     android:src="@drawable/ic_check_square"
-                                    app:tint="#16A34A" />
+                                    app:tint="@color/green_badge_icon" />
                             </com.google.android.material.card.MaterialCardView>
 
                             <TextView
@@ -219,7 +219,7 @@
                                 android:layout_height="wrap_content"
                                 android:layout_marginTop="8dp"
                                 android:text="0"
-                                android:textColor="#1E293B"
+                                android:textColor="@color/text_1e293b"
                                 android:fontFamily="sans-serif-black"
                                 android:textSize="24sp" />
 
@@ -228,7 +228,7 @@
                                 android:layout_height="wrap_content"
                                 android:layout_marginTop="2dp"
                                 android:text="@string/stat_reviewed_reports"
-                                android:textColor="#64748B"
+                                android:textColor="@color/text_64748b"
                                 android:textSize="11sp"
                                 android:gravity="center"
                                 android:fontFamily="sans-serif-medium" />
@@ -258,7 +258,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:inputType="text"
-                        android:textColor="#1E293B"
+                        android:textColor="@color/text_1e293b"
                         android:textSize="15sp"
                         android:paddingVertical="14dp" />
                 </com.google.android.material.textfield.TextInputLayout>
@@ -311,7 +311,7 @@
                     android:layout_gravity="center"
                     android:layout_marginTop="64dp"
                     android:text="No reports found"
-                    android:textColor="#94A3B8"
+                    android:textColor="@color/text_94a3b8"
                     android:textSize="15sp"
                     android:fontFamily="sans-serif-medium"
                     android:visibility="gone" />

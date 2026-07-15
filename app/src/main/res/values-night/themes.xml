@@ -1,22 +1,33 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
     <!-- Base application theme. -->
-    <style name="Theme.CampusLostAndFound" parent="Theme.Material3.DayNight.NoActionBar">
+    <style name="AppTheme" parent="Theme.Material3.DayNight.NoActionBar">
         <!-- Primary brand color. -->
         <item name="colorPrimary">@color/primaryColor</item>
         <item name="colorOnPrimary">@color/white</item>
+        <item name="colorPrimaryContainer">@color/primaryLightColor</item>
+        <item name="colorOnPrimaryContainer">@color/primaryDarkColor</item>
+
+        <!-- Secondary brand color. -->
+        <item name="colorSecondary">@color/accentColor</item>
+        <item name="colorOnSecondary">@color/white</item>
+
+        <!-- Navigation Drawer Selected Item Background -->
+        <item name="colorSecondaryContainer">@color/primaryLightColor</item>
+        <item name="colorOnSecondaryContainer">@color/primaryColor</item>
 
         <!-- Background and surface -->
-        <item name="android:windowBackground">@color/backgroundDark</item>
-        <item name="colorSurface">@color/surfaceDark</item>
-        <item name="colorOnSurface">@color/textPrimaryDark</item>
-        <item name="colorOnSurfaceVariant">@color/textSecondaryDark</item>
+        <item name="android:windowBackground">@color/backgroundColor</item>
+        <item name="colorSurface">@color/surfaceColor</item>
+        <item name="colorOnSurface">@color/textPrimary</item>
+        <item name="colorOnSurfaceVariant">@color/textSecondary</item>
 
         <!-- Status bar color -->
-        <item name="android:statusBarColor">@color/black</item>
+        <item name="android:statusBarColor">@color/backgroundColor</item>
         <item name="android:windowLightStatusBar">false</item>
+        <item name="android:windowTranslucentStatus">false</item>
 
         <!-- Navigation bar color -->
-        <item name="android:navigationBarColor">@color/black</item>
+        <item name="android:navigationBarColor">@color/backgroundColor</item>
         <item name="android:windowLightNavigationBar" tools:targetApi="27">false</item>
 
         <!-- Component Styles -->
@@ -26,5 +37,157 @@
         <!-- Shape appearance -->
         <item name="shapeAppearanceSmallComponent">@style/ShapeAppearance.App.SmallComponent</item>
         <item name="shapeAppearanceMediumComponent">@style/ShapeAppearance.App.MediumComponent</item>
+
+        <!-- Animation style -->
+        <item name="android:windowAnimationStyle">@style/Animation.App.Activity</item>
+
+        <!-- Use materialTimePickerTheme for styling the MaterialTimePicker -->
+        <item name="materialTimePickerTheme">@style/ThemeOverlay.App.TimePicker.Dark</item>
+
+        <!-- Use materialCalendarTheme for styling the MaterialDatePicker -->
+        <item name="materialCalendarTheme">@style/ThemeOverlay.App.DatePicker.Dark</item>
+
+        <!-- TextInputLayout Style -->
+        <item name="textInputStyle">@style/Widget.App.TextInputLayout</item>
+        
+        <!-- Exposed Dropdown Popup Background -->
+        <item name="android:popupBackground">@color/dropdown_popup_bg</item>
+    </style>
+
+    <!-- Theme Overlay for TimePicker to achieve the requested look (Dark Mode) -->
+    <style name="ThemeOverlay.App.TimePicker.Dark" parent="ThemeOverlay.Material3.MaterialTimePicker">
+        <!-- Responsive sizing to make it slightly larger and comfortable on all devices -->
+        <item name="android:windowMinWidthMajor">65%</item>
+        <item name="android:windowMinWidthMinor">90%</item>
+        <item name="windowMinWidthMajor">65%</item>
+        <item name="windowMinWidthMinor">90%</item>
+
+        <!-- Main dialog and Header background (Matching dropdown menus surface) -->
+        <item name="colorSurface">@color/surfaceColor</item>
+        <item name="colorContainer">@color/surfaceColor</item>
+        <item name="colorSurfaceContainer">@color/surfaceColor</item>
+        <item name="colorSurfaceContainerHigh">@color/surfaceColor</item>
+        <item name="colorSurfaceContainerHighest">@color/surfaceColor</item>
+
+        <!-- "Select Time" title text color (White) -->
+        <item name="colorOnSurface">@color/white</item>
+        <item name="textAppearanceTitleMedium">@style/TextAppearance.App.TimePicker.Title.Dark</item>
+
+        <!-- Hour and Minute Display (Header Chips) -->
+        <!-- Selected Chip (e.g. "07") - White background, Primary color text -->
+        <item name="colorPrimaryContainer">@color/white</item>
+        <item name="colorOnPrimaryContainer">@color/primaryColor</item>
+
+        <!-- Unselected Chip (e.g. "16") - Dark background, White text -->
+        <item name="colorSurfaceVariant">#323238</item>
+        <item name="colorOnSurfaceVariant">@color/white</item>
+
+        <!-- Border for chips (Primary color) - This adds border around the chips -->
+        <item name="colorOutline">@color/primaryColor</item>
+
+        <!-- AM/PM Toggle -->
+        <!-- Selected background (White) and text (Primary color) -->
+        <item name="colorTertiaryContainer">@color/white</item>
+        <item name="colorOnTertiaryContainer">@color/primaryColor</item>
+        <!-- Unselected background (Transparent) and text (White) -->
+        <item name="colorSecondaryContainer">@color/transparent</item>
+        <item name="colorOnSecondaryContainer">@color/white</item>
+        <!-- Border for AM/PM buttons -->
+        <item name="colorOutlineVariant">@color/primaryColor</item>
+
+        <!-- Analog Clock selector hand and circle -->
+        <item name="colorPrimary">@color/primaryColor</item>
+        <!-- Number inside selector circle -->
+        <item name="colorOnPrimary">@color/black</item>
+
+        <!-- Dial numbers styling -->
+        <item name="textAppearanceLabelLarge">@style/TextAppearance.App.TimePicker.LabelBold.Dark</item>
+        <!-- Time digits display styling -->
+        <item name="textAppearanceHeadlineLarge">@style/TextAppearance.App.TimePicker.Headline.Dark</item>
+
+        <item name="materialTimePickerStyle">@style/Widget.App.MaterialTimePicker.Dark</item>
+    </style>
+
+    <style name="TextAppearance.App.TimePicker.Title.Dark" parent="TextAppearance.Material3.TitleMedium">
+        <item name="android:fontFamily">sans-serif-medium</item>
+        <item name="android:textColor">@color/white</item>
+    </style>
+
+    <style name="TextAppearance.App.TimePicker.Headline.Dark" parent="TextAppearance.Material3.HeadlineLarge">
+        <item name="android:fontFamily">sans-serif-medium</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+
+    <style name="TextAppearance.App.TimePicker.LabelBold.Dark" parent="TextAppearance.Material3.LabelLarge">
+        <item name="android:fontFamily">sans-serif-medium</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:textColor">@color/clock_number_color_dark</item>
+    </style>
+
+    <style name="Widget.App.MaterialTimePicker.Dark" parent="Widget.Material3.MaterialTimePicker">
+        <!-- Dial background (Dark gray) -->
+        <item name="clockFaceBackgroundColor">#323238</item>
+        <!-- Dial numbers color selector -->
+        <item name="clockNumberTextColor">@color/clock_number_color_dark</item>
+    </style>
+
+    <!-- Theme Overlay for DatePicker (Dark Mode) -->
+    <style name="ThemeOverlay.App.DatePicker.Dark" parent="ThemeOverlay.Material3.MaterialCalendar">
+        <!-- Responsive sizing to make it slightly larger and comfortable on all devices -->
+        <item name="android:windowMinWidthMajor">65%</item>
+        <item name="android:windowMinWidthMinor">90%</item>
+        <item name="windowMinWidthMajor">65%</item>
+        <item name="windowMinWidthMinor">90%</item>
+
+        <!-- Header background and selected date circle -->
+        <item name="colorPrimary">@color/primaryColor</item>
+        <item name="colorOnPrimary">@color/white</item>
+
+        <!-- Background of the calendar section (Matching dropdown menus surface) -->
+        <item name="colorSurface">@color/surfaceColor</item>
+        <item name="colorContainer">@color/surfaceColor</item>
+        <item name="colorSurfaceContainer">@color/surfaceColor</item>
+        <item name="colorSurfaceContainerHigh">@color/surfaceColor</item>
+        <item name="colorSurfaceContainerHighest">@color/surfaceColor</item>
+
+        <!-- Text color on the calendar (White) -->
+        <item name="colorOnSurface">@color/white</item>
+        <item name="colorOnSurfaceVariant">@color/white</item>
+
+        <!-- Month/Year selector and navigation arrows -->
+        <item name="colorSecondary">@color/primaryColor</item>
+        <!-- Custom Header text styling for high contrast (pure white text) -->
+        <item name="materialCalendarHeaderTitle">@style/Widget.App.MaterialCalendar.HeaderTitle.Dark</item>
+        <item name="materialCalendarHeaderSelection">@style/Widget.App.MaterialCalendar.HeaderSelection.Dark</item>
+        <!-- Custom body text style mappings for unified typography -->
+        <item name="textAppearanceTitleSmall">@style/TextAppearance.App.DatePicker.Month.Dark</item>
+        <item name="textAppearanceBodySmall">@style/TextAppearance.App.DatePicker.Weekday.Dark</item>
+        <item name="textAppearanceBodyMedium">@style/TextAppearance.App.DatePicker.Day.Dark</item>
+    </style>
+ 
+    <style name="Widget.App.MaterialCalendar.HeaderTitle.Dark" parent="Widget.Material3.MaterialCalendar.HeaderTitle">
+        <item name="android:fontFamily">sans-serif-medium</item>
+        <item name="android:textColor">@color/white</item>
+    </style>
+ 
+    <style name="Widget.App.MaterialCalendar.HeaderSelection.Dark" parent="Widget.Material3.MaterialCalendar.HeaderSelection">
+        <item name="android:fontFamily">sans-serif-black</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:textColor">@color/white</item>
+    </style>
+ 
+    <style name="TextAppearance.App.DatePicker.Month.Dark" parent="TextAppearance.Material3.TitleSmall">
+        <item name="android:fontFamily">sans-serif-medium</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:textColor">@color/white</item>
+    </style>
+ 
+    <style name="TextAppearance.App.DatePicker.Weekday.Dark" parent="TextAppearance.Material3.BodySmall">
+        <item name="android:fontFamily">sans-serif-medium</item>
+        <item name="android:textColor">@color/textSecondaryDark</item>
+    </style>
+ 
+    <style name="TextAppearance.App.DatePicker.Day.Dark" parent="TextAppearance.Material3.BodyMedium">
+        <item name="android:fontFamily">sans-serif</item>
     </style>
 </resources>

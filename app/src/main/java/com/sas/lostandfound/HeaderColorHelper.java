@@ -34,9 +34,19 @@ public class HeaderColorHelper {
      */
     public static void setup(Activity activity, AppBarLayout appBarLayout, Toolbar toolbar) {
         if (activity == null || appBarLayout == null) return;
-        int startColor = Color.parseColor("#FFFFFF");
-        int endColor = Color.parseColor("#FFFFFF");
-        setup(activity, appBarLayout, startColor, endColor, true);
+        
+        int resolvedColor = Color.WHITE;
+        android.util.TypedValue typedValue = new android.util.TypedValue();
+        if (activity.getTheme().resolveAttribute(com.google.android.material.R.attr.colorSurface, typedValue, true)) {
+            resolvedColor = typedValue.data;
+        } else if (activity.getTheme().resolveAttribute(android.R.attr.windowBackground, typedValue, true)) {
+            resolvedColor = typedValue.data;
+        }
+        
+        // Dynamically calculate luminance to set the light status bar flag (dark text/icons for light background)
+        boolean lightStatusBar = ColorUtils.calculateLuminance(resolvedColor) > 0.5;
+        
+        setup(activity, appBarLayout, resolvedColor, resolvedColor, lightStatusBar);
     }
 
     /**
@@ -106,7 +116,8 @@ public class HeaderColorHelper {
             );
             separatorParams.setScrollFlags(0); // static locking
             separator.setLayoutParams(separatorParams);
-            separator.setBackgroundColor(Color.parseColor("#E2E8F0"));
+            int dividerColor = lightStatusBar ? Color.parseColor("#E2E8F0") : Color.parseColor("#2D2D2D");
+            separator.setBackgroundColor(dividerColor);
             
             // On User Dashboard (where TabLayout exists), do not shift the separator line up too much.
             // A translation of 0f keeps it positioned cleanly under the tabs.

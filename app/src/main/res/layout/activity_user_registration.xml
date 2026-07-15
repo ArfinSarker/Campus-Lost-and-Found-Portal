@@ -5,7 +5,7 @@
     android:id="@+id/registrationRoot"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/white"
+    android:background="@color/backgroundColor"
     android:fitsSystemWindows="true">
 
     <com.google.android.material.appbar.AppBarLayout
@@ -61,6 +61,7 @@
         android:layout_height="match_parent"
         android:fillViewport="true"
         android:isScrollContainer="true"
+        android:background="@color/backgroundColor"
         app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
         <LinearLayout
@@ -81,7 +82,7 @@
                 android:gravity="center"
                 android:lineSpacingExtra="0dp"
                 android:text="@string/registerSubtitle"
-                android:textColor="@color/black"
+                android:textColor="@color/text_black_dynamic"
                 android:textSize="16sp"
                 android:paddingStart="-5dp"
                 android:paddingEnd="-5dp"
@@ -140,7 +141,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:inputType="none"
-                    android:textColor="@color/black" />
+                    android:textColor="@color/text_black_dynamic" />
             </com.google.android.material.textfield.TextInputLayout>
 
             <!-- University ID -->
@@ -163,7 +164,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:inputType="text"
-                    android:textColor="@color/black" />
+                    android:textColor="@color/text_black_dynamic" />
             </com.google.android.material.textfield.TextInputLayout>
 
             <!-- Full Name -->
@@ -186,7 +187,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:inputType="textPersonName"
-                    android:textColor="@color/black" />
+                    android:textColor="@color/text_black_dynamic" />
             </com.google.android.material.textfield.TextInputLayout>
 
             <!-- Email Address -->
@@ -209,7 +210,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:inputType="textEmailAddress"
-                    android:textColor="@color/black" />
+                    android:textColor="@color/text_black_dynamic" />
             </com.google.android.material.textfield.TextInputLayout>
 
             <!-- Phone Number (Internationalized Layout) -->
@@ -244,7 +245,7 @@
                         android:paddingTop="16dp"
                         android:paddingBottom="16dp"
                         android:inputType="text"
-                        android:textColor="@color/black" />
+                        android:textColor="@color/text_black_dynamic" />
                 </com.google.android.material.textfield.TextInputLayout>
 
                 <!-- Phone Number Body -->
@@ -272,7 +273,7 @@
                         android:paddingTop="16dp"
                         android:paddingBottom="16dp"
                         android:inputType="phone"
-                        android:textColor="@color/black" />
+                        android:textColor="@color/text_black_dynamic" />
                 </com.google.android.material.textfield.TextInputLayout>
             </androidx.constraintlayout.widget.ConstraintLayout>
 
@@ -297,7 +298,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:inputType="text"
-                    android:textColor="@color/black" />
+                    android:textColor="@color/text_black_dynamic" />
             </com.google.android.material.textfield.TextInputLayout>
 
             <!-- Department (For all roles) -->
@@ -321,7 +322,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:inputType="text"
-                    android:textColor="@color/black" />
+                    android:textColor="@color/text_black_dynamic" />
             </com.google.android.material.textfield.TextInputLayout>
 
             <!-- Admin Verification Code (Admin Only) -->
@@ -347,7 +348,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:inputType="textPassword"
-                    android:textColor="@color/black" />
+                    android:textColor="@color/text_black_dynamic" />
             </com.google.android.material.textfield.TextInputLayout>
 
             <!-- Batch (Student Only) -->
@@ -371,7 +372,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:inputType="text"
-                    android:textColor="@color/black" />
+                    android:textColor="@color/text_black_dynamic" />
             </com.google.android.material.textfield.TextInputLayout>
 
             <!-- Level Term (Student Only) -->
@@ -395,7 +396,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:inputType="none"
-                    android:textColor="@color/black" />
+                    android:textColor="@color/text_black_dynamic" />
             </com.google.android.material.textfield.TextInputLayout>
 
             <!-- Password -->
@@ -420,7 +421,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:inputType="textPassword"
-                    android:textColor="@color/black" />
+                    android:textColor="@color/text_black_dynamic" />
             </com.google.android.material.textfield.TextInputLayout>
 
             <!-- Confirm Password -->
@@ -445,7 +446,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:inputType="textPassword"
-                    android:textColor="@color/black" />
+                    android:textColor="@color/text_black_dynamic" />
             </com.google.android.material.textfield.TextInputLayout>
 
             <!-- Policy Agreement Section -->
@@ -468,7 +469,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="8dp"
-                    android:textColor="@color/black"
+                    android:textColor="@color/text_black_dynamic"
                     android:textSize="13sp" />
             </LinearLayout>
 
@@ -515,7 +516,7 @@
                 android:padding="8dp"
                 android:layout_marginBottom="20dp"
                 android:text="@string/login_link"
-                android:textColor="@color/black" />
+                android:textColor="@color/text_black_dynamic" />
 
             <!-- Flexible Spacer BELOW Login text, only when manual keyboard is on -->
             <View

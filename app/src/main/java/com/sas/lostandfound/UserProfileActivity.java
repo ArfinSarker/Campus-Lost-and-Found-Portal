@@ -146,13 +146,13 @@ public class UserProfileActivity extends AppCompatActivity {
             if (intentProfileUrl != null && !intentProfileUrl.isEmpty()) {
                 GlideApp.with(this)
                         .load(intentProfileUrl)
-                        .placeholder(R.drawable.ic_user)
+                        .placeholder(R.drawable.ic_default_avatar)
                         .thumbnail(0.1f)
                         .diskCacheStrategy(DiskCacheStrategy.ALL)
                         .circleCrop()
                         .into(ivProfilePicture);
             } else {
-                ivProfilePicture.setImageResource(R.drawable.ic_user);
+                ivProfilePicture.setImageResource(R.drawable.ic_default_avatar);
             }
         } else {
             loadCachedUserData();
@@ -229,7 +229,7 @@ public class UserProfileActivity extends AppCompatActivity {
             if (activitySection != null)
                 activitySection.setVisibility(View.VISIBLE);
             if (btnDeleteUser != null) {
-                btnDeleteUser.setVisibility(View.VISIBLE);
+                btnDeleteUser.setVisibility(View.GONE);
                 btnDeleteUser.setOnClickListener(v -> confirmDeleteUser());
             }
 
@@ -334,7 +334,7 @@ public class UserProfileActivity extends AppCompatActivity {
                             Object countObj = result.get(0).get("count");
                             long count = (countObj instanceof Number) ? ((Number) countObj).longValue() : 0;
                             tvFoundReportsCount.setText("Found Reports: " + count);
-                            tvFoundReportsCount.setTextColor(0xFF2E7D32); // Dark Green
+                            tvFoundReportsCount.setTextColor(ContextCompat.getColor(UserProfileActivity.this, R.color.success));
                         }
                     }
 
@@ -896,13 +896,13 @@ public class UserProfileActivity extends AppCompatActivity {
                                         && !originalUser.getProfileImageUrl().isEmpty()) {
                                     GlideApp.with(UserProfileActivity.this)
                                             .load(originalUser.getProfileImageUrl())
-                                            .placeholder(R.drawable.ic_user)
+                                            .placeholder(R.drawable.ic_default_avatar)
                                             .thumbnail(0.1f)
                                             .diskCacheStrategy(DiskCacheStrategy.ALL)
                                             .circleCrop()
                                             .into(ivProfilePicture);
                                 } else {
-                                    ivProfilePicture.setImageResource(R.drawable.ic_user);
+                                    ivProfilePicture.setImageResource(R.drawable.ic_default_avatar);
                                 }
 
                                 isProfilePictureRemoved = false;
@@ -912,6 +912,29 @@ public class UserProfileActivity extends AppCompatActivity {
                                     disableAllFields();
                                     if (isAdminViewing) {
                                         setupInteractiveContactFields();
+
+                                        if (!isViewOnly && btnDeleteUser != null) {
+                                            android.content.SharedPreferences prefs = getSharedPreferences("MyApp", MODE_PRIVATE);
+                                            String loggedInUniversityId = prefs.getString("universityId", "");
+                                            boolean loggedInIsMainAdmin = "0802410205101019".equals(loggedInUniversityId);
+
+                                            String targetId = originalUser.getUniversityId();
+                                            String targetType = originalUser.getUserType();
+
+                                            boolean isTargetAdmin = "Admin".equalsIgnoreCase(targetType);
+                                            boolean isTargetMainAdmin = "0802410205101019".equals(targetId);
+                                            boolean isSelf = targetId != null && targetId.equals(loggedInUniversityId);
+
+                                            if (loggedInIsMainAdmin) {
+                                                btnDeleteUser.setVisibility(View.VISIBLE);
+                                            } else {
+                                                if (isTargetMainAdmin || isTargetAdmin || isSelf) {
+                                                    btnDeleteUser.setVisibility(View.GONE);
+                                                } else {
+                                                    btnDeleteUser.setVisibility(View.VISIBLE);
+                                                }
+                                            }
+                                        }
                                     }
                                 } else {
                                     android.content.SharedPreferences.Editor editor = getSharedPreferences("MyApp",
@@ -1441,7 +1464,7 @@ public class UserProfileActivity extends AppCompatActivity {
             if (!imgUrl.isEmpty()) {
                 GlideApp.with(UserProfileActivity.this)
                         .load(imgUrl)
-                        .placeholder(R.drawable.ic_user)
+                        .placeholder(R.drawable.ic_default_avatar)
                         .thumbnail(0.1f)
                         .diskCacheStrategy(DiskCacheStrategy.ALL)
                         .circleCrop()

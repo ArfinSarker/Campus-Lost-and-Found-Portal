@@ -292,34 +292,50 @@ public class AllReportedItemsActivity extends AppCompatActivity {
                     
             holder.tvTime.setText(item.getDate());
 
-            if (holder.tvReportId != null) {
+            if (holder.tvDisplayId != null) {
                 String displayId = item.getDisplayId();
                 if (displayId == null || displayId.isEmpty()) {
                     displayId = item.getReportId();
                 }
-
                 String formattedId = ReportIdFormatter.format(displayId);
                 if (!formattedId.isEmpty()) {
-                    holder.tvReportId.setText(formattedId);
-                    View parent = (View) holder.tvReportId.getParent();
-                    if (parent != null) parent.setVisibility(View.VISIBLE);
+                    holder.tvDisplayId.setText(formattedId);
+                    if (holder.cardReportId != null) {
+                        holder.cardReportId.setVisibility(View.VISIBLE);
+                    }
                 } else {
-                    holder.tvReportId.setText("");
-                    View parent = (View) holder.tvReportId.getParent();
-                    if (parent != null) parent.setVisibility(View.GONE);
+                    holder.tvDisplayId.setText("");
+                    if (holder.cardReportId != null) {
+                        holder.cardReportId.setVisibility(View.GONE);
+                    }
                 }
             }
 
-            if ("lost".equals(item.getStatus())) {
-                holder.statusIndicator.setBackgroundColor(ContextCompat.getColor(holder.itemView.getContext(), R.color.statusLost));
-                holder.tvBadge.setText("LOST");
-                holder.cardBadge.setCardBackgroundColor(ContextCompat.getColor(holder.itemView.getContext(), R.color.badge_lost_bg));
+            boolean res = "Claimed".equalsIgnoreCase(item.getAdminStatus())
+                    || "Returned".equalsIgnoreCase(item.getAdminStatus());
+            
+            String statusText;
+            int color;
+            if (res) {
+                statusText = "RESOLVED";
+                color = 0xFF2AABEE; // Blue
+            } else if ("lost".equalsIgnoreCase(item.getStatus())) {
+                statusText = "LOST";
+                color = 0xFFFF3B30; // Red
             } else {
-                holder.statusIndicator.setBackgroundColor(ContextCompat.getColor(holder.itemView.getContext(), R.color.statusFound));
-                holder.tvBadge.setText("FOUND");
-                holder.cardBadge.setCardBackgroundColor(ContextCompat.getColor(holder.itemView.getContext(), R.color.badge_found_bg));
+                statusText = "FOUND";
+                color = 0xFF34C759; // Green
             }
-            holder.tvBadge.setTextColor(ContextCompat.getColor(holder.itemView.getContext(), R.color.white));
+
+            if (holder.statusIndicator != null) {
+                holder.statusIndicator.setBackgroundColor(color);
+            }
+            if (holder.tvStatusBadge != null) {
+                holder.tvStatusBadge.setText(statusText);
+            }
+            if (holder.cardStatusBadge != null) {
+                holder.cardStatusBadge.setCardBackgroundColor(color);
+            }
 
             setupImageOrSlider(holder, item, position);
 
@@ -408,10 +424,10 @@ public class AllReportedItemsActivity extends AppCompatActivity {
         }
 
         class ViewHolder extends RecyclerView.ViewHolder {
-            TextView tvTitle, tvLocation, tvTime, tvBadge, tvReportId;
+            TextView tvTitle, tvLocation, tvTime, tvStatusBadge, tvDisplayId;
             ImageView ivIcon;
             View statusIndicator;
-            MaterialCardView cardBadge;
+            MaterialCardView cardStatusBadge, cardReportId;
             ViewPager2 viewPagerSlider;
             TabLayout tabLayoutIndicator;
 
@@ -422,11 +438,13 @@ public class AllReportedItemsActivity extends AppCompatActivity {
                 tvTime = itemView.findViewById(R.id.tvItemTime);
                 ivIcon = itemView.findViewById(R.id.ivItemIcon);
                 statusIndicator = itemView.findViewById(R.id.viewStatusIndicator);
-                tvBadge = itemView.findViewById(R.id.tvBadge);
-                cardBadge = itemView.findViewById(R.id.cardBadge);
                 viewPagerSlider = itemView.findViewById(R.id.viewPagerSlider);
                 tabLayoutIndicator = itemView.findViewById(R.id.tabLayoutIndicator);
-                tvReportId = itemView.findViewById(R.id.tvReportId);
+                
+                tvStatusBadge = itemView.findViewById(R.id.tvStatusBadge);
+                cardStatusBadge = itemView.findViewById(R.id.cardStatusBadge);
+                tvDisplayId = itemView.findViewById(R.id.tvDisplayId);
+                cardReportId = itemView.findViewById(R.id.cardReportId);
             }
         }
     }

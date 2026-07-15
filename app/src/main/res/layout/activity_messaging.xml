@@ -58,8 +58,8 @@
                     app:cardCornerRadius="20dp"
                     app:cardElevation="0dp"
                     app:strokeWidth="1dp"
-                    app:strokeColor="#E5E7EB"
-                    app:cardBackgroundColor="#F3F4F6">
+                    app:strokeColor="@color/divider_e5e7eb"
+                    app:cardBackgroundColor="@color/inputBackground">
 
                     <LinearLayout
                         android:layout_width="match_parent"
@@ -72,7 +72,7 @@
                             android:layout_width="16dp"
                             android:layout_height="16dp"
                             android:src="@drawable/ic_search"
-                            app:tint="#64748B"
+                            app:tint="@color/tint_64748b"
                             android:contentDescription="Search Icon" />
 
                         <EditText
@@ -81,7 +81,7 @@
                             android:layout_height="match_parent"
                             android:background="@null"
                             android:hint="Search Messenger"
-                            android:textColorHint="#64748B"
+                            android:textColorHint="@color/text_64748b"
                             android:textColor="@color/textPrimary"
                             android:textSize="14sp"
                             android:paddingHorizontal="8dp"

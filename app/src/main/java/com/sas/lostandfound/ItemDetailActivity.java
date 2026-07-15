@@ -47,13 +47,13 @@ public class ItemDetailActivity extends AppCompatActivity {
     private ImageView ivItemImage, ivUserPhoto, ivResolvedUserPhoto;
     private ViewPager2 viewPagerImageSlider;
     private TabLayout tabLayoutIndicator;
-    private TextView tvStatus, tvItemName, tvCategory, tvDescription, tvLocation, tvDateTime, tvDetailReportId;
+    private TextView tvStatusBadge, tvItemName, tvCategory, tvDescription, tvLocation, tvDateTime, tvDisplayId;
     private TextView tvReporterName, tvReporterUniversityId, tvReporterType, tvReporterDeptOrDesignation, tvPreferredContact;
     private TextView tvHeaderTitle;
     private TextView tvProofOwnership, tvHandlingStatus, tvSecurityQuestion;
     private TextView tvResolutionTitle, tvResolvedUserName, tvResolvedUserUniversityId, tvResolvedUserType, tvResolvedUserDeptOrDesignation, tvResolvedUserPreferredContact;
     private LinearLayout llLostSpecifics, llFoundSpecifics, llReportedByContainer, llReporterActions, llResolutionContainer;
-    private MaterialCardView cardBadge, cardEditedLabel, cardReportId;
+    private MaterialCardView cardStatusBadge, cardEditedLabel, cardReportId;
     private MaterialButton btnContact, btnClaim, btnDelete;
     private MaterialButton btnEdit, btnReporterDelete, btnMarkAsClaimed, btnReturnToOwner, btnResolvedUserContact;
     private Toolbar toolbar;
@@ -135,13 +135,13 @@ public class ItemDetailActivity extends AppCompatActivity {
         tabLayoutIndicator = findViewById(R.id.tabLayoutIndicator);
         ivUserPhoto = findViewById(R.id.ivUserPhoto);
         ivResolvedUserPhoto = findViewById(R.id.ivResolvedUserPhoto);
-        tvStatus = findViewById(R.id.tvStatus);
+        tvStatusBadge = findViewById(R.id.tvStatusBadge);
         tvItemName = findViewById(R.id.tvItemName);
         tvCategory = findViewById(R.id.tvCategory);
         tvDescription = findViewById(R.id.tvDescription);
         tvLocation = findViewById(R.id.tvLocation);
         tvDateTime = findViewById(R.id.tvDateTime);
-        tvDetailReportId = findViewById(R.id.tvDetailReportId);
+        tvDisplayId = findViewById(R.id.tvDisplayId);
         tvReporterName = findViewById(R.id.tvReporterName);
         tvReporterUniversityId = findViewById(R.id.tvReporterUniversityId);
         tvReporterType = findViewById(R.id.tvReporterType);
@@ -165,7 +165,7 @@ public class ItemDetailActivity extends AppCompatActivity {
         llReporterActions = findViewById(R.id.llReporterActions);
         llResolutionContainer = findViewById(R.id.llResolutionContainer);
         
-        cardBadge = findViewById(R.id.cardBadge);
+        cardStatusBadge = findViewById(R.id.cardStatusBadge);
         cardEditedLabel = findViewById(R.id.cardEditedLabel);
         cardReportId = findViewById(R.id.cardReportId);
         btnContact = findViewById(R.id.btnContact);
@@ -252,8 +252,8 @@ public class ItemDetailActivity extends AppCompatActivity {
         String itemImageUrl = getIntent().getStringExtra("itemImageUrl");
         String reportId = getIntent().getStringExtra("itemReportId");
 
-        if (tvDetailReportId != null && reportId != null) {
-            tvDetailReportId.setText(ReportIdFormatter.format(reportId));
+        if (tvDisplayId != null && reportId != null) {
+            tvDisplayId.setText(ReportIdFormatter.format(reportId));
         }
 
         updateUI(itemName, itemDescription, itemLocation, manualLocation, additionalDetails, itemCategory, itemDate, itemTime, itemImageUrl, false, null);
@@ -278,8 +278,8 @@ public class ItemDetailActivity extends AppCompatActivity {
                                 currentItem.getManualLocation(), currentItem.getAdditionalLocationDetails(), currentItem.getCategory(),
                                 currentItem.getDate(), currentItem.getTime(), currentItem.getImageUrl(), currentItem.isEdited(), currentItem.getImageUrls());
                         
-                        if (tvDetailReportId != null) {
-                            tvDetailReportId.setText(ReportIdFormatter.format(currentItem.getDisplayId()));
+                        if (tvDisplayId != null) {
+                            tvDisplayId.setText(ReportIdFormatter.format(currentItem.getDisplayId()));
                         }
 
                         reporterId = currentItem.getUserId();
@@ -477,20 +477,26 @@ public class ItemDetailActivity extends AppCompatActivity {
 
         if (itemStatus != null) {
             boolean isResolved = "Claimed".equalsIgnoreCase(currentAdminStatus) || "Returned".equalsIgnoreCase(currentAdminStatus);
+            String statusText;
+            int statusColor;
             if (isResolved) {
-                tvStatus.setText(R.string.status_resolved);
-                cardBadge.setCardBackgroundColor(getResources().getColor(R.color.badge_resolved_bg));
-                tvStatus.setTextColor(getResources().getColor(R.color.white));
+                statusText = getString(R.string.status_resolved);
+                statusColor = getResources().getColor(R.color.badge_resolved_bg);
             } else {
                 if (itemStatus.equalsIgnoreCase("lost")) {
-                    tvStatus.setText(getString(R.string.status_lost_label));
-                    cardBadge.setCardBackgroundColor(getResources().getColor(R.color.badge_lost_bg));
-                    tvStatus.setTextColor(getResources().getColor(R.color.white));
+                    statusText = getString(R.string.status_lost_label);
+                    statusColor = getResources().getColor(R.color.badge_lost_bg);
                 } else {
-                    tvStatus.setText(getString(R.string.status_found_label));
-                    cardBadge.setCardBackgroundColor(getResources().getColor(R.color.badge_found_bg));
-                    tvStatus.setTextColor(getResources().getColor(R.color.white));
+                    statusText = getString(R.string.status_found_label);
+                    statusColor = getResources().getColor(R.color.badge_found_bg);
                 }
+            }
+
+            if (tvStatusBadge != null) {
+                tvStatusBadge.setText(statusText.toUpperCase());
+            }
+            if (cardStatusBadge != null) {
+                cardStatusBadge.setCardBackgroundColor(statusColor);
             }
         }
 

@@ -1,10 +1,183 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- Dark Mode Background and Surface -->
-    <color name="backgroundDark">#0F0F0F</color>
-    <color name="surfaceDark">#1C1C1E</color>
+    <!-- Profile Page Specific Colors -->
+    <color name="profile_background">#0F0F12</color>
+    <color name="profile_card_bg">#1E1E24</color>
+    <color name="profile_card_stroke">#3E3E4A</color>
+    <color name="profile_text_primary">#F8FAFC</color>
+    <color name="profile_text_secondary">#94A3B8</color>
 
-    <!-- Dark Mode Text Colors -->
-    <color name="textPrimaryDark">#FFFFFF</color>
-    <color name="textSecondaryDark">#A1A1AA</color>
+    <!-- Admin Request Cards Specific Colors -->
+    <color name="admin_request_card_bg">#1E1E24</color>
+    <color name="admin_request_card_stroke">#3E3E4A</color>
+    <color name="admin_request_text_primary">#F8FAFC</color>
+    <color name="admin_request_text_secondary">#94A3B8</color>
+    <color name="admin_request_icon_email">#F87171</color>
+    <color name="admin_request_icon_phone">#4ADE80</color>
+    <color name="admin_request_code_bg">#2D1302</color>
+    <color name="admin_request_code_text">#FDBA74</color>
+    <color name="admin_request_deny_btn_stroke">#EF4444</color>
+    <color name="admin_request_deny_btn_text">#EF4444</color>
+    <color name="admin_request_accept_btn_bg">#3B82F6</color>
+
+    <!-- Brand Colors - Night Mode (Discord/Spotify-like Purple/Green Accent) -->
+    <color name="primaryColor">#FF5F15</color>
+    <color name="primaryDarkColor">#E05300</color>
+    <color name="primaryLightColor">#361200</color>
+    <color name="accentColor">#FF5F15</color>
+    <color name="secondaryColor">#22C55E</color>
+
+    <!-- Background and Surface -->
+    <color name="backgroundColor">#121212</color>
+    <color name="backgroundDark">#121212</color>
+    <color name="surfaceColor">#2A2A2A</color>
+    <color name="surfaceDark">#2A2A2A</color>
+    <color name="windowBackground">#121212</color>
+    <color name="chatBackground">#1A1A1A</color>
+    <color name="inputBackground">#222222</color>
+    <color name="cardBackgroundColor">#222222</color>
+    <color name="dividerColor">#14FFFFFF</color>
+
+    <!-- Upload Section Colors -->
+    <color name="upload_bg">#222222</color>
+    <color name="upload_border">#3E3F42</color>
+    
+    <!-- Dropdown Colors -->
+    <color name="dropdown_popup_bg">#353538</color>
+    <color name="dropdown_item_pressed">#4C4C52</color>
+    <color name="dropdown_item_hovered">#3D3D43</color>
+    <color name="dropdown_item_selected">#22FF5F15</color>
+
+    <!-- Exact Mapping Design Tokens in Dark Mode -->
+    <color name="bg_f8fafc">#121212</color>
+    <color name="bg_f1f5f9">#222222</color>
+    <color name="divider_e2e8f0">#14FFFFFF</color>
+    <color name="divider_e5e7eb">#14FFFFFF</color>
+    <color name="divider_eeeeee">#14FFFFFF</color>
+    <color name="text_0f172a">#E5E7EB</color>
+    <color name="text_1e293b">#E5E7EB</color>
+    <color name="text_334155">#BFC5CD</color>
+    <color name="text_475569">#BFC5CD</color>
+    <color name="text_64748b">#BFC5CD</color>
+    <color name="text_94a3b8">#8A9099</color>
+    <color name="text_black_dynamic">#E5E7EB</color>
+    <color name="text_1d1f24">#E5E7EB</color>
+    <color name="tint_64748b">#BFC5CD</color>
+    <color name="tint_ff3b30">#EF4444</color>
+
+    <!-- Badge Background and Icon Colors -->
+    <color name="related_report_badge_bg">@color/orange_badge_bg</color>
+    <color name="related_report_badge_stroke">#662200</color>
+    <color name="blue_badge_bg">#1E3A8A</color>
+    <color name="red_badge_bg">#7F1D1D</color>
+    <color name="orange_badge_bg">#431A03</color>
+    <color name="green_badge_bg">#064E3B</color>
+    <color name="blue_badge_icon">#3B82F6</color>
+    <color name="red_badge_icon">#F87171</color>
+    <color name="orange_badge_icon">#FB923C</color>
+    <color name="green_badge_icon">#4ADE80</color>
+    <color name="rose_badge_icon">#FB7185</color>
+    <color name="purple_badge_icon">#FB923C</color>
+    <color name="purple_badge_bg">#361200</color>
+    <color name="dashboard_btn_bg">#1AFF5F15</color>
+
+    <!-- Logout Buttons -->
+    <color name="logout_text_color">#F87171</color>
+    <color name="logout_stroke_color">#7F1D1D</color>
+    
+    <!-- Timeline Status Colors -->
+    <color name="timeline_green">#34D399</color>
+    <color name="timeline_green_bg">#064E3B</color>
+    <color name="timeline_orange">#FB923C</color>
+    <color name="timeline_orange_bg">#431A03</color>
+    <color name="timeline_gray">#8A9099</color>
+    <color name="timeline_gray_bg">#222222</color>
+    <color name="timeline_line_inactive">#14FFFFFF</color>
+
+    <!-- Text Colors -->
+    <color name="textPrimary">#E5E7EB</color>
+    <color name="textPrimaryDark">#E5E7EB</color>
+    <color name="textSecondary">#BFC5CD</color>
+    <color name="textSecondaryDark">#BFC5CD</color>
+    <color name="textHint">#8A9099</color>
+    <color name="linkText">#FF5F15</color>
+    <color name="textFoundHeader">#8B949E</color>
+
+    <!-- Status & Feedback Colors -->
+    <color name="statusLost">#EF4444</color>
+    <color name="statusFound">#22C55E</color>
+    <color name="statusResolved">#FF5F15</color>
+    <color name="error">#EF4444</color>
+    <color name="errorColor">#EF4444</color>
+    <color name="error_dark">#EF4444</color>
+    <color name="error_light_bg">#2D1C1C</color>
+    <color name="success">#22C55E</color>
+    <color name="badgeColor">#EF4444</color>
+
+    <!-- Compatibility/Required names -->
+    <color name="vibrantBlue">#FF5F15</color>
+    <color name="darkBlue">#E05300</color>
+    <color name="found_bg">#22C55E</color>
+    <color name="lost_bg">#EF4444</color>
+
+    <!-- New Badge Colors -->
+    <color name="badge_lost_bg">#EF4444</color>
+    <color name="badge_found_bg">#22C55E</color>
+    <color name="badge_resolved_bg">#FF5F15</color>
+    <color name="badge_report_id_dark_bg">#CC1F2937</color>
+
+    <!-- Admin Portal Colors -->
+    <color name="admin_text_light">#F0F0F0</color>
+    <color name="admin_hint_light">#8A9099</color>
+    <color name="admin_accent">#FB923C</color>
+    <color name="manageAllItems">#22C55E</color>
+
+    <!-- Developer Info Specific Colors -->
+    <color name="dev_bg">#1A1A1A</color>
+    <color name="dev_primary">#FF5F15</color>
+    <color name="dev_text_dark">#E5E7EB</color>
+    <color name="dev_text_muted">#BFC5CD</color>
+    <color name="dev_text_body">#BFC5CD</color>
+    <color name="dev_text_italic">#8A9099</color>
+    <color name="dev_link">#FB923C</color>
+    <color name="dev_divider">#14FFFFFF</color>
+
+    <!-- UI Accent Colors -->
+    <color name="cyan">#FF5F15</color>
+    <color name="lightGrey">#1A1A1A</color>
+    <color name="light_red_bg">#2D1C1C</color>
+
+    <color name="yellow">#F59E0B</color>
+    <color name="lime">#22C55E</color>
+    <color name="navyBlue">#361200</color>
+    <color name="lightRed">#EF4444</color>
+    <color name="standardGray">#8A9099</color>
+    <color name="scienceBlue">#FF5F15</color>
+    <color name="vibrantGreen">#22C55E</color>
+    <color name="mutedBlueGrey">#8A9099</color>
+
+    <color name="orange">#F59E0B</color>
+    <color name="warningColor">#F59E0B</color>
+    <color name="infoColor">#3B82F6</color>
+    <color name="generalColor">#8A9099</color>
+
+    <!-- Standard Colors -->
+    <color name="white">#FFFFFF</color>
+    <color name="black">#000000</color>
+    <color name="transparent">#00000000</color>
+    
+    <!-- Messaging Section Colors -->
+    <color name="msg_sender_bg">#E05300</color>
+    <color name="msg_sender_text">#FFFFFF</color>
+    <color name="msg_sender_time">#FFD4C2</color>
+    <color name="msg_sender_status_read">#80FFEA</color>
+    <color name="msg_sender_status_delivered">#FFD4C2</color>
+    <color name="msg_receiver_bg">#2A2A2D</color>
+    <color name="msg_receiver_text">#E5E7EB</color>
+    <color name="msg_receiver_time">#8A9099</color>
+    <color name="chat_disabled_send_bg">#3E3F42</color>
+    
+    <!-- Avatar Colors -->
+    <color name="avatar_bg">#353538</color>
+    <color name="avatar_icon_tint">#BFC5CD</color>
 </resources>

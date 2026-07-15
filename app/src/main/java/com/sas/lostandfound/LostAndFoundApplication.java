@@ -29,6 +29,13 @@ public class LostAndFoundApplication extends Application {
         instance = getApplicationContext();
 
         try {
+            // Apply saved dark/light theme preference on startup
+            ThemeManager.applyTheme(this);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        try {
             // Register SnackbarManager to track activity lifecycle
             registerActivityLifecycleCallbacks(SnackbarManager.getInstance());
         } catch (Exception e) {

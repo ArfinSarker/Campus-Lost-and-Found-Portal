@@ -56,7 +56,7 @@ public class AdminReportManagementActivity extends AppCompatActivity {
     private ChipGroup chipGroupFilter;
     private Toolbar toolbar;
     private SwipeRefreshLayout swipeRefreshLayout;
-    
+
     private ReportAdapter adapter;
     private List<AdminReport> allReports;
     private List<AdminReport> filteredReports;
@@ -123,7 +123,7 @@ public class AdminReportManagementActivity extends AppCompatActivity {
                 getSupportActionBar().setDisplayHomeAsUpEnabled(true);
             }
             toolbar.setNavigationOnClickListener(v -> onBackPressed());
-            
+
             com.google.android.material.appbar.AppBarLayout appBarLayout = findViewById(R.id.appBarLayout);
             if (appBarLayout != null) {
                 HeaderColorHelper.setup(this, appBarLayout, toolbar);
@@ -142,20 +142,27 @@ public class AdminReportManagementActivity extends AppCompatActivity {
     private void setupSearchAndFilter() {
         etSearch.addTextChangedListener(new TextWatcher() {
             @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+            }
+
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
                 applyFilters();
             }
+
             @Override
-            public void afterTextChanged(Editable s) {}
+            public void afterTextChanged(Editable s) {
+            }
         });
 
         chipGroupFilter.setOnCheckedChangeListener((group, checkedId) -> applyFilters());
 
-        if (cardTotal != null) cardTotal.setOnClickListener(v -> chipGroupFilter.check(R.id.chipAll));
-        if (cardPending != null) cardPending.setOnClickListener(v -> chipGroupFilter.check(R.id.chipPending));
-        if (cardReviewed != null) cardReviewed.setOnClickListener(v -> chipGroupFilter.check(R.id.chipReviewed));
+        if (cardTotal != null)
+            cardTotal.setOnClickListener(v -> chipGroupFilter.check(R.id.chipAll));
+        if (cardPending != null)
+            cardPending.setOnClickListener(v -> chipGroupFilter.check(R.id.chipPending));
+        if (cardReviewed != null)
+            cardReviewed.setOnClickListener(v -> chipGroupFilter.check(R.id.chipReviewed));
     }
 
     private void setupSwipeRefresh() {
@@ -166,35 +173,39 @@ public class AdminReportManagementActivity extends AppCompatActivity {
     }
 
     private void fetchReports() {
-        if (isFetching) return;
+        if (isFetching)
+            return;
         isFetching = true;
 
         if (swipeRefreshLayout == null || !swipeRefreshLayout.isRefreshing()) {
             progressBar.setVisibility(View.VISIBLE);
         }
-        
-        SupabaseDatabaseHelper.select("admin_reports", "select=*", new TypeToken<List<AdminReport>>(){}.getType(), new SupabaseDatabaseHelper.DatabaseCallback<List<AdminReport>>() {
+
+        SupabaseDatabaseHelper.select("admin_reports", "select=*", new TypeToken<List<AdminReport>>() {
+        }.getType(), new SupabaseDatabaseHelper.DatabaseCallback<List<AdminReport>>() {
             @Override
             public void onSuccess(List<AdminReport> reports) {
                 List<AdminReport> tempReports = new ArrayList<>();
                 int total = 0, pending = 0, reviewed = 0;
                 List<String> reporterIds = new ArrayList<>();
-                
+
                 if (reports != null) {
                     for (AdminReport report : reports) {
                         tempReports.add(report);
                         total++;
                         String status = report.getStatus();
-                        if ("Pending".equalsIgnoreCase(status)) pending++;
-                        else if ("Reviewed".equalsIgnoreCase(status)) reviewed++;
-                        
+                        if ("Pending".equalsIgnoreCase(status))
+                            pending++;
+                        else if ("Reviewed".equalsIgnoreCase(status))
+                            reviewed++;
+
                         String repId = report.getUniversityId();
                         if (repId != null && !repId.trim().isEmpty() && !reporterIds.contains(repId)) {
                             reporterIds.add(repId);
                         }
                     }
                 }
-                
+
                 if (!reporterIds.isEmpty()) {
                     StringBuilder queryBuilder = new StringBuilder();
                     queryBuilder.append("select=university_id,profile_image_url&university_id=in.(");
@@ -205,12 +216,13 @@ public class AdminReportManagementActivity extends AppCompatActivity {
                         queryBuilder.append(reporterIds.get(i));
                     }
                     queryBuilder.append(")");
-                    
+
                     final int finalTotal = total;
                     final int finalPending = pending;
                     final int finalReviewed = reviewed;
-                    
-                    SupabaseDatabaseHelper.select("profiles", queryBuilder.toString(), new TypeToken<List<User>>(){}.getType(), new SupabaseDatabaseHelper.DatabaseCallback<List<User>>() {
+
+                    SupabaseDatabaseHelper.select("profiles", queryBuilder.toString(), new TypeToken<List<User>>() {
+                    }.getType(), new SupabaseDatabaseHelper.DatabaseCallback<List<User>>() {
                         @Override
                         public void onSuccess(List<User> users) {
                             Map<String, String> profileMap = new HashMap<>();
@@ -221,14 +233,14 @@ public class AdminReportManagementActivity extends AppCompatActivity {
                                     }
                                 }
                             }
-                            
+
                             for (AdminReport report : tempReports) {
                                 String url = profileMap.get(report.getUniversityId());
                                 if (url != null) {
                                     report.setReporterProfileImageUrl(url);
                                 }
                             }
-                            
+
                             finalizeFetch(tempReports, finalTotal, finalPending, finalReviewed);
                         }
 
@@ -246,7 +258,8 @@ public class AdminReportManagementActivity extends AppCompatActivity {
             public void onFailure(String errorMessage) {
                 isFetching = false;
                 progressBar.setVisibility(View.GONE);
-                if (swipeRefreshLayout != null) swipeRefreshLayout.setRefreshing(false);
+                if (swipeRefreshLayout != null)
+                    swipeRefreshLayout.setRefreshing(false);
             }
         });
     }
@@ -255,22 +268,23 @@ public class AdminReportManagementActivity extends AppCompatActivity {
         tvStatTotal.setText(String.valueOf(total));
         tvStatPending.setText(String.valueOf(pending));
         tvStatReviewed.setText(String.valueOf(reviewed));
-        
+
         Collections.sort(tempReports, (o1, o2) -> Long.compare(o2.getTimestamp(), o1.getTimestamp()));
-        
+
         allReports.clear();
         allReports.addAll(tempReports);
         applyFilters();
-        
+
         isFetching = false;
         progressBar.setVisibility(View.GONE);
-        if (swipeRefreshLayout != null) swipeRefreshLayout.setRefreshing(false);
+        if (swipeRefreshLayout != null)
+            swipeRefreshLayout.setRefreshing(false);
     }
 
     private void applyFilters() {
         String query = etSearch.getText().toString().toLowerCase().trim();
         int checkedChipId = chipGroupFilter.getCheckedChipId();
-        
+
         List<AdminReport> temp = new ArrayList<>();
         for (AdminReport report : allReports) {
             String displayId = report.getDisplayId() != null ? report.getDisplayId().toLowerCase() : "";
@@ -288,11 +302,13 @@ public class AdminReportManagementActivity extends AppCompatActivity {
                     category.contains(query) ||
                     internalId.contains(query) ||
                     title.contains(query);
-            
+
             boolean matchesStatus = true;
-            if (checkedChipId == R.id.chipPending) matchesStatus = "Pending".equalsIgnoreCase(report.getStatus());
-            else if (checkedChipId == R.id.chipReviewed) matchesStatus = "Reviewed".equalsIgnoreCase(report.getStatus());
-            
+            if (checkedChipId == R.id.chipPending)
+                matchesStatus = "Pending".equalsIgnoreCase(report.getStatus());
+            else if (checkedChipId == R.id.chipReviewed)
+                matchesStatus = "Reviewed".equalsIgnoreCase(report.getStatus());
+
             if (matchesSearch && matchesStatus) {
                 temp.add(report);
             }
@@ -318,13 +334,13 @@ public class AdminReportManagementActivity extends AppCompatActivity {
         @Override
         public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
             AdminReport report = reports.get(position);
-            
+
             holder.tvDisplayId.setText(ReportIdFormatter.format(report.getDisplayId()));
-            
+
             holder.tvTitle.setText(report.getTitle());
             holder.tvCategory.setText("Category: " + report.getCategory());
             holder.tvReporterInfo.setText("Submitted By: " + report.getReporterName());
-            
+
             String status = report.getStatus() != null ? report.getStatus() : "Pending";
             holder.tvStatus.setText(status.toUpperCase());
 
@@ -359,7 +375,8 @@ public class AdminReportManagementActivity extends AppCompatActivity {
 
             // Handle card click to open details
             holder.itemView.setOnClickListener(v -> {
-                if (!ItemNavigationUtils.canNavigate()) return;
+                if (!ItemNavigationUtils.canNavigate())
+                    return;
                 Intent intent = new Intent(AdminReportManagementActivity.this, AdminReportReviewActivity.class);
                 intent.putExtra("reportId", report.getReportId());
                 startActivity(intent);
@@ -382,7 +399,8 @@ public class AdminReportManagementActivity extends AppCompatActivity {
                     startActivity(intent);
                 });
                 holder.viewPagerSlider.setAdapter(sliderAdapter);
-                new TabLayoutMediator(holder.tabLayoutIndicator, holder.viewPagerSlider, (tab, pos) -> {}).attach();
+                new TabLayoutMediator(holder.tabLayoutIndicator, holder.viewPagerSlider, (tab, pos) -> {
+                }).attach();
 
                 stopSlider(position);
                 Runnable runnable = new Runnable() {
@@ -445,37 +463,39 @@ public class AdminReportManagementActivity extends AppCompatActivity {
         }
 
         public void updateReports(List<AdminReport> newReports) {
-            androidx.recyclerview.widget.DiffUtil.DiffResult diffResult = androidx.recyclerview.widget.DiffUtil.calculateDiff(new androidx.recyclerview.widget.DiffUtil.Callback() {
-                @Override
-                public int getOldListSize() {
-                    return reports.size();
-                }
+            androidx.recyclerview.widget.DiffUtil.DiffResult diffResult = androidx.recyclerview.widget.DiffUtil
+                    .calculateDiff(new androidx.recyclerview.widget.DiffUtil.Callback() {
+                        @Override
+                        public int getOldListSize() {
+                            return reports.size();
+                        }
 
-                @Override
-                public int getNewListSize() {
-                    return newReports.size();
-                }
+                        @Override
+                        public int getNewListSize() {
+                            return newReports.size();
+                        }
 
-                @Override
-                public boolean areItemsTheSame(int oldItemPosition, int newItemPosition) {
-                    AdminReport oldItem = reports.get(oldItemPosition);
-                    AdminReport newItem = newReports.get(newItemPosition);
-                    return oldItem.getId() != null && newItem.getId() != null && oldItem.getId().equals(newItem.getId());
-                }
+                        @Override
+                        public boolean areItemsTheSame(int oldItemPosition, int newItemPosition) {
+                            AdminReport oldItem = reports.get(oldItemPosition);
+                            AdminReport newItem = newReports.get(newItemPosition);
+                            return oldItem.getId() != null && newItem.getId() != null
+                                    && oldItem.getId().equals(newItem.getId());
+                        }
 
-                @Override
-                public boolean areContentsTheSame(int oldItemPosition, int newItemPosition) {
-                    AdminReport oldItem = reports.get(oldItemPosition);
-                    AdminReport newItem = newReports.get(newItemPosition);
-                    return java.util.Objects.equals(oldItem.getTitle(), newItem.getTitle()) &&
-                           java.util.Objects.equals(oldItem.getCategory(), newItem.getCategory()) &&
-                           java.util.Objects.equals(oldItem.getStatus(), newItem.getStatus()) &&
-                           java.util.Objects.equals(oldItem.getReporterName(), newItem.getReporterName()) &&
-                           java.util.Objects.equals(oldItem.getDisplayId(), newItem.getDisplayId()) &&
-                           oldItem.getTimestamp() == newItem.getTimestamp() &&
-                           java.util.Objects.equals(oldItem.getImageUrls(), newItem.getImageUrls());
-                }
-            });
+                        @Override
+                        public boolean areContentsTheSame(int oldItemPosition, int newItemPosition) {
+                            AdminReport oldItem = reports.get(oldItemPosition);
+                            AdminReport newItem = newReports.get(newItemPosition);
+                            return java.util.Objects.equals(oldItem.getTitle(), newItem.getTitle()) &&
+                                    java.util.Objects.equals(oldItem.getCategory(), newItem.getCategory()) &&
+                                    java.util.Objects.equals(oldItem.getStatus(), newItem.getStatus()) &&
+                                    java.util.Objects.equals(oldItem.getReporterName(), newItem.getReporterName()) &&
+                                    java.util.Objects.equals(oldItem.getDisplayId(), newItem.getDisplayId()) &&
+                                    oldItem.getTimestamp() == newItem.getTimestamp() &&
+                                    java.util.Objects.equals(oldItem.getImageUrls(), newItem.getImageUrls());
+                        }
+                    });
 
             this.reports.clear();
             this.reports.addAll(newReports);

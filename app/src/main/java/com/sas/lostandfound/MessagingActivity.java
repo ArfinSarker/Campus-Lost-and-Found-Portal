@@ -446,10 +446,10 @@ public class MessagingActivity extends AppCompatActivity {
                     holder.tvUserStatus.setText(statusText);
                     holder.tvUserStatus.setVisibility(View.VISIBLE);
                     if (isOnline) {
-                        holder.tvUserStatus.setTextColor(Color.parseColor("#34C759")); // Messenger Green
+                        holder.tvUserStatus.setTextColor(androidx.core.content.ContextCompat.getColor(context, R.color.statusFound));
                         holder.tvUserStatus.setTypeface(null, Typeface.BOLD);
                     } else if ("New Message Request".equals(statusText)) {
-                        holder.tvUserStatus.setTextColor(Color.parseColor("#0084FF")); // Messenger Blue
+                        holder.tvUserStatus.setTextColor(androidx.core.content.ContextCompat.getColor(context, R.color.primaryColor));
                         holder.tvUserStatus.setTypeface(null, Typeface.BOLD);
                     } else {
                         holder.tvUserStatus.setTextColor(context.getResources().getColor(R.color.textSecondary));
@@ -474,7 +474,7 @@ public class MessagingActivity extends AppCompatActivity {
                 holder.tvLastMessage.setTypeface(null, Typeface.BOLD);
                 holder.tvLastMessage.setTextColor(context.getResources().getColor(R.color.textPrimary));
                 holder.tvTimestamp.setTypeface(null, Typeface.BOLD);
-                holder.tvTimestamp.setTextColor(Color.parseColor("#0084FF")); // Messenger blue color
+                holder.tvTimestamp.setTextColor(androidx.core.content.ContextCompat.getColor(context, R.color.primaryColor));
                 
                 holder.tvUnreadBadge.setText(String.valueOf(c.getUnreadCount()));
                 holder.tvUnreadBadge.setVisibility(View.VISIBLE);
@@ -495,13 +495,13 @@ public class MessagingActivity extends AppCompatActivity {
                         holder.ivLastMessageStatus.setVisibility(View.VISIBLE);
                         if (!usersWhoBlockedMe.contains(c.getOtherUserId()) && c.getLastMessageIsRead() != null && c.getLastMessageIsRead()) {
                             holder.ivLastMessageStatus.setImageResource(R.drawable.ic_double_check);
-                            holder.ivLastMessageStatus.setImageTintList(ColorStateList.valueOf(Color.parseColor("#0084FF"))); // Messenger Blue
+                            holder.ivLastMessageStatus.setImageTintList(ColorStateList.valueOf(androidx.core.content.ContextCompat.getColor(context, R.color.primaryColor)));
                         } else if (!usersWhoBlockedMe.contains(c.getOtherUserId()) && c.getLastMessageIsDelivered() != null && c.getLastMessageIsDelivered()) {
                             holder.ivLastMessageStatus.setImageResource(R.drawable.ic_double_check);
-                            holder.ivLastMessageStatus.setImageTintList(ColorStateList.valueOf(Color.parseColor("#8E9AA6"))); // Medium Gray
+                            holder.ivLastMessageStatus.setImageTintList(ColorStateList.valueOf(androidx.core.content.ContextCompat.getColor(context, R.color.textSecondary)));
                         } else {
                             holder.ivLastMessageStatus.setImageResource(R.drawable.ic_single_check);
-                            holder.ivLastMessageStatus.setImageTintList(ColorStateList.valueOf(Color.parseColor("#8E9AA6"))); // Medium Gray
+                            holder.ivLastMessageStatus.setImageTintList(ColorStateList.valueOf(androidx.core.content.ContextCompat.getColor(context, R.color.textSecondary)));
                         }
                     } else {
                         holder.ivLastMessageStatus.setVisibility(View.GONE);
@@ -509,7 +509,10 @@ public class MessagingActivity extends AppCompatActivity {
                 }
             }
 
+            float density = context.getResources().getDisplayMetrics().density;
             if (c.getOtherUserImageUrl() != null && !c.getOtherUserImageUrl().isEmpty()) {
+                holder.ivUserAvatar.setImageTintList(null);
+                holder.ivUserAvatar.setPadding(0, 0, 0, 0);
                 GlideApp.with(context)
                         .load(c.getOtherUserImageUrl())
                         .placeholder(R.drawable.ic_user)
@@ -518,6 +521,9 @@ public class MessagingActivity extends AppCompatActivity {
                         .into(holder.ivUserAvatar);
             } else {
                 holder.ivUserAvatar.setImageResource(R.drawable.ic_user);
+                holder.ivUserAvatar.setImageTintList(ColorStateList.valueOf(androidx.core.content.ContextCompat.getColor(context, R.color.avatar_icon_tint)));
+                int padding = (int) (8 * density);
+                holder.ivUserAvatar.setPadding(padding, padding, padding, padding);
             }
 
             holder.cardUserAvatar.setOnClickListener(v -> {

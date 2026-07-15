@@ -45,4 +45,11 @@ public class UnreadBadgeHelper {
             }
         });
     }
+
+    public static void sendBadgeUpdateBroadcast(android.content.Context context) {
+        if (context == null) return;
+        android.content.Intent broadcastIntent = new android.content.Intent("com.sas.lostandfound.UPDATE_BADGES");
+        broadcastIntent.setPackage(context.getPackageName());
+        context.sendBroadcast(broadcastIntent);
+    }
 }

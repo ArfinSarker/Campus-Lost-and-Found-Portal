@@ -450,7 +450,7 @@ public class CampusReportFoundActivity extends AppCompatActivity {
                     .setTitleText("Select Date")
                     .setCalendarConstraints(constraintsBuilder.build())
                     .setSelection(MaterialDatePicker.todayInUtcMilliseconds())
-                    .setTheme(R.style.ThemeOverlay_App_DatePicker)
+                    .setTheme(ThemeManager.getDatePickerTheme(this))
                     .build();
 
             datePicker.addOnPositiveButtonClickListener(selection -> {
@@ -469,7 +469,7 @@ public class CampusReportFoundActivity extends AppCompatActivity {
                     .setHour(calendar.get(Calendar.HOUR_OF_DAY))
                     .setMinute(calendar.get(Calendar.MINUTE))
                     .setTitleText("Select Time")
-                    .setTheme(R.style.ThemeOverlay_App_TimePicker)
+                    .setTheme(ThemeManager.getTimePickerTheme(this))
                     .build();
 
             picker.addOnPositiveButtonClickListener(v1 -> {

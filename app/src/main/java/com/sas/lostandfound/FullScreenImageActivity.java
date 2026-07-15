@@ -14,6 +14,13 @@ public class FullScreenImageActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        
+        // Force status bar and navigation bar to black for immersive full-screen viewing
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP) {
+            getWindow().setStatusBarColor(android.graphics.Color.BLACK);
+            getWindow().setNavigationBarColor(android.graphics.Color.BLACK);
+        }
+
         setContentView(R.layout.activity_full_screen_image);
 
         ViewPager2 viewPager = findViewById(R.id.viewPagerFull);

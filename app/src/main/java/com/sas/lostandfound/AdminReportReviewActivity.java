@@ -131,8 +131,8 @@ public class AdminReportReviewActivity extends AppCompatActivity {
         ivReporterAvatar = findViewById(R.id.ivReporterAvatar);
         layoutRowUniversityId = findViewById(R.id.layoutRowUniversityId);
         if (ivReporterAvatar != null) {
-            ivReporterAvatar.setImageTintList(android.content.res.ColorStateList.valueOf(
-                    ContextCompat.getColor(this, R.color.primaryColor)));
+            ivReporterAvatar.setImageResource(R.drawable.ic_default_avatar);
+            ivReporterAvatar.setImageTintList(null);
         }
 
         tvDetailTitle = findViewById(R.id.tvDetailTitle);
@@ -337,7 +337,7 @@ public class AdminReportReviewActivity extends AppCompatActivity {
                 tvReporterPhone.setText(phoneSpannable);
             } else {
                 tvReporterPhone.setText("N/A");
-                tvReporterPhone.setTextColor(Color.GRAY);
+                tvReporterPhone.setTextColor(ContextCompat.getColor(this, R.color.textSecondary));
             }
         }
 
@@ -350,7 +350,7 @@ public class AdminReportReviewActivity extends AppCompatActivity {
                 tvReporterEmail.setText(emailSpannable);
             } else {
                 tvReporterEmail.setText("N/A");
-                tvReporterEmail.setTextColor(Color.GRAY);
+                tvReporterEmail.setTextColor(ContextCompat.getColor(this, R.color.textSecondary));
             }
         }
         fetchReporterExtraInfo(report.getUniversityId());
@@ -425,13 +425,12 @@ public class AdminReportReviewActivity extends AppCompatActivity {
                                 ivReporterAvatar.setImageTintList(null);
                                 GlideApp.with(AdminReportReviewActivity.this)
                                         .load(user.getProfileImageUrl())
-                                        .placeholder(R.drawable.ic_user)
+                                        .placeholder(R.drawable.ic_default_avatar)
                                         .circleCrop()
                                         .into(ivReporterAvatar);
                             } else {
-                                ivReporterAvatar.setImageResource(R.drawable.ic_user);
-                                ivReporterAvatar.setImageTintList(android.content.res.ColorStateList.valueOf(
-                                        ContextCompat.getColor(AdminReportReviewActivity.this, R.color.primaryColor)));
+                                ivReporterAvatar.setImageResource(R.drawable.ic_default_avatar);
+                                ivReporterAvatar.setImageTintList(null);
                             }
                         }
                     }
@@ -530,42 +529,23 @@ public class AdminReportReviewActivity extends AppCompatActivity {
     }
 
     private void setupEvidenceSlider(List<String> urls, String fallbackUrl) {
+        ItemNavigationUtils.setupImageOrSlider(this, urls, fallbackUrl, ivEvidence, viewPagerEvidence, tabLayoutIndicator);
+        boolean hasEvidence = false;
         if (urls != null && urls.size() > 1) {
-            ivEvidence.setVisibility(View.GONE);
-            viewPagerEvidence.setVisibility(View.VISIBLE);
-            tabLayoutIndicator.setVisibility(View.VISIBLE);
-            cardEvidence.setVisibility(View.VISIBLE);
-
-            // Use fitCenter (true) for multiple images to prevent zooming
-            ImageSliderAdapter adapter = new ImageSliderAdapter(urls, true);
-            // Default click behavior in ImageSliderAdapter now opens FullScreenImageActivity
-            viewPagerEvidence.setAdapter(adapter);
-
-            new TabLayoutMediator(tabLayoutIndicator, viewPagerEvidence, (tab, position) -> {}).attach();
+            hasEvidence = true;
             startAutoSlide(urls.size());
         } else {
             stopAutoSlide();
-            viewPagerEvidence.setVisibility(View.GONE);
-            tabLayoutIndicator.setVisibility(View.GONE);
-            
             String finalUrl = (urls != null && !urls.isEmpty()) ? urls.get(0) : fallbackUrl;
             if (finalUrl != null && !finalUrl.isEmpty()) {
-                cardEvidence.setVisibility(View.VISIBLE);
-                ivEvidence.setVisibility(View.VISIBLE);
-                GlideApp.with(this)
-                        .load(finalUrl)
-                        .placeholder(R.drawable.ic_package)
-                        .thumbnail(0.1f)
-                        .diskCacheStrategy(DiskCacheStrategy.ALL)
-                        .into(ivEvidence);
-                ivEvidence.setOnClickListener(v -> {
-                    List<String> singleUrl = new ArrayList<>();
-                    singleUrl.add(finalUrl);
-                    ItemNavigationUtils.openFullScreenImage(this, singleUrl, 0);
-                });
-            } else {
-                cardEvidence.setVisibility(View.GONE);
+                hasEvidence = true;
             }
+        }
+        
+        if (hasEvidence) {
+            cardEvidence.setVisibility(View.VISIBLE);
+        } else {
+            cardEvidence.setVisibility(View.GONE);
         }
     }
 

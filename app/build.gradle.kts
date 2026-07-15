@@ -118,11 +118,11 @@ dependencies {
     implementation("com.github.chrisbanes:PhotoView:2.3.0")
 
     // WorkManager for background worker polling
-    implementation("androidx.work:work-runtime:2.9.0")
+    implementation("androidx.work:work-runtime:2.10.0")
 
     // Add the dependencies for any other desired Firebase products
     // https://firebase.google.com/docs/android/setup#available-libraries
-    implementation(platform("com.google.firebase:firebase-bom:33.1.0"))
+    implementation(platform("com.google.firebase:firebase-bom:33.10.0"))
     implementation("com.google.firebase:firebase-messaging")
 
     testImplementation(libs.junit)

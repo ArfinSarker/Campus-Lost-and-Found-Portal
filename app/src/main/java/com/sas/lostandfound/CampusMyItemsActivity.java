@@ -60,7 +60,8 @@ public class CampusMyItemsActivity extends AppCompatActivity {
         setContentView(R.layout.activity_campus_my_items);
 
         filterType = getIntent().getStringExtra("filterType");
-        if (filterType == null) filterType = "reported";
+        if (filterType == null)
+            filterType = "reported";
 
         fromDrawer = getIntent().getBooleanExtra("fromDrawer", false);
 
@@ -139,13 +140,18 @@ public class CampusMyItemsActivity extends AppCompatActivity {
     }
 
     /**
-     * Dedicated function to map the current filter type to its corresponding navigation menu item ID.
+     * Dedicated function to map the current filter type to its corresponding
+     * navigation menu item ID.
      */
     private int getNavIdForFilter(String filter) {
-        if ("reported".equals(filter)) return R.id.nav_reported_items;
-        if ("find".equals(filter)) return R.id.nav_find_items;
-        if ("resolved".equals(filter)) return R.id.nav_resolved_items;
-        if ("admin_reports".equals(filter)) return R.id.nav_admin_reports;
+        if ("reported".equals(filter))
+            return R.id.nav_reported_items;
+        if ("find".equals(filter))
+            return R.id.nav_find_items;
+        if ("resolved".equals(filter))
+            return R.id.nav_resolved_items;
+        if ("admin_reports".equals(filter))
+            return R.id.nav_admin_reports;
         return -1;
     }
 
@@ -178,12 +184,14 @@ public class CampusMyItemsActivity extends AppCompatActivity {
 
     private void fetchMyItems() {
         if (currentUniversityId == null) {
-            if (swipeRefreshLayout != null) swipeRefreshLayout.setRefreshing(false);
+            if (swipeRefreshLayout != null)
+                swipeRefreshLayout.setRefreshing(false);
             SnackbarManager.show(SnackbarManager.Type.ERROR, "User session not found. Please login again.");
             return;
         }
 
-        if (swipeRefreshLayout != null) swipeRefreshLayout.setRefreshing(true);
+        if (swipeRefreshLayout != null)
+            swipeRefreshLayout.setRefreshing(true);
         loadItems(currentUniversityId);
     }
 
@@ -192,7 +200,8 @@ public class CampusMyItemsActivity extends AppCompatActivity {
     }
 
     private void loadItems(String universityId) {
-        if (isFetching) return;
+        if (isFetching)
+            return;
         isFetching = true;
 
         List<Item> accumulatedItems = new ArrayList<>();
@@ -206,15 +215,18 @@ public class CampusMyItemsActivity extends AppCompatActivity {
             String type = "reported".equals(filterType) ? "found" : "lost";
 
             // Use OR filter for better compatibility
-            String query = "or=(reporter_id.eq." + universityId + (currentAuthId != null ? ",user_id.eq." + currentAuthId : "") + ")";
+            String query = "or=(reporter_id.eq." + universityId
+                    + (currentAuthId != null ? ",user_id.eq." + currentAuthId : "") + ")";
 
-            SupabaseDatabaseHelper.select(table, query, new TypeToken<List<Item>>(){}.getType(), new SupabaseDatabaseHelper.DatabaseCallback<List<Item>>() {
+            SupabaseDatabaseHelper.select(table, query, new TypeToken<List<Item>>() {
+            }.getType(), new SupabaseDatabaseHelper.DatabaseCallback<List<Item>>() {
                 @Override
                 public void onSuccess(List<Item> items) {
                     if (items != null) {
                         for (Item item : items) {
                             item.setType(type);
-                            if (shouldInclude(item, universityId, currentAuthId)) accumulatedItems.add(item);
+                            if (shouldInclude(item, universityId, currentAuthId))
+                                accumulatedItems.add(item);
                         }
                     }
                     finalizeAndDisplay(accumulatedItems);
@@ -233,36 +245,50 @@ public class CampusMyItemsActivity extends AppCompatActivity {
     }
 
     private void fetchLostResolved(String universityId, String authId, List<Item> accumulatedItems) {
-        String filter = "or=(reporter_id.eq." + universityId + ",claimed_by_id.eq." + universityId + (authId != null ? ",user_id.eq." + authId : "") + ")";
-        SupabaseDatabaseHelper.select("lost_reports", filter, new TypeToken<List<Item>>(){}.getType(), new SupabaseDatabaseHelper.DatabaseCallback<List<Item>>() {
+        String filter = "or=(reporter_id.eq." + universityId + ",claimed_by_id.eq." + universityId
+                + (authId != null ? ",user_id.eq." + authId : "") + ")";
+        SupabaseDatabaseHelper.select("lost_reports", filter, new TypeToken<List<Item>>() {
+        }.getType(), new SupabaseDatabaseHelper.DatabaseCallback<List<Item>>() {
             @Override
             public void onSuccess(List<Item> items) {
                 if (items != null) {
                     for (Item item : items) {
                         item.setType("lost");
-                        if (shouldInclude(item, universityId, authId)) accumulatedItems.add(item);
+                        if (shouldInclude(item, universityId, authId))
+                            accumulatedItems.add(item);
                     }
                 }
                 fetchFoundResolved(universityId, authId, accumulatedItems);
             }
-            @Override public void onFailure(String e) { fetchFoundResolved(universityId, authId, accumulatedItems); }
+
+            @Override
+            public void onFailure(String e) {
+                fetchFoundResolved(universityId, authId, accumulatedItems);
+            }
         });
     }
 
     private void fetchFoundResolved(String universityId, String authId, List<Item> accumulatedItems) {
-        String filter = "or=(reporter_id.eq." + universityId + ",claimed_by_id.eq." + universityId + (authId != null ? ",user_id.eq." + authId : "") + ")";
-        SupabaseDatabaseHelper.select("found_reports", filter, new TypeToken<List<Item>>(){}.getType(), new SupabaseDatabaseHelper.DatabaseCallback<List<Item>>() {
+        String filter = "or=(reporter_id.eq." + universityId + ",claimed_by_id.eq." + universityId
+                + (authId != null ? ",user_id.eq." + authId : "") + ")";
+        SupabaseDatabaseHelper.select("found_reports", filter, new TypeToken<List<Item>>() {
+        }.getType(), new SupabaseDatabaseHelper.DatabaseCallback<List<Item>>() {
             @Override
             public void onSuccess(List<Item> items) {
                 if (items != null) {
                     for (Item item : items) {
                         item.setType("found");
-                        if (shouldInclude(item, universityId, authId)) accumulatedItems.add(item);
+                        if (shouldInclude(item, universityId, authId))
+                            accumulatedItems.add(item);
                     }
                 }
                 finalizeAndDisplay(accumulatedItems);
             }
-            @Override public void onFailure(String e) { finalizeAndDisplay(accumulatedItems); }
+
+            @Override
+            public void onFailure(String e) {
+                finalizeAndDisplay(accumulatedItems);
+            }
         });
     }
 
@@ -275,7 +301,8 @@ public class CampusMyItemsActivity extends AppCompatActivity {
             hasFilter = true;
         }
         if (authId != null && !authId.isEmpty()) {
-            if (hasFilter) filterBuilder.append(",");
+            if (hasFilter)
+                filterBuilder.append(",");
             filterBuilder.append("reporter_auth_id.eq.").append(authId);
             hasFilter = true;
         }
@@ -283,13 +310,15 @@ public class CampusMyItemsActivity extends AppCompatActivity {
 
         String filter = hasFilter ? filterBuilder.toString() : "id=not.is.null";
 
-        SupabaseDatabaseHelper.select("admin_reports", filter, new TypeToken<List<AdminReport>>(){}.getType(), new SupabaseDatabaseHelper.DatabaseCallback<List<AdminReport>>() {
+        SupabaseDatabaseHelper.select("admin_reports", filter, new TypeToken<List<AdminReport>>() {
+        }.getType(), new SupabaseDatabaseHelper.DatabaseCallback<List<AdminReport>>() {
             @Override
             public void onSuccess(List<AdminReport> reports) {
                 if (reports != null) {
                     for (AdminReport report : reports) {
                         Item item = convertToItem(report);
-                        if (shouldInclude(item, universityId, authId)) accumulatedItems.add(item);
+                        if (shouldInclude(item, universityId, authId))
+                            accumulatedItems.add(item);
                     }
                 }
                 finalizeAndDisplay(accumulatedItems);
@@ -304,13 +333,14 @@ public class CampusMyItemsActivity extends AppCompatActivity {
 
     private void finalizeAndDisplay(List<Item> accumulatedItems) {
         accumulatedItems.sort((o1, o2) -> Long.compare(o2.getTimestamp(), o1.getTimestamp()));
-        
+
         adapter.updateItems(new ArrayList<>(accumulatedItems));
         itemList.clear();
         itemList.addAll(accumulatedItems);
-        
+
         isFetching = false;
-        if (swipeRefreshLayout != null) swipeRefreshLayout.setRefreshing(false);
+        if (swipeRefreshLayout != null)
+            swipeRefreshLayout.setRefreshing(false);
     }
 
     private Item convertToItem(AdminReport report) {
@@ -331,7 +361,7 @@ public class CampusMyItemsActivity extends AppCompatActivity {
         item.setUserPhone(report.getPhone());
         item.setLocation("Reported to Admin");
         item.setDeletedByUser(report.isDeletedByUser());
-        
+
         SimpleDateFormat sdf = new SimpleDateFormat("dd MMM yyyy", Locale.getDefault());
         item.setDate(sdf.format(new Date(report.getTimestamp())));
 
@@ -339,18 +369,19 @@ public class CampusMyItemsActivity extends AppCompatActivity {
     }
 
     private boolean shouldInclude(Item item, String userId, String authId) {
-        if (item.isDeletedByUser()) return false;
+        if (item.isDeletedByUser())
+            return false;
 
         // User Reports ONLY appear in User Reports section
         if ("admin_report".equals(item.getStatus())) {
             return "admin_reports".equals(filterType);
         }
 
-        boolean isResolved = "Claimed".equalsIgnoreCase(item.getAdminStatus()) || 
-                            "Returned".equalsIgnoreCase(item.getAdminStatus());
+        boolean isResolved = "Claimed".equalsIgnoreCase(item.getAdminStatus()) ||
+                "Returned".equalsIgnoreCase(item.getAdminStatus());
 
         boolean isOwner = (userId != null && userId.equalsIgnoreCase(item.getUserId())) ||
-                         (authId != null && authId.equalsIgnoreCase(item.getAuthUserId()));
+                (authId != null && authId.equalsIgnoreCase(item.getAuthUserId()));
 
         switch (filterType) {
             case "reported":
@@ -359,7 +390,7 @@ public class CampusMyItemsActivity extends AppCompatActivity {
                 return "lost".equals(item.getStatus()) && isOwner;
             case "resolved":
                 boolean isClaimer = (userId != null && userId.equalsIgnoreCase(item.getClaimedByUserId())) ||
-                                   (authId != null && authId.equalsIgnoreCase(item.getClaimedByUserId()));
+                        (authId != null && authId.equalsIgnoreCase(item.getClaimedByUserId()));
                 return isResolved && (isOwner || isClaimer);
             default:
                 return false;
@@ -393,7 +424,8 @@ public class CampusMyItemsActivity extends AppCompatActivity {
         @NonNull
         @Override
         public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-            View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_campus_reported_recent, parent, false);
+            View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_campus_reported_recent, parent,
+                    false);
             return new ViewHolder(view);
         }
 
@@ -401,15 +433,15 @@ public class CampusMyItemsActivity extends AppCompatActivity {
         public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
             Item item = items.get(position);
             holder.tvTitle.setText(item.getName());
-            
+
             holder.tvLocation.setText(ReportLocationDisplay.formatFullLocation(
-                    item.getLocation(), 
-                    item.getManualLocation(), 
+                    item.getLocation(),
+                    item.getManualLocation(),
                     item.getAdditionalLocationDetails()));
-                    
+
             holder.tvTime.setText(item.getDate());
-            
-            if (holder.tvReportId != null) {
+
+            if (holder.tvDisplayId != null) {
                 String dId = item.getDisplayId();
                 if (dId == null || dId.isEmpty()) {
                     dId = item.getReportId();
@@ -417,27 +449,31 @@ public class CampusMyItemsActivity extends AppCompatActivity {
 
                 String formattedId = ReportIdFormatter.format(dId);
                 if (!formattedId.isEmpty()) {
-                    holder.tvReportId.setText(formattedId);
-                    View parent = (View) holder.tvReportId.getParent();
-                    if (parent != null) parent.setVisibility(View.VISIBLE);
+                    holder.tvDisplayId.setText(formattedId);
+                    if (holder.cardReportId != null) {
+                        holder.cardReportId.setVisibility(View.VISIBLE);
+                    }
                 } else {
-                    holder.tvReportId.setText("");
-                    View parent = (View) holder.tvReportId.getParent();
-                    if (parent != null) parent.setVisibility(View.GONE);
+                    holder.tvDisplayId.setText("");
+                    if (holder.cardReportId != null) {
+                        holder.cardReportId.setVisibility(View.GONE);
+                    }
                 }
             }
 
-            boolean isResolved = "Claimed".equalsIgnoreCase(item.getAdminStatus()) || 
-                                "Returned".equalsIgnoreCase(item.getAdminStatus()) ||
-                                "Reviewed".equalsIgnoreCase(item.getAdminStatus());
+            boolean isResolved = "Claimed".equalsIgnoreCase(item.getAdminStatus()) ||
+                    "Returned".equalsIgnoreCase(item.getAdminStatus()) ||
+                    "Reviewed".equalsIgnoreCase(item.getAdminStatus());
+
+            String statusText = "";
+            int statusColor = 0xFF757575;
 
             if (isResolved && "resolved".equals(filterType)) {
-                holder.statusIndicator.setBackgroundColor(ContextCompat.getColor(holder.itemView.getContext(), R.color.badge_resolved_bg));
-                holder.tvBadge.setText(R.string.status_resolved);
-                holder.cardBadge.setCardBackgroundColor(ContextCompat.getColor(holder.itemView.getContext(), R.color.badge_resolved_bg));
+                statusText = holder.itemView.getContext().getString(R.string.status_resolved);
+                statusColor = ContextCompat.getColor(holder.itemView.getContext(), R.color.badge_resolved_bg);
             } else if ("admin_report".equals(item.getStatus())) {
                 String status = item.getAdminStatus() != null ? item.getAdminStatus() : "Pending";
-                int statusColor;
+                statusText = status;
                 if ("Pending".equalsIgnoreCase(status)) {
                     statusColor = 0xFFFF9800; // Orange
                 } else if ("Reviewed".equalsIgnoreCase(status)) {
@@ -445,24 +481,28 @@ public class CampusMyItemsActivity extends AppCompatActivity {
                 } else {
                     statusColor = 0xFF757575; // Gray fallback
                 }
-                
-                holder.statusIndicator.setBackgroundColor(statusColor);
-                holder.tvBadge.setText(status.toUpperCase());
-                holder.cardBadge.setCardBackgroundColor(statusColor);
             } else if (isResolved) {
-                holder.statusIndicator.setBackgroundColor(ContextCompat.getColor(holder.itemView.getContext(), R.color.badge_resolved_bg));
-                holder.tvBadge.setText(R.string.status_resolved);
-                holder.cardBadge.setCardBackgroundColor(ContextCompat.getColor(holder.itemView.getContext(), R.color.badge_resolved_bg));
+                statusText = holder.itemView.getContext().getString(R.string.status_resolved);
+                statusColor = ContextCompat.getColor(holder.itemView.getContext(), R.color.badge_resolved_bg);
             } else if ("lost".equals(item.getStatus())) {
-                holder.statusIndicator.setBackgroundColor(ContextCompat.getColor(holder.itemView.getContext(), R.color.badge_lost_bg));
-                holder.tvBadge.setText(R.string.status_lost_label);
-                holder.cardBadge.setCardBackgroundColor(ContextCompat.getColor(holder.itemView.getContext(), R.color.badge_lost_bg));
+                statusText = holder.itemView.getContext().getString(R.string.status_lost_label);
+                statusColor = ContextCompat.getColor(holder.itemView.getContext(), R.color.badge_lost_bg);
             } else {
-                holder.statusIndicator.setBackgroundColor(ContextCompat.getColor(holder.itemView.getContext(), R.color.badge_found_bg));
-                holder.tvBadge.setText(R.string.status_found_label);
-                holder.cardBadge.setCardBackgroundColor(ContextCompat.getColor(holder.itemView.getContext(), R.color.badge_found_bg));
+                statusText = holder.itemView.getContext().getString(R.string.status_found_label);
+                statusColor = ContextCompat.getColor(holder.itemView.getContext(), R.color.badge_found_bg);
             }
-            holder.tvBadge.setTextColor(ContextCompat.getColor(holder.itemView.getContext(), R.color.white));
+
+            if (holder.tvStatusBadge != null) {
+                holder.tvStatusBadge.setText(statusText.toUpperCase());
+            }
+            if (holder.cardStatusBadge != null) {
+                holder.cardStatusBadge.setCardBackgroundColor(statusColor);
+            }
+
+            // Keep statusIndicator if present
+            if (holder.statusIndicator != null) {
+                holder.statusIndicator.setBackgroundColor(statusColor);
+            }
 
             setupImageOrSlider(holder, item, position);
 
@@ -502,12 +542,15 @@ public class CampusMyItemsActivity extends AppCompatActivity {
                 holder.viewPagerSlider.setAdapter(sliderAdapter);
                 holder.viewPagerSlider.setUserInputEnabled(true);
 
-                new TabLayoutMediator(holder.tabLayoutIndicator, holder.viewPagerSlider, (tab, pos) -> {}).attach();
+                new TabLayoutMediator(holder.tabLayoutIndicator, holder.viewPagerSlider, (tab, pos) -> {
+                }).attach();
 
                 startSlider(holder, urls, position);
             } else {
-                if (holder.viewPagerSlider != null) holder.viewPagerSlider.setVisibility(View.GONE);
-                if (holder.tabLayoutIndicator != null) holder.tabLayoutIndicator.setVisibility(View.GONE);
+                if (holder.viewPagerSlider != null)
+                    holder.viewPagerSlider.setVisibility(View.GONE);
+                if (holder.tabLayoutIndicator != null)
+                    holder.tabLayoutIndicator.setVisibility(View.GONE);
                 holder.ivIcon.setVisibility(View.VISIBLE);
                 stopSlider(position);
 
@@ -520,7 +563,7 @@ public class CampusMyItemsActivity extends AppCompatActivity {
                             .diskCacheStrategy(DiskCacheStrategy.ALL)
                             .centerCrop()
                             .into(holder.ivIcon);
-                            
+
                     // Image click leads to detail view, not full screen
                     holder.ivIcon.setOnClickListener(v -> {
                         if ("admin_report".equals(item.getStatus())) {
@@ -585,10 +628,10 @@ public class CampusMyItemsActivity extends AppCompatActivity {
         }
 
         class ViewHolder extends RecyclerView.ViewHolder {
-            TextView tvTitle, tvLocation, tvTime, tvBadge, tvReportId;
+            TextView tvTitle, tvLocation, tvTime, tvStatusBadge, tvDisplayId;
             ImageView ivIcon;
             View statusIndicator;
-            MaterialCardView cardBadge;
+            MaterialCardView cardStatusBadge, cardReportId;
             ViewPager2 viewPagerSlider;
             TabLayout tabLayoutIndicator;
 
@@ -599,11 +642,13 @@ public class CampusMyItemsActivity extends AppCompatActivity {
                 tvTime = itemView.findViewById(R.id.tvItemTime);
                 ivIcon = itemView.findViewById(R.id.ivItemIcon);
                 statusIndicator = itemView.findViewById(R.id.viewStatusIndicator);
-                tvBadge = itemView.findViewById(R.id.tvBadge);
-                cardBadge = itemView.findViewById(R.id.cardBadge);
                 viewPagerSlider = itemView.findViewById(R.id.viewPagerSlider);
                 tabLayoutIndicator = itemView.findViewById(R.id.tabLayoutIndicator);
-                tvReportId = itemView.findViewById(R.id.tvReportId);
+
+                tvStatusBadge = itemView.findViewById(R.id.tvStatusBadge);
+                cardStatusBadge = itemView.findViewById(R.id.cardStatusBadge);
+                tvDisplayId = itemView.findViewById(R.id.tvDisplayId);
+                cardReportId = itemView.findViewById(R.id.cardReportId);
 
                 // Move listeners to ViewHolder to avoid redundant object creation in onBind
                 if (viewPagerSlider != null) {
@@ -626,9 +671,11 @@ public class CampusMyItemsActivity extends AppCompatActivity {
                         if (viewPagerSlider.getChildCount() > 0) {
                             viewPagerSlider.getChildAt(0).setOnTouchListener((v, event) -> {
                                 int pos = getBindingAdapterPosition();
-                                if (pos == RecyclerView.NO_POSITION) return false;
-                                
-                                if (event.getAction() == MotionEvent.ACTION_DOWN || event.getAction() == MotionEvent.ACTION_MOVE) {
+                                if (pos == RecyclerView.NO_POSITION)
+                                    return false;
+
+                                if (event.getAction() == MotionEvent.ACTION_DOWN
+                                        || event.getAction() == MotionEvent.ACTION_MOVE) {
                                     stopSlider(pos);
                                 }
                                 return false;
@@ -668,7 +715,7 @@ public class CampusMyItemsActivity extends AppCompatActivity {
         public boolean areContentsTheSame(int oldItemPosition, int newItemPosition) {
             Item oldItem = oldList.get(oldItemPosition);
             Item newItem = newList.get(newItemPosition);
-            
+
             // Handle potential nulls in admin status or name
             String oldStatus = oldItem.getAdminStatus() != null ? oldItem.getAdminStatus() : "";
             String newStatus = newItem.getAdminStatus() != null ? newItem.getAdminStatus() : "";
@@ -676,8 +723,8 @@ public class CampusMyItemsActivity extends AppCompatActivity {
             String newName = newItem.getName() != null ? newItem.getName() : "";
 
             return oldItem.getTimestamp() == newItem.getTimestamp() &&
-                   oldStatus.equals(newStatus) &&
-                   oldName.equals(newName);
+                    oldStatus.equals(newStatus) &&
+                    oldName.equals(newName);
         }
     }
 }

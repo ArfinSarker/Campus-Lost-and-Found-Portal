@@ -399,8 +399,14 @@ public class CampusDashboardActivity extends AppCompatActivity {
                         pendingIntent = null;
                         new Handler(Looper.getMainLooper()).postDelayed(() -> {
                             startActivity(intentToLaunch);
-                            overridePendingTransition(R.anim.material_shared_axis_z_enter,
-                                    R.anim.material_shared_axis_z_exit);
+                            if (intentToLaunch.getComponent() != null &&
+                                    AdminDashboardActivity.class.getName().equals(intentToLaunch.getComponent().getClassName())) {
+                                overridePendingTransition(R.anim.dash_transition_enter,
+                                        R.anim.dash_transition_exit);
+                            } else {
+                                overridePendingTransition(R.anim.material_shared_axis_z_enter,
+                                        R.anim.material_shared_axis_z_exit);
+                            }
                         }, 200);
                     }
                 }
@@ -437,10 +443,42 @@ public class CampusDashboardActivity extends AppCompatActivity {
                 adminDashboardItem.setVisible(isAdmin);
             }
 
+            MenuItem darkModeItem = menu.findItem(R.id.nav_dark_mode);
+            if (darkModeItem != null) {
+                boolean isDark = ThemeManager.isDarkModeEnabled(this);
+                darkModeItem.setTitle(isDark ? "Day Mode" : "Night Mode");
+                darkModeItem.setIcon(isDark ? R.drawable.ic_sun : R.drawable.ic_moon);
+                
+                if (darkModeItem.getActionView() != null) {
+                    com.google.android.material.materialswitch.MaterialSwitch switchView =
+                        darkModeItem.getActionView().findViewById(R.id.drawer_switch_dark_mode);
+                    if (switchView != null) {
+                        switchView.setChecked(isDark);
+                    }
+                }
+            }
+
             navigationView.setNavigationItemSelectedListener(item -> {
                 if (!ItemNavigationUtils.canNavigate())
                     return false;
                 int id = item.getItemId();
+                if (id == R.id.nav_dark_mode) {
+                    if (darkModeItem != null && darkModeItem.getActionView() != null) {
+                        com.google.android.material.materialswitch.MaterialSwitch switchView =
+                            darkModeItem.getActionView().findViewById(R.id.drawer_switch_dark_mode);
+                        if (switchView != null) {
+                            boolean newState = !switchView.isChecked();
+                            switchView.setChecked(newState);
+                            
+                            // Post-delay the theme change to allow the switch slide animation to complete smoothly
+                            new android.os.Handler(android.os.Looper.getMainLooper()).postDelayed(() -> {
+                                ThemeManager.setDarkModeEnabled(CampusDashboardActivity.this, newState);
+                                overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
+                            }, 220);
+                        }
+                    }
+                    return true;
+                }
                 currentSelectedDrawerItemId = id;
                 customizeNavigationViewIcons();
                 if (id == R.id.nav_profile) {
@@ -464,6 +502,7 @@ public class CampusDashboardActivity extends AppCompatActivity {
                     pendingIntent.putExtra("fromDrawer", true);
                 } else if (id == R.id.nav_admin_dashboard) {
                     pendingIntent = new Intent(this, AdminDashboardActivity.class);
+                    pendingIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
                     pendingIntent.putExtra("fromDrawer", true);
                 } else if (id == R.id.nav_logout) {
                     performLogout();
@@ -1057,16 +1096,40 @@ public class CampusDashboardActivity extends AppCompatActivity {
             if (displayId == null || displayId.isEmpty()) {
                 displayId = item.getReportId();
             }
-            holder.tvReportId.setText(ReportIdFormatter.format(displayId));
+            
+            if (holder.tvDisplayId != null) {
+                String formattedId = ReportIdFormatter.format(displayId);
+                holder.tvDisplayId.setText(formattedId);
+                if (holder.cardReportId != null) {
+                    holder.cardReportId.setVisibility(formattedId.isEmpty() ? View.GONE : View.VISIBLE);
+                }
+            }
 
             boolean res = "Claimed".equalsIgnoreCase(item.getAdminStatus())
                     || "Returned".equalsIgnoreCase(item.getAdminStatus());
-            int color = ContextCompat.getColor(holder.itemView.getContext(), res ? R.color.badge_resolved_bg
-                    : ("lost".equals(item.getStatus()) ? R.color.badge_lost_bg : R.color.badge_found_bg));
-            holder.statusIndicator.setBackgroundColor(color);
-            holder.tvBadge.setText(res ? "RESOLVED" : item.getStatus().toUpperCase());
-            if (holder.cardBadge != null)
-                holder.cardBadge.setCardBackgroundColor(color);
+            
+            int color;
+            if (res) {
+                color = 0xFF2AABEE; // Blue
+            } else if ("lost".equalsIgnoreCase(item.getStatus())) {
+                color = 0xFFFF3B30; // Red
+            } else if ("found".equalsIgnoreCase(item.getStatus())) {
+                color = 0xFF34C759; // Green
+            } else {
+                color = 0xFF757575; // Gray
+            }
+
+            if (holder.statusIndicator != null) {
+                holder.statusIndicator.setBackgroundColor(color);
+            }
+            
+            if (holder.tvStatusBadge != null) {
+                holder.tvStatusBadge.setText(res ? "RESOLVED" : (item.getStatus() != null ? item.getStatus().toUpperCase() : ""));
+            }
+            if (holder.cardStatusBadge != null) {
+                holder.cardStatusBadge.setCardBackgroundColor(color);
+            }
+
             setupImageOrSlider(holder, item, position);
             holder.itemView.setOnClickListener(v -> ItemNavigationUtils.navigateToDetail(v.getContext(), item));
         }
@@ -1142,10 +1205,10 @@ public class CampusDashboardActivity extends AppCompatActivity {
         }
 
         class ViewHolder extends RecyclerView.ViewHolder {
-            TextView tvTitle, tvLocation, tvTime, tvBadge, tvReportId;
+            TextView tvTitle, tvLocation, tvTime, tvStatusBadge, tvDisplayId;
             ImageView ivIcon;
             View statusIndicator;
-            MaterialCardView cardBadge;
+            MaterialCardView cardStatusBadge, cardReportId;
             ViewPager2 viewPagerSlider;
             TabLayout tabLayoutIndicator;
 
@@ -1156,11 +1219,13 @@ public class CampusDashboardActivity extends AppCompatActivity {
                 tvTime = v.findViewById(R.id.tvItemTime);
                 ivIcon = v.findViewById(R.id.ivItemIcon);
                 statusIndicator = v.findViewById(R.id.viewStatusIndicator);
-                tvBadge = v.findViewById(R.id.tvBadge);
-                cardBadge = v.findViewById(R.id.cardBadge);
-                tvReportId = v.findViewById(R.id.tvReportId);
                 viewPagerSlider = v.findViewById(R.id.viewPagerSlider);
                 tabLayoutIndicator = v.findViewById(R.id.tabLayoutIndicator);
+                
+                tvStatusBadge = v.findViewById(R.id.tvStatusBadge);
+                cardStatusBadge = v.findViewById(R.id.cardStatusBadge);
+                tvDisplayId = v.findViewById(R.id.tvDisplayId);
+                cardReportId = v.findViewById(R.id.cardReportId);
             }
         }
     }
@@ -1170,8 +1235,17 @@ public class CampusDashboardActivity extends AppCompatActivity {
         navigationView.setItemIconTintList(null); // Clear layout override
         
         android.view.Menu menu = navigationView.getMenu();
+        
+        android.view.MenuItem darkModeItem = menu.findItem(R.id.nav_dark_mode);
+        if (darkModeItem != null) {
+            boolean isDark = ThemeManager.isDarkModeEnabled(this);
+            darkModeItem.setTitle(isDark ? "Day Mode" : "Night Mode");
+            darkModeItem.setIcon(isDark ? R.drawable.ic_sun : R.drawable.ic_moon);
+        }
+        
         int uncheckedColor = ContextCompat.getColor(this, R.color.textSecondary);
         
+        setItemIconTint(menu.findItem(R.id.nav_dark_mode), ContextCompat.getColor(this, R.color.primaryColor), uncheckedColor);
         setItemIconTint(menu.findItem(R.id.nav_profile), ContextCompat.getColor(this, R.color.primaryColor), uncheckedColor);
         setItemIconTint(menu.findItem(R.id.nav_reported_items), ContextCompat.getColor(this, R.color.statusFound), uncheckedColor);
         setItemIconTint(menu.findItem(R.id.nav_find_items), ContextCompat.getColor(this, R.color.statusLost), uncheckedColor);
@@ -1193,7 +1267,7 @@ public class CampusDashboardActivity extends AppCompatActivity {
             checkedColor,
             uncheckedColor
         };
-        item.setIconTintList(new android.content.res.ColorStateList(states, colors));
+        androidx.core.view.MenuItemCompat.setIconTintList(item, new android.content.res.ColorStateList(states, colors));
     }
 
     private void performLogout() {

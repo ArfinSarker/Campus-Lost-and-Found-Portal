@@ -9,8 +9,8 @@
     app:cardCornerRadius="20dp"
     app:cardElevation="4dp"
     app:strokeWidth="1dp"
-    app:strokeColor="#EDF2F7"
-    app:cardBackgroundColor="@color/white"
+    app:strokeColor="@color/divider_e2e8f0"
+    app:cardBackgroundColor="@color/cardBackgroundColor"
     app:cardPreventCornerOverlap="false"
     android:clipToOutline="true">
 
@@ -144,7 +144,7 @@
                 android:ellipsize="end"
                 android:fontFamily="sans-serif-medium"
                 android:maxLines="2"
-                android:textColor="#0F172A"
+                android:textColor="@color/text_0f172a"
                 android:textSize="17sp"
                 android:lineSpacingExtra="3dp"
                 app:layout_constraintStart_toStartOf="parent"
@@ -171,7 +171,7 @@
                     android:layout_marginEnd="6dp"
                     android:scaleType="centerCrop"
                     android:src="@drawable/ic_user"
-                    app:tint="#64748B"
+                    app:tint="@color/tint_64748b"
                     app:shapeAppearanceOverlay="@style/ShapeAppearance.App.Circle"
                     android:importantForAccessibility="no" />
 
@@ -179,7 +179,7 @@
                     android:id="@+id/tvReporterInfo"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:textColor="#475569"
+                    android:textColor="@color/text_475569"
                     android:textSize="13sp"
                     android:fontFamily="sans-serif"
                     tools:text="Submitted By: John Doe" />
@@ -190,7 +190,7 @@
                 android:id="@+id/divider"
                 android:layout_width="0dp"
                 android:layout_height="1dp"
-                android:background="#F1F5F9"
+                android:background="@color/bg_f1f5f9"
                 android:layout_marginTop="12dp"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
@@ -204,7 +204,7 @@
                 android:layout_marginTop="12dp"
                 app:cardCornerRadius="100dp"
                 app:cardElevation="0dp"
-                app:cardBackgroundColor="#EFF6FF"
+                app:cardBackgroundColor="@color/blue_badge_bg"
                 app:strokeWidth="0dp"
                 app:layout_constrainedWidth="true"
                 app:layout_constraintHorizontal_bias="0.0"
@@ -247,7 +247,7 @@
                     android:layout_width="14dp"
                     android:layout_height="14dp"
                     android:src="@drawable/ic_clock"
-                    app:tint="#64748B"
+                    app:tint="@color/tint_64748b"
                     android:layout_marginEnd="4dp"
                     android:importantForAccessibility="no" />
 
@@ -255,7 +255,7 @@
                     android:id="@+id/tvTimestamp"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:textColor="#64748B"
+                    android:textColor="@color/text_64748b"
                     android:textSize="12sp"
                     android:fontFamily="sans-serif"
                     tools:text="25 Oct, 10:30 AM" />

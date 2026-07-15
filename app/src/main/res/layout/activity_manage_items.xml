@@ -139,7 +139,7 @@
                         android:layout_margin="6dp"
                         android:clickable="true"
                         android:focusable="true"
-                        app:cardBackgroundColor="#E8F5E9"> <!-- Light Green -->
+                        app:cardBackgroundColor="@color/green_badge_bg"> <!-- Light Green -->
                         <LinearLayout
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
@@ -175,7 +175,7 @@
                         android:layout_margin="6dp"
                         android:clickable="true"
                         android:focusable="true"
-                        app:cardBackgroundColor="#FFF3E0"> <!-- Light Orange -->
+                        app:cardBackgroundColor="@color/orange_badge_bg"> <!-- Light Orange -->
                         <LinearLayout
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"

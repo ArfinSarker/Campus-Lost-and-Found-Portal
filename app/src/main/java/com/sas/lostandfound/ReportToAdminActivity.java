@@ -56,6 +56,7 @@ public class ReportToAdminActivity extends AppCompatActivity {
     private List<Uri> selectedImageUris = new ArrayList<>();
     private String currentUniversityId;
     private String currentAuthId;
+    private String currentProfileImageUrl = "";
     private static final int PICK_IMAGES_REQUEST = 1;
 
     private String contactNameState = "";
@@ -193,6 +194,7 @@ public class ReportToAdminActivity extends AppCompatActivity {
                 if (users != null && !users.isEmpty()) {
                     User user = users.get(0);
                     if (user != null) {
+                        currentProfileImageUrl = user.getProfileImageUrl();
                         etReporterName.setText(user.getName());
                         contactNameState = user.getName() != null ? user.getName() : "";
                         etUniversityId.setText(user.getUniversityId());
@@ -405,9 +407,15 @@ public class ReportToAdminActivity extends AppCompatActivity {
                 String reporterName = report.getReporterName() != null ? report.getReporterName() : "A user";
                 String message = String.format("\"%s\" has submitted a new report for review: \"%s\"", reporterName, report.getTitle());
                 
+                String reporterImageUrl = currentProfileImageUrl;
+                if (reporterImageUrl == null || reporterImageUrl.isEmpty()) {
+                    android.content.SharedPreferences prefs = getSharedPreferences("MyApp", MODE_PRIVATE);
+                    reporterImageUrl = prefs.getString("cachedProfileImageUrl", "");
+                }
+                
                 for (User admin : admins) {
                     Log.d(TAG, "Preparing notification for Admin: " + admin.getUniversityId() + " (AuthID: " + admin.getAuthId() + ")");
-
+ 
                     String notificationId = UUID.randomUUID().toString();
                     Notification notification = new Notification(
                         notificationId,
@@ -416,7 +424,7 @@ public class ReportToAdminActivity extends AppCompatActivity {
                         reporterName,
                         report.getPhone(),
                         "", // Email
-                        "", // Image
+                        reporterImageUrl, // Image
                         report.getId(),
                         report.getTitle(),
                         message,

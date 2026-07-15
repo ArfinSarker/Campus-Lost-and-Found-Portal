@@ -69,6 +69,15 @@ public class ImageSliderAdapter extends RecyclerView.Adapter<ImageSliderAdapter.
                     .into(holder.photoView);
         }
 
+        // Disallow ViewPager2 swipe interception when zoomed in
+        holder.photoView.setOnMatrixChangeListener(rect -> {
+            if (holder.photoView.getScale() > 1.01f) {
+                holder.photoView.getParent().requestDisallowInterceptTouchEvent(true);
+            } else {
+                holder.photoView.getParent().requestDisallowInterceptTouchEvent(false);
+            }
+        });
+
         // Set consolidated click listeners to avoid double-triggering FullScreenImageActivity.
         // PhotoView captures taps internally to handle zoom; we use its tap listeners for consistency.
         // We use only one tap listener to avoid duplicate calls.

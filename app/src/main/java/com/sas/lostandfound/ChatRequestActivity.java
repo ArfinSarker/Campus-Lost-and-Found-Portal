@@ -120,8 +120,7 @@ public class ChatRequestActivity extends AppCompatActivity {
             @Override
             public void onSuccess(String result) {
                 SnackbarManager.show(SnackbarManager.Type.SUCCESS, "Chat request sent!");
-                android.content.Intent broadcastIntent = new android.content.Intent("com.sas.lostandfound.UPDATE_BADGES");
-                sendBroadcast(broadcastIntent);
+                UnreadBadgeHelper.sendBadgeUpdateBroadcast(ChatRequestActivity.this);
                 finish();
             }
 

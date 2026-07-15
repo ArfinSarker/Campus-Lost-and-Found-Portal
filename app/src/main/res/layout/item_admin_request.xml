@@ -5,10 +5,11 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_marginBottom="12dp"
-    app:cardCornerRadius="12dp"
-    app:cardElevation="2dp"
-    app:strokeColor="@color/dividerColor"
-    app:strokeWidth="1dp">
+    app:cardBackgroundColor="@color/admin_request_card_bg"
+    app:strokeColor="@color/admin_request_card_stroke"
+    app:strokeWidth="1.2dp"
+    app:cardElevation="0dp"
+    app:cardCornerRadius="14dp">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -27,7 +28,7 @@
                 android:layout_width="56dp"
                 android:layout_height="56dp"
                 android:scaleType="centerCrop"
-                android:src="@drawable/ic_user"
+                android:src="@drawable/ic_default_avatar"
                 app:shapeAppearanceOverlay="@style/ShapeAppearance.App.Circle" />
 
             <LinearLayout
@@ -42,6 +43,7 @@
                     style="@style/TextAppearance.App.SectionTitle"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:textColor="@color/admin_request_text_primary"
                     tools:text="Md. Shamsul Arfin Sarker" />
 
                 <TextView
@@ -58,6 +60,7 @@
                     style="@style/TextAppearance.App.Small"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:textColor="@color/admin_request_text_secondary"
                     tools:text="ID: 0802410205101019" />
             </LinearLayout>
         </LinearLayout>
@@ -66,7 +69,7 @@
             android:layout_width="match_parent"
             android:layout_height="1dp"
             android:layout_marginVertical="12dp"
-            android:background="@color/dividerColor" />
+            android:background="@color/admin_request_card_stroke" />
 
         <TextView
             android:id="@+id/tvRequestEmail"
@@ -76,7 +79,8 @@
             app:drawableStartCompat="@drawable/ic_email"
             android:drawablePadding="8dp"
             android:gravity="center_vertical"
-            app:drawableTint="@color/lightRed"
+            android:textColor="@color/admin_request_text_primary"
+            app:drawableTint="@color/admin_request_icon_email"
             tools:text="m.shamsularfinsarkernayan@gmail.com" />
 
         <TextView
@@ -84,25 +88,35 @@
             style="@style/TextAppearance.App.Body"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="4dp"
+            android:layout_marginTop="6dp"
             app:drawableStartCompat="@drawable/ic_phone"
             android:drawablePadding="8dp"
             android:gravity="center_vertical"
-            app:drawableTint="@color/vibrantGreen"
+            android:textColor="@color/admin_request_text_primary"
+            app:drawableTint="@color/admin_request_icon_phone"
             tools:text="+8801819966626" />
 
-        <TextView
-            android:id="@+id/tvVerificationCode"
-            style="@style/TextAppearance.App.Body"
+        <!-- High-Contrast Stylized Verification Code Badge -->
+        <com.google.android.material.card.MaterialCardView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="12dp"
-            android:background="@drawable/bg_orange"
-            android:paddingHorizontal="12dp"
-            android:paddingVertical="4dp"
-            android:textStyle="bold"
-            android:textColor="@color/white"
-            tools:text="Code: ArfinSarker" />
+            app:cardCornerRadius="24dp"
+            app:cardElevation="0dp"
+            app:strokeWidth="1.2dp"
+            app:strokeColor="@color/admin_request_code_text"
+            app:cardBackgroundColor="@color/admin_request_code_bg">
+            <TextView
+                android:id="@+id/tvVerificationCode"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:paddingHorizontal="16dp"
+                android:paddingVertical="6dp"
+                android:textSize="12sp"
+                android:textStyle="bold"
+                android:textColor="@color/admin_request_code_text"
+                tools:text="Code: ArfinSarker" />
+        </com.google.android.material.card.MaterialCardView>
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -118,8 +132,8 @@
                 android:layout_marginEnd="8dp"
                 android:layout_weight="1"
                 android:text="@string/btn_deny"
-                android:textColor="@color/statusLost"
-                app:strokeColor="@color/statusLost"
+                android:textColor="@color/admin_request_deny_btn_text"
+                app:strokeColor="@color/admin_request_deny_btn_stroke"
                 android:paddingVertical="9dp"
                 app:cornerRadius="10dp"
                 app:strokeWidth="1.5dp"/>
@@ -131,7 +145,9 @@
                 android:layout_marginStart="8dp"
                 android:layout_weight="1"
                 android:text="@string/btn_accept"
-                android:backgroundTint="@color/vibrantBlue" />
+                android:textColor="@color/white"
+                app:cornerRadius="10dp"
+                app:backgroundTint="@color/admin_request_accept_btn_bg" />
         </LinearLayout>
 
     </LinearLayout>

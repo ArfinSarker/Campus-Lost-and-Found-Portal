@@ -136,8 +136,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
                 .setContentIntent(pendingIntent);
 
         // Broadcast badge update to active activities
-        android.content.Intent broadcastIntent = new android.content.Intent("com.sas.lostandfound.UPDATE_BADGES");
-        sendBroadcast(broadcastIntent);
+        UnreadBadgeHelper.sendBadgeUpdateBroadcast(this);
 
         // Check permission for Android 13+
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {

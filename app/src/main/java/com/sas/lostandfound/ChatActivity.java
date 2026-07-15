@@ -267,7 +267,7 @@ public class ChatActivity extends AppCompatActivity {
                             if (!android.text.TextUtils.isEmpty(statusText)) {
                                 tvHeaderStatus.setText(statusText);
                                 if ("Active now".equals(statusText)) {
-                                    tvHeaderStatus.setTextColor(Color.parseColor("#34C759"));
+                                    tvHeaderStatus.setTextColor(androidx.core.content.ContextCompat.getColor(ChatActivity.this, R.color.statusFound));
                                 } else {
                                     tvHeaderStatus.setTextColor(defaultHeaderStatusColor);
                                 }
@@ -382,7 +382,7 @@ public class ChatActivity extends AppCompatActivity {
             etMessageInput.setText("");
             etMessageInput.setHint("Unblock this user to send messages");
             btnSendMessageCard.setEnabled(false);
-            btnSendMessageCard.setCardBackgroundColor(ColorStateList.valueOf(Color.parseColor("#94A3B8")));
+            btnSendMessageCard.setCardBackgroundColor(ColorStateList.valueOf(androidx.core.content.ContextCompat.getColor(ChatActivity.this, R.color.chat_disabled_send_bg)));
             if (tvHeaderStatus != null) tvHeaderStatus.setVisibility(View.GONE);
         } else if (amIBlockedByOtherUser) {
             etMessageInput.setEnabled(false);
@@ -391,7 +391,7 @@ public class ChatActivity extends AppCompatActivity {
             etMessageInput.setText("");
             etMessageInput.setHint("You cannot send messages to this user");
             btnSendMessageCard.setEnabled(false);
-            btnSendMessageCard.setCardBackgroundColor(ColorStateList.valueOf(Color.parseColor("#94A3B8")));
+            btnSendMessageCard.setCardBackgroundColor(ColorStateList.valueOf(androidx.core.content.ContextCompat.getColor(ChatActivity.this, R.color.chat_disabled_send_bg)));
             if (tvHeaderStatus != null) tvHeaderStatus.setVisibility(View.GONE);
         } else {
             etMessageInput.setEnabled(true);
@@ -532,8 +532,7 @@ public class ChatActivity extends AppCompatActivity {
         String query = "conversation_id=eq." + conversationId + "&sender_id=neq." + currentUnivId + "&is_read=eq.false";
         SupabaseDatabaseHelper.update("messages", query, data, new SupabaseDatabaseHelper.DatabaseCallback<String>() {
             @Override public void onSuccess(String result) {
-                android.content.Intent broadcastIntent = new android.content.Intent("com.sas.lostandfound.UPDATE_BADGES");
-                sendBroadcast(broadcastIntent);
+                UnreadBadgeHelper.sendBadgeUpdateBroadcast(ChatActivity.this);
             }
             @Override public void onFailure(String errorMessage) {}
         });
@@ -575,8 +574,7 @@ public class ChatActivity extends AppCompatActivity {
         SupabaseDatabaseHelper.insert("messages", msg, new SupabaseDatabaseHelper.DatabaseCallback<String>() {
             @Override
             public void onSuccess(String result) {
-                android.content.Intent broadcastIntent = new android.content.Intent("com.sas.lostandfound.UPDATE_BADGES");
-                sendBroadcast(broadcastIntent);
+                UnreadBadgeHelper.sendBadgeUpdateBroadcast(ChatActivity.this);
                 loadMessages(false);
             }
 
@@ -611,8 +609,7 @@ public class ChatActivity extends AppCompatActivity {
                     loadMessages(true);
                     markMessagesAsRead();
 
-                    android.content.Intent broadcastIntent = new android.content.Intent("com.sas.lostandfound.UPDATE_BADGES");
-                    sendBroadcast(broadcastIntent);
+                    UnreadBadgeHelper.sendBadgeUpdateBroadcast(ChatActivity.this);
                 } catch (Exception e) {
                     e.printStackTrace();
                     finish();
@@ -648,8 +645,7 @@ public class ChatActivity extends AppCompatActivity {
                             requestStatus = "rejected";
                             updateRequestLayoutUI();
 
-                            android.content.Intent broadcastIntent = new android.content.Intent("com.sas.lostandfound.UPDATE_BADGES");
-                            sendBroadcast(broadcastIntent);
+                            UnreadBadgeHelper.sendBadgeUpdateBroadcast(ChatActivity.this);
                         }
 
                         @Override
@@ -911,9 +907,9 @@ public class ChatActivity extends AppCompatActivity {
                     lp.setMargins((int) (64 * density), 0, (int) (8 * density), 0);
 
                     msgHolder.ivUserAvatar.setVisibility(View.GONE);
-                    msgHolder.cardMessageBubble.setCardBackgroundColor(ColorStateList.valueOf(Color.parseColor("#0084FF")));
-                    msgHolder.tvMessageText.setTextColor(Color.WHITE);
-                    msgHolder.tvMessageTime.setTextColor(Color.parseColor("#D8EEFF"));
+                    msgHolder.cardMessageBubble.setCardBackgroundColor(ColorStateList.valueOf(androidx.core.content.ContextCompat.getColor(context, R.color.msg_sender_bg)));
+                    msgHolder.tvMessageText.setTextColor(androidx.core.content.ContextCompat.getColor(context, R.color.msg_sender_text));
+                    msgHolder.tvMessageTime.setTextColor(androidx.core.content.ContextCompat.getColor(context, R.color.msg_sender_time));
 
                     msgHolder.cardMessageBubble.setShapeAppearanceModel(
                         msgHolder.cardMessageBubble.getShapeAppearanceModel().toBuilder()
@@ -932,13 +928,13 @@ public class ChatActivity extends AppCompatActivity {
                         }
                         if (!blocked && "accepted".equals(requestStatus) && msg.isRead()) {
                             msgHolder.ivMessageStatus.setImageResource(R.drawable.ic_double_check);
-                            msgHolder.ivMessageStatus.setImageTintList(ColorStateList.valueOf(Color.parseColor("#00FFFF"))); // Electric Cyan
+                            msgHolder.ivMessageStatus.setImageTintList(ColorStateList.valueOf(androidx.core.content.ContextCompat.getColor(context, R.color.msg_sender_status_read)));
                         } else if (!blocked && "accepted".equals(requestStatus) && msg.isDelivered()) {
                             msgHolder.ivMessageStatus.setImageResource(R.drawable.ic_double_check);
-                            msgHolder.ivMessageStatus.setImageTintList(ColorStateList.valueOf(Color.parseColor("#D8EEFF"))); // Light Blue Gray
+                            msgHolder.ivMessageStatus.setImageTintList(ColorStateList.valueOf(androidx.core.content.ContextCompat.getColor(context, R.color.msg_sender_status_delivered)));
                         } else {
                             msgHolder.ivMessageStatus.setImageResource(R.drawable.ic_single_check);
-                            msgHolder.ivMessageStatus.setImageTintList(ColorStateList.valueOf(Color.parseColor("#D8EEFF"))); // Light Blue Gray
+                            msgHolder.ivMessageStatus.setImageTintList(ColorStateList.valueOf(androidx.core.content.ContextCompat.getColor(context, R.color.msg_sender_status_delivered)));
                         }
                     }
                 } else {
@@ -948,9 +944,9 @@ public class ChatActivity extends AppCompatActivity {
                     lp.removeRule(RelativeLayout.ALIGN_PARENT_START);
                     lp.setMargins(0, 0, (int) (64 * density), 0);
 
-                    msgHolder.cardMessageBubble.setCardBackgroundColor(ColorStateList.valueOf(Color.parseColor("#F0F2F5")));
-                    msgHolder.tvMessageText.setTextColor(Color.parseColor("#0F172A"));
-                    msgHolder.tvMessageTime.setTextColor(Color.parseColor("#65676B"));
+                    msgHolder.cardMessageBubble.setCardBackgroundColor(ColorStateList.valueOf(androidx.core.content.ContextCompat.getColor(context, R.color.msg_receiver_bg)));
+                    msgHolder.tvMessageText.setTextColor(androidx.core.content.ContextCompat.getColor(context, R.color.msg_receiver_text));
+                    msgHolder.tvMessageTime.setTextColor(androidx.core.content.ContextCompat.getColor(context, R.color.msg_receiver_time));
 
                     msgHolder.cardMessageBubble.setShapeAppearanceModel(
                         msgHolder.cardMessageBubble.getShapeAppearanceModel().toBuilder()
@@ -967,6 +963,8 @@ public class ChatActivity extends AppCompatActivity {
 
                     msgHolder.ivUserAvatar.setVisibility(View.VISIBLE);
                     if (otherUserProfileImageUrl != null && !otherUserProfileImageUrl.isEmpty()) {
+                        msgHolder.ivUserAvatar.setImageTintList(null);
+                        msgHolder.ivUserAvatar.setPadding(0, 0, 0, 0);
                         GlideApp.with(context)
                                 .load(otherUserProfileImageUrl)
                                 .placeholder(R.drawable.ic_user)
@@ -975,6 +973,9 @@ public class ChatActivity extends AppCompatActivity {
                                 .into(msgHolder.ivUserAvatar);
                     } else {
                         msgHolder.ivUserAvatar.setImageResource(R.drawable.ic_user);
+                        msgHolder.ivUserAvatar.setImageTintList(ColorStateList.valueOf(androidx.core.content.ContextCompat.getColor(context, R.color.avatar_icon_tint)));
+                        int padding = (int) (4 * density);
+                        msgHolder.ivUserAvatar.setPadding(padding, padding, padding, padding);
                     }
 
                     msgHolder.ivUserAvatar.setOnClickListener(v -> {

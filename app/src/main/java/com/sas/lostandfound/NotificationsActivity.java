@@ -58,6 +58,16 @@ public class NotificationsActivity extends AppCompatActivity {
         btnMarkAllRead = findViewById(R.id.btnMarkAllRead);
         swipeRefreshLayout = findViewById(R.id.swipeRefreshLayout);
         
+        android.widget.TextView tvToolbarTitle = findViewById(R.id.tvToolbarTitle);
+        if (tvToolbarTitle != null) {
+            tvToolbarTitle.setText(isAdminMode ? "Admin Notifications" : "Notifications");
+        }
+
+        android.widget.TextView tvEmptyStateDesc = findViewById(R.id.tvEmptyStateDesc);
+        if (tvEmptyStateDesc != null && isAdminMode) {
+            tvEmptyStateDesc.setText("We'll notify you here when new user reports or admin requests arrive.");
+        }
+        
         AppBarLayout appBarLayout = findViewById(R.id.appBarLayout);
         if (appBarLayout != null) {
             HeaderColorHelper.setup(this, appBarLayout, toolbar);
@@ -221,20 +231,58 @@ public class NotificationsActivity extends AppCompatActivity {
         SupabaseDatabaseHelper.select("notifications", "recipient_id=eq." + userId + "&" + typeFilter, new TypeToken<List<Notification>>(){}.getType(), new SupabaseDatabaseHelper.DatabaseCallback<List<Notification>>() {
             @Override
             public void onSuccess(List<Notification> notifications) {
-                List<Notification> temp = new ArrayList<>();
+                final List<String> senderIds = new ArrayList<>();
                 if (notifications != null) {
-                    temp.addAll(notifications);
+                    for (Notification n : notifications) {
+                        String sId = n.getSenderId();
+                        if (sId != null && !sId.trim().isEmpty() && !senderIds.contains(sId)) {
+                            senderIds.add(sId);
+                        }
+                    }
                 }
-                Collections.sort(temp, (n1, n2) -> Long.compare(n2.getTimestamp(), n1.getTimestamp()));
                 
-                adapter.updateNotifications(temp);
-                
-                llEmptyState.setVisibility(notificationList.isEmpty() ? View.VISIBLE : View.GONE);
-                rvNotifications.setVisibility(notificationList.isEmpty() ? View.GONE : View.VISIBLE);
-                checkUnreadStatus();
-                
-                isFetching = false;
-                if (swipeRefreshLayout != null) swipeRefreshLayout.setRefreshing(false);
+                if (!senderIds.isEmpty()) {
+                    StringBuilder filterBuilder = new StringBuilder("university_id=in.(");
+                    for (int i = 0; i < senderIds.size(); i++) {
+                        filterBuilder.append(senderIds.get(i));
+                        if (i < senderIds.size() - 1) {
+                            filterBuilder.append(",");
+                        }
+                    }
+                    filterBuilder.append(")");
+                    
+                    SupabaseDatabaseHelper.select("profiles", filterBuilder.toString(), new TypeToken<List<User>>(){}.getType(), new SupabaseDatabaseHelper.DatabaseCallback<List<User>>() {
+                        @Override
+                        public void onSuccess(List<User> users) {
+                            java.util.Map<String, String> profileImageMap = new java.util.HashMap<>();
+                            if (users != null) {
+                                for (User u : users) {
+                                    if (u.getUniversityId() != null) {
+                                        profileImageMap.put(u.getUniversityId(), u.getProfileImageUrl());
+                                    }
+                                }
+                            }
+                            
+                            if (notifications != null) {
+                                for (Notification n : notifications) {
+                                    String sId = n.getSenderId();
+                                    String imgUrl = profileImageMap.get(sId);
+                                    if (imgUrl != null && !imgUrl.trim().isEmpty() && !"null".equalsIgnoreCase(imgUrl.trim())) {
+                                        n.setSenderImageUrl(imgUrl);
+                                    }
+                                }
+                            }
+                            displayLoadedNotifications(notifications);
+                        }
+                        
+                        @Override
+                        public void onFailure(String e) {
+                            displayLoadedNotifications(notifications);
+                        }
+                    });
+                } else {
+                    displayLoadedNotifications(notifications);
+                }
             }
 
             @Override
@@ -243,6 +291,23 @@ public class NotificationsActivity extends AppCompatActivity {
                 if (swipeRefreshLayout != null) swipeRefreshLayout.setRefreshing(false);
             }
         });
+    }
+
+    private void displayLoadedNotifications(List<Notification> notifications) {
+        List<Notification> temp = new ArrayList<>();
+        if (notifications != null) {
+            temp.addAll(notifications);
+        }
+        Collections.sort(temp, (n1, n2) -> Long.compare(n2.getTimestamp(), n1.getTimestamp()));
+        
+        adapter.updateNotifications(temp);
+        
+        llEmptyState.setVisibility(notificationList.isEmpty() ? View.VISIBLE : View.GONE);
+        rvNotifications.setVisibility(notificationList.isEmpty() ? View.GONE : View.VISIBLE);
+        checkUnreadStatus();
+        
+        isFetching = false;
+        if (swipeRefreshLayout != null) swipeRefreshLayout.setRefreshing(false);
     }
 
     private void checkUnreadStatus() {

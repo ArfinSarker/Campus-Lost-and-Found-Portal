@@ -1,11 +1,32 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <!-- Profile Page Specific Colors -->
+    <color name="profile_background">#F8FAFC</color>
+    <color name="profile_card_bg">#FFFFFF</color>
+    <color name="profile_card_stroke">#CBD5E1</color>
+    <color name="profile_text_primary">#0F172A</color>
+    <color name="profile_text_secondary">#475569</color>
+
+    <!-- Admin Request Cards Specific Colors -->
+    <color name="admin_request_card_bg">#FFFFFF</color>
+    <color name="admin_request_card_stroke">#CBD5E1</color>
+    <color name="admin_request_text_primary">#0F172A</color>
+    <color name="admin_request_text_secondary">#475569</color>
+    <color name="admin_request_icon_email">#EA4335</color>
+    <color name="admin_request_icon_phone">#34A853</color>
+    <color name="admin_request_code_bg">#FFF7ED</color>
+    <color name="admin_request_code_text">#9A3412</color>
+    <color name="admin_request_deny_btn_stroke">#DC2626</color>
+    <color name="admin_request_deny_btn_text">#DC2626</color>
+    <color name="admin_request_accept_btn_bg">#2563EB</color>
+
     <!-- Brand Colors - Telegram X Style -->
     <color name="primaryColor">#2AABEE</color>
     <color name="primaryDarkColor">#229ED9</color>
     <color name="primaryLightColor">#D1E1FF</color>
     <color name="accentColor">#2AABEE</color>
     <color name="secondaryColor">#34C759</color>
+    <color name="powder_blue">#B0E0E6</color>
 
     <!-- Background and Surface -->
     <color name="backgroundColor">#FFFFFF</color>
@@ -15,6 +36,63 @@
     <color name="windowBackground">#FFFFFF</color>
     <color name="chatBackground">#F7F9FC</color>
     <color name="inputBackground">#F1F3F5</color>
+    
+    <!-- Upload Section Colors -->
+    <color name="upload_bg">#F8FAFC</color>
+    <color name="upload_border">#CBD5E1</color>
+    
+    <!-- Dropdown Colors -->
+    <color name="dropdown_popup_bg">#FFFFFF</color>
+    <color name="dropdown_item_pressed">#E2E8F0</color>
+    <color name="dropdown_item_hovered">#F1F5F9</color>
+    <color name="dropdown_item_selected">#EFF6FF</color>
+    
+    <!-- Exact Mapping Design Tokens to Preserve Light Theme -->
+    <color name="bg_f8fafc">#F8FAFC</color>
+    <color name="bg_f1f5f9">#F1F5F9</color>
+    <color name="divider_e2e8f0">#E2E8F0</color>
+    <color name="divider_e5e7eb">#E5E7EB</color>
+    <color name="divider_eeeeee">#EEEEEE</color>
+    <color name="text_0f172a">#0F172A</color>
+    <color name="text_1e293b">#1E293B</color>
+    <color name="text_334155">#334155</color>
+    <color name="text_475569">#475569</color>
+    <color name="text_64748b">#64748B</color>
+    <color name="text_94a3b8">#94A3B8</color>
+    <color name="text_black_dynamic">#000000</color>
+    <color name="text_1d1f24">#1D1F24</color>
+    <color name="tint_64748b">#64748B</color>
+    <color name="tint_ff3b30">#FF3B30</color>
+    <color name="cardBackgroundColor">#FFFFFF</color>
+
+    <!-- Badge Background and Icon Colors -->
+    <color name="related_report_badge_bg">@color/blue_badge_bg</color>
+    <color name="related_report_badge_stroke">#DBEAFE</color>
+    <color name="blue_badge_bg">#EFF6FF</color>
+    <color name="red_badge_bg">#FEF2F2</color>
+    <color name="orange_badge_bg">#FFF7ED</color>
+    <color name="green_badge_bg">#F0FDF4</color>
+    <color name="blue_badge_icon">#2563EB</color>
+    <color name="red_badge_icon">#EF4444</color>
+    <color name="orange_badge_icon">#EA580C</color>
+    <color name="green_badge_icon">#16A34A</color>
+    <color name="rose_badge_icon">#E11D48</color>
+    <color name="purple_badge_icon">#7C3AED</color>
+    <color name="purple_badge_bg">#F3E5F5</color>
+    <color name="dashboard_btn_bg">#1A2AABEE</color>
+
+    <!-- Logout Buttons -->
+    <color name="logout_text_color">#DC2626</color>
+    <color name="logout_stroke_color">#FCA5A5</color>
+
+    <!-- Timeline Status Colors -->
+    <color name="timeline_green">#10B981</color>
+    <color name="timeline_green_bg">#ECFDF5</color>
+    <color name="timeline_orange">#F59E0B</color>
+    <color name="timeline_orange_bg">#FFFBEB</color>
+    <color name="timeline_gray">#94A3B8</color>
+    <color name="timeline_gray_bg">#F1F5F9</color>
+    <color name="timeline_line_inactive">#E2E8F0</color>
 
     <!-- Text Colors -->
     <color name="textPrimary">#111111</color>
@@ -84,8 +162,38 @@
     <color name="infoColor">#2196F3</color>
     <color name="generalColor">#424242</color>
 
+    <!-- Premium Time/Date Picker Colors -->
+    <color name="picker_dialog_bg">#F5FAFF</color>
+    <color name="picker_primary_blue">#15B5FF</color>
+    <color name="picker_secondary_blue">#15B5FF</color>
+    <color name="picker_light_blue">#EAF4FF</color>
+
+    <!-- Text Colors -->
+    <color name="picker_text_primary">#000000</color>
+    <color name="picker_text_secondary">#ffffff</color>
+    <color name="picker_text_dark_navy">#000000</color>
+
+    <!-- Optional -->
+    <color name="picker_text_black">#000000</color>
+    <color name="picker_text_disabled">#000000</color>
+
     <!-- Standard Colors -->
     <color name="white">#FFFFFF</color>
     <color name="black">#000000</color>
     <color name="transparent">#00000000</color>
+    
+    <!-- Messaging Section Colors -->
+    <color name="msg_sender_bg">#0084FF</color>
+    <color name="msg_sender_text">#FFFFFF</color>
+    <color name="msg_sender_time">#D8EEFF</color>
+    <color name="msg_sender_status_read">#00FFFF</color>
+    <color name="msg_sender_status_delivered">#D8EEFF</color>
+    <color name="msg_receiver_bg">#F0F2F5</color>
+    <color name="msg_receiver_text">#0F172A</color>
+    <color name="msg_receiver_time">#65676B</color>
+    <color name="chat_disabled_send_bg">#94A3B8</color>
+    
+    <!-- Avatar Colors -->
+    <color name="avatar_bg">#E2E8F0</color>
+    <color name="avatar_icon_tint">#64748B</color>
 </resources>

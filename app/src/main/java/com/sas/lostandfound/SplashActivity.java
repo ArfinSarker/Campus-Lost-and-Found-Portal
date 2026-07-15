@@ -135,7 +135,14 @@ public class SplashActivity extends AppCompatActivity {
     private void proceedToDashboard(User user) {
         Intent intent;
         if (user != null) {
-            intent = new Intent(SplashActivity.this, CampusDashboardActivity.class);
+            SharedPreferences prefs = getSharedPreferences("MyApp", MODE_PRIVATE);
+            boolean isAdmin = prefs.getBoolean("isAdminLoggedIn", false);
+            String activeMode = prefs.getString("activeMode", "user");
+            if (isAdmin && "admin".equals(activeMode)) {
+                intent = new Intent(SplashActivity.this, AdminDashboardActivity.class);
+            } else {
+                intent = new Intent(SplashActivity.this, CampusDashboardActivity.class);
+            }
             copyNotificationExtras(getIntent(), intent);
         } else {
             intent = new Intent(SplashActivity.this, DashboardActivity.class);
@@ -149,7 +156,13 @@ public class SplashActivity extends AppCompatActivity {
         
         Intent intent;
         if (!userType.isEmpty()) {
-            intent = new Intent(SplashActivity.this, CampusDashboardActivity.class);
+            boolean isAdmin = prefs.getBoolean("isAdminLoggedIn", false);
+            String activeMode = prefs.getString("activeMode", "user");
+            if (isAdmin && "admin".equals(activeMode)) {
+                intent = new Intent(SplashActivity.this, AdminDashboardActivity.class);
+            } else {
+                intent = new Intent(SplashActivity.this, CampusDashboardActivity.class);
+            }
             copyNotificationExtras(getIntent(), intent);
         } else {
             intent = new Intent(SplashActivity.this, DashboardActivity.class);

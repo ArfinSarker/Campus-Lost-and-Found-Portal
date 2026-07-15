@@ -5,8 +5,12 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_marginBottom="8dp"
-    app:cardCornerRadius="12dp"
-    app:cardElevation="2dp"
+    android:clickable="true"
+    android:focusable="true"
+    android:foreground="?attr/selectableItemBackground"
+    app:cardBackgroundColor="@color/surfaceColor"
+    app:cardCornerRadius="16dp"
+    app:cardElevation="0dp"
     app:strokeColor="@color/dividerColor"
     app:strokeWidth="1dp">
 
@@ -15,14 +19,15 @@
         android:layout_height="wrap_content"
         android:gravity="center_vertical"
         android:orientation="horizontal"
-        android:padding="12dp">
+        android:padding="14dp">
 
         <com.google.android.material.imageview.ShapeableImageView
             android:id="@+id/ivUserProfile"
             android:layout_width="56dp"
             android:layout_height="56dp"
+            android:background="@drawable/bg_circle_avatar"
             android:scaleType="centerCrop"
-            android:src="@drawable/ic_user"
+            android:src="@drawable/ic_admin_user_placeholder"
             app:shapeAppearanceOverlay="@style/ShapeAppearance.App.Circle"
             app:strokeColor="@color/dividerColor"
             app:strokeWidth="1dp" />
@@ -39,6 +44,7 @@
                 style="@style/TextAppearance.App.SectionTitle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:textColor="@color/textPrimary"
                 android:textSize="16sp"
                 android:textStyle="bold"
                 tools:text="John Doe" />
@@ -52,7 +58,6 @@
                 android:textColor="@color/textSecondary"
                 tools:text="ID: 0802410205101019" />
         </LinearLayout>
-
 
     </LinearLayout>
 </com.google.android.material.card.MaterialCardView>

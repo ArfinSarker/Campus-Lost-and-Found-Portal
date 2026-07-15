@@ -154,7 +154,14 @@ public class DashboardActivity extends AppCompatActivity {
                     if (users != null && !users.isEmpty()) {
                         User user = users.get(0);
                         if (user != null) {
-                            Intent intent = new Intent(DashboardActivity.this, CampusDashboardActivity.class);
+                            boolean isAdmin = prefs.getBoolean("isAdminLoggedIn", false);
+                            String activeMode = prefs.getString("activeMode", "user");
+                            Intent intent;
+                            if (isAdmin && "admin".equals(activeMode)) {
+                                intent = new Intent(DashboardActivity.this, AdminDashboardActivity.class);
+                            } else {
+                                intent = new Intent(DashboardActivity.this, CampusDashboardActivity.class);
+                            }
                             intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
                             startActivity(intent);
                             finish();
@@ -166,10 +173,18 @@ public class DashboardActivity extends AppCompatActivity {
         } else {
             // Already handled in CampusDashboardActivity for logged in users.
             // If they reach here, it might be an old session or something.
-            // For safety, redirect to CampusDashboardActivity which will then handle role-based navigation.
+            // For safety, redirect to CampusDashboardActivity (or AdminDashboardActivity if admin was active) which will then handle role-based navigation.
             SharedPreferences prefs1 = getSharedPreferences("MyApp", MODE_PRIVATE);
             if (!prefs1.getString("universityId", "").isEmpty()) {
-                startActivity(new Intent(this, CampusDashboardActivity.class));
+                boolean isAdmin = prefs1.getBoolean("isAdminLoggedIn", false);
+                String activeMode = prefs1.getString("activeMode", "user");
+                Intent intent;
+                if (isAdmin && "admin".equals(activeMode)) {
+                    intent = new Intent(DashboardActivity.this, AdminDashboardActivity.class);
+                } else {
+                    intent = new Intent(DashboardActivity.this, CampusDashboardActivity.class);
+                }
+                startActivity(intent);
                 finish();
             }
         }

@@ -135,7 +135,7 @@
             <View
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
-                android:background="#E5E7EB" />
+                android:background="@color/divider_e5e7eb" />
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -152,8 +152,8 @@
                     app:cardCornerRadius="22dp"
                     app:cardElevation="0dp"
                     app:strokeWidth="1dp"
-                    app:strokeColor="#E5E7EB"
-                    app:cardBackgroundColor="#F3F4F6"
+                    app:strokeColor="@color/divider_e5e7eb"
+                    app:cardBackgroundColor="@color/inputBackground"
                     android:layout_marginEnd="12dp">
 
                     <EditText
@@ -165,7 +165,7 @@
                         android:paddingHorizontal="16dp"
                         android:paddingVertical="10dp"
                         android:hint="@string/hint_type_message"
-                        android:textColorHint="#64748B"
+                        android:textColorHint="@color/text_64748b"
                         android:background="@null"
                         android:inputType="textShortMessage|textAutoCorrect|textCapSentences|textMultiLine"
                         android:textColor="@color/textPrimary"
@@ -207,7 +207,7 @@
             <View
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
-                android:background="#E5E7EB" />
+                android:background="@color/divider_e5e7eb" />
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -224,7 +224,7 @@
                     android:layout_weight="1"
                     android:layout_marginEnd="8dp"
                     android:text="Decline"
-                    android:backgroundTint="#FF3B30"
+                    android:backgroundTint="@color/statusLost"
                     android:textColor="@color/white"
                     app:icon="@drawable/ic_close"
                     app:iconTint="@color/white"
@@ -237,7 +237,7 @@
                     android:layout_weight="1"
                     android:layout_marginStart="8dp"
                     android:text="Accept"
-                    android:backgroundTint="#34C759"
+                    android:backgroundTint="@color/statusFound"
                     android:textColor="@color/white"
                     app:icon="@drawable/ic_check"
                     app:iconTint="@color/white"

@@ -110,24 +110,28 @@
                         android:gravity="center_vertical"
                         android:orientation="horizontal">
 
+                        <!-- Status Badge Overlay (Left) -->
                         <com.google.android.material.card.MaterialCardView
-                            android:id="@+id/cardBadge"
+                            android:id="@+id/cardStatusBadge"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            app:cardBackgroundColor="@color/lost_bg"
-                            app:cardCornerRadius="8dp"
-                            app:cardElevation="0dp">
+                            app:cardCornerRadius="100dp"
+                            app:cardElevation="3dp"
+                            app:strokeWidth="1.5dp"
+                            app:strokeColor="#FFFFFF">
 
                             <TextView
-                                android:id="@+id/tvStatus"
-                                style="@style/TextAppearance.App.Small"
+                                android:id="@+id/tvStatusBadge"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:paddingHorizontal="12dp"
-                                android:paddingVertical="4dp"
-                                android:textColor="@color/statusLost"
-                                android:textStyle="bold"
-                                tools:text="Lost" />
+                                android:paddingVertical="5dp"
+                                android:textAllCaps="true"
+                                android:textColor="@color/white"
+                                android:textSize="10sp"
+                                android:letterSpacing="0.08"
+                                android:fontFamily="sans-serif-medium"
+                                tools:text="PENDING" />
                         </com.google.android.material.card.MaterialCardView>
 
                         <View
@@ -135,27 +139,28 @@
                             android:layout_height="0dp"
                             android:layout_weight="1" />
 
+                        <!-- Report ID Badge Overlay (Right) -->
                         <com.google.android.material.card.MaterialCardView
                             android:id="@+id/cardReportId"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            app:cardBackgroundColor="#E3F2FD"
-                            app:cardCornerRadius="12dp"
-                            app:cardElevation="2dp"
-                            app:strokeColor="@color/primaryColor"
-                            app:strokeWidth="1.5dp">
+                            app:cardBackgroundColor="#CC0F172A"
+                            app:cardCornerRadius="100dp"
+                            app:cardElevation="3dp"
+                            app:strokeWidth="1dp"
+                            app:strokeColor="#33FFFFFF">
 
                             <TextView
-                                android:id="@+id/tvDetailReportId"
-                                style="@style/TextAppearance.App.Small"
+                                android:id="@+id/tvDisplayId"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:paddingHorizontal="14dp"
-                                android:paddingVertical="6dp"
-                                android:textColor="@color/primaryColor"
-                                android:textSize="11sp"
-                                android:textStyle="bold"
-                                tools:text="L1" />
+                                android:paddingHorizontal="12dp"
+                                android:paddingVertical="5dp"
+                                android:textColor="@color/white"
+                                android:textSize="10sp"
+                                android:letterSpacing="0.06"
+                                android:fontFamily="sans-serif-medium"
+                                tools:text="#R1" />
                         </com.google.android.material.card.MaterialCardView>
 
                         <!-- Edited Label for Admin -->
@@ -165,10 +170,10 @@
                             android:layout_height="wrap_content"
                             android:layout_marginStart="8dp"
                             android:visibility="gone"
-                            app:cardBackgroundColor="#FFF3E0"
+                            app:cardBackgroundColor="@color/orange_badge_bg"
                             app:cardCornerRadius="4dp"
                             app:cardElevation="0dp"
-                            app:strokeColor="#FFE0B2"
+                            app:strokeColor="@color/orange_badge_icon"
                             app:strokeWidth="1dp">
 
                             <TextView
@@ -177,7 +182,7 @@
                                 android:paddingHorizontal="8dp"
                                 android:paddingVertical="2dp"
                                 android:text="Edited"
-                                android:textColor="#E65100"
+                                android:textColor="@color/orange_badge_icon"
                                 android:textSize="11sp"
                                 android:textStyle="bold" />
                         </com.google.android.material.card.MaterialCardView>

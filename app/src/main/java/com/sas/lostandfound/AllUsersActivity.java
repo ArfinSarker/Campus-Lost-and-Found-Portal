@@ -279,13 +279,13 @@ public class AllUsersActivity extends AppCompatActivity {
             if (user.getProfileImageUrl() != null && !user.getProfileImageUrl().isEmpty()) {
                 GlideApp.with(holder.itemView.getContext())
                         .load(user.getProfileImageUrl())
-                        .placeholder(R.drawable.ic_user)
+                        .placeholder(R.drawable.ic_admin_user_placeholder)
                         .thumbnail(0.1f)
                         .diskCacheStrategy(DiskCacheStrategy.ALL)
                         .circleCrop()
                         .into(holder.ivProfile);
             } else {
-                holder.ivProfile.setImageResource(R.drawable.ic_user);
+                holder.ivProfile.setImageResource(R.drawable.ic_admin_user_placeholder);
             }
 
             holder.itemView.setOnClickListener(v -> {

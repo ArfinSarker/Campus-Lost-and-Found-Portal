@@ -197,7 +197,7 @@ public class AdminDashboardActivity extends AppCompatActivity {
             intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
             startActivity(intent);
             finish();
-            overridePendingTransition(R.anim.material_shared_axis_z_pop_enter, R.anim.material_shared_axis_z_pop_exit);
+            overridePendingTransition(R.anim.dash_transition_pop_enter, R.anim.dash_transition_pop_exit);
         });
 
         btnNotifications.setOnClickListener(v -> {
@@ -345,6 +345,13 @@ public class AdminDashboardActivity extends AppCompatActivity {
                 }
             }
         });
+    }
+
+    @Override
+    public void onBackPressed() {
+        // Prevent going back to the User Dashboard by minimizing the app (moving the task to the back).
+        // This makes the Admin Dashboard behave as the active root screen.
+        moveTaskToBack(true);
     }
 
 }
