@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="190dp"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:background="@drawable/bg_chat_menu"
+    android:padding="6dp">
+
+    <!-- Option 1: User Profile -->
+    <LinearLayout
+        android:id="@+id/menu_user_profile"
+        android:layout_width="match_parent"
+        android:layout_height="44dp"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:paddingHorizontal="12dp"
+        android:background="@drawable/bg_chat_menu_item_selector"
+        android:clickable="true"
+        android:focusable="true">
+
+        <ImageView
+            android:id="@+id/icon_user_profile"
+            android:layout_width="18dp"
+            android:layout_height="18dp"
+            android:layout_marginEnd="12dp"
+            android:src="@drawable/ic_user"
+            android:contentDescription="@null"
+            android:tint="@color/chat_menu_profile_icon" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="User Profile"
+            android:textColor="@color/chat_menu_profile_text"
+            android:textSize="14sp"
+            android:textStyle="bold" />
+    </LinearLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_marginVertical="2dp"
+        android:background="@color/chat_menu_divider" />
+
+    <!-- Option 2: Report Details -->
+    <LinearLayout
+        android:id="@+id/menu_report_details"
+        android:layout_width="match_parent"
+        android:layout_height="44dp"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:paddingHorizontal="12dp"
+        android:background="@drawable/bg_chat_menu_item_selector"
+        android:clickable="true"
+        android:focusable="true">
+
+        <ImageView
+            android:id="@+id/icon_report_details"
+            android:layout_width="18dp"
+            android:layout_height="18dp"
+            android:layout_marginEnd="12dp"
+            android:src="@drawable/ic_file_text"
+            android:contentDescription="@null"
+            android:tint="@color/chat_menu_report_icon" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Report Details"
+            android:textColor="@color/chat_menu_report_text"
+            android:textSize="14sp"
+            android:textStyle="bold" />
+    </LinearLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_marginVertical="2dp"
+        android:background="@color/chat_menu_divider" />
+
+    <!-- Option 3: Block User -->
+    <LinearLayout
+        android:id="@+id/menu_block_user"
+        android:layout_width="match_parent"
+        android:layout_height="44dp"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:paddingHorizontal="12dp"
+        android:background="@drawable/bg_chat_menu_item_selector"
+        android:clickable="true"
+        android:focusable="true">
+
+        <ImageView
+            android:id="@+id/icon_block_user"
+            android:layout_width="18dp"
+            android:layout_height="18dp"
+            android:layout_marginEnd="12dp"
+            android:src="@drawable/ic_block"
+            android:contentDescription="@null"
+            android:tint="@color/chat_menu_block_icon" />
+
+        <TextView
+            android:id="@+id/text_block_user"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Block User"
+            android:textColor="@color/chat_menu_block_text"
+            android:textSize="14sp"
+            android:textStyle="bold" />
+    </LinearLayout>
+
+</LinearLayout>

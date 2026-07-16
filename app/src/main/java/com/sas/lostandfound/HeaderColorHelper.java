@@ -116,7 +116,7 @@ public class HeaderColorHelper {
             );
             separatorParams.setScrollFlags(0); // static locking
             separator.setLayoutParams(separatorParams);
-            int dividerColor = lightStatusBar ? Color.parseColor("#E2E8F0") : Color.parseColor("#2D2D2D");
+            int dividerColor = lightStatusBar ? Color.parseColor("#E2E8F0") : startColor;
             separator.setBackgroundColor(dividerColor);
             
             // On User Dashboard (where TabLayout exists), do not shift the separator line up too much.

@@ -155,10 +155,13 @@ public class ChatActivity extends AppCompatActivity {
     private void setupToolbar() {
         setSupportActionBar(toolbar);
         if (getSupportActionBar() != null) {
-            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+            getSupportActionBar().setDisplayHomeAsUpEnabled(false);
             getSupportActionBar().setDisplayShowTitleEnabled(false);
         }
-        toolbar.setNavigationOnClickListener(v -> finish());
+        View btnBack = findViewById(R.id.btnBack);
+        if (btnBack != null) {
+            btnBack.setOnClickListener(v -> finish());
+        }
 
         tvHeaderName.setText(otherUserName != null ? otherUserName : "Chat");
         
@@ -170,7 +173,10 @@ public class ChatActivity extends AppCompatActivity {
 
         com.google.android.material.appbar.AppBarLayout appBarLayout = findViewById(R.id.appBarLayout);
         if (appBarLayout != null) {
-            HeaderColorHelper.setup(this, appBarLayout, toolbar);
+            int headerColor = androidx.core.content.ContextCompat.getColor(this, R.color.chat_header_bg);
+            boolean isNightMode = (getResources().getConfiguration().uiMode & android.content.res.Configuration.UI_MODE_NIGHT_MASK) 
+                    == android.content.res.Configuration.UI_MODE_NIGHT_YES;
+            HeaderColorHelper.setup(this, appBarLayout, headerColor, headerColor, !isNightMode);
         }
     }
 
@@ -248,13 +254,21 @@ public class ChatActivity extends AppCompatActivity {
                     tvHeaderName.setText(otherUserName);
                     
                     String imgUrl = user.getProfileImageUrl();
+                    float density = getResources().getDisplayMetrics().density;
                     if (imgUrl != null && !imgUrl.isEmpty()) {
+                        ivHeaderAvatar.setImageTintList(null);
+                        ivHeaderAvatar.setPadding(0, 0, 0, 0);
                         GlideApp.with(ChatActivity.this)
                                 .load(imgUrl)
-                                .placeholder(R.drawable.ic_user)
+                                .placeholder(R.drawable.ic_user_placeholder_white)
                                 .diskCacheStrategy(DiskCacheStrategy.ALL)
                                 .circleCrop()
                                 .into(ivHeaderAvatar);
+                    } else {
+                        ivHeaderAvatar.setImageResource(R.drawable.ic_user_placeholder_white);
+                        ivHeaderAvatar.setImageTintList(ColorStateList.valueOf(androidx.core.content.ContextCompat.getColor(ChatActivity.this, R.color.white)));
+                        int padding = (int) (6 * density);
+                        ivHeaderAvatar.setPadding(padding, padding, padding, padding);
                     }
                     if (adapter != null) {
                         adapter.setOtherUserProfileImageUrl(imgUrl);
@@ -267,9 +281,9 @@ public class ChatActivity extends AppCompatActivity {
                             if (!android.text.TextUtils.isEmpty(statusText)) {
                                 tvHeaderStatus.setText(statusText);
                                 if ("Active now".equals(statusText)) {
-                                    tvHeaderStatus.setTextColor(androidx.core.content.ContextCompat.getColor(ChatActivity.this, R.color.statusFound));
+                                    tvHeaderStatus.setTextColor(androidx.core.content.ContextCompat.getColor(ChatActivity.this, R.color.chat_header_last_active));
                                 } else {
-                                    tvHeaderStatus.setTextColor(defaultHeaderStatusColor);
+                                    tvHeaderStatus.setTextColor(androidx.core.content.ContextCompat.getColor(ChatActivity.this, R.color.chat_header_last_seen));
                                 }
                                 tvHeaderStatus.setVisibility(View.VISIBLE);
                             } else {
@@ -414,28 +428,46 @@ public class ChatActivity extends AppCompatActivity {
     }
 
     private void showSettingsMenu(View anchor) {
-        PopupMenu popup = new PopupMenu(this, anchor);
-        popup.getMenu().add(0, 1, 0, "User Profile");
-        popup.getMenu().add(0, 2, 1, "Report Details");
+        View popupView = LayoutInflater.from(this).inflate(R.layout.layout_chat_settings_menu, null);
         
-        String blockOption = isOtherUserBlockedByMe ? "Unblock User" : "Block User";
-        popup.getMenu().add(0, 3, 2, blockOption);
-        
-        popup.setOnMenuItemClickListener(item -> {
-            int itemId = item.getItemId();
-            if (itemId == 1) {
+        final android.widget.PopupWindow popupWindow = new android.widget.PopupWindow(
+                popupView,
+                ViewGroup.LayoutParams.WRAP_CONTENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT,
+                true
+        );
+
+        TextView textBlockUser = popupView.findViewById(R.id.text_block_user);
+        if (textBlockUser != null) {
+            textBlockUser.setText(isOtherUserBlockedByMe ? "Unblock User" : "Block User");
+        }
+
+        View menuUserProfile = popupView.findViewById(R.id.menu_user_profile);
+        if (menuUserProfile != null) {
+            menuUserProfile.setOnClickListener(v -> {
+                popupWindow.dismiss();
                 openOtherUserProfile();
-                return true;
-            } else if (itemId == 2) {
+            });
+        }
+
+        View menuReportDetails = popupView.findViewById(R.id.menu_report_details);
+        if (menuReportDetails != null) {
+            menuReportDetails.setOnClickListener(v -> {
+                popupWindow.dismiss();
                 queryAndOpenReportDetails();
-                return true;
-            } else if (itemId == 3) {
+            });
+        }
+
+        View menuBlockUser = popupView.findViewById(R.id.menu_block_user);
+        if (menuBlockUser != null) {
+            menuBlockUser.setOnClickListener(v -> {
+                popupWindow.dismiss();
                 toggleUserBlock();
-                return true;
-            }
-            return false;
-        });
-        popup.show();
+            });
+        }
+
+        popupWindow.setElevation(8f);
+        popupWindow.showAsDropDown(anchor, 0, 10);
     }
 
     private void showProfileContextMenu(View anchor) {
@@ -934,7 +966,7 @@ public class ChatActivity extends AppCompatActivity {
                             msgHolder.ivMessageStatus.setImageTintList(ColorStateList.valueOf(androidx.core.content.ContextCompat.getColor(context, R.color.msg_sender_status_delivered)));
                         } else {
                             msgHolder.ivMessageStatus.setImageResource(R.drawable.ic_single_check);
-                            msgHolder.ivMessageStatus.setImageTintList(ColorStateList.valueOf(androidx.core.content.ContextCompat.getColor(context, R.color.msg_sender_status_delivered)));
+                            msgHolder.ivMessageStatus.setImageTintList(ColorStateList.valueOf(androidx.core.content.ContextCompat.getColor(context, R.color.msg_sender_status_sent)));
                         }
                     }
                 } else {
@@ -967,13 +999,13 @@ public class ChatActivity extends AppCompatActivity {
                         msgHolder.ivUserAvatar.setPadding(0, 0, 0, 0);
                         GlideApp.with(context)
                                 .load(otherUserProfileImageUrl)
-                                .placeholder(R.drawable.ic_user)
+                                .placeholder(R.drawable.ic_user_placeholder_white)
                                 .diskCacheStrategy(DiskCacheStrategy.ALL)
                                 .circleCrop()
                                 .into(msgHolder.ivUserAvatar);
                     } else {
-                        msgHolder.ivUserAvatar.setImageResource(R.drawable.ic_user);
-                        msgHolder.ivUserAvatar.setImageTintList(ColorStateList.valueOf(androidx.core.content.ContextCompat.getColor(context, R.color.avatar_icon_tint)));
+                        msgHolder.ivUserAvatar.setImageResource(R.drawable.ic_user_placeholder_white);
+                        msgHolder.ivUserAvatar.setImageTintList(ColorStateList.valueOf(androidx.core.content.ContextCompat.getColor(context, R.color.white)));
                         int padding = (int) (4 * density);
                         msgHolder.ivUserAvatar.setPadding(padding, padding, padding, padding);
                     }

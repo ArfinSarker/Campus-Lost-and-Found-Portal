@@ -349,14 +349,15 @@
     <color name="transparent">#00000000</color>
     
     <!-- Messaging Section Colors -->
-    <color name="msg_sender_bg">#0084FF</color>
+    <color name="msg_sender_bg">#3B82F6</color>
     <color name="msg_sender_text">#FFFFFF</color>
-    <color name="msg_sender_time">#D8EEFF</color>
-    <color name="msg_sender_status_read">#00FFFF</color>
-    <color name="msg_sender_status_delivered">#D8EEFF</color>
-    <color name="msg_receiver_bg">#F0F2F5</color>
+    <color name="msg_sender_time">#DBEAFE</color>
+    <color name="msg_sender_status_read">#FFFFFF</color>
+    <color name="msg_sender_status_delivered">#DBEAFE</color>
+    <color name="msg_sender_status_sent">#BFDBFE</color>
+    <color name="msg_receiver_bg">#F1F5F9</color>
     <color name="msg_receiver_text">#0F172A</color>
-    <color name="msg_receiver_time">#65676B</color>
+    <color name="msg_receiver_time">#64748B</color>
     <color name="chat_disabled_send_bg">#94A3B8</color>
     
     <!-- Avatar Colors -->
@@ -401,4 +402,107 @@
     <color name="login_register_icon_level_term">@color/primaryColor</color>
     <color name="login_register_icon_lock">@color/primaryColor</color>
     <color name="login_register_icon_confirm_lock">@color/primaryColor</color>
+
+    <!-- Message Section Custom Colors (Day Mode) -->
+    <color name="chat_list_screen_bg">#F8FAFC</color>
+    <color name="chat_list_recycler_bg">#FFFFFF</color>
+    <color name="chat_list_card_bg">#FFFFFF</color>
+    <color name="chat_list_text_primary">#0F172A</color>
+    <color name="chat_list_text_secondary">#64748B</color>
+    <color name="chat_list_user_name">#0F172A</color>
+    <color name="chat_list_last_message">#475569</color>
+    <color name="chat_list_time">#94A3B8</color>
+    <color name="chat_list_last_seen">#64748B</color>
+    <color name="chat_list_active_status_text">#10B981</color>
+    <color name="chat_list_active_indicator">#10B981</color>
+    <color name="chat_list_active_indicator_stroke">#FFFFFF</color>
+    <color name="chat_list_default_profile_icon">#3B82F6</color>
+    <color name="chat_list_single_tick">#94A3B8</color>
+    <color name="chat_list_double_tick">#64748B</color>
+    <color name="chat_list_read_double_tick">#3B82F6</color>
+    <color name="chat_list_divider">#E2E8F0</color>
+    <color name="chat_list_border">#CBD5E1</color>
+    <color name="chat_list_search_bg">#F1F5F9</color>
+    <color name="chat_list_search_border">#E2E8F0</color>
+    <color name="chat_list_search_icon">#64748B</color>
+    <color name="chat_list_search_placeholder">#94A3B8</color>
+    <color name="chat_list_empty_card_bg">#EFF6FF</color>
+    <color name="chat_list_empty_icon_tint">#3B82F6</color>
+    <color name="chat_list_loading_indicator">#3B82F6</color>
+    <color name="chat_list_header_bg">#FFFFFF</color>
+    <color name="chat_list_header_bar_bg">#FFFFFF</color>
+    <color name="chat_list_header_title">#0F172A</color>
+    <color name="chat_list_header_back_icon_tint">#0F172A</color>
+    
+    <color name="chat_conv_bg">#F8FAFC</color>
+    <color name="chat_header_bg">#FFFFFF</color>
+    <color name="chat_header_avatar_border">@color/chat_list_border</color>
+    <color name="chat_header_user_name">#0F172A</color>
+    <color name="chat_header_last_active">#10B981</color>
+    <color name="chat_header_last_seen">#64748B</color>
+    <color name="chat_header_back_icon_tint">#0F172A</color>
+    <color name="chat_attachment_icon">#8B5CF6</color>
+    <color name="chat_emoji_icon">#F59E0B</color>
+    <color name="chat_send_button_bg">#3B82F6</color>
+    <color name="chat_send_button_icon">#FFFFFF</color>
+    <color name="chat_input_bg">#F1F5F9</color>
+    <color name="chat_input_text">#0F172A</color>
+    <color name="chat_input_placeholder">#94A3B8</color>
+    <color name="chat_input_border">#E2E8F0</color>
+    <color name="chat_settings_icon">#64748B</color>
+    
+    <color name="chat_menu_bg">#FFFFFF</color>
+    <color name="chat_menu_profile_text">#0F172A</color>
+    <color name="chat_menu_profile_icon">#3B82F6</color>
+    <color name="chat_menu_report_text">#475569</color>
+    <color name="chat_menu_report_icon">#8B5CF6</color>
+    <color name="chat_menu_block_text">#EF4444</color>
+    <color name="chat_menu_block_icon">#DC2626</color>
+    <color name="chat_menu_divider">#F1F5F9</color>
+    <color name="chat_menu_item_pressed">#E2E8F0</color>
+    
+    <!-- Search Section Colors (Day Mode) -->
+    <color name="search_screen_bg">#F8FAFC</color>
+    <color name="search_header_bg">@color/primaryDarkColor</color>
+    <color name="search_header_title">@color/white</color>
+    <color name="search_header_back_icon_tint">@color/white</color>
+    <color name="search_header_filter_icon_tint">@color/white</color>
+    <color name="search_input_bg">#F1F5F9</color>
+    <color name="search_input_border">#CBD5E1</color>
+    <color name="search_input_text">#0F172A</color>
+    <color name="search_input_placeholder">#94A3B8</color>
+    <color name="search_input_search_icon_tint">#64748B</color>
+    <color name="search_input_clear_icon_tint">#64748B</color>
+    <color name="search_dropdown_arrow_tint">#64748B</color>
+    <color name="search_dropdown_bg">#FFFFFF</color>
+    <color name="search_dropdown_text">#0F172A</color>
+    <color name="search_text_primary">#0F172A</color>
+    <color name="search_text_secondary">#64748B</color>
+    <color name="search_card_bg">#FFFFFF</color>
+    <color name="search_card_border">#CBD5E1</color>
+    <color name="search_card_title_text">#0F172A</color>
+    <color name="search_card_meta_text">#475569</color>
+    <color name="search_card_location_icon_tint">@color/primaryColor</color>
+    <color name="search_card_calendar_icon_tint">#64748B</color>
+    
+    <!-- Focused search states -->
+    <color name="search_border_focused">@color/primaryColor</color>
+    <color name="search_label_focused">@color/primaryColor</color>
+    <color name="search_dropdown_focused_border">@color/primaryColor</color>
+    <color name="search_dropdown_focused_label">@color/primaryColor</color>
+    <color name="search_dropdown_popup_bg">#FFFFFF</color>
+    <color name="search_dropdown_item_text">#0F172A</color>
+    
+    <!-- Chip state colors (Day Mode) -->
+    <color name="search_chip_unselected_bg">#F1F5F9</color>
+    <color name="search_chip_unselected_stroke">#CBD5E1</color>
+    <color name="search_chip_unselected_text">#64748B</color>
+    <color name="search_chip_all_selected">@color/primaryColor</color>
+    <color name="search_chip_all_selected_bg">#1A3B82F6</color>
+    <color name="search_chip_lost_selected">#EF4444</color>
+    <color name="search_chip_lost_selected_bg">#1AEF4444</color>
+    <color name="search_chip_found_selected">#10B981</color>
+    <color name="search_chip_found_selected_bg">#1A10B981</color>
+    <color name="search_chip_resolved_selected">#6366F1</color>
+    <color name="search_chip_resolved_selected_bg">#1A6366F1</color>
 </resources>

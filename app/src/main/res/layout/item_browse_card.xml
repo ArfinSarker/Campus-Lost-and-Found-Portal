@@ -11,8 +11,9 @@
     android:clipToOutline="true"
     app:cardCornerRadius="16dp"
     app:cardElevation="3dp"
-    app:strokeWidth="0dp"
-    app:cardBackgroundColor="@color/surfaceColor"
+    app:strokeWidth="1dp"
+    app:strokeColor="@color/search_card_border"
+    app:cardBackgroundColor="@color/search_card_bg"
     app:cardPreventCornerOverlap="false"
     app:cardUseCompatPadding="false">
 
@@ -25,7 +26,7 @@
             android:id="@+id/flImageContainer"
             android:layout_width="0dp"
             android:layout_height="0dp"
-            android:background="@color/bg_f1f5f9"
+            android:background="@color/search_input_bg"
             app:layout_constraintDimensionRatio="H,16:10"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -135,7 +136,7 @@
             android:id="@+id/vImageSeparator"
             android:layout_width="0dp"
             android:layout_height="1dp"
-            android:background="@color/dividerColor"
+            android:background="@color/search_card_border"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toBottomOf="@id/flImageContainer" />
@@ -165,7 +166,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:singleLine="true"
-                    android:textColor="@color/textPrimary"
+                    android:textColor="@color/search_card_title_text"
                     android:textSize="17sp"
                     android:textStyle="bold"
                     android:fontFamily="sans-serif-medium"
@@ -191,7 +192,7 @@
                         android:layout_width="14dp"
                         android:layout_height="14dp"
                         android:src="@drawable/ic_location"
-                        app:tint="@color/primaryColor"
+                        app:tint="@color/search_card_location_icon_tint"
                         android:contentDescription="@null" />
 
                     <HorizontalScrollView
@@ -206,7 +207,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:singleLine="true"
-                            android:textColor="@color/textSecondary"
+                            android:textColor="@color/search_card_meta_text"
                             android:textSize="13sp"
                             android:fontFamily="sans-serif"
                             tools:text="Found near Library" />
@@ -224,7 +225,7 @@
                         android:layout_width="14dp"
                         android:layout_height="14dp"
                         android:src="@drawable/ic_calendar"
-                        app:tint="@color/textHint"
+                        app:tint="@color/search_card_calendar_icon_tint"
                         android:contentDescription="@null" />
 
                     <TextView
@@ -232,7 +233,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginStart="8dp"
-                        android:textColor="@color/textSecondary"
+                        android:textColor="@color/search_card_meta_text"
                         android:textSize="13sp"
                         android:maxLines="1"
                         android:ellipsize="end"

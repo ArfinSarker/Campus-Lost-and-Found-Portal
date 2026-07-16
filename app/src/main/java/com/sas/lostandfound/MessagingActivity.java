@@ -191,7 +191,10 @@ public class MessagingActivity extends AppCompatActivity {
         
         com.google.android.material.appbar.AppBarLayout appBarLayout = findViewById(R.id.appBarLayout);
         if (appBarLayout != null) {
-            HeaderColorHelper.setup(this, appBarLayout, toolbar);
+            int headerColor = androidx.core.content.ContextCompat.getColor(this, R.color.chat_list_header_bar_bg);
+            boolean isNightMode = (getResources().getConfiguration().uiMode & android.content.res.Configuration.UI_MODE_NIGHT_MASK) 
+                    == android.content.res.Configuration.UI_MODE_NIGHT_YES;
+            HeaderColorHelper.setup(this, appBarLayout, headerColor, headerColor, !isNightMode);
         }
     }
 
@@ -203,7 +206,7 @@ public class MessagingActivity extends AppCompatActivity {
 
     private void setupSwipeRefresh() {
         if (swipeRefreshLayout != null) {
-            swipeRefreshLayout.setColorSchemeColors(getResources().getColor(R.color.primaryColor));
+            swipeRefreshLayout.setColorSchemeColors(getResources().getColor(R.color.chat_list_loading_indicator));
             swipeRefreshLayout.setOnRefreshListener(this::refreshCurrentTab);
         }
     }
@@ -446,13 +449,13 @@ public class MessagingActivity extends AppCompatActivity {
                     holder.tvUserStatus.setText(statusText);
                     holder.tvUserStatus.setVisibility(View.VISIBLE);
                     if (isOnline) {
-                        holder.tvUserStatus.setTextColor(androidx.core.content.ContextCompat.getColor(context, R.color.statusFound));
+                        holder.tvUserStatus.setTextColor(androidx.core.content.ContextCompat.getColor(context, R.color.chat_list_active_status_text));
                         holder.tvUserStatus.setTypeface(null, Typeface.BOLD);
                     } else if ("New Message Request".equals(statusText)) {
-                        holder.tvUserStatus.setTextColor(androidx.core.content.ContextCompat.getColor(context, R.color.primaryColor));
+                        holder.tvUserStatus.setTextColor(androidx.core.content.ContextCompat.getColor(context, R.color.chat_list_loading_indicator));
                         holder.tvUserStatus.setTypeface(null, Typeface.BOLD);
                     } else {
-                        holder.tvUserStatus.setTextColor(context.getResources().getColor(R.color.textSecondary));
+                        holder.tvUserStatus.setTextColor(androidx.core.content.ContextCompat.getColor(context, R.color.chat_list_text_secondary));
                         holder.tvUserStatus.setTypeface(null, Typeface.NORMAL);
                     }
                 } else {
@@ -472,9 +475,9 @@ public class MessagingActivity extends AppCompatActivity {
             // Highlight unread conversations
             if (c.getUnreadCount() > 0) {
                 holder.tvLastMessage.setTypeface(null, Typeface.BOLD);
-                holder.tvLastMessage.setTextColor(context.getResources().getColor(R.color.textPrimary));
+                holder.tvLastMessage.setTextColor(androidx.core.content.ContextCompat.getColor(context, R.color.chat_list_text_primary));
                 holder.tvTimestamp.setTypeface(null, Typeface.BOLD);
-                holder.tvTimestamp.setTextColor(androidx.core.content.ContextCompat.getColor(context, R.color.primaryColor));
+                holder.tvTimestamp.setTextColor(androidx.core.content.ContextCompat.getColor(context, R.color.chat_list_loading_indicator));
                 
                 holder.tvUnreadBadge.setText(String.valueOf(c.getUnreadCount()));
                 holder.tvUnreadBadge.setVisibility(View.VISIBLE);
@@ -483,9 +486,9 @@ public class MessagingActivity extends AppCompatActivity {
                 }
             } else {
                 holder.tvLastMessage.setTypeface(null, Typeface.NORMAL);
-                holder.tvLastMessage.setTextColor(context.getResources().getColor(R.color.textSecondary));
+                holder.tvLastMessage.setTextColor(androidx.core.content.ContextCompat.getColor(context, R.color.chat_list_last_message));
                 holder.tvTimestamp.setTypeface(null, Typeface.NORMAL);
-                holder.tvTimestamp.setTextColor(context.getResources().getColor(R.color.textSecondary));
+                holder.tvTimestamp.setTextColor(androidx.core.content.ContextCompat.getColor(context, R.color.chat_list_time));
                 
                 holder.tvUnreadBadge.setVisibility(View.GONE);
                 
@@ -495,13 +498,13 @@ public class MessagingActivity extends AppCompatActivity {
                         holder.ivLastMessageStatus.setVisibility(View.VISIBLE);
                         if (!usersWhoBlockedMe.contains(c.getOtherUserId()) && c.getLastMessageIsRead() != null && c.getLastMessageIsRead()) {
                             holder.ivLastMessageStatus.setImageResource(R.drawable.ic_double_check);
-                            holder.ivLastMessageStatus.setImageTintList(ColorStateList.valueOf(androidx.core.content.ContextCompat.getColor(context, R.color.primaryColor)));
+                            holder.ivLastMessageStatus.setImageTintList(ColorStateList.valueOf(androidx.core.content.ContextCompat.getColor(context, R.color.chat_list_read_double_tick)));
                         } else if (!usersWhoBlockedMe.contains(c.getOtherUserId()) && c.getLastMessageIsDelivered() != null && c.getLastMessageIsDelivered()) {
                             holder.ivLastMessageStatus.setImageResource(R.drawable.ic_double_check);
-                            holder.ivLastMessageStatus.setImageTintList(ColorStateList.valueOf(androidx.core.content.ContextCompat.getColor(context, R.color.textSecondary)));
+                            holder.ivLastMessageStatus.setImageTintList(ColorStateList.valueOf(androidx.core.content.ContextCompat.getColor(context, R.color.chat_list_double_tick)));
                         } else {
                             holder.ivLastMessageStatus.setImageResource(R.drawable.ic_single_check);
-                            holder.ivLastMessageStatus.setImageTintList(ColorStateList.valueOf(androidx.core.content.ContextCompat.getColor(context, R.color.textSecondary)));
+                            holder.ivLastMessageStatus.setImageTintList(ColorStateList.valueOf(androidx.core.content.ContextCompat.getColor(context, R.color.chat_list_single_tick)));
                         }
                     } else {
                         holder.ivLastMessageStatus.setVisibility(View.GONE);
@@ -515,13 +518,13 @@ public class MessagingActivity extends AppCompatActivity {
                 holder.ivUserAvatar.setPadding(0, 0, 0, 0);
                 GlideApp.with(context)
                         .load(c.getOtherUserImageUrl())
-                        .placeholder(R.drawable.ic_user)
+                        .placeholder(R.drawable.ic_user_placeholder_white)
                         .diskCacheStrategy(DiskCacheStrategy.ALL)
                         .circleCrop()
                         .into(holder.ivUserAvatar);
             } else {
-                holder.ivUserAvatar.setImageResource(R.drawable.ic_user);
-                holder.ivUserAvatar.setImageTintList(ColorStateList.valueOf(androidx.core.content.ContextCompat.getColor(context, R.color.avatar_icon_tint)));
+                holder.ivUserAvatar.setImageResource(R.drawable.ic_user_placeholder_white);
+                holder.ivUserAvatar.setImageTintList(ColorStateList.valueOf(androidx.core.content.ContextCompat.getColor(context, R.color.white)));
                 int padding = (int) (8 * density);
                 holder.ivUserAvatar.setPadding(padding, padding, padding, padding);
             }

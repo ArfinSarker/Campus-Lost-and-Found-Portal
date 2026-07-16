@@ -84,7 +84,10 @@ public class BrowseItemsActivity extends AppCompatActivity {
 
             com.google.android.material.appbar.AppBarLayout appBarLayout = findViewById(R.id.appBarLayout);
             if (appBarLayout != null) {
-                HeaderColorHelper.setup(this, appBarLayout, toolbar);
+                int headerColor = androidx.core.content.ContextCompat.getColor(this, R.color.search_header_bg);
+                boolean isNightMode = (getResources().getConfiguration().uiMode & android.content.res.Configuration.UI_MODE_NIGHT_MASK) 
+                        == android.content.res.Configuration.UI_MODE_NIGHT_YES;
+                HeaderColorHelper.setup(this, appBarLayout, headerColor, headerColor, !isNightMode);
             }
         }
     }
@@ -118,7 +121,7 @@ public class BrowseItemsActivity extends AppCompatActivity {
         String[] categories = { "All Categories", "Electronics & Gadgets", "ID Cards", "Wallets & Purses",
                 "Bank/Credit Cards", "Bags", "Study Materials", "Eyewear", "Keys & Access Devices",
                 "Clothing & Accessories", "Others" };
-        ArrayAdapter<String> categoryAdapter = new ArrayAdapter<>(this, R.layout.dropdown_item, categories);
+        ArrayAdapter<String> categoryAdapter = new ArrayAdapter<>(this, R.layout.search_dropdown_item, categories);
         actvCategoryFilter.setAdapter(categoryAdapter);
         actvCategoryFilter.setText(categories[0], false);
         actvCategoryFilter.setOnItemClickListener((parent, view, position, id) -> {

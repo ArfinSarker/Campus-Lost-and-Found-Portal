@@ -4,14 +4,14 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/backgroundColor"
+    android:background="@color/search_screen_bg"
     android:fitsSystemWindows="true">
 
     <com.google.android.material.appbar.AppBarLayout
         android:id="@+id/appBarLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@color/primaryDarkColor"
+        android:background="@color/search_header_bg"
         android:fitsSystemWindows="true"
         app:elevation="0dp">
 
@@ -20,10 +20,10 @@
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
             app:navigationIcon="@drawable/ic_arrow_back"
-            app:navigationIconTint="@color/white"
+            app:navigationIconTint="@color/search_header_back_icon_tint"
             app:title="@string/title_browse_items"
             android:layout_gravity="center_horizontal"
-            app:titleTextColor="@color/white">
+            app:titleTextColor="@color/search_header_title">
 
             <androidx.appcompat.widget.ActionMenuView
                 android:layout_width="wrap_content"
@@ -37,7 +37,7 @@
                 android:layout_gravity="end"
                 android:layout_marginEnd="16dp"
                 android:src="@drawable/ic_filter"
-                app:tint="@color/white"
+                app:tint="@color/search_header_filter_icon_tint"
                 android:contentDescription="@null" />
 
         </com.google.android.material.appbar.MaterialToolbar>
@@ -67,6 +67,12 @@
                     android:layout_margin="16dp"
                     android:hint="@string/hint_search_items"
                     app:endIconMode="clear_text"
+                    app:boxBackgroundColor="@color/search_input_bg"
+                    app:boxStrokeColor="@color/search_input_box_stroke"
+                    app:hintTextColor="@color/search_label_focused"
+                    android:textColorHint="@color/search_input_placeholder"
+                    app:startIconTint="@color/search_input_search_icon_tint"
+                    app:endIconTint="@color/search_input_clear_icon_tint"
                     app:layout_constraintTop_toTopOf="parent"
                     app:shapeAppearanceOverlay="@style/ShapeAppearance.App.SmallComponent"
                     app:startIconDrawable="@drawable/ic_search">
@@ -75,6 +81,7 @@
                         android:id="@+id/etSearch"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
+                        android:textColor="@color/search_input_text"
                         android:inputType="text" />
                 </com.google.android.material.textfield.TextInputLayout>
 
@@ -87,6 +94,11 @@
                     android:layout_marginHorizontal="16dp"
                     android:layout_marginTop="8dp"
                     android:hint="@string/label_category"
+                    app:boxBackgroundColor="@color/search_input_bg"
+                    app:boxStrokeColor="@color/search_dropdown_box_stroke"
+                    app:hintTextColor="@color/search_dropdown_focused_label"
+                    android:textColorHint="@color/search_input_placeholder"
+                    app:endIconTint="@color/search_dropdown_arrow_tint"
                     app:layout_constraintTop_toBottomOf="@id/tilSearch">
 
                     <AutoCompleteTextView
@@ -94,7 +106,8 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:inputType="none"
-                        android:textColor="@color/text_black_dynamic" />
+                        android:textColor="@color/search_dropdown_text"
+                        android:popupBackground="@color/search_dropdown_popup_bg" />
                 </com.google.android.material.textfield.TextInputLayout>
 
                 <!-- Status Filter Section -->
@@ -122,6 +135,9 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:checked="true"
+                            app:chipBackgroundColor="@color/search_chip_all_bg"
+                            app:chipStrokeColor="@color/search_chip_all_stroke"
+                            android:textColor="@color/search_chip_all_text"
                             android:text="@string/chip_all" />
 
                         <com.google.android.material.chip.Chip
@@ -129,6 +145,9 @@
                             style="@style/Widget.Material3.Chip.Filter"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
+                            app:chipBackgroundColor="@color/search_chip_lost_bg"
+                            app:chipStrokeColor="@color/search_chip_lost_stroke"
+                            android:textColor="@color/search_chip_lost_text"
                             android:text="@string/chip_lost" />
 
                         <com.google.android.material.chip.Chip
@@ -136,6 +155,9 @@
                             style="@style/Widget.Material3.Chip.Filter"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
+                            app:chipBackgroundColor="@color/search_chip_found_bg"
+                            app:chipStrokeColor="@color/search_chip_found_stroke"
+                            android:textColor="@color/search_chip_found_text"
                             android:text="@string/chip_found" />
 
                         <com.google.android.material.chip.Chip
@@ -143,6 +165,9 @@
                             style="@style/Widget.Material3.Chip.Filter"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
+                            app:chipBackgroundColor="@color/search_chip_resolved_bg"
+                            app:chipStrokeColor="@color/search_chip_resolved_stroke"
+                            android:textColor="@color/search_chip_resolved_text"
                             android:text="@string/chip_claimed" />
 
                     </com.google.android.material.chip.ChipGroup>
