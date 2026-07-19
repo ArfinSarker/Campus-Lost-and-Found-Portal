@@ -163,7 +163,10 @@ public class ReportToAdminActivity extends AppCompatActivity {
             // HeaderColorHelper setup to style the header dynamically/consistently
             com.google.android.material.appbar.AppBarLayout appBarLayout = findViewById(R.id.appBarLayout);
             if (appBarLayout != null) {
-                HeaderColorHelper.setup(this, appBarLayout, toolbar);
+                int headerColor = androidx.core.content.ContextCompat.getColor(this, R.color.report_admin_header_bg);
+                boolean isNight = (getResources().getConfiguration().uiMode & android.content.res.Configuration.UI_MODE_NIGHT_MASK) 
+                        == android.content.res.Configuration.UI_MODE_NIGHT_YES;
+                HeaderColorHelper.setup(this, appBarLayout, headerColor, headerColor, !isNight);
             }
         }
     }
@@ -180,7 +183,7 @@ public class ReportToAdminActivity extends AppCompatActivity {
         }));
 
         String[] categories = {"Fake Report", "Spam / Misuse", "Harassment / Abuse", "Wrong Information", "Bug / Technical Issue", "Lost Item Issue", "Found Item Issue", "Other"};
-        actvReportCategory.setAdapter(new ArrayAdapter<>(this, R.layout.dropdown_item, categories));
+        actvReportCategory.setAdapter(new ArrayAdapter<>(this, R.layout.dropdown_item_report_admin, categories));
 
 
     }

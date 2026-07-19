@@ -5,7 +5,7 @@
     android:id="@+id/reportToAdminRoot"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/backgroundColor"
+    android:background="@color/profile_background"
     android:fitsSystemWindows="true">
 
     <com.google.android.material.appbar.AppBarLayout
@@ -52,7 +52,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/label_report_info"
-                android:textColor="@color/primaryColor" />
+                android:textColor="@color/report_admin_primary" />
 
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/tilReportTitle"
@@ -61,12 +61,17 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="4dp"
                 android:hint="@string/label_report_title"
+                app:boxBackgroundColor="@color/report_admin_input_bg"
+                app:boxStrokeColor="@color/report_admin_input_border"
+                app:hintTextColor="@color/report_admin_primary"
+                android:textColorHint="@color/report_admin_secondary"
                 app:shapeAppearanceOverlay="@style/ShapeAppearance.App.SmallComponent">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/etReportTitle"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:textColor="@color/report_details_desc_content"
                     android:inputType="text" />
             </com.google.android.material.textfield.TextInputLayout>
 
@@ -77,6 +82,11 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="4dp"
                 android:hint="@string/label_report_category"
+                app:boxBackgroundColor="@color/report_admin_dropdown_bg"
+                app:boxStrokeColor="@color/report_admin_dropdown_border"
+                app:endIconTint="@color/report_admin_dropdown_icon"
+                app:hintTextColor="@color/report_admin_primary"
+                android:textColorHint="@color/report_admin_secondary"
                 app:boxCornerRadiusBottomEnd="8dp"
                 app:boxCornerRadiusBottomStart="8dp"
                 app:boxCornerRadiusTopEnd="8dp"
@@ -87,7 +97,8 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:inputType="none"
-                    android:textColor="@color/text_black_dynamic" />
+                    android:textColor="@color/report_admin_dropdown_text"
+                    android:popupBackground="@color/report_admin_dropdown_menu_bg" />
             </com.google.android.material.textfield.TextInputLayout>
 
             <TextView
@@ -96,7 +107,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
                 android:text="@string/label_detailed_info"
-                android:textColor="@color/primaryColor" />
+                android:textColor="@color/report_admin_primary" />
 
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/tilReportDescription"
@@ -105,6 +116,10 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="4dp"
                 android:hint="@string/label_report_description"
+                app:boxBackgroundColor="@color/report_admin_input_bg"
+                app:boxStrokeColor="@color/report_admin_input_border"
+                app:hintTextColor="@color/report_admin_primary"
+                android:textColorHint="@color/report_admin_secondary"
                 app:shapeAppearanceOverlay="@style/ShapeAppearance.App.SmallComponent">
 
                 <com.google.android.material.textfield.TextInputEditText
@@ -112,6 +127,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:gravity="top"
+                    android:textColor="@color/report_details_desc_content"
                     android:inputType="textMultiLine"
                     android:minLines="3" />
             </com.google.android.material.textfield.TextInputLayout>
@@ -123,12 +139,17 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="4dp"
                 android:hint="@string/label_related_id"
+                app:boxBackgroundColor="@color/report_admin_input_bg"
+                app:boxStrokeColor="@color/report_admin_input_border"
+                app:hintTextColor="@color/report_admin_primary"
+                android:textColorHint="@color/report_admin_secondary"
                 app:shapeAppearanceOverlay="@style/ShapeAppearance.App.SmallComponent">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/etRelatedId"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:textColor="@color/report_details_desc_content"
                     android:inputType="textCapCharacters" />
             </com.google.android.material.textfield.TextInputLayout>
 
@@ -138,7 +159,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
                 android:text="@string/label_reporter_info"
-                android:textColor="@color/primaryColor" />
+                android:textColor="@color/report_admin_primary" />
 
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/tilReporterName"
@@ -147,12 +168,17 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="4dp"
                 android:hint="@string/label_your_name"
+                app:boxBackgroundColor="@color/report_admin_input_bg"
+                app:boxStrokeColor="@color/report_admin_input_border"
+                app:hintTextColor="@color/report_admin_primary"
+                android:textColorHint="@color/report_admin_secondary"
                 app:shapeAppearanceOverlay="@style/ShapeAppearance.App.SmallComponent">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/etReporterName"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:textColor="@color/report_details_desc_content"
                     android:inputType="textPersonName" />
             </com.google.android.material.textfield.TextInputLayout>
 
@@ -163,12 +189,17 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="4dp"
                 android:hint="@string/label_university_id"
+                app:boxBackgroundColor="@color/report_admin_input_bg"
+                app:boxStrokeColor="@color/report_admin_input_border"
+                app:hintTextColor="@color/report_admin_primary"
+                android:textColorHint="@color/report_admin_secondary"
                 app:shapeAppearanceOverlay="@style/ShapeAppearance.App.SmallComponent">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/etUniversityId"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:textColor="@color/report_details_desc_content"
                     android:enabled="false"
                     android:inputType="text" />
             </com.google.android.material.textfield.TextInputLayout>
@@ -185,9 +216,13 @@
                     android:layout_width="153dp"
                     android:layout_height="0dp"
                     android:hint="Code"
+                    app:boxBackgroundColor="@color/report_admin_input_bg"
+                    app:boxStrokeColor="@color/report_admin_input_border"
+                    app:hintTextColor="@color/report_admin_primary"
+                    android:textColorHint="@color/report_admin_secondary"
                     app:shapeAppearanceOverlay="@style/ShapeAppearance.App.SmallComponent"
                     app:startIconDrawable="@drawable/ic_phone"
-                    app:startIconTint="@color/primaryColor"
+                    app:startIconTint="@color/report_admin_primary"
                     app:endIconMode="none"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="@+id/tilReporterPhone"
@@ -201,7 +236,7 @@
                         android:paddingTop="16dp"
                         android:paddingBottom="16dp"
                         android:inputType="text"
-                        android:textColor="@color/text_black_dynamic" />
+                        android:textColor="@color/report_details_desc_content" />
                 </com.google.android.material.textfield.TextInputLayout>
 
                 <!-- Phone Number Body -->
@@ -211,6 +246,10 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:hint="@string/label_contact_phone"
+                    app:boxBackgroundColor="@color/report_admin_input_bg"
+                    app:boxStrokeColor="@color/report_admin_input_border"
+                    app:hintTextColor="@color/report_admin_primary"
+                    android:textColorHint="@color/report_admin_secondary"
                     app:shapeAppearanceOverlay="@style/ShapeAppearance.App.SmallComponent"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toEndOf="@+id/tilCountryCode"
@@ -226,7 +265,7 @@
                         android:paddingTop="16dp"
                         android:paddingBottom="16dp"
                         android:inputType="phone"
-                        android:textColor="@color/text_black_dynamic" />
+                        android:textColor="@color/report_details_desc_content" />
                 </com.google.android.material.textfield.TextInputLayout>
             </androidx.constraintlayout.widget.ConstraintLayout>
 
@@ -237,8 +276,12 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="4dp"
                 android:hint="Contact Email"
+                app:boxBackgroundColor="@color/report_admin_input_bg"
+                app:boxStrokeColor="@color/report_admin_input_border"
+                app:hintTextColor="@color/report_admin_primary"
+                android:textColorHint="@color/report_admin_secondary"
                 app:startIconDrawable="@drawable/ic_email"
-                app:startIconTint="@color/primaryColor"
+                app:startIconTint="@color/report_admin_primary"
                 app:shapeAppearanceOverlay="@style/ShapeAppearance.App.SmallComponent">
 
                 <com.google.android.material.textfield.TextInputEditText
@@ -246,7 +289,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:inputType="textEmailAddress"
-                    android:textColor="@color/text_black_dynamic" />
+                    android:textColor="@color/report_details_desc_content" />
             </com.google.android.material.textfield.TextInputLayout>
 
             <TextView
@@ -255,7 +298,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="24dp"
                 android:text="@string/label_supporting_evidence"
-                android:textColor="@color/primaryColor" />
+                android:textColor="@color/report_admin_primary" />
 
             <com.google.android.material.card.MaterialCardView
                 android:id="@+id/uploadScreenshotCard"
@@ -288,7 +331,7 @@
                             android:layout_width="40dp"
                             android:layout_height="40dp"
                             android:src="@drawable/ic_upload"
-                            app:tint="@color/primaryColor"
+                            app:tint="@color/report_admin_primary"
                             android:contentDescription="@null" />
 
                         <TextView
@@ -297,7 +340,7 @@
                             android:layout_height="wrap_content"
                             android:layout_marginTop="8dp"
                             android:text="Upload Screenshot / Evidence"
-                            android:textColor="@color/primaryColor"
+                            android:textColor="@color/report_admin_primary"
                             android:textSize="14sp"
                             android:textStyle="bold" />
 
@@ -307,7 +350,7 @@
                             android:layout_height="wrap_content"
                             android:layout_marginTop="2dp"
                             android:text="Tap to browse gallery or capture screen"
-                            android:textColor="@color/textSecondary"
+                            android:textColor="@color/report_admin_secondary"
                             android:textSize="11sp" />
                     </LinearLayout>
 
@@ -345,7 +388,7 @@
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:text="1 Screenshot Selected"
-                                android:textColor="@color/textPrimary"
+                                android:textColor="@color/report_details_desc_content"
                                 android:textSize="14sp"
                                 android:textStyle="bold" />
 
@@ -355,7 +398,7 @@
                                 android:layout_height="wrap_content"
                                 android:layout_marginTop="2dp"
                                 android:text="Tap card to change selection"
-                                android:textColor="@color/textSecondary"
+                                android:textColor="@color/report_admin_secondary"
                                 android:textSize="11sp" />
                         </LinearLayout>
 
@@ -387,6 +430,10 @@
                     android:id="@+id/btnSubmitReportAdmin"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    app:backgroundTint="@color/report_admin_submit_btn"
+                    app:strokeColor="@color/report_admin_btn_border"
+                    app:strokeWidth="1.5dp"
+                    android:textColor="#FFFFFF"
                     android:text="@string/btn_submit_report_admin" />
 
                 <com.airbnb.lottie.LottieAnimationView

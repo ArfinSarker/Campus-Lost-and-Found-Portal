@@ -83,9 +83,42 @@ public class CampusMyItemsActivity extends AppCompatActivity {
         setupTitle();
         setupSwipeRefresh();
 
+        int bgResId;
+        int headerResId;
+        switch (filterType) {
+            case "reported":
+                bgResId = R.color.my_found_bg;
+                headerResId = R.color.my_found_header_bg;
+                break;
+            case "find":
+                bgResId = R.color.my_lost_bg;
+                headerResId = R.color.my_lost_header_bg;
+                break;
+            case "resolved":
+                bgResId = R.color.my_resolved_bg;
+                headerResId = R.color.my_resolved_header_bg;
+                break;
+            case "admin_reports":
+                bgResId = R.color.my_admin_reports_bg;
+                headerResId = R.color.my_admin_reports_header_bg;
+                break;
+            default:
+                bgResId = R.color.backgroundColor;
+                headerResId = R.color.profile_header_bg;
+                break;
+        }
+
+        View rootLayout = findViewById(R.id.myItemsRoot);
+        if (rootLayout != null) {
+            rootLayout.setBackgroundColor(ContextCompat.getColor(this, bgResId));
+        }
+
         com.google.android.material.appbar.AppBarLayout appBarLayout = findViewById(R.id.appBarLayout);
         if (appBarLayout != null) {
-            HeaderColorHelper.setup(this, appBarLayout, toolbar);
+            int headerColor = ContextCompat.getColor(this, headerResId);
+            boolean isNight = (getResources().getConfiguration().uiMode & android.content.res.Configuration.UI_MODE_NIGHT_MASK) 
+                    == android.content.res.Configuration.UI_MODE_NIGHT_YES;
+            HeaderColorHelper.setup(this, appBarLayout, headerColor, headerColor, !isNight);
         }
 
         itemList = new ArrayList<>();

@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Pressed state -->
+    <item android:state_pressed="true" android:drawable="@color/report_admin_dropdown_item_pressed" />
+    
+    <!-- Focused or Hovered state -->
+    <item android:state_focused="true" android:drawable="@color/report_admin_dropdown_item_hovered" />
+    <item android:state_hovered="true" android:drawable="@color/report_admin_dropdown_item_hovered" />
+    
+    <!-- Selected state (when item is selected/active in dropdown) -->
+    <item android:state_selected="true" android:drawable="@color/report_admin_dropdown_item_selected" />
+    
+    <!-- Default state (transparent) -->
+    <item android:drawable="@color/transparent" />
+</selector>

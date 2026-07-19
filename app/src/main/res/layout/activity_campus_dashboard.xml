@@ -427,7 +427,7 @@
                         app:backgroundTint="@color/dashboard_view_more_bg"
                         app:strokeColor="@color/dashboard_view_more_stroke"
                         app:strokeWidth="1dp"
-                        app:cornerRadius="14dp"
+                        app:cornerRadius="24dp"
                         app:rippleColor="@color/dashboard_view_more_ripple"
                         app:icon="@drawable/ic_chevron_up"
                         app:iconGravity="textEnd"
@@ -453,7 +453,7 @@
                         app:backgroundTint="@color/dashboard_view_more_bg"
                         app:strokeColor="@color/dashboard_view_more_stroke"
                         app:strokeWidth="1dp"
-                        app:cornerRadius="14dp"
+                        app:cornerRadius="24dp"
                         app:rippleColor="@color/dashboard_view_more_ripple"
                         app:icon="@drawable/ic_chevron_down"
                         app:iconGravity="textEnd"
@@ -547,8 +547,8 @@
                                 <!-- Main Call to Action Button -->
                                 <com.google.android.material.button.MaterialButton
                                     android:id="@+id/btnReportProblem"
-                                    android:layout_width="0dp"
-                                    android:layout_height="54dp"
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
                                     android:layout_marginTop="20dp"
                                     android:text="@string/reportProblem"
                                     android:textColor="@color/white"
@@ -573,16 +573,21 @@
 
                     <TextView
                         android:id="@+id/tvDeveloperInfo"
-                        style="@style/TextAppearance.App.Small"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
+                        android:layout_gravity="center_horizontal"
                         android:layout_marginTop="32dp"
                         android:layout_marginBottom="32dp"
-                        android:gravity="center"
+                        android:paddingHorizontal="32dp"
+                        android:paddingVertical="12dp"
+                        android:background="@drawable/bg_dev_info_button"
                         android:text="@string/developer_info_short"
-                        android:textSize="15sp"
-                        android:textColor="@color/primaryColor"
-                        android:textStyle="bold" />
+                        android:textAlignment="center"
+                        android:textColor="@color/dev_btn_text"
+                        android:textSize="14sp"
+                        android:textStyle="bold"
+                        android:focusable="true"
+                        android:clickable="true" />
 
                 </LinearLayout>
             </androidx.core.widget.NestedScrollView>

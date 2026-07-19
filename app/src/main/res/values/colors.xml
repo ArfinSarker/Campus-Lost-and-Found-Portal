@@ -463,10 +463,11 @@
     
     <!-- Search Section Colors (Day Mode) -->
     <color name="search_screen_bg">#F8FAFC</color>
-    <color name="search_header_bg">@color/primaryDarkColor</color>
-    <color name="search_header_title">@color/white</color>
-    <color name="search_header_back_icon_tint">@color/white</color>
-    <color name="search_header_filter_icon_tint">@color/white</color>
+    <color name="search_header_bg">@color/white</color>
+    <color name="search_header_title">#0F172A</color>
+    <color name="search_header_back_icon_tint">#0F172A</color>
+    <color name="search_header_filter_icon_tint">#0F172A</color>
+    <color name="search_header_divider">#E2E8F0</color>
     <color name="search_input_bg">#F1F5F9</color>
     <color name="search_input_border">#CBD5E1</color>
     <color name="search_input_text">#0F172A</color>
@@ -505,4 +506,110 @@
     <color name="search_chip_found_selected_bg">#1A10B981</color>
     <color name="search_chip_resolved_selected">#6366F1</color>
     <color name="search_chip_resolved_selected_bg">#1A6366F1</color>
+
+    <!-- Item Details Screen Colors (Light Mode Defaults) -->
+    <color name="item_details_header_bg_start">@color/profile_header_bg</color>
+    <color name="item_details_header_bg_end">@color/profile_header_bg</color>
+    <color name="item_details_card_bg">@color/profile_card_bg</color>
+    <color name="item_details_item_name_label">@color/textSecondary</color>
+    <color name="item_details_item_name_val">#0F172A</color>
+    <color name="item_details_category_label">@color/textSecondary</color>
+    <color name="item_details_category_val">@color/textSecondary</color>
+    <color name="item_details_desc_label">#0F172A</color>
+    <color name="item_details_desc_content">@color/textSecondary</color>
+    <color name="item_details_handling_label">#0F172A</color>
+    <color name="item_details_handling_val">@color/textSecondary</color>
+    <color name="item_details_verification_label">#0F172A</color>
+    <color name="item_details_verification_val">@color/textSecondary</color>
+    <color name="item_details_location_label">@color/textSecondary</color>
+    <color name="item_details_location_val">#0F172A</color>
+    <color name="item_details_location_icon">@color/primaryColor</color>
+    <color name="item_details_date_time_label">@color/textSecondary</color>
+    <color name="item_details_date_time_val">#0F172A</color>
+    <color name="item_details_date_time_icon">@color/primaryColor</color>
+    <color name="item_details_reported_by_label">#0F172A</color>
+    <color name="item_details_returned_to_label">#0F172A</color>
+    <color name="item_details_user_id">@color/textSecondary</color>
+    <color name="item_details_user_name">#0F172A</color>
+    <color name="item_details_user_role">@color/primaryColor</color>
+    <color name="item_details_user_designation">@color/textSecondary</color>
+    <color name="item_details_user_contact">@color/textSecondary</color>
+
+    <!-- Custom Screens Backgrounds and Headers (Light/Day Mode Defaults) -->
+    <color name="all_reported_bg">@color/profile_background</color>
+    <color name="all_reported_header_bg">@color/profile_header_bg</color>
+    <color name="my_found_bg">@color/profile_background</color>
+    <color name="my_found_header_bg">@color/profile_header_bg</color>
+    <color name="my_lost_bg">@color/profile_background</color>
+    <color name="my_lost_header_bg">@color/profile_header_bg</color>
+    <color name="my_resolved_bg">@color/profile_background</color>
+    <color name="my_resolved_header_bg">@color/profile_header_bg</color>
+    <color name="my_admin_reports_bg">@color/profile_background</color>
+    <color name="my_admin_reports_header_bg">@color/profile_header_bg</color>
+
+    <!-- Report Details Screen Colors (Light Mode Defaults) -->
+    <color name="report_details_header_bg">@color/profile_header_bg</color>
+    <color name="report_details_name">#0F172A</color>
+    <color name="report_details_category">@color/primaryColor</color>
+    <color name="report_details_category_bg">@color/primaryLightColor</color>
+    <color name="report_details_date">@color/textSecondary</color>
+    <color name="report_details_time">@color/textSecondary</color>
+    <color name="report_details_date_time_icon">@color/textSecondary</color>
+    <color name="report_details_evidence_label">@color/primaryColor</color>
+    <color name="report_details_no_evidence_text">@color/textPrimary</color>
+    <color name="report_details_evidence_icon">#CBD5E1</color>
+    <color name="report_details_evidence_card_bg">@color/bg_f8fafc</color>
+    <color name="report_details_desc_label">@color/primaryColor</color>
+    <color name="report_details_desc_content">#334155</color>
+    <color name="report_details_related_item_bg">@color/related_report_badge_bg</color>
+    <color name="report_details_related_item_text">@color/primaryColor</color>
+    <color name="report_details_timeline_title">@color/primaryColor</color>
+    <color name="report_details_timeline_indicator">@color/secondaryColor</color>
+    <color name="report_details_timeline_indicator_bg">@color/timeline_green_bg</color>
+    <color name="report_details_delete_btn">@color/errorColor</color>
+    <color name="report_details_delete_btn_text">@color/errorColor</color>
+
+    <!-- Report to Admin Screen Colors (Light Mode Defaults) -->
+    <color name="report_admin_header_bg">@color/profile_header_bg</color>
+    <color name="report_admin_input_bg">@color/transparent</color>
+    <color name="report_admin_input_border">@color/divider_e2e8f0</color>
+    <color name="report_admin_primary">@color/primaryColor</color>
+    <color name="report_admin_secondary">@color/textSecondary</color>
+    <color name="report_admin_submit_btn">@color/primaryColor</color>
+    <color name="report_admin_btn_border">@color/primaryColor</color>
+
+    <!-- Report to Admin Dropdown Colors (Light Mode Defaults) -->
+    <color name="report_admin_dropdown_bg">@color/report_admin_input_bg</color>
+    <color name="report_admin_dropdown_border">@color/divider_e2e8f0</color>
+    <color name="report_admin_dropdown_text">@color/text_black_dynamic</color>
+    <color name="report_admin_dropdown_icon">@color/primaryColor</color>
+    <color name="report_admin_dropdown_menu_bg">@color/white</color>
+    <color name="report_admin_dropdown_menu_text">@color/text_black_dynamic</color>
+    <color name="report_admin_dropdown_item_selected">@color/dropdown_item_selected</color>
+    <color name="report_admin_dropdown_item_hovered">@color/dropdown_item_hovered</color>
+    <color name="report_admin_dropdown_item_pressed">@color/dropdown_item_pressed</color>
+
+    <!-- Developer Info Colors (Light Mode Defaults) -->
+    <color name="dev_info_header_bg">@color/primaryColor</color>
+    <color name="dev_info_screen_bg">@color/dev_bg</color>
+    <color name="dev_info_primary_text">#0D1B2A</color>
+    <color name="dev_info_secondary_text">#546E7A</color>
+    <color name="dev_info_card_bg">@color/cardBackgroundColor</color>
+    <color name="dev_info_card_border">@color/divider_e2e8f0</color>
+    <color name="dev_info_accent">#1565C0</color>
+    <color name="dev_info_email_icon">@color/lightRed</color>
+    <color name="dev_info_phone_icon">@color/vibrantGreen</color>
+    <color name="dev_info_github_icon">@color/black</color>
+    <color name="dev_info_linkedin_icon">@color/scienceBlue</color>
+    <color name="dev_info_link_text">#1E88E5</color>
+    <color name="dev_info_skill_bg">#F1F5F9</color>
+    <color name="dev_info_skill_text">#546E7A</color>
+    <color name="dev_info_italic_text">#78909C</color>
+    <color name="dev_info_divider">#EEEEEE</color>
+
+    <!-- Developer Info Button Colors (Light Mode Defaults) -->
+    <color name="dev_btn_text">#FFFFFF</color>
+    <color name="dev_btn_bg">#4F46E5</color>
+    <color name="dev_btn_bg_pressed">#4338CA</color>
+    <color name="dev_btn_border">#6366F1</color>
 </resources>

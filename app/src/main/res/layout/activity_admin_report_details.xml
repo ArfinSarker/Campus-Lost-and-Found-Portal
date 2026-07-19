@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/chatBackground"
+    android:background="@color/profile_background"
     android:fitsSystemWindows="true">
 
     <com.google.android.material.appbar.AppBarLayout
@@ -72,7 +72,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:text="Report Title"
-                        android:textColor="@color/text_0f172a"
+                        android:textColor="@color/report_details_name"
                         android:textSize="20sp"
                         android:textStyle="bold"
                         android:lineSpacingMultiplier="1.2" />
@@ -89,7 +89,7 @@
                         <com.google.android.material.card.MaterialCardView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            app:cardBackgroundColor="@color/primaryLightColor"
+                            app:cardBackgroundColor="@color/report_details_category_bg"
                             app:cardCornerRadius="12dp"
                             app:cardElevation="0dp"
                             app:strokeWidth="0dp">
@@ -100,7 +100,7 @@
                                 android:paddingHorizontal="12dp"
                                 android:paddingVertical="4dp"
                                 android:text="Category"
-                                android:textColor="@color/primaryColor"
+                                android:textColor="@color/report_details_category"
                                 android:textSize="11sp"
                                 android:textStyle="bold" />
                         </com.google.android.material.card.MaterialCardView>
@@ -121,20 +121,58 @@
                         android:gravity="center_vertical"
                         android:orientation="horizontal">
 
-                        <ImageView
-                            android:layout_width="16dp"
-                            android:layout_height="16dp"
-                            android:src="@drawable/ic_calendar"
-                            app:tint="@color/textSecondary" />
-
-                        <TextView
-                            android:id="@+id/tvDetailDate"
+                        <!-- Date -->
+                        <LinearLayout
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_marginStart="6dp"
-                            android:text="Submitted Date &amp; Time"
-                            android:textColor="@color/textSecondary"
-                            android:textSize="13sp" />
+                            android:gravity="center_vertical"
+                            android:orientation="horizontal">
+
+                            <ImageView
+                                android:layout_width="16dp"
+                                android:layout_height="16dp"
+                                android:src="@drawable/ic_calendar"
+                                app:tint="@color/report_details_date_time_icon"
+                                android:contentDescription="@null" />
+
+                            <TextView
+                                android:id="@+id/tvDetailDate"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginStart="6dp"
+                                android:text="Submitted Date"
+                                android:textColor="@color/report_details_date"
+                                android:textSize="13sp" />
+                        </LinearLayout>
+
+                        <!-- Spacer -->
+                        <View
+                            android:layout_width="16dp"
+                            android:layout_height="1dp" />
+
+                        <!-- Time -->
+                        <LinearLayout
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:gravity="center_vertical"
+                            android:orientation="horizontal">
+
+                            <ImageView
+                                android:layout_width="16dp"
+                                android:layout_height="16dp"
+                                android:src="@drawable/ic_clock"
+                                app:tint="@color/report_details_date_time_icon"
+                                android:contentDescription="@null" />
+
+                            <TextView
+                                android:id="@+id/tvDetailTime"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginStart="6dp"
+                                android:text="Submitted Time"
+                                android:textColor="@color/report_details_time"
+                                android:textSize="13sp" />
+                        </LinearLayout>
                     </LinearLayout>
 
                 </LinearLayout>
@@ -169,7 +207,7 @@
                             android:layout_width="18dp"
                             android:layout_height="18dp"
                             android:src="@drawable/ic_image"
-                            app:tint="@color/primaryColor"
+                            app:tint="@color/report_details_evidence_label"
                             android:contentDescription="@null" />
 
                         <TextView
@@ -177,7 +215,7 @@
                             android:layout_height="wrap_content"
                             android:layout_marginStart="8dp"
                             android:text="Supporting Evidence"
-                            android:textColor="@color/primaryColor"
+                            android:textColor="@color/report_details_evidence_label"
                             android:textStyle="bold"
                             android:textSize="15sp"
                             android:letterSpacing="0.02" />
@@ -205,10 +243,11 @@
                             <com.google.android.material.card.MaterialCardView
                                 android:layout_width="match_parent"
                                 android:layout_height="match_parent"
-                                app:cardCornerRadius="12dp"
+                                app:cardCornerRadius="16dp"
                                 app:cardElevation="0dp"
-                                app:strokeWidth="0dp"
-                                app:cardBackgroundColor="@color/bg_f8fafc">
+                                app:strokeWidth="1dp"
+                                app:strokeColor="@color/divider_e2e8f0"
+                                app:cardBackgroundColor="@color/report_details_evidence_card_bg">
 
                                 <FrameLayout
                                     android:layout_width="match_parent"
@@ -224,10 +263,9 @@
                                         android:id="@+id/ivDetailEvidence"
                                         android:layout_width="match_parent"
                                         android:layout_height="match_parent"
-                                        android:scaleType="centerCrop"
+                                        android:scaleType="fitCenter"
                                         android:src="@drawable/bg_report_placeholder"
-                                        android:contentDescription="Evidence"
-                                        app:shapeAppearanceOverlay="@style/CircleAppearanceOverlay" />
+                                        android:contentDescription="Evidence" />
 
                                     <com.google.android.material.tabs.TabLayout
                                         android:id="@+id/tabLayoutIndicator"
@@ -265,7 +303,7 @@
                                 android:layout_width="48dp"
                                 android:layout_height="48dp"
                                 android:src="@drawable/ic_image"
-                                app:tint="#CBD5E1"
+                                app:tint="@color/report_details_evidence_icon"
                                 android:contentDescription="@null" />
 
                             <TextView
@@ -274,7 +312,7 @@
                                 android:layout_height="wrap_content"
                                 android:layout_marginTop="12dp"
                                 android:text="No Evidence Uploaded"
-                                android:textColor="@color/textPrimary"
+                                android:textColor="@color/report_details_no_evidence_text"
                                 android:textSize="14sp"
                                 android:textStyle="bold" />
 
@@ -318,14 +356,14 @@
                             android:layout_width="18dp"
                             android:layout_height="18dp"
                             android:src="@drawable/ic_file_text"
-                            app:tint="@color/primaryColor" />
+                            app:tint="@color/report_details_desc_label" />
 
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginStart="8dp"
                             android:text="Description"
-                            android:textColor="@color/primaryColor"
+                            android:textColor="@color/report_details_desc_label"
                             android:textStyle="bold"
                             android:textSize="15sp"
                             android:letterSpacing="0.02" />
@@ -354,7 +392,7 @@
                             android:padding="16dp"
                             android:lineSpacingMultiplier="1.4"
                             android:text="Full Description"
-                            android:textColor="@color/text_334155"
+                            android:textColor="@color/report_details_desc_content"
                             android:textSize="14sp" />
                     </com.google.android.material.card.MaterialCardView>
 
@@ -367,8 +405,8 @@
                         app:cardCornerRadius="100dp"
                         app:cardElevation="0dp"
                         app:strokeWidth="1.2dp"
-                        app:strokeColor="@color/related_report_badge_stroke"
-                        app:cardBackgroundColor="@color/related_report_badge_bg">
+                        app:strokeColor="@color/report_details_related_item_text"
+                        app:cardBackgroundColor="@color/report_details_related_item_bg">
 
                         <LinearLayout
                             android:layout_width="wrap_content"
@@ -382,7 +420,7 @@
                                 android:layout_width="16dp"
                                 android:layout_height="16dp"
                                 android:src="@drawable/ic_package"
-                                app:tint="@color/primaryColor" />
+                                app:tint="@color/report_details_related_item_text" />
 
                             <TextView
                                 android:id="@+id/tvDetailRelatedId"
@@ -393,7 +431,7 @@
                                 android:clickable="true"
                                 android:focusable="true"
                                 android:text="Related Item: Link"
-                                android:textColor="@color/primaryColor"
+                                android:textColor="@color/report_details_related_item_text"
                                 android:textSize="13sp"
                                 android:textStyle="bold" />
                         </LinearLayout>
@@ -423,7 +461,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Report Resolution Timeline"
-                        android:textColor="@color/primaryColor"
+                        android:textColor="@color/report_details_timeline_title"
                         android:textStyle="bold"
                         android:textSize="15sp"
                         android:letterSpacing="0.02" />
@@ -1106,15 +1144,15 @@
                 android:layout_height="52dp"
                 android:layout_marginBottom="32dp"
                 android:text="Delete Report"
-                android:textColor="@color/errorColor"
+                android:textColor="@color/report_details_delete_btn_text"
                 android:textStyle="bold"
                 app:backgroundTint="@color/transparent"
-                app:strokeColor="@color/errorColor"
+                app:strokeColor="@color/report_details_delete_btn"
                 app:strokeWidth="1.2dp"
                 app:cornerRadius="12dp"
                 app:icon="@drawable/ic_delete"
                 app:iconGravity="textStart"
-                app:iconTint="@color/errorColor"
+                app:iconTint="@color/report_details_delete_btn_text"
                 app:iconPadding="8dp" />
 
         </LinearLayout>

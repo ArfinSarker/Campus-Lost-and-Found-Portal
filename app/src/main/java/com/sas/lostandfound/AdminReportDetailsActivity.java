@@ -40,7 +40,7 @@ public class AdminReportDetailsActivity extends AppCompatActivity {
 
     private TextView tvHeaderTitle;
     private TextView tvReporterName, tvUniversityId, tvReporterRole, tvReporterDeptDesignation, tvReporterPhone, tvReporterEmail;
-    private TextView tvTitle, tvCategory, tvDescription, tvRelatedId, tvDate;
+    private TextView tvTitle, tvCategory, tvDescription, tvRelatedId, tvDate, tvTime;
     private TextView tvFinalReportId, tvFinalStatus, tvFinalAdminNote;
     private TextView tvReviewedByDetails, tvReviewTimestampDetails, tvReviewProgressSubText;
     private ImageView ivEvidence, ivTimelineReviewStatusIcon, ivReporterAvatar;
@@ -115,6 +115,7 @@ public class AdminReportDetailsActivity extends AppCompatActivity {
         tvRelatedId = findViewById(R.id.tvDetailRelatedId);
         layoutRelatedContainer = findViewById(R.id.layoutRelatedContainer);
         tvDate = findViewById(R.id.tvDetailDate);
+        tvTime = findViewById(R.id.tvDetailTime);
 
         
         ivEvidence = findViewById(R.id.ivDetailEvidence);
@@ -206,7 +207,10 @@ public class AdminReportDetailsActivity extends AppCompatActivity {
             toolbar.setNavigationOnClickListener(v -> finish());
             com.google.android.material.appbar.AppBarLayout appBarLayout = findViewById(R.id.appBarLayout);
             if (appBarLayout != null) {
-                HeaderColorHelper.setup(this, appBarLayout, toolbar);
+                int headerColor = androidx.core.content.ContextCompat.getColor(this, R.color.report_details_header_bg);
+                boolean isNight = (getResources().getConfiguration().uiMode & android.content.res.Configuration.UI_MODE_NIGHT_MASK) 
+                        == android.content.res.Configuration.UI_MODE_NIGHT_YES;
+                HeaderColorHelper.setup(this, appBarLayout, headerColor, headerColor, !isNight);
             }
         }
     }
@@ -398,20 +402,22 @@ public class AdminReportDetailsActivity extends AppCompatActivity {
                 layoutRelatedContainer.setVisibility(View.VISIBLE);
             }
         }
-        SimpleDateFormat sdf = new SimpleDateFormat("dd MMM yyyy, hh:mm a", Locale.getDefault());
-        tvDate.setText(sdf.format(new Date(report.getTimestamp())));
-        
-
+        SimpleDateFormat dateSdf = new SimpleDateFormat("dd MMM yyyy", Locale.getDefault());
+        SimpleDateFormat timeSdf = new SimpleDateFormat("hh:mm a", Locale.getDefault());
+        tvDate.setText(dateSdf.format(new Date(report.getTimestamp())));
+        if (tvTime != null) {
+            tvTime.setText(timeSdf.format(new Date(report.getTimestamp())));
+        }
         
         setupImageSlider(report.getImageUrls(), report.getImageUrl());
         String displayId = ReportIdFormatter.format(report.getDisplayId());
         tvFinalReportId.setText("Report ID: " + displayId);
         
         // Status Timeline styling
-        int greenColor = androidx.core.content.ContextCompat.getColor(this, R.color.timeline_green);
-        int greenBgColor = androidx.core.content.ContextCompat.getColor(this, R.color.timeline_green_bg);
-        int orangeColor = androidx.core.content.ContextCompat.getColor(this, R.color.timeline_orange);
-        int orangeBgColor = androidx.core.content.ContextCompat.getColor(this, R.color.timeline_orange_bg);
+        int greenColor = androidx.core.content.ContextCompat.getColor(this, R.color.report_details_timeline_indicator);
+        int greenBgColor = androidx.core.content.ContextCompat.getColor(this, R.color.report_details_timeline_indicator_bg);
+        int orangeColor = androidx.core.content.ContextCompat.getColor(this, R.color.report_details_timeline_indicator);
+        int orangeBgColor = androidx.core.content.ContextCompat.getColor(this, R.color.report_details_timeline_indicator_bg);
         int grayColor = androidx.core.content.ContextCompat.getColor(this, R.color.timeline_gray);
         int grayBgColor = androidx.core.content.ContextCompat.getColor(this, R.color.timeline_gray_bg);
         int lineInactiveColor = androidx.core.content.ContextCompat.getColor(this, R.color.timeline_line_inactive);

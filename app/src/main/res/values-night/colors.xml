@@ -451,6 +451,7 @@
     <color name="search_header_title">#F8FAFC</color>
     <color name="search_header_back_icon_tint">#38BDF8</color>
     <color name="search_header_filter_icon_tint">#34D399</color>
+    <color name="search_header_divider">@color/transparent</color>
     <color name="search_input_bg">#1E293B</color>
     <color name="search_input_border">#334155</color>
     <color name="search_input_text">#F1F5F9</color>
@@ -489,4 +490,119 @@
     <color name="search_chip_found_selected_bg">#1A34D399</color>
     <color name="search_chip_resolved_selected">#A78BFA</color>
     <color name="search_chip_resolved_selected_bg">#1AA78BFA</color>
+
+    <!-- Item Details Screen Colors (Night Mode - Unique Premium Palette) -->
+    <color name="item_details_header_bg_start">@color/profile_header_bg</color>
+    <color name="item_details_header_bg_end">@color/profile_header_bg</color>
+    <color name="item_details_card_bg">@color/profile_card_bg</color>
+    <color name="item_details_item_name_label">#D8B4FE</color>
+    <color name="item_details_item_name_val">#FFFFFF</color>
+    <color name="item_details_category_label">#40E0D0</color>
+    <color name="item_details_category_val">#E0FFFF</color>
+    <color name="item_details_desc_label">#FDE047</color>
+    <color name="item_details_desc_content">#FFFDD0</color>
+    <color name="item_details_handling_label">#FF8C00</color>
+    <color name="item_details_handling_val">#FFE4B5</color>
+    <color name="item_details_verification_label">#FF69B4</color>
+    <color name="item_details_verification_val">#FFB6C1</color>
+    <color name="item_details_location_label">#86EFAC</color>
+    <color name="item_details_location_val">#F0FFF0</color>
+    <color name="item_details_location_icon">#32CD32</color>
+    <color name="item_details_date_time_label">#93C5FD</color>
+    <color name="item_details_date_time_val">#F0F8FF</color>
+    <color name="item_details_date_time_icon">#1E90FF</color>
+    <color name="item_details_reported_by_label">#FF7F50</color>
+    <color name="item_details_returned_to_label">#FFD700</color>
+    <color name="item_details_user_id">#C7D2FE</color>
+    <color name="item_details_user_name">#E0F2F1</color>
+    <color name="item_details_user_role">#38BDF8</color>
+    <color name="item_details_user_designation">#E5E7EB</color>
+    <color name="item_details_user_contact">#F5DEB3</color>
+
+    <!-- Custom Screens Backgrounds and Headers (Night Mode - Unique Premium Palettes) -->
+    <!-- 1. All Reported Items (Deep Space Blue & Navy) -->
+    <color name="all_reported_bg">#0B132B</color>
+    <color name="all_reported_header_bg">#1C2541</color>
+
+    <!-- 2. My Found Reports (Deep Teal Blue & Steel Blue) -->
+    <color name="my_found_bg">#102A43</color>
+    <color name="my_found_header_bg">#243B53</color>
+
+    <!-- 3. My Lost Reports (Deep Charcoal Purple & Slate Purple) -->
+    <color name="my_lost_bg">#1A1C29</color>
+    <color name="my_lost_header_bg">#2E3148</color>
+
+    <!-- 4. My Resolved Items (Deep Midnight Blue & Midnight Slate) -->
+    <color name="my_resolved_bg">#0D1B2A</color>
+    <color name="my_resolved_header_bg">#1B263B</color>
+
+    <!-- 5. My Admin Reports (Deep Midnight Orchid & Dark Purple Velvet) -->
+    <color name="my_admin_reports_bg">#151026</color>
+    <color name="my_admin_reports_header_bg">#2A2048</color>
+
+    <!-- Report Details Screen Colors (Night Mode - Unique Premium Palette) -->
+    <color name="report_details_header_bg">#1A2536</color>
+    <color name="report_details_name">#38BDF8</color>
+    <color name="report_details_category">#F472B6</color>
+    <color name="report_details_category_bg">#291823</color>
+    <color name="report_details_date">#FB7185</color>
+    <color name="report_details_time">#34D399</color>
+    <color name="report_details_date_time_icon">#FBBF24</color>
+    <color name="report_details_evidence_label">#A78BFA</color>
+    <color name="report_details_no_evidence_text">#94A3B8</color>
+    <color name="report_details_evidence_icon">#F59E0B</color>
+    <color name="report_details_evidence_card_bg">#111827</color>
+    <color name="report_details_desc_label">#2DD4BF</color>
+    <color name="report_details_desc_content">#E2E8F0</color>
+    <color name="report_details_related_item_bg">#1E1B4B</color>
+    <color name="report_details_related_item_text">#818CF8</color>
+    <color name="report_details_timeline_title">#FB923C</color>
+    <color name="report_details_timeline_indicator">#F43F5E</color>
+    <color name="report_details_timeline_indicator_bg">#2E181D</color>
+    <color name="report_details_delete_btn">#EF4444</color>
+    <color name="report_details_delete_btn_text">#FFFFFF</color>
+
+    <!-- Report to Admin Screen Colors (Night Mode - Unique Premium Palette) -->
+    <color name="report_admin_header_bg">@color/profile_background</color>
+    <color name="report_admin_input_bg">#1E293B</color>
+    <color name="report_admin_input_border">#475569</color>
+    <color name="report_admin_primary">#60A5FA</color>
+    <color name="report_admin_secondary">#34D399</color>
+    <color name="report_admin_submit_btn">#818CF8</color>
+    <color name="report_admin_btn_border">#C084FC</color>
+
+    <!-- Report to Admin Dropdown Colors (Night Mode - Unique Premium Palette) -->
+    <color name="report_admin_dropdown_bg">@color/report_admin_input_bg</color>
+    <color name="report_admin_dropdown_border">#7C3AED</color>
+    <color name="report_admin_dropdown_text">#F5F3FF</color>
+    <color name="report_admin_dropdown_icon">#A78BFA</color>
+    <color name="report_admin_dropdown_menu_bg">#1E1B26</color>
+    <color name="report_admin_dropdown_menu_text">#DDD6FE</color>
+    <color name="report_admin_dropdown_item_selected">#4C1D95</color>
+    <color name="report_admin_dropdown_item_hovered">#3B0764</color>
+    <color name="report_admin_dropdown_item_pressed">#581C87</color>
+
+    <!-- Developer Info Colors (Night Mode - Unique Premium Palette) -->
+    <color name="dev_info_header_bg">@color/profile_background</color>
+    <color name="dev_info_screen_bg">@color/profile_background</color>
+    <color name="dev_info_primary_text">#F8FAFC</color>
+    <color name="dev_info_secondary_text">#94A3B8</color>
+    <color name="dev_info_card_bg">#1E293B</color>
+    <color name="dev_info_card_border">#334155</color>
+    <color name="dev_info_accent">#38BDF8</color>
+    <color name="dev_info_email_icon">#FCA5A5</color>
+    <color name="dev_info_phone_icon">#86EFAC</color>
+    <color name="dev_info_github_icon">#93C5FD</color>
+    <color name="dev_info_linkedin_icon">#C4B5FD</color>
+    <color name="dev_info_link_text">#60A5FA</color>
+    <color name="dev_info_skill_bg">#312E81</color>
+    <color name="dev_info_skill_text">#C7D2FE</color>
+    <color name="dev_info_italic_text">#FBCFE8</color>
+    <color name="dev_info_divider">#334155</color>
+
+    <!-- Developer Info Button Colors (Night Mode - Unique Premium Palette) -->
+    <color name="dev_btn_text">#0F172A</color>
+    <color name="dev_btn_bg">#F59E0B</color>
+    <color name="dev_btn_bg_pressed">#D97706</color>
+    <color name="dev_btn_border">#FBBF24</color>
 </resources>

@@ -4,14 +4,14 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/dev_bg"
+    android:background="@color/dev_info_screen_bg"
     android:fitsSystemWindows="true">
 
     <com.google.android.material.appbar.AppBarLayout
         android:id="@+id/appBarLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@color/primaryColor"
+        android:background="@color/dev_info_header_bg"
         android:fitsSystemWindows="true"
         app:elevation="0dp">
 
@@ -73,8 +73,10 @@
                 android:layout_height="wrap_content"
                 android:layout_margin="16dp"
                 app:cardCornerRadius="20dp"
-                app:cardElevation="8dp"
-                app:cardBackgroundColor="@color/cardBackgroundColor">
+                app:cardElevation="0dp"
+                app:strokeWidth="1.2dp"
+                app:strokeColor="@color/dev_info_card_border"
+                app:cardBackgroundColor="@color/dev_info_card_bg">
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -92,7 +94,7 @@
                         android:src="@drawable/developer_profile_picture"
                         android:contentDescription="@string/dev_name"
                         app:shapeAppearanceOverlay="@style/CircleImageView"
-                        app:strokeColor="@color/dev_primary"
+                        app:strokeColor="@color/dev_info_accent"
                         app:strokeWidth="3dp" />
 
                     <TextView
@@ -100,7 +102,7 @@
                         android:layout_height="wrap_content"
                         android:layout_marginTop="16dp"
                         android:text="@string/dev_name"
-                        android:textColor="@color/dev_text_dark"
+                        android:textColor="@color/dev_info_primary_text"
                         android:textSize="24sp"
                         android:textStyle="bold" />
 
@@ -109,7 +111,7 @@
                         android:layout_height="wrap_content"
                         android:layout_marginTop="4dp"
                         android:text="@string/dev_subtitle"
-                        android:textColor="@color/dev_text_muted"
+                        android:textColor="@color/dev_info_secondary_text"
                         android:textSize="16sp" />
 
                 </LinearLayout>
@@ -122,8 +124,10 @@
                 android:layout_marginHorizontal="16dp"
                 android:layout_marginBottom="16dp"
                 app:cardCornerRadius="16dp"
-                app:cardElevation="6dp"
-                app:cardBackgroundColor="@color/cardBackgroundColor">
+                app:cardElevation="0dp"
+                app:strokeWidth="1.2dp"
+                app:strokeColor="@color/dev_info_card_border"
+                app:cardBackgroundColor="@color/dev_info_card_bg">
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -135,7 +139,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="@string/dev_about_title"
-                        android:textColor="@color/dev_primary"
+                        android:textColor="@color/dev_info_accent"
                         android:textSize="18sp"
                         android:textStyle="bold" />
 
@@ -145,7 +149,7 @@
                         android:layout_marginTop="8dp"
                         android:lineSpacingExtra="4dp"
                         android:text="@string/dev_about_desc"
-                        android:textColor="@color/dev_text_body"
+                        android:textColor="@color/dev_info_secondary_text"
                         android:textSize="15sp" />
 
                 </LinearLayout>
@@ -158,8 +162,10 @@
                 android:layout_marginHorizontal="16dp"
                 android:layout_marginBottom="16dp"
                 app:cardCornerRadius="16dp"
-                app:cardElevation="6dp"
-                app:cardBackgroundColor="@color/cardBackgroundColor">
+                app:cardElevation="0dp"
+                app:strokeWidth="1.2dp"
+                app:strokeColor="@color/dev_info_card_border"
+                app:cardBackgroundColor="@color/dev_info_card_bg">
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -171,7 +177,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="@string/dev_skills_title"
-                        android:textColor="@color/dev_primary"
+                        android:textColor="@color/dev_info_accent"
                         android:textSize="18sp"
                         android:textStyle="bold" />
 
@@ -188,7 +194,8 @@
                             android:paddingHorizontal="12dp"
                             android:paddingVertical="6dp"
                             android:background="@drawable/edit_text_rounded"
-                            android:textColor="@color/mutedBlueGrey"
+                            android:backgroundTint="@color/dev_info_skill_bg"
+                            android:textColor="@color/dev_info_skill_text"
                             android:textSize="14sp"
                             android:layout_marginEnd="8dp"/>
 
@@ -199,7 +206,8 @@
                             android:paddingHorizontal="12dp"
                             android:paddingVertical="6dp"
                             android:background="@drawable/edit_text_rounded"
-                            android:textColor="@color/mutedBlueGrey"
+                            android:backgroundTint="@color/dev_info_skill_bg"
+                            android:textColor="@color/dev_info_skill_text"
                             android:textSize="14sp"
                             android:layout_marginEnd="8dp"/>
 
@@ -210,7 +218,8 @@
                             android:paddingHorizontal="12dp"
                             android:paddingVertical="6dp"
                             android:background="@drawable/edit_text_rounded"
-                            android:textColor="@color/mutedBlueGrey"
+                            android:backgroundTint="@color/dev_info_skill_bg"
+                            android:textColor="@color/dev_info_skill_text"
                             android:textSize="14sp"/>
                     </LinearLayout>
 
@@ -227,7 +236,8 @@
                             android:paddingHorizontal="12dp"
                             android:paddingVertical="6dp"
                             android:background="@drawable/edit_text_rounded"
-                            android:textColor="@color/mutedBlueGrey"
+                            android:backgroundTint="@color/dev_info_skill_bg"
+                            android:textColor="@color/dev_info_skill_text"
                             android:textSize="14sp"
                             android:layout_marginEnd="8dp"/>
 
@@ -238,7 +248,8 @@
                             android:paddingHorizontal="12dp"
                             android:paddingVertical="6dp"
                             android:background="@drawable/edit_text_rounded"
-                            android:textColor="@color/mutedBlueGrey"
+                            android:backgroundTint="@color/dev_info_skill_bg"
+                            android:textColor="@color/dev_info_skill_text"
                             android:textSize="14sp"
                             android:layout_marginEnd="8dp"/>
 
@@ -249,7 +260,8 @@
                             android:paddingHorizontal="12dp"
                             android:paddingVertical="6dp"
                             android:background="@drawable/edit_text_rounded"
-                            android:textColor="@color/mutedBlueGrey"
+                            android:backgroundTint="@color/dev_info_skill_bg"
+                            android:textColor="@color/dev_info_skill_text"
                             android:textSize="14sp"/>
                     </LinearLayout>
 
@@ -263,8 +275,10 @@
                 android:layout_marginHorizontal="16dp"
                 android:layout_marginBottom="16dp"
                 app:cardCornerRadius="16dp"
-                app:cardElevation="6dp"
-                app:cardBackgroundColor="@color/cardBackgroundColor">
+                app:cardElevation="0dp"
+                app:strokeWidth="1.2dp"
+                app:strokeColor="@color/dev_info_card_border"
+                app:cardBackgroundColor="@color/dev_info_card_bg">
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -276,7 +290,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="@string/dev_edu_title"
-                        android:textColor="@color/dev_primary"
+                        android:textColor="@color/dev_info_accent"
                         android:textSize="18sp"
                         android:textStyle="bold" />
 
@@ -290,7 +304,7 @@
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:text="@string/dev_edu_degree"
-                            android:textColor="@color/dev_text_dark"
+                            android:textColor="@color/dev_info_primary_text"
                             android:textSize="17sp"
                             android:textStyle="bold" />
 
@@ -299,7 +313,7 @@
                             android:layout_height="wrap_content"
                             android:layout_marginTop="6dp"
                             android:text="@string/dev_edu_uni"
-                            android:textColor="@color/dev_text_muted"
+                            android:textColor="@color/dev_info_secondary_text"
                             android:textSize="15sp" />
 
                         <TextView
@@ -307,7 +321,7 @@
                             android:layout_height="wrap_content"
                             android:layout_marginTop="6dp"
                             android:text="@string/dev_edu_batch"
-                            android:textColor="@color/dev_text_italic"
+                            android:textColor="@color/dev_info_italic_text"
                             android:textSize="14sp"
                             android:textStyle="italic" />
 
@@ -323,8 +337,10 @@
                 android:layout_marginHorizontal="16dp"
                 android:layout_marginBottom="16dp"
                 app:cardCornerRadius="16dp"
-                app:cardElevation="6dp"
-                app:cardBackgroundColor="@color/cardBackgroundColor">
+                app:cardElevation="0dp"
+                app:strokeWidth="1.2dp"
+                app:strokeColor="@color/dev_info_card_border"
+                app:cardBackgroundColor="@color/dev_info_card_bg">
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -337,7 +353,7 @@
                         android:layout_height="wrap_content"
                         android:layout_marginBottom="12dp"
                         android:text="@string/dev_contact_title"
-                        android:textColor="@color/dev_primary"
+                        android:textColor="@color/dev_info_accent"
                         android:textSize="18sp"
                         android:textStyle="bold" />
 
@@ -357,23 +373,22 @@
                             android:layout_width="24dp"
                             android:layout_height="24dp"
                             android:src="@drawable/ic_email"
-                            app:tint="@color/lightRed"
-                            android:contentDescription="@string/dev_email"
-                            android:textColor="@color/primaryDarkColor" />
+                            app:tint="@color/dev_info_email_icon"
+                            android:contentDescription="@string/dev_email" />
 
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginStart="16dp"
                             android:text="@string/dev_email"
-                            android:textColor="@color/dev_link"
+                            android:textColor="@color/dev_info_link_text"
                             android:textSize="15sp" />
                     </LinearLayout>
 
                     <View
                         android:layout_width="match_parent"
                         android:layout_height="1dp"
-                        android:background="@color/dev_divider" />
+                        android:background="@color/dev_info_divider" />
 
                     <!-- Phone Row -->
                     <LinearLayout
@@ -391,24 +406,22 @@
                             android:layout_width="24dp"
                             android:layout_height="24dp"
                             android:src="@drawable/ic_phone"
-                            app:tint="@color/vibrantGreen"
-                            android:contentDescription="@string/dev_phone"
-                            android:textColor="@color/primaryDarkColor"
-                            />
+                            app:tint="@color/dev_info_phone_icon"
+                            android:contentDescription="@string/dev_phone" />
 
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginStart="16dp"
                             android:text="@string/dev_phone"
-                            android:textColor="@color/dev_link"
+                            android:textColor="@color/dev_info_link_text"
                             android:textSize="15sp" />
                     </LinearLayout>
 
                     <View
                         android:layout_width="match_parent"
                         android:layout_height="1dp"
-                        android:background="@color/dev_divider" />
+                        android:background="@color/dev_info_divider" />
 
                     <!-- GitHub Row -->
                     <LinearLayout
@@ -426,24 +439,22 @@
                             android:layout_width="24dp"
                             android:layout_height="24dp"
                             android:src="@drawable/ic_github"
-                            app:tint="@color/black"
-                            android:contentDescription="@string/dev_skill_github"
-                            android:textColor="@color/primaryDarkColor"
-                             />
+                            app:tint="@color/dev_info_github_icon"
+                            android:contentDescription="@string/dev_skill_github" />
 
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginStart="16dp"
                             android:text="@string/dev_github"
-                            android:textColor="@color/dev_link"
+                            android:textColor="@color/dev_info_link_text"
                             android:textSize="15sp" />
                     </LinearLayout>
 
                     <View
                         android:layout_width="match_parent"
                         android:layout_height="1dp"
-                        android:background="@color/dev_divider" />
+                        android:background="@color/dev_info_divider" />
 
                     <!-- LinkedIn Row -->
                     <LinearLayout
@@ -461,17 +472,15 @@
                             android:layout_width="24dp"
                             android:layout_height="24dp"
                             android:src="@drawable/ic_linkedin"
-                            app:tint="@color/scienceBlue"
-                            android:contentDescription="@string/dev_skill_linkedin"
-                            android:textColor="@color/primaryDarkColor"
-                             />
+                            app:tint="@color/dev_info_linkedin_icon"
+                            android:contentDescription="@string/dev_skill_linkedin" />
 
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginStart="16dp"
                             android:text="@string/dev_linkedin"
-                            android:textColor="@color/dev_link"
+                            android:textColor="@color/dev_info_link_text"
                             android:textSize="15sp" />
                     </LinearLayout>
 

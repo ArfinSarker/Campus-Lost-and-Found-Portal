@@ -89,7 +89,10 @@ public class AllReportedItemsActivity extends AppCompatActivity {
         swipeRefreshLayout = findViewById(R.id.swipeRefreshLayout);
         
         if (appBarLayout != null) {
-            HeaderColorHelper.setup(this, appBarLayout, toolbar);
+            int headerColor = ContextCompat.getColor(this, R.color.all_reported_header_bg);
+            boolean isNight = (getResources().getConfiguration().uiMode & android.content.res.Configuration.UI_MODE_NIGHT_MASK) 
+                    == android.content.res.Configuration.UI_MODE_NIGHT_YES;
+            HeaderColorHelper.setup(this, appBarLayout, headerColor, headerColor, !isNight);
         }
         
         String prefix = (userName != null && !userName.isEmpty()) ? userName + "'s " : "All ";

@@ -230,7 +230,10 @@ public class ItemDetailActivity extends AppCompatActivity {
     }
 
     private void setupScrollBehavior() {
-        HeaderColorHelper.setup(this, appBarLayout, toolbar);
+        int startColor = ContextCompat.getColor(this, R.color.item_details_header_bg_start);
+        int endColor = ContextCompat.getColor(this, R.color.item_details_header_bg_end);
+        boolean lightStatusBar = !ThemeManager.isDarkModeEnabled(this);
+        HeaderColorHelper.setup(this, appBarLayout, startColor, endColor, lightStatusBar);
     }
 
     private void setupSwipeRefresh() {
