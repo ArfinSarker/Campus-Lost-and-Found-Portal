@@ -12,7 +12,7 @@
         android:id="@+id/appBarLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@color/primaryDarkColor"
+        android:background="@color/admin_requests_header_bg"
         android:fitsSystemWindows="true"
         app:elevation="0dp">
 
@@ -21,9 +21,9 @@
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
             app:navigationIcon="@drawable/ic_arrow_back"
-            app:navigationIconTint="@color/white"
+            app:navigationIconTint="@color/profile_header_text_color"
             app:title=""
-            app:titleTextColor="@color/white">
+            app:titleTextColor="@color/profile_header_text_color">
 
             <TextView
                 android:id="@+id/tvHeaderTitle"
@@ -34,7 +34,7 @@
                 android:ellipsize="end"
                 android:maxLines="1"
                 android:text="@string/label_admin_requests"
-                android:textColor="@color/white" />
+                android:textColor="@color/profile_header_text_color" />
 
         </com.google.android.material.appbar.MaterialToolbar>
 

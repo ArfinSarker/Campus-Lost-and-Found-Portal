@@ -137,7 +137,7 @@ public class AdminReportDetailsActivity extends AppCompatActivity {
         ivReporterAvatar = findViewById(R.id.ivDetailReporterAvatar);
         if (ivReporterAvatar != null) {
             ivReporterAvatar.setImageTintList(android.content.res.ColorStateList.valueOf(
-                    androidx.core.content.ContextCompat.getColor(this, R.color.primaryColor)));
+                    androidx.core.content.ContextCompat.getColor(this, R.color.report_details_icon_header_reporter)));
         }
         wrapperDot2 = findViewById(R.id.wrapperDot2);
         wrapperDot3 = findViewById(R.id.wrapperDot3);
@@ -207,7 +207,7 @@ public class AdminReportDetailsActivity extends AppCompatActivity {
             toolbar.setNavigationOnClickListener(v -> finish());
             com.google.android.material.appbar.AppBarLayout appBarLayout = findViewById(R.id.appBarLayout);
             if (appBarLayout != null) {
-                int headerColor = androidx.core.content.ContextCompat.getColor(this, R.color.report_details_header_bg);
+                int headerColor = androidx.core.content.ContextCompat.getColor(this, R.color.report_details_bg_main);
                 boolean isNight = (getResources().getConfiguration().uiMode & android.content.res.Configuration.UI_MODE_NIGHT_MASK) 
                         == android.content.res.Configuration.UI_MODE_NIGHT_YES;
                 HeaderColorHelper.setup(this, appBarLayout, headerColor, headerColor, !isNight);
@@ -260,7 +260,7 @@ public class AdminReportDetailsActivity extends AppCompatActivity {
                             } else {
                                 ivReporterAvatar.setImageResource(R.drawable.ic_user);
                                 ivReporterAvatar.setImageTintList(android.content.res.ColorStateList.valueOf(
-                                        androidx.core.content.ContextCompat.getColor(AdminReportDetailsActivity.this, R.color.primaryColor)));
+                                        androidx.core.content.ContextCompat.getColor(AdminReportDetailsActivity.this, R.color.report_details_icon_header_reporter)));
                             }
                         }
                     }
@@ -304,13 +304,12 @@ public class AdminReportDetailsActivity extends AppCompatActivity {
                 android.text.SpannableString phoneSpannable = new android.text.SpannableString(reporterPhoneVal);
                 int start = 0;
                 int end = phoneSpannable.length();
-                phoneSpannable.setSpan(new android.text.style.UnderlineSpan(), start, end, 0);
                 phoneSpannable.setSpan(new android.text.style.ForegroundColorSpan(
-                        getResources().getColor(R.color.primaryColor)), start, end, 0);
+                        getResources().getColor(R.color.report_details_btn_profile_stroke)), start, end, 0);
                 tvReporterPhone.setText(phoneSpannable);
             } else {
                 tvReporterPhone.setText("N/A");
-                tvReporterPhone.setTextColor(androidx.core.content.ContextCompat.getColor(this, R.color.textSecondary));
+                tvReporterPhone.setTextColor(androidx.core.content.ContextCompat.getColor(this, R.color.report_details_text_secondary_new));
             }
         }
         if (layoutRowPhone != null) {
@@ -347,13 +346,12 @@ public class AdminReportDetailsActivity extends AppCompatActivity {
                 android.text.SpannableString emailSpannable = new android.text.SpannableString(reporterEmailVal);
                 int start = 0;
                 int end = emailSpannable.length();
-                emailSpannable.setSpan(new android.text.style.UnderlineSpan(), start, end, 0);
                 emailSpannable.setSpan(new android.text.style.ForegroundColorSpan(
-                        getResources().getColor(R.color.primaryColor)), start, end, 0);
+                        getResources().getColor(R.color.report_details_btn_profile_stroke)), start, end, 0);
                 tvReporterEmail.setText(emailSpannable);
             } else {
                 tvReporterEmail.setText("N/A");
-                tvReporterEmail.setTextColor(androidx.core.content.ContextCompat.getColor(this, R.color.textSecondary));
+                tvReporterEmail.setTextColor(androidx.core.content.ContextCompat.getColor(this, R.color.report_details_text_secondary_new));
             }
         }
         if (layoutRowEmail != null) {
@@ -390,14 +388,14 @@ public class AdminReportDetailsActivity extends AppCompatActivity {
         if (related == null || related.isEmpty() || "None".equalsIgnoreCase(related)) {
             tvRelatedId.setText("Related Item: None");
             tvRelatedId.setEnabled(false);
-            tvRelatedId.setTextColor(androidx.core.content.ContextCompat.getColor(this, R.color.textSecondary));
+            tvRelatedId.setTextColor(androidx.core.content.ContextCompat.getColor(this, R.color.report_details_text_secondary_new));
             if (layoutRelatedContainer != null) {
                 layoutRelatedContainer.setVisibility(View.GONE);
             }
         } else {
             tvRelatedId.setText("Related Item: " + ReportIdFormatter.format(related));
             tvRelatedId.setEnabled(true);
-            tvRelatedId.setTextColor(getResources().getColor(R.color.primaryColor));
+            tvRelatedId.setTextColor(getResources().getColor(R.color.report_details_btn_profile_stroke));
             if (layoutRelatedContainer != null) {
                 layoutRelatedContainer.setVisibility(View.VISIBLE);
             }
@@ -576,7 +574,7 @@ public class AdminReportDetailsActivity extends AppCompatActivity {
     private void stopAutoSlide() { if (sliderRunnable != null) sliderHandler.removeCallbacks(sliderRunnable); }
 
     private void confirmDeleteForUser() {
-        new AlertDialog.Builder(this).setTitle("Delete Report").setMessage("Permanently remove this report?").setPositiveButton("Delete", (dialog, which) -> {
+        DeleteReportDialogHelper.show(this, () -> {
             if (progressBar != null) progressBar.setVisibility(View.VISIBLE);
             
             SupabaseDatabaseHelper.delete("admin_reports", "id=eq." + reportId, new SupabaseDatabaseHelper.DatabaseCallback<Void>() {
@@ -593,7 +591,7 @@ public class AdminReportDetailsActivity extends AppCompatActivity {
                     ErrorHelper.showError(tvTitle, "Failed to delete: " + errorMessage);
                 }
             });
-        }).setNegativeButton("Cancel", null).show();
+        });
     }
 
     private void navigateToRelatedItem(String relatedId) {

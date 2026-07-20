@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_margin="24dp"
+    app:cardCornerRadius="24dp"
+    app:cardElevation="0dp"
+    app:cardBackgroundColor="@color/delete_report_dialog_bg"
+    app:strokeColor="@color/delete_report_dialog_border"
+    app:strokeWidth="1.2dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="24dp"
+        android:gravity="center">
+
+        <!-- Warning Icon -->
+        <ImageView
+            android:id="@+id/ivWarningIcon"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:src="@drawable/ic_warning"
+            app:tint="@color/delete_report_dialog_warning_icon"
+            android:contentDescription="@null" />
+
+        <!-- Title -->
+        <TextView
+            android:id="@+id/tvTitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:text="Delete Report"
+            android:textSize="20sp"
+            android:fontFamily="sans-serif-black"
+            android:textColor="@color/delete_report_dialog_text_title"
+            android:gravity="center" />
+
+        <!-- Description -->
+        <TextView
+            android:id="@+id/tvDescription"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:text="Are you sure you want to permanently delete this report? This action cannot be undone."
+            android:textSize="14sp"
+            android:fontFamily="sans-serif"
+            android:textColor="@color/delete_report_dialog_text_desc"
+            android:gravity="center"
+            android:lineSpacingMultiplier="1.2" />
+
+        <!-- Action Buttons Layout -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:orientation="vertical">
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnDelete"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:layout_marginBottom="12dp"
+                android:text="Delete Report"
+                android:textAllCaps="false"
+                android:textColor="@color/delete_report_dialog_btn_delete_text"
+                app:backgroundTint="@color/delete_report_dialog_btn_delete_bg"
+                app:strokeColor="@color/delete_report_dialog_btn_delete_stroke"
+                app:strokeWidth="1.5dp"
+                app:cornerRadius="12dp"
+                app:elevation="0dp"
+                android:insetTop="0dp"
+                android:insetBottom="0dp" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnCancel"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:text="Cancel"
+                android:textAllCaps="false"
+                android:textColor="@color/delete_report_dialog_btn_cancel_text"
+                app:backgroundTint="@color/delete_report_dialog_btn_cancel_bg"
+                app:strokeColor="@color/delete_report_dialog_btn_cancel_stroke"
+                app:strokeWidth="1.5dp"
+                app:cornerRadius="12dp"
+                app:elevation="0dp"
+                android:insetTop="0dp"
+                android:insetBottom="0dp" />
+
+        </LinearLayout>
+
+    </LinearLayout>
+</com.google.android.material.card.MaterialCardView>

@@ -66,7 +66,9 @@ public class AdminRequestsActivity extends AppCompatActivity {
 
         com.google.android.material.appbar.AppBarLayout appBarLayout = findViewById(R.id.appBarLayout);
         if (appBarLayout != null) {
-            HeaderColorHelper.setup(this, appBarLayout, toolbar);
+            int headerColor = ContextCompat.getColor(this, R.color.admin_requests_header_bg);
+            boolean lightStatusBar = androidx.core.graphics.ColorUtils.calculateLuminance(headerColor) > 0.5;
+            HeaderColorHelper.setup(this, appBarLayout, headerColor, headerColor, lightStatusBar);
         }
     }
 

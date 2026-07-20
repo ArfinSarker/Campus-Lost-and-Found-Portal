@@ -4,14 +4,14 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/bg_f8fafc"
+    android:background="@color/profile_background"
     android:fitsSystemWindows="true">
 
     <com.google.android.material.appbar.AppBarLayout
         android:id="@+id/appBarLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@color/primaryDarkColor"
+        android:background="@color/profile_background"
         android:fitsSystemWindows="true"
         app:elevation="0dp">
 
@@ -20,18 +20,23 @@
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
             app:navigationIcon="@drawable/ic_arrow_back"
-            app:navigationIconTint="@color/white">
+            app:navigationIconTint="@color/search_header_back_icon_tint">
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
                 android:text="Report Management"
-                android:textColor="@color/white"
+                android:textColor="@color/search_header_title"
                 android:textSize="20sp"
                 android:fontFamily="sans-serif-black" />
 
         </com.google.android.material.appbar.MaterialToolbar>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@color/search_header_divider" />
     </com.google.android.material.appbar.AppBarLayout>
 
     <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
@@ -68,10 +73,10 @@
                         android:clickable="true"
                         android:focusable="true"
                         app:cardCornerRadius="16dp"
-                        app:cardElevation="2dp"
-                        app:strokeColor="@color/divider_e2e8f0"
-                        app:strokeWidth="1dp"
-                        app:cardBackgroundColor="@color/cardBackgroundColor">
+                        app:cardElevation="0dp"
+                        app:strokeColor="@color/search_card_border"
+                        app:strokeWidth="1.2dp"
+                        app:cardBackgroundColor="@color/search_card_bg">
                         <LinearLayout
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
@@ -101,7 +106,7 @@
                                 android:layout_height="wrap_content"
                                 android:layout_marginTop="8dp"
                                 android:text="0"
-                                android:textColor="@color/text_1e293b"
+                                android:textColor="@color/search_card_title_text"
                                 android:fontFamily="sans-serif-black"
                                 android:textSize="24sp" />
 
@@ -110,7 +115,7 @@
                                 android:layout_height="wrap_content"
                                 android:layout_marginTop="2dp"
                                 android:text="@string/stat_total_reports"
-                                android:textColor="@color/text_64748b"
+                                android:textColor="@color/search_card_meta_text"
                                 android:textSize="11sp"
                                 android:gravity="center"
                                 android:fontFamily="sans-serif-medium" />
@@ -127,10 +132,10 @@
                         android:clickable="true"
                         android:focusable="true"
                         app:cardCornerRadius="16dp"
-                        app:cardElevation="2dp"
-                        app:strokeColor="@color/divider_e2e8f0"
-                        app:strokeWidth="1dp"
-                        app:cardBackgroundColor="@color/cardBackgroundColor">
+                        app:cardElevation="0dp"
+                        app:strokeColor="@color/search_card_border"
+                        app:strokeWidth="1.2dp"
+                        app:cardBackgroundColor="@color/search_card_bg">
                         <LinearLayout
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
@@ -160,7 +165,7 @@
                                 android:layout_height="wrap_content"
                                 android:layout_marginTop="8dp"
                                 android:text="0"
-                                android:textColor="@color/text_1e293b"
+                                android:textColor="@color/search_card_title_text"
                                 android:fontFamily="sans-serif-black"
                                 android:textSize="24sp" />
 
@@ -169,7 +174,7 @@
                                 android:layout_height="wrap_content"
                                 android:layout_marginTop="2dp"
                                 android:text="@string/stat_pending_reports"
-                                android:textColor="@color/text_64748b"
+                                android:textColor="@color/search_card_meta_text"
                                 android:textSize="11sp"
                                 android:gravity="center"
                                 android:fontFamily="sans-serif-medium" />
@@ -186,10 +191,10 @@
                         android:clickable="true"
                         android:focusable="true"
                         app:cardCornerRadius="16dp"
-                        app:cardElevation="2dp"
-                        app:strokeColor="@color/divider_e2e8f0"
-                        app:strokeWidth="1dp"
-                        app:cardBackgroundColor="@color/cardBackgroundColor">
+                        app:cardElevation="0dp"
+                        app:strokeColor="@color/search_card_border"
+                        app:strokeWidth="1.2dp"
+                        app:cardBackgroundColor="@color/search_card_bg">
                         <LinearLayout
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
@@ -219,7 +224,7 @@
                                 android:layout_height="wrap_content"
                                 android:layout_marginTop="8dp"
                                 android:text="0"
-                                android:textColor="@color/text_1e293b"
+                                android:textColor="@color/search_card_title_text"
                                 android:fontFamily="sans-serif-black"
                                 android:textSize="24sp" />
 
@@ -228,7 +233,7 @@
                                 android:layout_height="wrap_content"
                                 android:layout_marginTop="2dp"
                                 android:text="@string/stat_reviewed_reports"
-                                android:textColor="@color/text_64748b"
+                                android:textColor="@color/search_card_meta_text"
                                 android:textSize="11sp"
                                 android:gravity="center"
                                 android:fontFamily="sans-serif-medium" />
@@ -244,21 +249,22 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="8dp"
                     android:hint="@string/hint_search_reports"
-                    app:startIconDrawable="@drawable/ic_search"
-                    app:startIconTint="#64748B"
-                    app:boxCornerRadiusTopStart="12dp"
-                    app:boxCornerRadiusTopEnd="12dp"
-                    app:boxCornerRadiusBottomStart="12dp"
-                    app:boxCornerRadiusBottomEnd="12dp"
-                    app:boxStrokeColor="@color/primaryColor"
-                    app:hintTextColor="@color/primaryColor">
+                    app:endIconMode="clear_text"
+                    app:boxBackgroundColor="@color/search_input_bg"
+                    app:boxStrokeColor="@color/search_input_box_stroke"
+                    app:hintTextColor="@color/search_label_focused"
+                    android:textColorHint="@color/search_input_placeholder"
+                    app:startIconTint="@color/search_input_search_icon_tint"
+                    app:endIconTint="@color/search_input_clear_icon_tint"
+                    app:shapeAppearanceOverlay="@style/ShapeAppearance.App.SmallComponent"
+                    app:startIconDrawable="@drawable/ic_search">
 
                     <com.google.android.material.textfield.TextInputEditText
                         android:id="@+id/etSearch"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:inputType="text"
-                        android:textColor="@color/text_1e293b"
+                        android:textColor="@color/search_input_text"
                         android:textSize="15sp"
                         android:paddingVertical="14dp" />
                 </com.google.android.material.textfield.TextInputLayout>
@@ -280,19 +286,34 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="All"
+                            app:chipBackgroundColor="@color/search_chip_all_bg"
+                            app:chipStrokeColor="@color/search_chip_all_stroke"
+                            app:chipStrokeWidth="1dp"
+                            android:textColor="@color/search_chip_all_text"
+                            app:closeIconVisible="false"
                             android:checked="true" />
                         <com.google.android.material.chip.Chip
                             android:id="@+id/chipPending"
                             style="@style/Widget.Material3.Chip.Filter"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="Pending" />
+                            android:text="Pending"
+                            app:chipBackgroundColor="@color/search_chip_lost_bg"
+                            app:chipStrokeColor="@color/search_chip_lost_stroke"
+                            app:chipStrokeWidth="1dp"
+                            android:textColor="@color/search_chip_lost_text"
+                            app:closeIconVisible="false" />
                         <com.google.android.material.chip.Chip
                             android:id="@+id/chipReviewed"
                             style="@style/Widget.Material3.Chip.Filter"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="Reviewed" />
+                            android:text="Reviewed"
+                            app:chipBackgroundColor="@color/search_chip_found_bg"
+                            app:chipStrokeColor="@color/search_chip_found_stroke"
+                            app:chipStrokeWidth="1dp"
+                            android:textColor="@color/search_chip_found_text"
+                            app:closeIconVisible="false" />
                     </com.google.android.material.chip.ChipGroup>
                 </HorizontalScrollView>
 

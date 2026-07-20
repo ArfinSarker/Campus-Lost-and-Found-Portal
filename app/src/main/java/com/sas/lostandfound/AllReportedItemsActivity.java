@@ -147,10 +147,22 @@ public class AllReportedItemsActivity extends AppCompatActivity {
 
         // Fetch Lost Items
         String lostQuery = "deleted_by_user=eq.false";
-        if (targetUserId != null) lostQuery += "&reporter_id=eq." + targetUserId;
+        if (targetUserId != null) {
+            if ("returned".equalsIgnoreCase(filterStatus) || "resolved".equalsIgnoreCase(filterStatus)) {
+                lostQuery += "&or=(reporter_id.eq." + targetUserId + ",claimed_by_id.eq." + targetUserId + ")&admin_status=in.(Returned,Claimed)";
+            } else {
+                lostQuery += "&reporter_id=eq." + targetUserId;
+            }
+        }
 
         String foundQuery = "deleted_by_user=eq.false";
-        if (targetUserId != null) foundQuery += "&reporter_id=eq." + targetUserId;
+        if (targetUserId != null) {
+            if ("returned".equalsIgnoreCase(filterStatus) || "resolved".equalsIgnoreCase(filterStatus)) {
+                foundQuery += "&or=(reporter_id.eq." + targetUserId + ",claimed_by_id.eq." + targetUserId + ")&admin_status=in.(Returned,Claimed)";
+            } else {
+                foundQuery += "&reporter_id=eq." + targetUserId;
+            }
+        }
 
         final int[] completedCount = {0};
         final List<Item> lostList = new ArrayList<>();
@@ -213,12 +225,21 @@ public class AllReportedItemsActivity extends AppCompatActivity {
     private void applyFilter() {
         List<Item> newFilteredList = new ArrayList<>();
         for (Item item : itemList) {
-            boolean matchesUser = (targetUserId == null || item.getUserId().equals(targetUserId));
+            boolean isReturnedOrResolved = "returned".equalsIgnoreCase(filterStatus) || "resolved".equalsIgnoreCase(filterStatus);
+            boolean matchesUser;
+            if (targetUserId == null) {
+                matchesUser = true;
+            } else if (isReturnedOrResolved) {
+                matchesUser = (item.getUserId() != null && item.getUserId().equals(targetUserId)) || 
+                              (item.getClaimedById() != null && item.getClaimedById().equals(targetUserId));
+            } else {
+                matchesUser = item.getUserId() != null && item.getUserId().equals(targetUserId);
+            }
             if (!matchesUser) continue;
 
             if (filterStatus == null) {
                 newFilteredList.add(item);
-            } else if ("returned".equalsIgnoreCase(filterStatus) || "resolved".equalsIgnoreCase(filterStatus)) {
+            } else if (isReturnedOrResolved) {
                 String status = item.getAdminStatus();
                 if ("Returned".equalsIgnoreCase(status) || "Claimed".equalsIgnoreCase(status)) {
                     newFilteredList.add(item);

@@ -54,18 +54,21 @@ public class DashboardActivity extends AppCompatActivity {
         recyclerView.setAdapter(adapter);
         recyclerView.setNestedScrollingEnabled(false);
 
-        // Load cached guest items for instant rendering
+        // Load cached guest items asynchronously to avoid blocking the main thread
         SharedPreferences cachedPrefs = getSharedPreferences("MyApp", MODE_PRIVATE);
-        String cachedGuestJson = cachedPrefs.getString("cachedGuestRecentItemsJson", "");
+        final String cachedGuestJson = cachedPrefs.getString("cachedGuestRecentItemsJson", "");
         if (!cachedGuestJson.isEmpty()) {
-            try {
-                List<Item> cachedItems = new com.google.gson.Gson().fromJson(cachedGuestJson, new com.google.gson.reflect.TypeToken<List<Item>>(){}.getType());
-                if (cachedItems != null && !cachedItems.isEmpty()) {
-                    adapter.updateItems(cachedItems);
+            new Thread(() -> {
+                try {
+                    final List<Item> cachedItems = new com.google.gson.Gson().fromJson(cachedGuestJson, 
+                            new com.google.gson.reflect.TypeToken<List<Item>>(){}.getType());
+                    if (cachedItems != null && !cachedItems.isEmpty()) {
+                        runOnUiThread(() -> adapter.updateItems(cachedItems));
+                    }
+                } catch (Exception e) {
+                    // ignore
                 }
-            } catch (Exception e) {
-                // ignore
-            }
+            }).start();
         }
 
         setupSwipeRefresh();

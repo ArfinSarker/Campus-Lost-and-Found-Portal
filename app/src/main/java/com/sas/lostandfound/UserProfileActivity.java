@@ -160,6 +160,14 @@ public class UserProfileActivity extends AppCompatActivity {
     }
 
     @Override
+    protected void onResume() {
+        super.onResume();
+        if (currentUniversityId != null && isDataLoaded) {
+            setupParallelActivityTracking(currentUniversityId);
+        }
+    }
+
+    @Override
     public void onEnterAnimationComplete() {
         super.onEnterAnimationComplete();
         // Heavy work deferred until after the activity transition animation is complete
@@ -344,7 +352,7 @@ public class UserProfileActivity extends AppCompatActivity {
                 });
 
         // 3. Parallel Returned Items Count
-        String q = "or=(claimed_by_id.eq." + userId + ",and(reporter_id.eq." + userId + ",admin_status.eq.Returned))";
+        String q = "or=(reporter_id.eq." + userId + ",claimed_by_id.eq." + userId + ")&admin_status=in.(Returned,Claimed)";
 
         SupabaseDatabaseHelper.select("reports", q + "&deleted_by_user=eq.false&select=count",
                 new TypeToken<List<Map<String, Object>>>() {
@@ -380,13 +388,29 @@ public class UserProfileActivity extends AppCompatActivity {
     }
 
     private void confirmDeleteUser() {
-        new AlertDialog.Builder(this)
-                .setTitle("Delete User")
-                .setMessage("Are you sure you want to delete this user permanently? This action cannot be undone.")
-                .setPositiveButton("Delete", (dialog, which) -> deleteUserFromDatabase())
-                .setNegativeButton("Cancel", null)
-                .setIcon(android.R.drawable.ic_dialog_alert)
-                .show();
+        View dialogView = getLayoutInflater().inflate(R.layout.dialog_delete_user_confirm, null);
+        androidx.appcompat.app.AlertDialog dialog = new androidx.appcompat.app.AlertDialog.Builder(this)
+                .setView(dialogView)
+                .create();
+
+        if (dialog.getWindow() != null) {
+            dialog.getWindow().setBackgroundDrawable(new android.graphics.drawable.ColorDrawable(android.graphics.Color.TRANSPARENT));
+        }
+
+        View btnCancel = dialogView.findViewById(R.id.btnCancel);
+        View btnDelete = dialogView.findViewById(R.id.btnDelete);
+
+        if (btnCancel != null) {
+            btnCancel.setOnClickListener(v -> dialog.dismiss());
+        }
+        if (btnDelete != null) {
+            btnDelete.setOnClickListener(v -> {
+                dialog.dismiss();
+                deleteUserFromDatabase();
+            });
+        }
+
+        dialog.show();
     }
 
     private void deleteUserFromDatabase() {
@@ -978,9 +1002,8 @@ public class UserProfileActivity extends AppCompatActivity {
         final String email = etEmail.getText().toString().trim();
         if (!email.isEmpty()) {
             android.text.SpannableString emailSpannable = new android.text.SpannableString(email);
-            emailSpannable.setSpan(new android.text.style.UnderlineSpan(), 0, email.length(), 0);
             emailSpannable.setSpan(new android.text.style.ForegroundColorSpan(
-                    ContextCompat.getColor(this, R.color.primaryColor)), 0, email.length(), 0);
+                    ContextCompat.getColor(this, R.color.profile_admin_view_email_text)), 0, email.length(), 0);
 
             etEmail.setEnabled(true);
             etEmail.setFocusable(false);
@@ -1021,11 +1044,26 @@ public class UserProfileActivity extends AppCompatActivity {
         }
         final String fullPhone = tempPhone;
 
+        // Display the Phone Number using the same style and layout as the phone number shown in the Report Details screen
+        if (tilCountryCode != null && tilPhone != null) {
+            tilCountryCode.setVisibility(View.GONE);
+            View parent = (View) tilPhone.getParent();
+            if (parent instanceof androidx.constraintlayout.widget.ConstraintLayout) {
+                androidx.constraintlayout.widget.ConstraintLayout constraintLayout = (androidx.constraintlayout.widget.ConstraintLayout) parent;
+                androidx.constraintlayout.widget.ConstraintSet constraintSet = new androidx.constraintlayout.widget.ConstraintSet();
+                constraintSet.clone(constraintLayout);
+                constraintSet.connect(R.id.tilPhone, androidx.constraintlayout.widget.ConstraintSet.START, androidx.constraintlayout.widget.ConstraintSet.PARENT_ID, androidx.constraintlayout.widget.ConstraintSet.START, 0);
+                constraintSet.applyTo(constraintLayout);
+            }
+            tilPhone.setStartIconDrawable(R.drawable.ic_phone);
+            tilPhone.setStartIconTintList(android.content.res.ColorStateList.valueOf(
+                    ContextCompat.getColor(this, R.color.profile_icon_phone)));
+        }
+
         if (!phoneBody.isEmpty()) {
-            android.text.SpannableString phoneSpannable = new android.text.SpannableString(phoneBody);
-            phoneSpannable.setSpan(new android.text.style.UnderlineSpan(), 0, phoneBody.length(), 0);
+            android.text.SpannableString phoneSpannable = new android.text.SpannableString(fullPhone);
             phoneSpannable.setSpan(new android.text.style.ForegroundColorSpan(
-                    ContextCompat.getColor(this, R.color.primaryColor)), 0, phoneBody.length(), 0);
+                    ContextCompat.getColor(this, R.color.profile_admin_view_phone_text)), 0, fullPhone.length(), 0);
 
             etPhone.setEnabled(true);
             etPhone.setFocusable(false);
@@ -1055,48 +1093,6 @@ public class UserProfileActivity extends AppCompatActivity {
             });
 
             tilPhone.setEndIconMode(TextInputLayout.END_ICON_NONE);
-
-            // Setup country code to match phone body interactive styling
-            if (actvCountryCode != null) {
-                String countryText = actvCountryCode.getText().toString().trim();
-                if (!countryText.isEmpty()) {
-                    android.text.SpannableString countrySpannable = new android.text.SpannableString(countryText);
-                    countrySpannable.setSpan(new android.text.style.UnderlineSpan(), 0, countryText.length(), 0);
-                    countrySpannable.setSpan(new android.text.style.ForegroundColorSpan(
-                            ContextCompat.getColor(this, R.color.primaryColor)), 0, countryText.length(), 0);
-
-                    if (tilCountryCode != null) {
-                        tilCountryCode.setEnabled(true);
-                    }
-                    actvCountryCode.setEnabled(true);
-                    actvCountryCode.setFocusable(false);
-                    actvCountryCode.setFocusableInTouchMode(false);
-                    actvCountryCode.setCursorVisible(false);
-                    actvCountryCode.setText(countrySpannable, false);
-
-                    actvCountryCode.setOnClickListener(v -> {
-                        Intent intent = new Intent(Intent.ACTION_DIAL);
-                        intent.setData(Uri.parse("tel:" + fullPhone));
-                        try {
-                            startActivity(intent);
-                        } catch (android.content.ActivityNotFoundException e) {
-                            SnackbarManager.show(SnackbarManager.Type.ERROR, "No phone dialer found on this device");
-                        }
-                    });
-
-                    actvCountryCode.setOnLongClickListener(v -> {
-                        android.content.ClipboardManager clipboard = (android.content.ClipboardManager) getSystemService(
-                                android.content.Context.CLIPBOARD_SERVICE);
-                        android.content.ClipData clip = android.content.ClipData.newPlainText("Phone Number",
-                                fullPhone);
-                        if (clipboard != null) {
-                            clipboard.setPrimaryClip(clip);
-                            SnackbarManager.show(SnackbarManager.Type.SUCCESS, "Phone number copied to clipboard");
-                        }
-                        return true; // Consumes the long press, preventing selection cursor handle "|"
-                    });
-                }
-            }
         }
 
         // 3. University ID long click action (for Admin)

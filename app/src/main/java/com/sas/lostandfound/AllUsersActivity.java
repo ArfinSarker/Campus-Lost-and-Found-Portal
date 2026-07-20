@@ -122,7 +122,9 @@ public class AllUsersActivity extends AppCompatActivity {
 
         com.google.android.material.appbar.AppBarLayout appBarLayout = findViewById(R.id.appBarLayout);
         if (appBarLayout != null) {
-            HeaderColorHelper.setup(this, appBarLayout);
+            int headerColor = ContextCompat.getColor(this, R.color.users_header_bg);
+            boolean lightStatusBar = androidx.core.graphics.ColorUtils.calculateLuminance(headerColor) > 0.5;
+            HeaderColorHelper.setup(this, appBarLayout, headerColor, headerColor, lightStatusBar);
         }
     }
 

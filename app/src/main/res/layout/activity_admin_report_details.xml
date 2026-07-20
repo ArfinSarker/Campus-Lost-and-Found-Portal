@@ -4,14 +4,14 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/profile_background"
+    android:background="@color/report_details_bg_main"
     android:fitsSystemWindows="true">
 
     <com.google.android.material.appbar.AppBarLayout
         android:id="@+id/appBarLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@color/primaryDarkColor"
+        android:background="@color/report_details_bg_main"
         android:fitsSystemWindows="true"
         app:elevation="0dp">
 
@@ -20,7 +20,7 @@
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
             app:navigationIcon="@drawable/ic_arrow_back"
-            app:navigationIconTint="@color/white">
+            app:navigationIconTint="@color/report_details_text_primary_new">
 
             <TextView
                 android:id="@+id/tvHeaderTitle"
@@ -31,7 +31,7 @@
                 android:ellipsize="end"
                 android:maxLines="1"
                 android:text="Report Details"
-                android:textColor="@color/white" />
+                android:textColor="@color/report_details_text_primary_new" />
 
         </com.google.android.material.appbar.MaterialToolbar>
 
@@ -724,10 +724,10 @@
                 android:layout_marginBottom="24dp"
                 android:visibility="gone"
                 app:cardCornerRadius="16dp"
-                app:cardElevation="2dp"
-                app:strokeColor="@color/divider_e2e8f0"
-                app:strokeWidth="1dp"
-                app:cardBackgroundColor="@color/cardBackgroundColor">
+                app:cardElevation="0dp"
+                app:strokeColor="@color/report_details_input_border"
+                app:strokeWidth="1.2dp"
+                app:cardBackgroundColor="@color/report_details_card_reporter_bg">
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -751,7 +751,7 @@
                                 android:layout_width="18dp"
                                 android:layout_height="18dp"
                                 android:src="@drawable/ic_user"
-                                app:tint="@color/primaryColor"
+                                app:tint="@color/report_details_icon_header_reporter"
                                 android:contentDescription="@null" />
 
                             <TextView
@@ -760,7 +760,7 @@
                                 android:layout_weight="1"
                                 android:layout_marginStart="8dp"
                                 android:text="Reporter Information"
-                                android:textColor="@color/primaryColor"
+                                android:textColor="@color/report_details_text_primary_new"
                                 android:textStyle="bold"
                                 android:textSize="15sp"
                                 android:letterSpacing="0.02" />
@@ -769,18 +769,18 @@
                             <com.google.android.material.card.MaterialCardView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                app:cardBackgroundColor="@color/blue_badge_bg"
+                                app:cardBackgroundColor="@color/report_manage_category_badge_bg"
                                 app:cardCornerRadius="6dp"
                                 app:cardElevation="0dp"
                                 app:strokeWidth="1dp"
-                                app:strokeColor="@color/blue_badge_icon">
+                                app:strokeColor="@color/report_details_btn_profile_stroke">
                                 <TextView
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
                                     android:paddingHorizontal="8dp"
                                     android:paddingVertical="3dp"
                                     android:text="Submitting Member"
-                                    android:textColor="#0369A1"
+                                    android:textColor="@color/report_details_text_category"
                                     android:textSize="10sp"
                                     android:textStyle="bold" />
                             </com.google.android.material.card.MaterialCardView>
@@ -791,17 +791,17 @@
                             android:layout_height="1dp"
                             android:layout_marginTop="12dp"
                             android:layout_marginBottom="16dp"
-                            android:background="@color/divider_e2e8f0" />
+                            android:background="@color/report_details_input_border" />
 
                         <!-- Stylized profile card -->
                         <com.google.android.material.card.MaterialCardView
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            app:cardBackgroundColor="@color/bg_f8fafc"
+                            app:cardBackgroundColor="@color/report_details_input_bg"
                             app:cardCornerRadius="12dp"
                             app:cardElevation="0dp"
-                            app:strokeColor="@color/divider_e2e8f0"
-                            app:strokeWidth="0dp">
+                            app:strokeColor="@color/report_details_input_border"
+                            app:strokeWidth="1.2dp">
 
                             <LinearLayout
                                 android:layout_width="match_parent"
@@ -818,8 +818,8 @@
                                     app:cardCornerRadius="32dp"
                                     app:cardElevation="0dp"
                                     app:strokeWidth="2dp"
-                                    app:strokeColor="@color/primaryColor"
-                                    app:cardBackgroundColor="@color/bg_f1f5f9">
+                                    app:strokeColor="@color/report_details_btn_profile_stroke"
+                                    app:cardBackgroundColor="@color/report_details_input_bg">
                                     <ImageView
                                         android:id="@+id/ivDetailReporterAvatar"
                                         android:layout_width="match_parent"
@@ -841,7 +841,7 @@
                                         android:layout_width="wrap_content"
                                         android:layout_height="wrap_content"
                                         android:text="..."
-                                        android:textColor="@color/textPrimary"
+                                        android:textColor="@color/report_details_text_primary_new"
                                         android:textSize="18sp"
                                         android:textStyle="bold" />
 
@@ -850,7 +850,7 @@
                                         android:layout_width="wrap_content"
                                         android:layout_height="wrap_content"
                                         android:layout_marginTop="6dp"
-                                        app:cardBackgroundColor="@color/primaryLightColor"
+                                        app:cardBackgroundColor="@color/report_manage_category_badge_bg"
                                         app:cardCornerRadius="6dp"
                                         app:cardElevation="0dp"
                                         app:strokeWidth="0dp">
@@ -861,7 +861,7 @@
                                             android:paddingHorizontal="10dp"
                                             android:paddingVertical="3dp"
                                             android:text="..."
-                                            android:textColor="@color/primaryColor"
+                                            android:textColor="@color/report_details_text_category"
                                             android:textSize="11sp"
                                             android:textStyle="bold" />
                                     </com.google.android.material.card.MaterialCardView>
@@ -895,14 +895,15 @@
                                     android:layout_height="36dp"
                                     app:cardCornerRadius="18dp"
                                     app:cardElevation="0dp"
-                                    app:cardBackgroundColor="@color/blue_badge_bg"
-                                    app:strokeWidth="0dp">
+                                    app:cardBackgroundColor="@color/report_details_input_bg"
+                                    app:strokeWidth="1.2dp"
+                                    app:strokeColor="@color/report_details_input_border">
                                     <ImageView
                                         android:layout_width="18dp"
                                         android:layout_height="18dp"
                                         android:layout_gravity="center"
                                         android:src="@drawable/ic_id_card"
-                                        app:tint="@color/primaryColor"
+                                        app:tint="@color/report_details_icon_id"
                                         android:contentDescription="@null" />
                                 </com.google.android.material.card.MaterialCardView>
 
@@ -916,7 +917,7 @@
                                         android:layout_width="wrap_content"
                                         android:layout_height="wrap_content"
                                         android:text="University ID"
-                                        android:textColor="@color/text_64748b"
+                                        android:textColor="@color/report_details_text_secondary_new"
                                         android:textSize="11sp" />
                                     <TextView
                                         android:id="@+id/tvDetailUniversityId"
@@ -924,7 +925,7 @@
                                         android:layout_height="wrap_content"
                                         android:layout_marginTop="2dp"
                                         android:text="..."
-                                        android:textColor="@color/text_1e293b"
+                                        android:textColor="@color/report_details_text_primary_new"
                                         android:textSize="14sp"
                                         android:textStyle="bold" />
                                 </LinearLayout>
@@ -936,14 +937,9 @@
                                     android:layout_gravity="center_vertical"
                                     android:layout_marginEnd="4dp"
                                     android:src="@drawable/ic_copy"
-                                    app:tint="#94A3B8"
+                                    app:tint="@color/report_details_text_secondary_new"
                                     android:contentDescription="Copy" />
                             </LinearLayout>
-
-                            <View
-                                android:layout_width="match_parent"
-                                android:layout_height="1dp"
-                                android:background="@color/bg_f1f5f9" />
 
                             <!-- Item 2: Dept/Designation (Non-interactive) -->
                             <LinearLayout
@@ -961,14 +957,15 @@
                                     android:layout_height="36dp"
                                     app:cardCornerRadius="18dp"
                                     app:cardElevation="0dp"
-                                    app:cardBackgroundColor="@color/blue_badge_bg"
-                                    app:strokeWidth="0dp">
+                                    app:cardBackgroundColor="@color/report_details_input_bg"
+                                    app:strokeWidth="1.2dp"
+                                    app:strokeColor="@color/report_details_input_border">
                                     <ImageView
                                         android:layout_width="18dp"
                                         android:layout_height="18dp"
                                         android:layout_gravity="center"
                                         android:src="@drawable/ic_building"
-                                        app:tint="@color/primaryColor"
+                                        app:tint="@color/report_details_icon_dept"
                                         android:contentDescription="@null" />
                                 </com.google.android.material.card.MaterialCardView>
 
@@ -981,7 +978,7 @@
                                         android:layout_width="wrap_content"
                                         android:layout_height="wrap_content"
                                         android:text="Dept / Designation"
-                                        android:textColor="@color/text_64748b"
+                                        android:textColor="@color/report_details_text_secondary_new"
                                         android:textSize="11sp" />
                                     <TextView
                                         android:id="@+id/tvDetailReporterDeptDesignation"
@@ -989,16 +986,11 @@
                                         android:layout_height="wrap_content"
                                         android:layout_marginTop="2dp"
                                         android:text="..."
-                                        android:textColor="@color/text_1e293b"
+                                        android:textColor="@color/report_details_text_primary_new"
                                         android:textSize="14sp"
                                         android:textStyle="bold" />
                                 </LinearLayout>
                             </LinearLayout>
-
-                            <View
-                                android:layout_width="match_parent"
-                                android:layout_height="1dp"
-                                android:background="@color/bg_f1f5f9" />
 
                             <!-- Item 3: Phone (Interactive) -->
                             <LinearLayout
@@ -1019,14 +1011,15 @@
                                     android:layout_height="36dp"
                                     app:cardCornerRadius="18dp"
                                     app:cardElevation="0dp"
-                                    app:cardBackgroundColor="@color/blue_badge_bg"
-                                    app:strokeWidth="0dp">
+                                    app:cardBackgroundColor="@color/report_details_input_bg"
+                                    app:strokeWidth="1.2dp"
+                                    app:strokeColor="@color/report_details_input_border">
                                     <ImageView
                                         android:layout_width="18dp"
                                         android:layout_height="18dp"
                                         android:layout_gravity="center"
                                         android:src="@drawable/ic_phone"
-                                        app:tint="@color/primaryColor"
+                                        app:tint="@color/report_details_icon_phone"
                                         android:contentDescription="@null" />
                                 </com.google.android.material.card.MaterialCardView>
 
@@ -1040,7 +1033,7 @@
                                         android:layout_width="wrap_content"
                                         android:layout_height="wrap_content"
                                         android:text="Contact Phone"
-                                        android:textColor="@color/text_64748b"
+                                        android:textColor="@color/report_details_text_secondary_new"
                                         android:textSize="11sp" />
                                     <TextView
                                         android:id="@+id/tvDetailReporterPhone"
@@ -1048,7 +1041,7 @@
                                         android:layout_height="wrap_content"
                                         android:layout_marginTop="2dp"
                                         android:text="..."
-                                        android:textColor="@color/text_1e293b"
+                                        android:textColor="@color/report_details_text_primary_new"
                                         android:textSize="14sp"
                                         android:textStyle="bold" />
                                 </LinearLayout>
@@ -1060,14 +1053,9 @@
                                     android:layout_gravity="center_vertical"
                                     android:layout_marginEnd="4dp"
                                     android:src="@drawable/ic_chevron_right"
-                                    app:tint="#94A3B8"
+                                    app:tint="@color/report_details_text_secondary_new"
                                     android:contentDescription="Dial" />
                             </LinearLayout>
-
-                            <View
-                                android:layout_width="match_parent"
-                                android:layout_height="1dp"
-                                android:background="@color/bg_f1f5f9" />
 
                             <!-- Item 4: Email (Interactive) -->
                             <LinearLayout
@@ -1088,14 +1076,15 @@
                                     android:layout_height="36dp"
                                     app:cardCornerRadius="18dp"
                                     app:cardElevation="0dp"
-                                    app:cardBackgroundColor="@color/blue_badge_bg"
-                                    app:strokeWidth="0dp">
+                                    app:cardBackgroundColor="@color/report_details_input_bg"
+                                    app:strokeWidth="1.2dp"
+                                    app:strokeColor="@color/report_details_input_border">
                                     <ImageView
                                         android:layout_width="18dp"
                                         android:layout_height="18dp"
                                         android:layout_gravity="center"
                                         android:src="@drawable/ic_email"
-                                        app:tint="@color/primaryColor"
+                                        app:tint="@color/report_details_icon_email"
                                         android:contentDescription="@null" />
                                 </com.google.android.material.card.MaterialCardView>
 
@@ -1109,7 +1098,7 @@
                                         android:layout_width="wrap_content"
                                         android:layout_height="wrap_content"
                                         android:text="Contact Email"
-                                        android:textColor="@color/text_64748b"
+                                        android:textColor="@color/report_details_text_secondary_new"
                                         android:textSize="11sp" />
                                     <TextView
                                         android:id="@+id/tvDetailReporterEmail"
@@ -1117,7 +1106,7 @@
                                         android:layout_height="wrap_content"
                                         android:layout_marginTop="2dp"
                                         android:text="..."
-                                        android:textColor="@color/text_1e293b"
+                                        android:textColor="@color/report_details_text_primary_new"
                                         android:textSize="14sp"
                                         android:textStyle="bold" />
                                 </LinearLayout>
@@ -1129,7 +1118,7 @@
                                     android:layout_gravity="center_vertical"
                                     android:layout_marginEnd="4dp"
                                     android:src="@drawable/ic_chevron_right"
-                                    app:tint="#94A3B8"
+                                    app:tint="@color/report_details_text_secondary_new"
                                     android:contentDescription="Mail" />
                             </LinearLayout>
                         </LinearLayout>
@@ -1144,15 +1133,15 @@
                 android:layout_height="52dp"
                 android:layout_marginBottom="32dp"
                 android:text="Delete Report"
-                android:textColor="@color/report_details_delete_btn_text"
+                android:textColor="@color/report_details_btn_delete_stroke"
                 android:textStyle="bold"
                 app:backgroundTint="@color/transparent"
-                app:strokeColor="@color/report_details_delete_btn"
+                app:strokeColor="@color/report_details_btn_delete_stroke"
                 app:strokeWidth="1.2dp"
                 app:cornerRadius="12dp"
                 app:icon="@drawable/ic_delete"
                 app:iconGravity="textStart"
-                app:iconTint="@color/report_details_delete_btn_text"
+                app:iconTint="@color/report_details_btn_delete_stroke"
                 app:iconPadding="8dp" />
 
         </LinearLayout>

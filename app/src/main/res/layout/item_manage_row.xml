@@ -14,9 +14,9 @@
     android:foreground="?attr/selectableItemBackground"
     app:cardCornerRadius="16dp"
     app:cardElevation="0dp"
-    app:cardBackgroundColor="@color/surfaceColor"
-    app:strokeWidth="1dp"
-    app:strokeColor="@color/dividerColor"
+    app:cardBackgroundColor="@color/manage_card_bg"
+    app:strokeWidth="1.2dp"
+    app:strokeColor="@color/manage_card_border"
     app:cardPreventCornerOverlap="false"
     app:cardUseCompatPadding="false">
 
@@ -46,14 +46,14 @@
                 android:layout_height="match_parent"
                 android:scaleType="centerCrop"
                 android:src="@drawable/ic_package"
-                android:background="@color/bg_f8fafc"
+                android:background="@color/manage_header_bg"
                 android:contentDescription="@string/item_image_description" />
 
             <TextView
                 android:id="@+id/tvIcon"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:background="@color/bg_f8fafc"
+                android:background="@color/manage_header_bg"
                 android:gravity="center"
                 android:text="📦"
                 android:textSize="36sp"
@@ -97,7 +97,7 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             app:strokeWidth="1.5dp"
-            app:strokeColor="#FFFFFF">
+            app:strokeColor="@color/manage_badge_stroke">
 
             <TextView
                 android:id="@+id/tvStatusBadge"
@@ -125,7 +125,7 @@
             app:layout_constraintTop_toTopOf="parent"
             app:cardBackgroundColor="#CC0F172A"
             app:strokeWidth="1dp"
-            app:strokeColor="#33FFFFFF">
+            app:strokeColor="@color/manage_card_border">
 
             <TextView
                 android:id="@+id/tvDisplayId"
@@ -145,7 +145,7 @@
             android:id="@+id/vImageSeparator"
             android:layout_width="0dp"
             android:layout_height="1dp"
-            android:background="@color/dividerColor"
+            android:background="@color/manage_card_border"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toBottomOf="@id/flImageContainer" />
@@ -170,7 +170,7 @@
                 android:ellipsize="end"
                 android:fontFamily="sans-serif-medium"
                 android:maxLines="1"
-                android:textColor="@color/textPrimary"
+                android:textColor="@color/manage_text_primary"
                 android:textSize="16sp"
                 android:textStyle="bold"
                 tools:text="Black Lenovo Backpack" />
@@ -188,7 +188,7 @@
                     android:layout_height="12dp"
                     android:src="@drawable/ic_location"
                     android:contentDescription="@null"
-                    app:tint="@color/primaryColor" />
+                    app:tint="@color/manage_icon_location" />
 
                 <TextView
                     android:id="@+id/tvItemLocation"
@@ -197,7 +197,7 @@
                     android:layout_marginStart="6dp"
                     android:ellipsize="end"
                     android:maxLines="1"
-                    android:textColor="@color/textSecondary"
+                    android:textColor="@color/manage_text_secondary"
                     android:textSize="12sp"
                     android:fontFamily="sans-serif"
                     tools:text="Library Ground Floor" />
@@ -223,14 +223,14 @@
                         android:layout_height="12dp"
                         android:src="@drawable/ic_clock"
                         android:contentDescription="@null"
-                        app:tint="@color/textSecondary" />
+                        app:tint="@color/manage_icon_time" />
 
                     <TextView
                         android:id="@+id/tvItemDate"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginStart="6dp"
-                        android:textColor="@color/textSecondary"
+                        android:textColor="@color/manage_date_text"
                         android:textSize="12sp"
                         android:fontFamily="sans-serif"
                         tools:text="15 May 2024" />
@@ -244,7 +244,7 @@
                     android:layout_centerVertical="true"
                     android:src="@drawable/ic_chevron_right_small"
                     android:contentDescription="@null"
-                    app:tint="@color/primaryColor" />
+                    app:tint="@color/manage_icon_chevron" />
 
             </RelativeLayout>
         </LinearLayout>

@@ -251,7 +251,10 @@ public class AdminReportReviewActivity extends AppCompatActivity {
             
             com.google.android.material.appbar.AppBarLayout appBarLayout = findViewById(R.id.appBarLayout);
             if (appBarLayout != null) {
-                HeaderColorHelper.setup(this, appBarLayout, toolbar);
+                int headerColor = ContextCompat.getColor(this, R.color.report_details_bg_main);
+                boolean isNight = (getResources().getConfiguration().uiMode & android.content.res.Configuration.UI_MODE_NIGHT_MASK) 
+                        == android.content.res.Configuration.UI_MODE_NIGHT_YES;
+                HeaderColorHelper.setup(this, appBarLayout, headerColor, headerColor, !isNight);
             }
         }
     }
@@ -332,12 +335,11 @@ public class AdminReportReviewActivity extends AppCompatActivity {
             String phoneVal = report.getPhone();
             if (phoneVal != null && !phoneVal.isEmpty() && !"N/A".equalsIgnoreCase(phoneVal.trim())) {
                 SpannableString phoneSpannable = new SpannableString(phoneVal.trim());
-                phoneSpannable.setSpan(new android.text.style.UnderlineSpan(), 0, phoneSpannable.length(), 0);
-                phoneSpannable.setSpan(new ForegroundColorSpan(ContextCompat.getColor(this, R.color.primaryColor)), 0, phoneSpannable.length(), 0);
+                phoneSpannable.setSpan(new ForegroundColorSpan(ContextCompat.getColor(this, R.color.report_details_btn_profile_stroke)), 0, phoneSpannable.length(), 0);
                 tvReporterPhone.setText(phoneSpannable);
             } else {
                 tvReporterPhone.setText("N/A");
-                tvReporterPhone.setTextColor(ContextCompat.getColor(this, R.color.textSecondary));
+                tvReporterPhone.setTextColor(ContextCompat.getColor(this, R.color.report_details_text_secondary_new));
             }
         }
 
@@ -345,12 +347,11 @@ public class AdminReportReviewActivity extends AppCompatActivity {
             String emailVal = report.getEmail();
             if (emailVal != null && !emailVal.isEmpty() && !"N/A".equalsIgnoreCase(emailVal.trim())) {
                 SpannableString emailSpannable = new SpannableString(emailVal.trim());
-                emailSpannable.setSpan(new android.text.style.UnderlineSpan(), 0, emailSpannable.length(), 0);
-                emailSpannable.setSpan(new ForegroundColorSpan(ContextCompat.getColor(this, R.color.primaryColor)), 0, emailSpannable.length(), 0);
+                emailSpannable.setSpan(new ForegroundColorSpan(ContextCompat.getColor(this, R.color.report_details_btn_profile_stroke)), 0, emailSpannable.length(), 0);
                 tvReporterEmail.setText(emailSpannable);
             } else {
                 tvReporterEmail.setText("N/A");
-                tvReporterEmail.setTextColor(ContextCompat.getColor(this, R.color.textSecondary));
+                tvReporterEmail.setTextColor(ContextCompat.getColor(this, R.color.report_details_text_secondary_new));
             }
         }
         fetchReporterExtraInfo(report.getUniversityId());
@@ -447,11 +448,12 @@ public class AdminReportReviewActivity extends AppCompatActivity {
         String fullText = label + value;
         SpannableString spannable = new SpannableString(fullText);
         
-        // Label in Black
-        spannable.setSpan(new ForegroundColorSpan(Color.BLACK), 0, label.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+        // Label in secondary text color
+        int labelColor = ContextCompat.getColor(this, R.color.report_details_text_secondary_new);
+        spannable.setSpan(new ForegroundColorSpan(labelColor), 0, label.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
         
-        // Value in Theme Color
-        int themeColor = ContextCompat.getColor(this, R.color.primaryColor);
+        // Value in primary text color
+        int themeColor = ContextCompat.getColor(this, R.color.report_details_text_primary_new);
         spannable.setSpan(new ForegroundColorSpan(themeColor), label.length(), fullText.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
         
         textView.setText(spannable);
@@ -464,17 +466,18 @@ public class AdminReportReviewActivity extends AppCompatActivity {
         String fullText = label + value;
         SpannableString spannable = new SpannableString(fullText);
         
-        // Label in Black
-        spannable.setSpan(new ForegroundColorSpan(Color.BLACK), 0, label.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+        // Label in secondary text color
+        int labelColor = ContextCompat.getColor(this, R.color.report_details_text_secondary_new);
+        spannable.setSpan(new ForegroundColorSpan(labelColor), 0, label.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
         
         if (value != null && !value.isEmpty() && !"N/A".equalsIgnoreCase(value)) {
-            // Value in Theme Color & Underlined
-            int themeColor = ContextCompat.getColor(this, R.color.primaryColor);
+            // Value in accent color & Underlined
+            int themeColor = ContextCompat.getColor(this, R.color.report_details_btn_profile_stroke);
             spannable.setSpan(new ForegroundColorSpan(themeColor), label.length(), fullText.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
             spannable.setSpan(new android.text.style.UnderlineSpan(), label.length(), fullText.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
         } else {
             // Muted color for N/A
-            int mutedColor = ContextCompat.getColor(this, R.color.textSecondary);
+            int mutedColor = ContextCompat.getColor(this, R.color.report_details_text_secondary_new);
             spannable.setSpan(new ForegroundColorSpan(mutedColor), label.length(), fullText.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
         }
         
@@ -568,28 +571,23 @@ public class AdminReportReviewActivity extends AppCompatActivity {
     }
 
     private void confirmDelete() {
-        new AlertDialog.Builder(this)
-                .setTitle("Delete Report")
-                .setMessage("Are you sure you want to permanently delete this report?")
-                .setPositiveButton("Delete", (dialog, which) -> {
-                    progressBar.setVisibility(View.VISIBLE);
-                    SupabaseDatabaseHelper.delete("admin_reports", "id=eq." + reportId, new SupabaseDatabaseHelper.DatabaseCallback<Void>() {
-                        @Override
-                        public void onSuccess(Void result) {
-                            progressBar.setVisibility(View.GONE);
-                            SnackbarManager.show(SnackbarManager.Type.SUCCESS, "Report deleted successfully");
-                            finish();
-                        }
+        DeleteReportDialogHelper.show(this, () -> {
+            progressBar.setVisibility(View.VISIBLE);
+            SupabaseDatabaseHelper.delete("admin_reports", "id=eq." + reportId, new SupabaseDatabaseHelper.DatabaseCallback<Void>() {
+                @Override
+                public void onSuccess(Void result) {
+                    progressBar.setVisibility(View.GONE);
+                    SnackbarManager.show(SnackbarManager.Type.SUCCESS, "Report deleted successfully");
+                    finish();
+                }
 
-                        @Override
-                        public void onFailure(String errorMessage) {
-                            progressBar.setVisibility(View.GONE);
-                            ErrorHelper.showError(btnUpdate, "Delete failed: " + errorMessage);
-                        }
-                    });
-                })
-                .setNegativeButton("Cancel", null)
-                .show();
+                @Override
+                public void onFailure(String errorMessage) {
+                    progressBar.setVisibility(View.GONE);
+                    ErrorHelper.showError(btnUpdate, "Delete failed: " + errorMessage);
+                }
+            });
+        });
     }
 
     private void updateReport() {

@@ -1054,7 +1054,7 @@ public class ItemDetailActivity extends AppCompatActivity {
     }
 
     private void deleteItem(String itemId, String status) {
-        new AlertDialog.Builder(this).setTitle("Delete Report").setMessage("Permanently delete this report?").setPositiveButton("Delete", (dialog, which) -> {
+        DeleteReportDialogHelper.show(this, () -> {
             if (currentItem != null) deleteItemImages(currentItem);
             String table = "lost".equalsIgnoreCase(status) ? "lost_reports" : "found_reports";
             SupabaseDatabaseHelper.delete(table, "id=eq." + itemId, new SupabaseDatabaseHelper.DatabaseCallback<Void>() {
@@ -1067,7 +1067,7 @@ public class ItemDetailActivity extends AppCompatActivity {
                     ErrorHelper.showError(tvItemName, "Delete failed: " + e); 
                 }
             });
-        }).setNegativeButton("Cancel", null).show();
+        });
     }
 
     private void deleteItemImages(Item item) {

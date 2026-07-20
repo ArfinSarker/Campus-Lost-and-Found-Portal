@@ -59,7 +59,10 @@ public class AdminDashboardActivity extends AppCompatActivity {
 
         com.google.android.material.appbar.AppBarLayout appBarLayout = findViewById(R.id.appBarLayout);
         if (appBarLayout != null) {
-            HeaderColorHelper.setup(this, appBarLayout);
+            int headerColor = androidx.core.content.ContextCompat.getColor(this, R.color.admin_dash_header_bg);
+            boolean isNight = (getResources().getConfiguration().uiMode & android.content.res.Configuration.UI_MODE_NIGHT_MASK) 
+                    == android.content.res.Configuration.UI_MODE_NIGHT_YES;
+            HeaderColorHelper.setup(this, appBarLayout, headerColor, headerColor, !isNight);
         }
     }
 

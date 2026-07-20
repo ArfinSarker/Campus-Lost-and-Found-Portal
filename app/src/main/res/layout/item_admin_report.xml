@@ -6,11 +6,11 @@
     android:layout_height="wrap_content"
     android:layout_marginHorizontal="0dp"
     android:layout_marginVertical="8dp"
-    app:cardCornerRadius="20dp"
-    app:cardElevation="4dp"
-    app:strokeWidth="1dp"
-    app:strokeColor="@color/divider_e2e8f0"
-    app:cardBackgroundColor="@color/cardBackgroundColor"
+    app:cardCornerRadius="16dp"
+    app:cardElevation="0dp"
+    app:strokeWidth="1.2dp"
+    app:strokeColor="@color/report_manage_card_border"
+    app:cardBackgroundColor="@color/report_manage_card_bg"
     app:cardPreventCornerOverlap="false"
     android:clipToOutline="true">
 
@@ -144,7 +144,7 @@
                 android:ellipsize="end"
                 android:fontFamily="sans-serif-medium"
                 android:maxLines="2"
-                android:textColor="@color/text_0f172a"
+                android:textColor="@color/report_manage_text_primary"
                 android:textSize="17sp"
                 android:lineSpacingExtra="3dp"
                 app:layout_constraintStart_toStartOf="parent"
@@ -171,7 +171,7 @@
                     android:layout_marginEnd="6dp"
                     android:scaleType="centerCrop"
                     android:src="@drawable/ic_user"
-                    app:tint="@color/tint_64748b"
+                    app:tint="@color/report_manage_icon_avatar"
                     app:shapeAppearanceOverlay="@style/ShapeAppearance.App.Circle"
                     android:importantForAccessibility="no" />
 
@@ -179,7 +179,7 @@
                     android:id="@+id/tvReporterInfo"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:textColor="@color/text_475569"
+                    android:textColor="@color/report_manage_text_secondary"
                     android:textSize="13sp"
                     android:fontFamily="sans-serif"
                     tools:text="Submitted By: John Doe" />
@@ -190,7 +190,7 @@
                 android:id="@+id/divider"
                 android:layout_width="0dp"
                 android:layout_height="1dp"
-                android:background="@color/bg_f1f5f9"
+                android:background="@color/divider_e2e8f0"
                 android:layout_marginTop="12dp"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
@@ -204,7 +204,7 @@
                 android:layout_marginTop="12dp"
                 app:cardCornerRadius="100dp"
                 app:cardElevation="0dp"
-                app:cardBackgroundColor="@color/blue_badge_bg"
+                app:cardBackgroundColor="@color/report_manage_category_badge_bg"
                 app:strokeWidth="0dp"
                 app:layout_constrainedWidth="true"
                 app:layout_constraintHorizontal_bias="0.0"
@@ -219,7 +219,7 @@
                     android:layout_height="wrap_content"
                     android:paddingHorizontal="10dp"
                     android:paddingVertical="4dp"
-                    android:textColor="@color/primaryColor"
+                    android:textColor="@color/report_manage_text_category"
                     android:textSize="10sp"
                     android:letterSpacing="0.04"
                     android:fontFamily="sans-serif-medium"
@@ -244,21 +244,41 @@
                 app:layout_constraintHorizontal_bias="1.0">
 
                 <ImageView
+                    android:id="@+id/ivDateIcon"
                     android:layout_width="14dp"
                     android:layout_height="14dp"
-                    android:src="@drawable/ic_clock"
-                    app:tint="@color/tint_64748b"
+                    android:src="@drawable/ic_calendar"
+                    app:tint="@color/report_manage_icon_date"
                     android:layout_marginEnd="4dp"
                     android:importantForAccessibility="no" />
 
                 <TextView
-                    android:id="@+id/tvTimestamp"
+                    android:id="@+id/tvDate"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:textColor="@color/text_64748b"
+                    android:textColor="@color/report_manage_text_date"
                     android:textSize="12sp"
                     android:fontFamily="sans-serif"
-                    tools:text="25 Oct, 10:30 AM" />
+                    tools:text="25 Oct" />
+
+                <ImageView
+                    android:id="@+id/ivTimeIcon"
+                    android:layout_width="14dp"
+                    android:layout_height="14dp"
+                    android:layout_marginStart="8dp"
+                    android:src="@drawable/ic_clock"
+                    app:tint="@color/report_manage_icon_time"
+                    android:layout_marginEnd="4dp"
+                    android:importantForAccessibility="no" />
+
+                <TextView
+                    android:id="@+id/tvTime"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textColor="@color/report_manage_text_time"
+                    android:textSize="12sp"
+                    android:fontFamily="sans-serif"
+                    tools:text="10:30 AM" />
             </LinearLayout>
         </androidx.constraintlayout.widget.ConstraintLayout>
 

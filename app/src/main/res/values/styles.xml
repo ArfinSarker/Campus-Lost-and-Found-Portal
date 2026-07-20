@@ -6,9 +6,13 @@
 
     <!-- Splash screen theme - Updated to follow design rules (no fullscreen) -->
     <style name="SplashTheme" parent="Theme.Material3.DayNight.NoActionBar">
-        <item name="android:windowBackground">@color/primaryDarkColor</item>
-        <item name="android:statusBarColor">@color/primaryDarkColor</item>
+        <item name="android:windowBackground">@color/splash_background_color</item>
+        <item name="android:statusBarColor">@color/splash_background_color</item>
+        <item name="android:navigationBarColor">@color/splash_background_color</item>
         <item name="android:windowLightStatusBar">false</item>
+        <item name="android:windowLightNavigationBar" tools:targetApi="27">false</item>
+        <!-- On Android 12+, disable system splash icon to avoid duplicate logo -->
+        <item name="android:windowSplashScreenAnimatedIcon" tools:targetApi="31">@android:color/transparent</item>
     </style>
 
     <style name="CircleImageView" parent="">

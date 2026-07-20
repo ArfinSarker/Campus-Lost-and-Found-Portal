@@ -4,14 +4,14 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/backgroundColor"
+    android:background="@color/users_screen_bg"
     android:fitsSystemWindows="true">
 
     <com.google.android.material.appbar.AppBarLayout
         android:id="@+id/appBarLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@color/primaryDarkColor"
+        android:background="@color/users_header_bg"
         android:fitsSystemWindows="true"
         app:elevation="0dp">
 
@@ -30,7 +30,7 @@
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
-                app:tint="@color/white" />
+                app:tint="@color/profile_header_text_color" />
 
             <TextView
                 android:id="@+id/tvHeaderTitle"
@@ -38,7 +38,7 @@
                 android:layout_height="wrap_content"
                 android:fontFamily="sans-serif-black"
                 android:text="@string/title_manage_users"
-                android:textColor="@color/white"
+                android:textColor="@color/profile_header_text_color"
                 android:textSize="20sp"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
@@ -80,7 +80,7 @@
                         android:layout_margin="6dp"
                         android:clickable="true"
                         android:focusable="true"
-                        app:cardBackgroundColor="@color/primaryLightColor">
+                        app:cardBackgroundColor="@color/users_stat_card_total_bg">
                         <LinearLayout
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
@@ -92,14 +92,14 @@
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:text="0"
-                                android:textColor="@color/primaryColor"
+                                android:textColor="@color/users_stat_val_total"
                                 android:fontFamily="sans-serif-black"
                                 android:textSize="28sp" />
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:text="@string/stat_total_users_label"
-                                android:textColor="@color/primaryColor"
+                                android:textColor="@color/users_stat_label_total"
                                 android:textStyle="bold"
                                 android:gravity="center"
                                 android:textSize="14sp" />
@@ -115,7 +115,7 @@
                         android:layout_margin="6dp"
                         android:clickable="true"
                         android:focusable="true"
-                        app:cardBackgroundColor="@color/green_badge_bg">
+                        app:cardBackgroundColor="@color/users_stat_card_students_bg">
                         <LinearLayout
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
@@ -127,14 +127,14 @@
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:text="0"
-                                android:textColor="@color/secondaryColor"
+                                android:textColor="@color/users_stat_val_students"
                                 android:fontFamily="sans-serif-black"
                                 android:textSize="28sp" />
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:text="@string/stat_students_label"
-                                android:textColor="@color/secondaryColor"
+                                android:textColor="@color/users_stat_label_students"
                                 android:textStyle="bold"
                                 android:gravity="center"
                                 android:textSize="14sp" />
@@ -150,7 +150,7 @@
                         android:layout_margin="6dp"
                         android:clickable="true"
                         android:focusable="true"
-                        app:cardBackgroundColor="@color/orange_badge_bg">
+                        app:cardBackgroundColor="@color/users_stat_card_staffs_bg">
                         <LinearLayout
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
@@ -162,14 +162,14 @@
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:text="0"
-                                android:textColor="@color/orange"
+                                android:textColor="@color/users_stat_val_staffs"
                                 android:fontFamily="sans-serif-black"
                                 android:textSize="28sp" />
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:text="@string/stat_staffs_label"
-                                android:textColor="@color/orange"
+                                android:textColor="@color/users_stat_label_staffs"
                                 android:textStyle="bold"
                                 android:gravity="center"
                                 android:textSize="14sp" />
@@ -185,7 +185,7 @@
                         android:layout_margin="6dp"
                         android:clickable="true"
                         android:focusable="true"
-                        app:cardBackgroundColor="@color/purple_badge_bg">
+                        app:cardBackgroundColor="@color/users_stat_card_admins_bg">
                         <LinearLayout
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
@@ -197,14 +197,14 @@
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:text="0"
-                                android:textColor="@color/admin_accent"
+                                android:textColor="@color/users_stat_val_admins"
                                 android:fontFamily="sans-serif-black"
                                 android:textSize="28sp" />
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:text="@string/stat_admins_label"
-                                android:textColor="@color/admin_accent"
+                                android:textColor="@color/users_stat_label_admins"
                                 android:textStyle="bold"
                                 android:gravity="center"
                                 android:textSize="14sp" />
@@ -221,14 +221,46 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="12dp"
                     android:hint="@string/hint_search_users"
+                    app:boxBackgroundColor="@color/users_search_bg"
+                    app:boxStrokeColor="@color/users_search_border"
+                    app:hintTextColor="@color/users_search_text"
+                    android:textColorHint="@color/users_search_text"
+                    app:startIconTint="@color/users_search_icon_tint"
+                    app:endIconTint="@color/users_search_icon_tint"
                     app:startIconDrawable="@drawable/ic_search"
+                    app:endIconMode="clear_text"
                     app:shapeAppearanceOverlay="@style/ShapeAppearance.App.SmallComponent">
 
                     <com.google.android.material.textfield.TextInputEditText
                         android:id="@+id/etSearch"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
+                        android:textColor="@color/users_search_text"
                         android:inputType="text" />
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <!-- Category Filter Dropdown (Hidden for layout/interaction consistency) -->
+                <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/tilCategoryFilter"
+                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:hint="Category"
+                    android:visibility="gone"
+                    app:boxBackgroundColor="@color/users_search_bg"
+                    app:boxStrokeColor="@color/users_filter_border"
+                    app:hintTextColor="@color/users_filter_text"
+                    android:textColorHint="@color/users_filter_text"
+                    app:endIconTint="@color/users_filter_icon">
+
+                    <AutoCompleteTextView
+                        android:id="@+id/actvCategoryFilter"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:inputType="none"
+                        android:textColor="@color/users_filter_text"
+                        android:popupBackground="@color/users_filter_menu_bg" />
                 </com.google.android.material.textfield.TextInputLayout>
 
                 <!-- Filter Bar -->
@@ -248,25 +280,37 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="All"
-                            android:checked="true" />
+                            android:checked="true"
+                            app:chipBackgroundColor="@color/search_chip_all_bg"
+                            app:chipStrokeColor="@color/search_chip_all_stroke"
+                            android:textColor="@color/search_chip_all_text" />
                         <com.google.android.material.chip.Chip
                             android:id="@+id/chipStudents"
                             style="@style/Widget.Material3.Chip.Filter"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="Students" />
+                            android:text="Students"
+                            app:chipBackgroundColor="@color/search_chip_found_bg"
+                            app:chipStrokeColor="@color/search_chip_found_stroke"
+                            android:textColor="@color/search_chip_found_text" />
                         <com.google.android.material.chip.Chip
                             android:id="@+id/chipAdmins"
                             style="@style/Widget.Material3.Chip.Filter"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="Admins" />
+                            android:text="Admins"
+                            app:chipBackgroundColor="@color/search_chip_resolved_bg"
+                            app:chipStrokeColor="@color/search_chip_resolved_stroke"
+                            android:textColor="@color/search_chip_resolved_text" />
                         <com.google.android.material.chip.Chip
                             android:id="@+id/chipStaffs"
                             style="@style/Widget.Material3.Chip.Filter"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="Staffs" />
+                            android:text="Staffs"
+                            app:chipBackgroundColor="@color/search_chip_lost_bg"
+                            app:chipStrokeColor="@color/search_chip_lost_stroke"
+                            android:textColor="@color/search_chip_lost_text" />
 
                     </com.google.android.material.chip.ChipGroup>
                 </HorizontalScrollView>

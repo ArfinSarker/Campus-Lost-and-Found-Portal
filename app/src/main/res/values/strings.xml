@@ -291,6 +291,7 @@
 
     <!-- Developer Info Strings -->
     <string name="dev_name">Md. Shamsul Arfin Sarker</string>
+    <string name="devName">Arfin Sarker</string>
     <string name="dev_subtitle">Android Developer | Student</string>
     <string name="dev_about_title">About Me</string>
     <string name="dev_about_desc">Passionate Android developer with a strong focus on creating clean, efficient, and user-centric mobile applications. Currently pursuing my degree in Computer Science and Engineering, I enjoy solving complex problems and staying updated with the latest mobile technologies. I am dedicated to building high-quality apps that provide great user experiences.</string>

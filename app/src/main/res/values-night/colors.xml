@@ -140,8 +140,8 @@
     <color name="dashboard_status_default">#64748B</color>
     
     <!-- Admin Request Cards Specific Colors -->
-    <color name="admin_request_card_bg">#1E1E24</color>
-    <color name="admin_request_card_stroke">#3E3E4A</color>
+    <color name="admin_request_card_bg">#1C252E</color>
+    <color name="admin_request_card_stroke">#2E3B4E</color>
     <color name="admin_request_text_primary">#F8FAFC</color>
     <color name="admin_request_text_secondary">#94A3B8</color>
     <color name="admin_request_icon_email">#F87171</color>
@@ -151,6 +151,7 @@
     <color name="admin_request_deny_btn_stroke">#EF4444</color>
     <color name="admin_request_deny_btn_text">#EF4444</color>
     <color name="admin_request_accept_btn_bg">#3B82F6</color>
+    <color name="admin_requests_header_bg">@color/profile_header_bg</color>
 
     <!-- Notification Screens Specific Colors (Night Mode) -->
     <color name="notification_screen_bg">#0F172A</color>
@@ -234,17 +235,17 @@
     <!-- Badge Background and Icon Colors -->
     <color name="related_report_badge_bg">@color/orange_badge_bg</color>
     <color name="related_report_badge_stroke">#662200</color>
-    <color name="blue_badge_bg">#1E3A8A</color>
-    <color name="red_badge_bg">#7F1D1D</color>
-    <color name="orange_badge_bg">#431A03</color>
-    <color name="green_badge_bg">#064E3B</color>
-    <color name="blue_badge_icon">#3B82F6</color>
-    <color name="red_badge_icon">#F87171</color>
-    <color name="orange_badge_icon">#FB923C</color>
-    <color name="green_badge_icon">#4ADE80</color>
-    <color name="rose_badge_icon">#FB7185</color>
-    <color name="purple_badge_icon">#FB923C</color>
-    <color name="purple_badge_bg">#361200</color>
+    <color name="blue_badge_bg">#1E1B4B</color>
+    <color name="red_badge_bg">#31102F</color>
+    <color name="orange_badge_bg">#2C1E11</color>
+    <color name="green_badge_bg">#062F22</color>
+    <color name="blue_badge_icon">#818CF8</color>
+    <color name="red_badge_icon">#F472B6</color>
+    <color name="orange_badge_icon">#FBBF24</color>
+    <color name="green_badge_icon">#34D399</color>
+    <color name="rose_badge_icon">#F87171</color>
+    <color name="purple_badge_icon">#C084FC</color>
+    <color name="purple_badge_bg">#1E1A3D</color>
     <color name="dashboard_btn_bg">#1AFF5F15</color>
 
     <!-- Logout Buttons -->
@@ -605,4 +606,160 @@
     <color name="dev_btn_bg">#F59E0B</color>
     <color name="dev_btn_bg_pressed">#D97706</color>
     <color name="dev_btn_border">#FBBF24</color>
+
+    <!-- Admin Dashboard Colors (Night Mode - Unique Premium Palette) -->
+    <color name="admin_dash_header_bg">@color/profile_background</color>
+    <color name="admin_dash_screen_bg">@color/profile_background</color>
+    <color name="admin_dash_text_primary">#F8FAFC</color>
+    <color name="admin_dash_text_secondary">#94A3B8</color>
+    <color name="admin_dash_text_muted">#64748B</color>
+    <color name="admin_dash_btn_bg">#1E293B</color>
+    <color name="admin_dash_btn_border">#334155</color>
+    <color name="admin_dash_stat_card_bg">#1E293B</color>
+    <color name="admin_dash_stat_card_border">#334155</color>
+    <color name="admin_dash_chevron_tint">#64748B</color>
+    <color name="admin_dash_banner_start">#3B0764</color>
+    <color name="admin_dash_banner_center">#4C1D95</color>
+    <color name="admin_dash_banner_end">#701A75</color>
+    <color name="admin_dash_badge_req_bg">#1E1B4B</color>
+    <color name="admin_dash_badge_req_icon">#818CF8</color>
+    <color name="admin_dash_badge_rep_bg">#31102F</color>
+    <color name="admin_dash_badge_rep_icon">#F472B6</color>
+    <color name="admin_dash_btn_rep_icon">#F87171</color>
+    <color name="admin_dash_btn_req_icon">#60A5FA</color>
+    <color name="admin_dash_btn_items_icon">#34D399</color>
+    <color name="admin_dash_btn_users_icon">#A78BFA</color>
+    <color name="admin_dash_logout_text">#FB7185</color>
+    <color name="admin_dash_logout_border">#FB7185</color>
+
+    <!-- Report Management List Colors (Night Mode - Unique Premium Palette) -->
+    <color name="report_manage_card_bg">#1E2235</color>
+    <color name="report_manage_card_border">#31364F</color>
+    <color name="report_manage_text_primary">#F1F5F9</color>
+    <color name="report_manage_text_secondary">#94A3B8</color>
+    <color name="report_manage_text_date">#38BDF8</color>
+    <color name="report_manage_text_time">#34D399</color>
+    <color name="report_manage_text_category">#F472B6</color>
+    <color name="report_manage_category_badge_bg">#2F1B2F</color>
+    <color name="report_manage_icon_avatar">#FBBF24</color>
+    <color name="report_manage_icon_date">#C084FC</color>
+    <color name="report_manage_icon_time">#FB7185</color>
+    <color name="report_manage_icon_chevron">#818CF8</color>
+
+    <!-- Report Details & Review Redesign Colors (Night Mode - Unique Premium Palette) -->
+    <color name="report_details_bg_main">@color/profile_background</color>
+    <color name="report_details_card_reporter_bg">#181C2B</color>
+    <color name="report_details_card_info_bg">#152238</color>
+    <color name="report_details_card_evidence_bg">#1D1B2A</color>
+    <color name="report_details_card_action_bg">#251E2F</color>
+    <color name="report_details_text_primary_new">#F8FAFC</color>
+    <color name="report_details_text_secondary_new">#94A3B8</color>
+    <color name="report_details_icon_header_reporter">#60A5FA</color>
+    <color name="report_details_icon_id">#34D399</color>
+    <color name="report_details_icon_dept">#FBBF24</color>
+    <color name="report_details_icon_phone">#EC4899</color>
+    <color name="report_details_icon_email">#8B5CF6</color>
+    <color name="report_details_icon_desc">#F97316</color>
+    <color name="report_details_input_bg">#1E2235</color>
+    <color name="report_details_input_border">#313D5E</color>
+    <color name="report_details_btn_profile_bg">#2E1E3F</color>
+    <color name="report_details_btn_profile_stroke">#A78BFA</color>
+    <color name="report_details_btn_action_bg">#3B82F6</color>
+    <color name="report_details_btn_delete_stroke">#F87171</color>
+    <color name="report_details_text_category">#F472B6</color>
+    <color name="profile_admin_view_email_text">#A5B4FC</color>
+    <color name="profile_admin_view_phone_text">#86EFAC</color>
+
+    <!-- Manage All Items Redesign Colors (Night Mode - Unique Premium Palette) -->
+    <color name="manage_screen_bg">@color/profile_background</color>
+    <color name="manage_header_bg">@color/profile_header_bg</color>
+    <color name="manage_stat_card_all_bg">#1E1B4B</color>
+    <color name="manage_stat_card_lost_bg">#31102F</color>
+    <color name="manage_stat_card_found_bg">#062F22</color>
+    <color name="manage_stat_card_resolved_bg">#2C1E11</color>
+    <color name="manage_stat_val_all">#818CF8</color>
+    <color name="manage_stat_val_lost">#F472B6</color>
+    <color name="manage_stat_val_found">#34D399</color>
+    <color name="manage_stat_val_resolved">#FBBF24</color>
+    <color name="manage_stat_label_all">#C7D2FE</color>
+    <color name="manage_stat_label_lost">#FBCFE8</color>
+    <color name="manage_stat_label_found">#A7F3D0</color>
+    <color name="manage_stat_label_resolved">#FDE68A</color>
+    <color name="manage_search_bg">#1E293B</color>
+    <color name="manage_search_border">#384961</color>
+    <color name="manage_search_icon_tint">#A5B4FC</color>
+    <color name="manage_search_text">#F8FAFC</color>
+    <color name="manage_filter_bg">#251E3E</color>
+    <color name="manage_filter_border">#4D3C77</color>
+    <color name="manage_filter_text">#DDD6FE</color>
+    <color name="manage_filter_icon">#A78BFA</color>
+    <color name="manage_filter_selected">#8B5CF6</color>
+    <color name="manage_filter_menu_bg">#1A1525</color>
+    <color name="manage_filter_menu_text">#DDD6FE</color>
+    <color name="manage_card_bg">#1E293B</color>
+    <color name="manage_card_border">#334155</color>
+    <color name="manage_text_primary">#F8FAFC</color>
+    <color name="manage_text_secondary">#94A3B8</color>
+    <color name="manage_icon_location">#34D399</color>
+    <color name="manage_icon_time">#FBBF24</color>
+    <color name="manage_icon_chevron">#60A5FA</color>
+    <color name="manage_date_text">#93C5FD</color>
+    <color name="manage_badge_stroke">#1E293B</color>
+
+    <!-- Manage All Users Redesign Colors (Night Mode - Unique Premium Palette) -->
+    <color name="users_screen_bg">#0F172A</color>
+    <color name="users_header_bg">#1E293B</color>
+    <color name="users_stat_card_total_bg">#1A1B2F</color>
+    <color name="users_stat_card_students_bg">#0E2A1B</color>
+    <color name="users_stat_card_staffs_bg">#2D1D0F</color>
+    <color name="users_stat_card_admins_bg">#2D102E</color>
+    <color name="users_stat_val_total">#818CF8</color>
+    <color name="users_stat_val_students">#34D399</color>
+    <color name="users_stat_val_staffs">#FBBF24</color>
+    <color name="users_stat_val_admins">#F472B6</color>
+    <color name="users_stat_label_total">#93C5FD</color>
+    <color name="users_stat_label_students">#6EE7B7</color>
+    <color name="users_stat_label_staffs">#FCD34D</color>
+    <color name="users_stat_label_admins">#F9A8D4</color>
+    <color name="users_search_bg">#1E293B</color>
+    <color name="users_search_border">#384961</color>
+    <color name="users_search_icon_tint">#A5B4FC</color>
+    <color name="users_search_text">#F8FAFC</color>
+    <color name="users_filter_bg">#251E3E</color>
+    <color name="users_filter_border">#4D3C77</color>
+    <color name="users_filter_text">#DDD6FE</color>
+    <color name="users_filter_icon">#A78BFA</color>
+    <color name="users_filter_selected">#8B5CF6</color>
+    <color name="users_filter_menu_bg">#1A1525</color>
+    <color name="users_card_bg">#1B2A4A</color>
+    <color name="users_card_border">#2C3E6B</color>
+    <color name="users_text_primary">#F8FAFC</color>
+    <color name="users_text_secondary">#94A3B8</color>
+    <color name="users_avatar_stroke">#2C3E6B</color>
+
+    <!-- Delete User Confirmation Dialog Colors (Night Mode - Unique Premium Palette) -->
+    <color name="delete_dialog_bg">#250C11</color>
+    <color name="delete_dialog_border">#4C121A</color>
+    <color name="delete_dialog_warning_icon">#FF8597</color>
+    <color name="delete_dialog_text_title">#FFE4E6</color>
+    <color name="delete_dialog_text_desc">#FDA4AF</color>
+    <color name="delete_dialog_btn_cancel_bg">#1E293B</color>
+    <color name="delete_dialog_btn_cancel_text">#94A3B8</color>
+    <color name="delete_dialog_btn_cancel_stroke">#334155</color>
+    <color name="delete_dialog_btn_delete_bg">#F43F5E</color>
+    <color name="delete_dialog_btn_delete_text">#FFFFFF</color>
+    <color name="delete_dialog_btn_delete_stroke">#E11D48</color>
+
+    <!-- Delete Report Confirmation Dialog Colors (Night Mode - Unique Premium Palette) -->
+    <color name="delete_report_dialog_bg">#2A080C</color>
+    <color name="delete_report_dialog_border">#581C24</color>
+    <color name="delete_report_dialog_warning_icon">#FB7185</color>
+    <color name="delete_report_dialog_text_title">#FFE4E6</color>
+    <color name="delete_report_dialog_text_desc">#FECDD3</color>
+    <color name="delete_report_dialog_btn_cancel_bg">#1E293B</color>
+    <color name="delete_report_dialog_btn_cancel_text">#94A3B8</color>
+    <color name="delete_report_dialog_btn_cancel_stroke">#334155</color>
+    <color name="delete_report_dialog_btn_delete_bg">#E11D48</color>
+    <color name="delete_report_dialog_btn_delete_text">#FFFFFF</color>
+    <color name="delete_report_dialog_btn_delete_stroke">#BE123C</color>
 </resources>

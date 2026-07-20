@@ -571,21 +571,26 @@ public class CampusDashboardActivity extends AppCompatActivity {
             rvRecentItems.setNestedScrollingEnabled(false);
             rvRecentItems.setAdapter(adapter);
 
-            // Load cached items for instant rendering
+            // Load cached items asynchronously to avoid blocking the main thread
             android.content.SharedPreferences prefs = getSharedPreferences("MyApp", MODE_PRIVATE);
-            String cachedItemsJson = prefs.getString("cachedRecentItemsJson", "");
+            final String cachedItemsJson = prefs.getString("cachedRecentItemsJson", "");
             if (!cachedItemsJson.isEmpty()) {
-                try {
-                    List<Item> cachedItems = new com.google.gson.Gson().fromJson(cachedItemsJson,
-                            new com.google.gson.reflect.TypeToken<List<Item>>() {
-                            }.getType());
-                    if (cachedItems != null && !cachedItems.isEmpty()) {
-                        fullItemList.addAll(cachedItems);
-                        updateDisplayedList();
+                new Thread(() -> {
+                    try {
+                        final List<Item> cachedItems = new com.google.gson.Gson().fromJson(cachedItemsJson,
+                                new com.google.gson.reflect.TypeToken<List<Item>>() {
+                                }.getType());
+                        if (cachedItems != null && !cachedItems.isEmpty()) {
+                            runOnUiThread(() -> {
+                                fullItemList.clear();
+                                fullItemList.addAll(cachedItems);
+                                updateDisplayedList();
+                            });
+                        }
+                    } catch (Exception e) {
+                        Log.e("Dashboard", "Error parsing cached items: " + e.getMessage());
                     }
-                } catch (Exception e) {
-                    Log.e("Dashboard", "Error parsing cached items: " + e.getMessage());
-                }
+                }).start();
             }
         }
     }

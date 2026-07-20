@@ -126,7 +126,10 @@ public class AdminReportManagementActivity extends AppCompatActivity {
 
             com.google.android.material.appbar.AppBarLayout appBarLayout = findViewById(R.id.appBarLayout);
             if (appBarLayout != null) {
-                HeaderColorHelper.setup(this, appBarLayout, toolbar);
+                int headerColor = androidx.core.content.ContextCompat.getColor(this, R.color.profile_background);
+                boolean isNight = (getResources().getConfiguration().uiMode & android.content.res.Configuration.UI_MODE_NIGHT_MASK) 
+                        == android.content.res.Configuration.UI_MODE_NIGHT_YES;
+                HeaderColorHelper.setup(this, appBarLayout, headerColor, headerColor, !isNight);
             }
         }
     }
@@ -354,8 +357,10 @@ public class AdminReportManagementActivity extends AppCompatActivity {
             }
             holder.cardStatusBadge.setCardBackgroundColor(statusColor);
 
-            SimpleDateFormat sdf = new SimpleDateFormat("dd MMM, hh:mm a", Locale.getDefault());
-            holder.tvTimestamp.setText(sdf.format(new Date(report.getTimestamp())));
+            SimpleDateFormat sdfDate = new SimpleDateFormat("dd MMM", Locale.getDefault());
+            SimpleDateFormat sdfTime = new SimpleDateFormat("hh:mm a", Locale.getDefault());
+            holder.tvDate.setText(sdfDate.format(new Date(report.getTimestamp())));
+            holder.tvTime.setText(sdfTime.format(new Date(report.getTimestamp())));
 
             // Load submitter's profile picture if available, fallback to default user icon
             String profileUrl = report.getReporterProfileImageUrl();
@@ -503,7 +508,7 @@ public class AdminReportManagementActivity extends AppCompatActivity {
         }
 
         class ViewHolder extends RecyclerView.ViewHolder {
-            TextView tvDisplayId, tvTitle, tvCategory, tvReporterInfo, tvStatus, tvTimestamp;
+            TextView tvDisplayId, tvTitle, tvCategory, tvReporterInfo, tvStatus, tvDate, tvTime;
             ImageView ivIcon, ivReporterAvatar;
             ViewPager2 viewPagerSlider;
             TabLayout tabLayoutIndicator;
@@ -516,7 +521,8 @@ public class AdminReportManagementActivity extends AppCompatActivity {
                 tvCategory = itemView.findViewById(R.id.tvCategory);
                 tvReporterInfo = itemView.findViewById(R.id.tvReporterInfo);
                 tvStatus = itemView.findViewById(R.id.tvStatusBadge);
-                tvTimestamp = itemView.findViewById(R.id.tvTimestamp);
+                tvDate = itemView.findViewById(R.id.tvDate);
+                tvTime = itemView.findViewById(R.id.tvTime);
                 ivIcon = itemView.findViewById(R.id.ivReportIcon);
                 ivReporterAvatar = itemView.findViewById(R.id.ivReporterAvatar);
                 viewPagerSlider = itemView.findViewById(R.id.viewPagerSlider);

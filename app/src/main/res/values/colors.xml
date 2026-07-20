@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <color name="splash_background_color">#0F172A</color>
     <!-- Profile Page Specific Colors (Light Mode) -->
     <color name="profile_background">#F8FAFC</color>
     <color name="profile_card_bg">#FFFFFF</color>
@@ -151,6 +152,7 @@
     <color name="admin_request_deny_btn_stroke">#DC2626</color>
     <color name="admin_request_deny_btn_text">#DC2626</color>
     <color name="admin_request_accept_btn_bg">#2563EB</color>
+    <color name="admin_requests_header_bg">@color/profile_background</color>
 
     <!-- Notification Screens Specific Colors (Light Mode) -->
     <color name="notification_screen_bg">@color/chatBackground</color>
@@ -612,4 +614,160 @@
     <color name="dev_btn_bg">#4F46E5</color>
     <color name="dev_btn_bg_pressed">#4338CA</color>
     <color name="dev_btn_border">#6366F1</color>
+
+    <!-- Admin Dashboard Colors (Light Mode Defaults) -->
+    <color name="admin_dash_header_bg">@color/primaryDarkColor</color>
+    <color name="admin_dash_screen_bg">@color/bg_f8fafc</color>
+    <color name="admin_dash_text_primary">#1E293B</color>
+    <color name="admin_dash_text_secondary">#475569</color>
+    <color name="admin_dash_text_muted">#94A3B8</color>
+    <color name="admin_dash_btn_bg">@color/cardBackgroundColor</color>
+    <color name="admin_dash_btn_border">@color/divider_e2e8f0</color>
+    <color name="admin_dash_stat_card_bg">@color/cardBackgroundColor</color>
+    <color name="admin_dash_stat_card_border">@color/divider_e2e8f0</color>
+    <color name="admin_dash_chevron_tint">#94A3B8</color>
+    <color name="admin_dash_banner_start">#8E2DE2</color>
+    <color name="admin_dash_banner_center">#B06AB3</color>
+    <color name="admin_dash_banner_end">#2BC0E4</color>
+    <color name="admin_dash_badge_req_bg">@color/blue_badge_bg</color>
+    <color name="admin_dash_badge_req_icon">@color/blue_badge_icon</color>
+    <color name="admin_dash_badge_rep_bg">@color/red_badge_bg</color>
+    <color name="admin_dash_badge_rep_icon">@color/red_badge_icon</color>
+    <color name="admin_dash_btn_rep_icon">@color/rose_badge_icon</color>
+    <color name="admin_dash_btn_req_icon">@color/blue_badge_icon</color>
+    <color name="admin_dash_btn_items_icon">@color/green_badge_icon</color>
+    <color name="admin_dash_btn_users_icon">@color/purple_badge_icon</color>
+    <color name="admin_dash_logout_text">#EF4444</color>
+    <color name="admin_dash_logout_border">#EF4444</color>
+
+    <!-- Report Management List Colors (Light Mode Defaults) -->
+    <color name="report_manage_card_bg">@color/cardBackgroundColor</color>
+    <color name="report_manage_card_border">@color/divider_e2e8f0</color>
+    <color name="report_manage_text_primary">#0F172A</color>
+    <color name="report_manage_text_secondary">#475569</color>
+    <color name="report_manage_text_date">#475569</color>
+    <color name="report_manage_text_time">#475569</color>
+    <color name="report_manage_text_category">@color/primaryColor</color>
+    <color name="report_manage_category_badge_bg">@color/blue_badge_bg</color>
+    <color name="report_manage_icon_avatar">#64748B</color>
+    <color name="report_manage_icon_date">#64748B</color>
+    <color name="report_manage_icon_time">#64748B</color>
+    <color name="report_manage_icon_chevron">#94A3B8</color>
+
+    <!-- Report Details & Review Redesign Colors (Light Mode Defaults) -->
+    <color name="report_details_bg_main">@color/profile_background</color>
+    <color name="report_details_card_reporter_bg">@color/cardBackgroundColor</color>
+    <color name="report_details_card_info_bg">@color/cardBackgroundColor</color>
+    <color name="report_details_card_evidence_bg">@color/cardBackgroundColor</color>
+    <color name="report_details_card_action_bg">@color/cardBackgroundColor</color>
+    <color name="report_details_text_primary_new">#0F172A</color>
+    <color name="report_details_text_secondary_new">#475569</color>
+    <color name="report_details_icon_header_reporter">@color/primaryColor</color>
+    <color name="report_details_icon_id">@color/primaryColor</color>
+    <color name="report_details_icon_dept">@color/primaryColor</color>
+    <color name="report_details_icon_phone">@color/primaryColor</color>
+    <color name="report_details_icon_email">@color/primaryColor</color>
+    <color name="report_details_icon_desc">@color/primaryColor</color>
+    <color name="report_details_input_bg">@color/transparent</color>
+    <color name="report_details_input_border">@color/divider_e2e8f0</color>
+    <color name="report_details_btn_profile_bg">@color/primaryLightColor</color>
+    <color name="report_details_btn_profile_stroke">@color/primaryColor</color>
+    <color name="report_details_btn_action_bg">@color/primaryColor</color>
+    <color name="report_details_btn_delete_stroke">@color/errorColor</color>
+    <color name="report_details_text_category">@color/primaryColor</color>
+    <color name="profile_admin_view_email_text">#6D28D9</color>
+    <color name="profile_admin_view_phone_text">#059669</color>
+
+    <!-- Manage All Items Redesign Colors (Day Mode Defaults) -->
+    <color name="manage_screen_bg">@color/profile_background</color>
+    <color name="manage_header_bg">@color/profile_background</color>
+    <color name="manage_stat_card_all_bg">@color/primaryLightColor</color>
+    <color name="manage_stat_card_lost_bg">@color/light_red_bg</color>
+    <color name="manage_stat_card_found_bg">@color/green_badge_bg</color>
+    <color name="manage_stat_card_resolved_bg">@color/orange_badge_bg</color>
+    <color name="manage_stat_val_all">@color/primaryColor</color>
+    <color name="manage_stat_val_lost">@color/statusLost</color>
+    <color name="manage_stat_val_found">@color/statusFound</color>
+    <color name="manage_stat_val_resolved">@color/orange</color>
+    <color name="manage_stat_label_all">@color/primaryColor</color>
+    <color name="manage_stat_label_lost">@color/statusLost</color>
+    <color name="manage_stat_label_found">@color/statusFound</color>
+    <color name="manage_stat_label_resolved">@color/orange</color>
+    <color name="manage_search_bg">@color/transparent</color>
+    <color name="manage_search_border">@color/dividerColor</color>
+    <color name="manage_search_icon_tint">@color/textSecondary</color>
+    <color name="manage_search_text">@color/textPrimary</color>
+    <color name="manage_filter_bg">@color/transparent</color>
+    <color name="manage_filter_border">@color/dividerColor</color>
+    <color name="manage_filter_text">@color/textSecondary</color>
+    <color name="manage_filter_icon">@color/primaryColor</color>
+    <color name="manage_filter_selected">@color/primaryColor</color>
+    <color name="manage_filter_menu_bg">@color/white</color>
+    <color name="manage_filter_menu_text">@color/textPrimary</color>
+    <color name="manage_card_bg">@color/surfaceColor</color>
+    <color name="manage_card_border">@color/dividerColor</color>
+    <color name="manage_text_primary">@color/textPrimary</color>
+    <color name="manage_text_secondary">@color/textSecondary</color>
+    <color name="manage_icon_location">@color/primaryColor</color>
+    <color name="manage_icon_time">@color/textSecondary</color>
+    <color name="manage_icon_chevron">@color/primaryColor</color>
+    <color name="manage_date_text">@color/textSecondary</color>
+    <color name="manage_badge_stroke">@color/white</color>
+
+    <!-- Manage All Users Redesign Colors (Day Mode Defaults) -->
+    <color name="users_screen_bg">@color/backgroundColor</color>
+    <color name="users_header_bg">@color/primaryDarkColor</color>
+    <color name="users_stat_card_total_bg">@color/primaryLightColor</color>
+    <color name="users_stat_card_students_bg">@color/green_badge_bg</color>
+    <color name="users_stat_card_staffs_bg">@color/orange_badge_bg</color>
+    <color name="users_stat_card_admins_bg">@color/purple_badge_bg</color>
+    <color name="users_stat_val_total">@color/primaryColor</color>
+    <color name="users_stat_val_students">@color/secondaryColor</color>
+    <color name="users_stat_val_staffs">@color/orange</color>
+    <color name="users_stat_val_admins">@color/admin_accent</color>
+    <color name="users_stat_label_total">@color/primaryColor</color>
+    <color name="users_stat_label_students">@color/secondaryColor</color>
+    <color name="users_stat_label_staffs">@color/orange</color>
+    <color name="users_stat_label_admins">@color/admin_accent</color>
+    <color name="users_search_bg">@color/transparent</color>
+    <color name="users_search_border">@color/dividerColor</color>
+    <color name="users_search_icon_tint">@color/textSecondary</color>
+    <color name="users_search_text">#0F172A</color>
+    <color name="users_filter_bg">@color/transparent</color>
+    <color name="users_filter_border">@color/dividerColor</color>
+    <color name="users_filter_text">@color/textSecondary</color>
+    <color name="users_filter_icon">@color/primaryColor</color>
+    <color name="users_filter_selected">@color/primaryColor</color>
+    <color name="users_filter_menu_bg">@color/white</color>
+    <color name="users_card_bg">@color/surfaceColor</color>
+    <color name="users_card_border">@color/dividerColor</color>
+    <color name="users_text_primary">@color/textPrimary</color>
+    <color name="users_text_secondary">@color/textSecondary</color>
+    <color name="users_avatar_stroke">@color/dividerColor</color>
+
+    <!-- Delete User Confirmation Dialog Colors (Day Mode Defaults) -->
+    <color name="delete_dialog_bg">#FFF5F5</color>
+    <color name="delete_dialog_border">#FFE4E6</color>
+    <color name="delete_dialog_warning_icon">#F43F5E</color>
+    <color name="delete_dialog_text_title">#9F1239</color>
+    <color name="delete_dialog_text_desc">#4E1624</color>
+    <color name="delete_dialog_btn_cancel_bg">#F8FAFC</color>
+    <color name="delete_dialog_btn_cancel_text">#475569</color>
+    <color name="delete_dialog_btn_cancel_stroke">#E2E8F0</color>
+    <color name="delete_dialog_btn_delete_bg">#E11D48</color>
+    <color name="delete_dialog_btn_delete_text">#FFFFFF</color>
+    <color name="delete_dialog_btn_delete_stroke">#BE123C</color>
+
+    <!-- Delete Report Confirmation Dialog Colors (Day Mode Defaults) -->
+    <color name="delete_report_dialog_bg">#FFF3F3</color>
+    <color name="delete_report_dialog_border">#FFE1E1</color>
+    <color name="delete_report_dialog_warning_icon">#E11D48</color>
+    <color name="delete_report_dialog_text_title">#881337</color>
+    <color name="delete_report_dialog_text_desc">#4C0519</color>
+    <color name="delete_report_dialog_btn_cancel_bg">#F8FAFC</color>
+    <color name="delete_report_dialog_btn_cancel_text">#64748B</color>
+    <color name="delete_report_dialog_btn_cancel_stroke">#E2E8F0</color>
+    <color name="delete_report_dialog_btn_delete_bg">#BE123C</color>
+    <color name="delete_report_dialog_btn_delete_text">#FFFFFF</color>
+    <color name="delete_report_dialog_btn_delete_stroke">#9F1239</color>
 </resources>

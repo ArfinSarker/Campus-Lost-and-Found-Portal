@@ -4,14 +4,14 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/bg_f8fafc"
+    android:background="@color/admin_dash_screen_bg"
     android:fitsSystemWindows="true">
 
     <com.google.android.material.appbar.AppBarLayout
         android:id="@+id/appBarLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@color/primaryDarkColor"
+        android:background="@color/admin_dash_header_bg"
         android:fitsSystemWindows="true"
         app:elevation="0dp">
 
@@ -148,10 +148,10 @@
                         android:clickable="true"
                         android:focusable="true"
                         app:cardCornerRadius="16dp"
-                        app:cardElevation="2dp"
-                        app:strokeColor="@color/divider_e2e8f0"
-                        app:strokeWidth="1dp"
-                        app:cardBackgroundColor="@color/cardBackgroundColor">
+                        app:cardElevation="0dp"
+                        app:strokeColor="@color/admin_dash_stat_card_border"
+                        app:strokeWidth="1.2dp"
+                        app:cardBackgroundColor="@color/admin_dash_stat_card_bg">
 
                         <LinearLayout
                             android:layout_width="match_parent"
@@ -172,14 +172,14 @@
                                     app:cardCornerRadius="18dp"
                                     app:cardElevation="0dp"
                                     app:strokeWidth="0dp"
-                                    app:cardBackgroundColor="@color/blue_badge_bg">
+                                    app:cardBackgroundColor="@color/admin_dash_badge_req_bg">
 
                                     <ImageView
                                         android:layout_width="20dp"
                                         android:layout_height="20dp"
                                         android:layout_gravity="center"
                                         android:src="@drawable/ic_user_check"
-                                        app:tint="@color/blue_badge_icon" />
+                                        app:tint="@color/admin_dash_badge_req_icon" />
                                 </com.google.android.material.card.MaterialCardView>
 
                                 <ImageView
@@ -188,7 +188,7 @@
                                     android:layout_alignParentEnd="true"
                                     android:layout_centerVertical="true"
                                     android:src="@drawable/ic_chevron_right"
-                                    app:tint="#94A3B8" />
+                                    app:tint="@color/admin_dash_chevron_tint" />
                             </RelativeLayout>
 
                             <TextView
@@ -197,7 +197,7 @@
                                 android:layout_height="wrap_content"
                                 android:layout_marginTop="16dp"
                                 android:text="0"
-                                android:textColor="@color/text_1e293b"
+                                android:textColor="@color/admin_dash_text_primary"
                                 android:fontFamily="sans-serif-black"
                                 android:textSize="32sp" />
 
@@ -206,7 +206,7 @@
                                 android:layout_height="wrap_content"
                                 android:layout_marginTop="2dp"
                                 android:text="Admin Requests"
-                                android:textColor="@color/text_475569"
+                                android:textColor="@color/admin_dash_text_secondary"
                                 android:textSize="13sp"
                                 android:textStyle="bold" />
 
@@ -215,7 +215,7 @@
                                 android:layout_height="wrap_content"
                                 android:layout_marginTop="2dp"
                                 android:text="Pending review"
-                                android:textColor="@color/text_94a3b8"
+                                android:textColor="@color/admin_dash_text_muted"
                                 android:textSize="11sp" />
                         </LinearLayout>
                     </com.google.android.material.card.MaterialCardView>
@@ -230,10 +230,10 @@
                         android:clickable="true"
                         android:focusable="true"
                         app:cardCornerRadius="16dp"
-                        app:cardElevation="2dp"
-                        app:strokeColor="@color/divider_e2e8f0"
-                        app:strokeWidth="1dp"
-                        app:cardBackgroundColor="@color/cardBackgroundColor">
+                        app:cardElevation="0dp"
+                        app:strokeColor="@color/admin_dash_stat_card_border"
+                        app:strokeWidth="1.2dp"
+                        app:cardBackgroundColor="@color/admin_dash_stat_card_bg">
 
                         <LinearLayout
                             android:layout_width="match_parent"
@@ -254,14 +254,14 @@
                                     app:cardCornerRadius="18dp"
                                     app:cardElevation="0dp"
                                     app:strokeWidth="0dp"
-                                    app:cardBackgroundColor="@color/red_badge_bg">
+                                    app:cardBackgroundColor="@color/admin_dash_badge_rep_bg">
 
                                     <ImageView
                                         android:layout_width="20dp"
                                         android:layout_height="20dp"
                                         android:layout_gravity="center"
                                         android:src="@drawable/ic_report_management"
-                                        app:tint="@color/red_badge_icon" />
+                                        app:tint="@color/admin_dash_badge_rep_icon" />
                                 </com.google.android.material.card.MaterialCardView>
 
                                 <ImageView
@@ -270,7 +270,7 @@
                                     android:layout_alignParentEnd="true"
                                     android:layout_centerVertical="true"
                                     android:src="@drawable/ic_chevron_right"
-                                    app:tint="#94A3B8" />
+                                    app:tint="@color/admin_dash_chevron_tint" />
                             </RelativeLayout>
 
                             <TextView
@@ -279,7 +279,7 @@
                                 android:layout_height="wrap_content"
                                 android:layout_marginTop="16dp"
                                 android:text="0"
-                                android:textColor="@color/text_1e293b"
+                                android:textColor="@color/admin_dash_text_primary"
                                 android:fontFamily="sans-serif-black"
                                 android:textSize="32sp" />
 
@@ -288,7 +288,7 @@
                                 android:layout_height="wrap_content"
                                 android:layout_marginTop="2dp"
                                 android:text="User Reports"
-                                android:textColor="@color/text_475569"
+                                android:textColor="@color/admin_dash_text_secondary"
                                 android:textSize="13sp"
                                 android:textStyle="bold" />
 
@@ -297,7 +297,7 @@
                                 android:layout_height="wrap_content"
                                 android:layout_marginTop="2dp"
                                 android:text="Active issues"
-                                android:textColor="@color/text_94a3b8"
+                                android:textColor="@color/admin_dash_text_muted"
                                 android:textSize="11sp" />
                         </LinearLayout>
                     </com.google.android.material.card.MaterialCardView>
@@ -310,7 +310,7 @@
                     android:layout_marginTop="12dp"
                     android:layout_marginBottom="8dp"
                     android:text="Administrative Actions"
-                    android:textColor="@color/text_475569"
+                    android:textColor="@color/admin_dash_text_secondary"
                     android:textSize="12sp"
                     android:textStyle="bold"
                     android:textAllCaps="true"
@@ -327,22 +327,22 @@
                         android:layout_width="match_parent"
                         android:layout_height="68dp"
                         android:text="Report Management"
-                        android:textColor="@color/text_1e293b"
+                        android:textColor="@color/admin_dash_text_primary"
                         android:gravity="start|center_vertical"
                         android:paddingStart="16dp"
                         android:paddingEnd="48dp"
                         android:textSize="15sp"
                         android:fontFamily="sans-serif-medium"
                         android:textAllCaps="false"
-                        app:backgroundTint="@color/cardBackgroundColor"
+                        app:backgroundTint="@color/admin_dash_btn_bg"
                         app:icon="@drawable/ic_report_management"
-                        app:iconTint="@color/rose_badge_icon"
+                        app:iconTint="@color/admin_dash_btn_rep_icon"
                         app:iconSize="24dp"
                         app:iconPadding="16dp"
                         app:cornerRadius="14dp"
-                        app:strokeColor="@color/divider_e2e8f0"
-                        app:strokeWidth="1dp"
-                        app:elevation="2dp" />
+                        app:strokeColor="@color/admin_dash_btn_border"
+                        app:strokeWidth="1.2dp"
+                        app:elevation="0dp" />
 
                     <ImageView
                         android:layout_width="20dp"
@@ -350,9 +350,9 @@
                         android:layout_gravity="end|center_vertical"
                         android:layout_marginEnd="20dp"
                         android:src="@drawable/ic_chevron_right"
-                        android:elevation="3dp"
+                        android:elevation="1dp"
                         android:importantForAccessibility="no"
-                        app:tint="#94A3B8" />
+                        app:tint="@color/admin_dash_chevron_tint" />
                 </FrameLayout>
 
                 <!-- Action 2: Review Admin Requests -->
@@ -366,22 +366,22 @@
                         android:layout_width="match_parent"
                         android:layout_height="68dp"
                         android:text="Review Admin Requests"
-                        android:textColor="@color/text_1e293b"
+                        android:textColor="@color/admin_dash_text_primary"
                         android:gravity="start|center_vertical"
                         android:paddingStart="16dp"
                         android:paddingEnd="48dp"
                         android:textSize="15sp"
                         android:fontFamily="sans-serif-medium"
                         android:textAllCaps="false"
-                        app:backgroundTint="@color/cardBackgroundColor"
+                        app:backgroundTint="@color/admin_dash_btn_bg"
                         app:icon="@drawable/ic_user_check"
-                        app:iconTint="@color/blue_badge_icon"
+                        app:iconTint="@color/admin_dash_btn_req_icon"
                         app:iconSize="24dp"
                         app:iconPadding="16dp"
                         app:cornerRadius="14dp"
-                        app:strokeColor="@color/divider_e2e8f0"
-                        app:strokeWidth="1dp"
-                        app:elevation="2dp" />
+                        app:strokeColor="@color/admin_dash_btn_border"
+                        app:strokeWidth="1.2dp"
+                        app:elevation="0dp" />
 
                     <ImageView
                         android:layout_width="20dp"
@@ -389,9 +389,9 @@
                         android:layout_gravity="end|center_vertical"
                         android:layout_marginEnd="20dp"
                         android:src="@drawable/ic_chevron_right"
-                        android:elevation="3dp"
+                        android:elevation="1dp"
                         android:importantForAccessibility="no"
-                        app:tint="#94A3B8" />
+                        app:tint="@color/admin_dash_chevron_tint" />
                 </FrameLayout>
 
                 <!-- Action 3: Manage All Items -->
@@ -405,22 +405,22 @@
                         android:layout_width="match_parent"
                         android:layout_height="68dp"
                         android:text="Manage All Items"
-                        android:textColor="@color/text_1e293b"
+                        android:textColor="@color/admin_dash_text_primary"
                         android:gravity="start|center_vertical"
                         android:paddingStart="16dp"
                         android:paddingEnd="48dp"
                         android:textSize="15sp"
                         android:fontFamily="sans-serif-medium"
                         android:textAllCaps="false"
-                        app:backgroundTint="@color/cardBackgroundColor"
+                        app:backgroundTint="@color/admin_dash_btn_bg"
                         app:icon="@drawable/ic_file_plus"
-                        app:iconTint="@color/green_badge_icon"
+                        app:iconTint="@color/admin_dash_btn_items_icon"
                         app:iconSize="24dp"
                         app:iconPadding="16dp"
                         app:cornerRadius="14dp"
-                        app:strokeColor="@color/divider_e2e8f0"
-                        app:strokeWidth="1dp"
-                        app:elevation="2dp" />
+                        app:strokeColor="@color/admin_dash_btn_border"
+                        app:strokeWidth="1.2dp"
+                        app:elevation="0dp" />
 
                     <ImageView
                         android:layout_width="20dp"
@@ -428,9 +428,9 @@
                         android:layout_gravity="end|center_vertical"
                         android:layout_marginEnd="20dp"
                         android:src="@drawable/ic_chevron_right"
-                        android:elevation="3dp"
+                        android:elevation="1dp"
                         android:importantForAccessibility="no"
-                        app:tint="#94A3B8" />
+                        app:tint="@color/admin_dash_chevron_tint" />
                 </FrameLayout>
 
                 <!-- Action 4: Manage All Users -->
@@ -444,22 +444,22 @@
                         android:layout_width="match_parent"
                         android:layout_height="68dp"
                         android:text="Manage All Users"
-                        android:textColor="@color/text_1e293b"
+                        android:textColor="@color/admin_dash_text_primary"
                         android:gravity="start|center_vertical"
                         android:paddingStart="16dp"
                         android:paddingEnd="48dp"
                         android:textSize="15sp"
                         android:fontFamily="sans-serif-medium"
                         android:textAllCaps="false"
-                        app:backgroundTint="@color/cardBackgroundColor"
+                        app:backgroundTint="@color/admin_dash_btn_bg"
                         app:icon="@drawable/ic_users"
-                        app:iconTint="@color/purple_badge_icon"
+                        app:iconTint="@color/admin_dash_btn_users_icon"
                         app:iconSize="24dp"
                         app:iconPadding="16dp"
                         app:cornerRadius="14dp"
-                        app:strokeColor="@color/divider_e2e8f0"
-                        app:strokeWidth="1dp"
-                        app:elevation="2dp" />
+                        app:strokeColor="@color/admin_dash_btn_border"
+                        app:strokeWidth="1.2dp"
+                        app:elevation="0dp" />
 
                     <ImageView
                         android:layout_width="20dp"
@@ -467,9 +467,9 @@
                         android:layout_gravity="end|center_vertical"
                         android:layout_marginEnd="20dp"
                         android:src="@drawable/ic_chevron_right"
-                        android:elevation="3dp"
+                        android:elevation="1dp"
                         android:importantForAccessibility="no"
-                        app:tint="#94A3B8" />
+                        app:tint="@color/admin_dash_chevron_tint" />
                 </FrameLayout>
 
                 <!-- Logout Section -->
@@ -481,16 +481,16 @@
                     android:layout_marginTop="32dp"
                     android:layout_marginBottom="24dp"
                     android:text="Logout Admin Session"
-                    android:textColor="@color/logout_text_color"
+                    android:textColor="@color/admin_dash_logout_text"
                     android:textAllCaps="false"
                     android:textSize="15sp"
                     android:fontFamily="sans-serif-medium"
                     app:icon="@drawable/ic_logout"
-                    app:iconTint="@color/logout_text_color"
+                    app:iconTint="@color/admin_dash_logout_text"
                     app:iconGravity="textStart"
                     app:iconPadding="10dp"
                     app:cornerRadius="14dp"
-                    app:strokeColor="@color/logout_stroke_color"
+                    app:strokeColor="@color/admin_dash_logout_border"
                     app:strokeWidth="1.5dp" />
 
             </LinearLayout>
