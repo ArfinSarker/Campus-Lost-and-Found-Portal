@@ -117,6 +117,15 @@ public class SupabaseDatabaseHelper {
     }
 
     public static String getAuthHeader() {
+        if (authToken == null || authToken.isEmpty()) {
+            try {
+                Context ctx = LostAndFoundApplication.getContext();
+                if (ctx != null) {
+                    SharedPreferences prefs = ctx.getSharedPreferences("MyApp", Context.MODE_PRIVATE);
+                    authToken = prefs.getString("accessToken", null);
+                }
+            } catch (Exception ignored) {}
+        }
         if (authToken != null && !authToken.isEmpty()) {
             return "Bearer " + authToken;
         }

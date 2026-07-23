@@ -162,6 +162,7 @@ public class ChatActivity extends AppCompatActivity {
         }
 
         setupRecyclerView();
+        loadCachedMessages();
 
         isOtherUserBlockedByMe = getIntent().getBooleanExtra("isBlockedByMe", false);
         amIBlockedByOtherUser = getIntent().getBooleanExtra("isBlockedByOther", false);
@@ -728,6 +729,8 @@ public class ChatActivity extends AppCompatActivity {
                     }
                 }
 
+                saveMessagesToCache(filtered);
+
                 // Real-time updates for reaction details popup
                 if (activeReactionDetailsDialog != null && activeReactionDetailsDialog.isShowing() && activeReactionDetailsMessageId != null) {
                     Message updatedMsg = null;
@@ -771,6 +774,38 @@ public class ChatActivity extends AppCompatActivity {
             @Override
             public void onFailure(String errorMessage) {}
         });
+    }
+
+    private void saveMessagesToCache(List<Message> list) {
+        if (conversationId == null || currentUnivId == null || list == null) return;
+        SharedPreferences chatPrefs = getSharedPreferences("ChatPrefs_" + currentUnivId.trim(), Context.MODE_PRIVATE);
+        String json = new com.google.gson.Gson().toJson(list);
+        chatPrefs.edit().putString("cached_messages_" + conversationId, json).apply();
+    }
+
+    private void loadCachedMessages() {
+        if (conversationId == null || currentUnivId == null) return;
+        SharedPreferences chatPrefs = getSharedPreferences("ChatPrefs_" + currentUnivId.trim(), Context.MODE_PRIVATE);
+        long deleteTime = chatPrefs.getLong("delete_timestamp_" + conversationId, 0);
+        String json = chatPrefs.getString("cached_messages_" + conversationId, "[]");
+        try {
+            List<Message> list = new com.google.gson.Gson().fromJson(json, new TypeToken<List<Message>>(){}.getType());
+            if (list != null && !list.isEmpty()) {
+                List<Message> filtered = new ArrayList<>();
+                for (Message m : list) {
+                    Date d = MessagesAdapter.parseDate(m.getCreatedAt());
+                    if (d != null && d.getTime() > deleteTime) {
+                        filtered.add(m);
+                    }
+                }
+                messageList.clear();
+                messageList.addAll(filtered);
+                adapter.setMessages(messageList);
+                rvMessages.scrollToPosition(adapter.getItemCount() - 1);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     private boolean areMessageListsDifferent(List<Message> list1, List<Message> list2) {
@@ -2106,9 +2141,18 @@ public class ChatActivity extends AppCompatActivity {
         }
     }
 
+    private void showDeletedItemDialog() {
+        new com.google.android.material.dialog.MaterialAlertDialogBuilder(ChatActivity.this)
+                .setTitle("Item Unavailable")
+                .setMessage("This item has been deleted and is no longer available.")
+                .setPositiveButton("OK", (dialog, which) -> dialog.dismiss())
+                .setCancelable(true)
+                .show();
+    }
+
     private void queryAndOpenReportDetails() {
         if (reportId == null) {
-            SnackbarManager.show(SnackbarManager.Type.ERROR, "Report details not associated with this chat.");
+            showDeletedItemDialog();
             return;
         }
 
@@ -2117,6 +2161,10 @@ public class ChatActivity extends AppCompatActivity {
             public void onSuccess(List<Item> reports) {
                 if (reports != null && !reports.isEmpty()) {
                     Item item = reports.get(0);
+                    if (item.isDeletedByUser()) {
+                        showDeletedItemDialog();
+                        return;
+                    }
                     Intent intent = new Intent(ChatActivity.this, ItemDetailActivity.class);
                     intent.putExtra("itemId", item.getId());
                     intent.putExtra("itemStatus", item.getType()); // "lost" or "found"
@@ -2132,7 +2180,7 @@ public class ChatActivity extends AppCompatActivity {
                     intent.putExtra("itemAdminStatus", item.getAdminStatus());
                     startActivity(intent);
                 } else {
-                    SnackbarManager.show(SnackbarManager.Type.ERROR, "Report details could not be found.");
+                    showDeletedItemDialog();
                 }
             }
 
