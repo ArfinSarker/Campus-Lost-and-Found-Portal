@@ -58,11 +58,9 @@ public class CampusReportFoundActivity extends AppCompatActivity {
     private MaterialButton btnSubmit;
     private com.airbnb.lottie.LottieAnimationView loadingAnimation;
     private com.google.android.material.card.MaterialCardView uploadCard;
-    private ImageView ivUploadedImage;
-    private android.widget.TextView tvUploadPlaceholder;
-    private View layoutUploadEmpty, layoutUploadSelected;
-    private android.widget.TextView tvUploadStatusSubtext;
-    private android.widget.ImageButton btnDeleteImage;
+    private View layoutUploadEmpty;
+    private android.widget.HorizontalScrollView scrollUploadImages;
+    private android.widget.LinearLayout layoutUploadImagesContainer;
     private Toolbar toolbar;
     private View keyboardSpacer;
     private View reportFoundRoot;
@@ -71,7 +69,7 @@ public class CampusReportFoundActivity extends AppCompatActivity {
     private static final int REQUEST_IMAGE_CAPTURE = 2;
     private static final int CAMERA_PERMISSION_CODE = 100;
 
-    private List<Uri> selectedImageUris = new ArrayList<>();
+    private List<Object> imageItems = new ArrayList<>();
     private Uri cameraImageUri;
     private String currentPhotoPath;
 
@@ -81,6 +79,7 @@ public class CampusReportFoundActivity extends AppCompatActivity {
     private boolean isEditMode = false;
     private String editItemId;
     private Item existingItem;
+    private java.util.Set<String> oldImageUrlsToDelete = new java.util.HashSet<>();
 
     private String contactNameState = "";
     private String contactPhoneState = "";
@@ -111,16 +110,6 @@ public class CampusReportFoundActivity extends AppCompatActivity {
 
         btnSubmit.setOnClickListener(v -> validateAndSubmit());
         uploadCard.setOnClickListener(v -> showImageSourceDialog());
-        if (btnDeleteImage != null) {
-            btnDeleteImage.setOnClickListener(v -> {
-                selectedImageUris.clear();
-                if (existingItem != null) {
-                    existingItem.setImageUrls(new ArrayList<>());
-                    existingItem.setImageUrl(null);
-                }
-                updateUploadUI();
-            });
-        }
     }
 
     private void initViews() {
@@ -176,12 +165,9 @@ public class CampusReportFoundActivity extends AppCompatActivity {
         btnSubmit = findViewById(R.id.btnSubmitReport);
         loadingAnimation = findViewById(R.id.loadingAnimation);
         uploadCard = findViewById(R.id.uploadCard);
-        ivUploadedImage = findViewById(R.id.ivUploadedImage);
-        tvUploadPlaceholder = findViewById(R.id.tvUploadStatus);
         layoutUploadEmpty = findViewById(R.id.layoutUploadEmpty);
-        layoutUploadSelected = findViewById(R.id.layoutUploadSelected);
-        tvUploadStatusSubtext = findViewById(R.id.tvUploadStatusSubtext);
-        btnDeleteImage = findViewById(R.id.btnDeleteImage);
+        scrollUploadImages = findViewById(R.id.scrollUploadImages);
+        layoutUploadImagesContainer = findViewById(R.id.layoutUploadImagesContainer);
         toolbar = findViewById(R.id.toolbar);
         reportFoundRoot = findViewById(R.id.reportFoundRoot);
         keyboardSpacer = findViewById(R.id.keyboardSpacer);
@@ -281,43 +267,18 @@ public class CampusReportFoundActivity extends AppCompatActivity {
         currentUniversityId = item.getUserId();
         btnSubmit.setText("Save Changes");
 
+        oldImageUrlsToDelete.clear();
+        imageItems.clear();
         if (item.getImageUrls() != null && !item.getImageUrls().isEmpty()) {
-            if (layoutUploadEmpty != null) layoutUploadEmpty.setVisibility(View.GONE);
-            if (layoutUploadSelected != null) layoutUploadSelected.setVisibility(View.VISIBLE);
-            
-            com.bumptech.glide.Glide.with(this)
-                .load(item.getImageUrls().get(0))
-                .placeholder(R.drawable.bg_report_placeholder)
-                .into(ivUploadedImage);
-            if (ivUploadedImage != null) ivUploadedImage.clearColorFilter();
-            
-            if (tvUploadPlaceholder != null) {
-                String status = item.getImageUrls().size() + " Previous Image" + (item.getImageUrls().size() > 1 ? "s" : "") + " Loaded";
-                tvUploadPlaceholder.setText(status);
-            }
-            if (tvUploadStatusSubtext != null) {
-                tvUploadStatusSubtext.setText("Tap card to replace with new photos");
+            for (String url : item.getImageUrls()) {
+                if (url != null && !url.isEmpty()) {
+                    imageItems.add(url);
+                }
             }
         } else if (item.getImageUrl() != null && !item.getImageUrl().isEmpty()) {
-            if (layoutUploadEmpty != null) layoutUploadEmpty.setVisibility(View.GONE);
-            if (layoutUploadSelected != null) layoutUploadSelected.setVisibility(View.VISIBLE);
-            
-            com.bumptech.glide.Glide.with(this)
-                .load(item.getImageUrl())
-                .placeholder(R.drawable.bg_report_placeholder)
-                .into(ivUploadedImage);
-            if (ivUploadedImage != null) ivUploadedImage.clearColorFilter();
-            
-            if (tvUploadPlaceholder != null) {
-                tvUploadPlaceholder.setText("Previous Image Loaded");
-            }
-            if (tvUploadStatusSubtext != null) {
-                tvUploadStatusSubtext.setText("Tap card to replace with new photo");
-            }
-        } else {
-            if (layoutUploadEmpty != null) layoutUploadEmpty.setVisibility(View.VISIBLE);
-            if (layoutUploadSelected != null) layoutUploadSelected.setVisibility(View.GONE);
+            imageItems.add(item.getImageUrl());
         }
+        updateUploadUI();
     }
 
     private void setupTextWatchers() {
@@ -546,20 +507,19 @@ public class CampusReportFoundActivity extends AppCompatActivity {
         super.onActivityResult(requestCode, resultCode, data);
         if (resultCode == RESULT_OK) {
             if (requestCode == PICK_IMAGES_REQUEST) {
-                selectedImageUris.clear();
                 if (data != null) {
                     if (data.getClipData() != null) {
                         ClipData clipData = data.getClipData();
                         for (int i = 0; i < clipData.getItemCount(); i++) {
-                            selectedImageUris.add(clipData.getItemAt(i).getUri());
+                            imageItems.add(clipData.getItemAt(i).getUri());
                         }
                     } else if (data.getData() != null) {
-                        selectedImageUris.add(data.getData());
+                        imageItems.add(data.getData());
                     }
                 }
             } else if (requestCode == REQUEST_IMAGE_CAPTURE) {
                 if (cameraImageUri != null) {
-                    selectedImageUris.add(cameraImageUri);
+                    imageItems.add(cameraImageUri);
                 }
             }
 
@@ -568,27 +528,43 @@ public class CampusReportFoundActivity extends AppCompatActivity {
     }
 
     private void updateUploadUI() {
-        if (selectedImageUris != null && !selectedImageUris.isEmpty()) {
-            if (layoutUploadEmpty != null) layoutUploadEmpty.setVisibility(View.GONE);
-            if (layoutUploadSelected != null) layoutUploadSelected.setVisibility(View.VISIBLE);
-            
-            if (ivUploadedImage != null) {
-                ivUploadedImage.setImageURI(selectedImageUris.get(0));
-                ivUploadedImage.clearColorFilter();
-            }
-            if (tvUploadPlaceholder != null) {
-                String status = selectedImageUris.size() + " Image" + (selectedImageUris.size() > 1 ? "s" : "") + " Selected";
-                tvUploadPlaceholder.setText(status);
-            }
-            if (tvUploadStatusSubtext != null) {
-                tvUploadStatusSubtext.setText("Tap card to change selection");
-            }
-        } else {
+        if (imageItems == null || imageItems.isEmpty()) {
             if (layoutUploadEmpty != null) layoutUploadEmpty.setVisibility(View.VISIBLE);
-            if (layoutUploadSelected != null) layoutUploadSelected.setVisibility(View.GONE);
-            
-            if (ivUploadedImage != null) {
-                ivUploadedImage.setImageURI(null);
+            if (scrollUploadImages != null) scrollUploadImages.setVisibility(View.GONE);
+        } else {
+            if (layoutUploadEmpty != null) layoutUploadEmpty.setVisibility(View.GONE);
+            if (scrollUploadImages != null) scrollUploadImages.setVisibility(View.VISIBLE);
+
+            if (layoutUploadImagesContainer != null) {
+                layoutUploadImagesContainer.removeAllViews();
+                android.view.LayoutInflater inflater = android.view.LayoutInflater.from(this);
+
+                for (final Object item : imageItems) {
+                    android.view.View thumbView = inflater.inflate(R.layout.item_upload_thumbnail, layoutUploadImagesContainer, false);
+                    ImageView ivThumbnail = thumbView.findViewById(R.id.ivThumbnail);
+                    View btnRemove = thumbView.findViewById(R.id.btnRemove);
+
+                    com.bumptech.glide.Glide.with(this)
+                            .load(item)
+                            .centerCrop()
+                            .placeholder(R.drawable.bg_report_placeholder)
+                            .into(ivThumbnail);
+
+                    btnRemove.setOnClickListener(v -> {
+                        imageItems.remove(item);
+                        if (item instanceof String) {
+                            oldImageUrlsToDelete.add((String) item);
+                        }
+                        updateUploadUI();
+                    });
+
+                    layoutUploadImagesContainer.addView(thumbView);
+                }
+
+                // Append the "+" Add Image card
+                android.view.View addCardView = inflater.inflate(R.layout.item_upload_add, layoutUploadImagesContainer, false);
+                addCardView.setOnClickListener(v -> showImageSourceDialog());
+                layoutUploadImagesContainer.addView(addCardView);
             }
         }
     }
@@ -661,21 +637,33 @@ public class CampusReportFoundActivity extends AppCompatActivity {
             return;
         }
 
-        if (!selectedImageUris.isEmpty()) {
-            List<String> imageUrlStrings = Collections.synchronizedList(new ArrayList<>());
-            AtomicInteger remaining = new AtomicInteger(selectedImageUris.size());
+        List<Uri> localUris = new ArrayList<>();
+        List<String> remoteUrls = new ArrayList<>();
+        for (Object item : imageItems) {
+            if (item instanceof Uri) {
+                localUris.add((Uri) item);
+            } else if (item instanceof String) {
+                remoteUrls.add((String) item);
+            }
+        }
 
-            for (int i = 0; i < selectedImageUris.size(); i++) {
+        if (!localUris.isEmpty()) {
+            List<String> uploadedUrls = Collections.synchronizedList(new ArrayList<>());
+            AtomicInteger remaining = new AtomicInteger(localUris.size());
+
+            for (int i = 0; i < localUris.size(); i++) {
                 String fileName = reportId + "_" + i + "_" + System.currentTimeMillis() + ".jpg";
-                SupabaseStorageHelper.uploadImage(this, selectedImageUris.get(i), "found_items", fileName, new SupabaseStorageHelper.UploadCallback() {
+                SupabaseStorageHelper.uploadImage(this, localUris.get(i), "found_items", fileName, new SupabaseStorageHelper.UploadCallback() {
                     @Override
                     public void onSuccess(String publicUrl) {
-                        imageUrlStrings.add(publicUrl);
+                        uploadedUrls.add(publicUrl);
                         if (remaining.decrementAndGet() == 0) {
+                            List<String> combinedUrls = new ArrayList<>(remoteUrls);
+                            combinedUrls.addAll(uploadedUrls);
                             if (isEditMode) {
-                                saveReport(reportId, itemName, category, description, date, location, manualLocation, handlingStatus, authorityName, hiddenQuestion, contactName, contactPhone, contactEmail, preferredContact, imageUrlStrings, userId, null);
+                                saveReport(reportId, itemName, category, description, date, location, manualLocation, handlingStatus, authorityName, hiddenQuestion, contactName, contactPhone, contactEmail, preferredContact, combinedUrls, userId, null);
                             } else {
-                                generateDisplayIdAndSave(reportId, itemName, category, description, date, location, manualLocation, handlingStatus, authorityName, hiddenQuestion, contactName, contactPhone, contactEmail, preferredContact, imageUrlStrings, userId);
+                                generateDisplayIdAndSave(reportId, itemName, category, description, date, location, manualLocation, handlingStatus, authorityName, hiddenQuestion, contactName, contactPhone, contactEmail, preferredContact, combinedUrls, userId);
                             }
                         }
                     }
@@ -683,21 +671,22 @@ public class CampusReportFoundActivity extends AppCompatActivity {
                     @Override
                     public void onFailure(Exception e) {
                         if (remaining.decrementAndGet() == 0) {
+                            List<String> combinedUrls = new ArrayList<>(remoteUrls);
+                            combinedUrls.addAll(uploadedUrls);
                             if (isEditMode) {
-                                saveReport(reportId, itemName, category, description, date, location, manualLocation, handlingStatus, authorityName, hiddenQuestion, contactName, contactPhone, contactEmail, preferredContact, imageUrlStrings, userId, null);
+                                saveReport(reportId, itemName, category, description, date, location, manualLocation, handlingStatus, authorityName, hiddenQuestion, contactName, contactPhone, contactEmail, preferredContact, combinedUrls, userId, null);
                             } else {
-                                generateDisplayIdAndSave(reportId, itemName, category, description, date, location, manualLocation, handlingStatus, authorityName, hiddenQuestion, contactName, contactPhone, contactEmail, preferredContact, imageUrlStrings, userId);
+                                generateDisplayIdAndSave(reportId, itemName, category, description, date, location, manualLocation, handlingStatus, authorityName, hiddenQuestion, contactName, contactPhone, contactEmail, preferredContact, combinedUrls, userId);
                             }
                         }
                     }
                 });
             }
         } else {
-            List<String> images = isEditMode && existingItem != null ? existingItem.getImageUrls() : new ArrayList<>();
             if (isEditMode) {
-                saveReport(reportId, itemName, category, description, date, location, manualLocation, handlingStatus, authorityName, hiddenQuestion, contactName, contactPhone, contactEmail, preferredContact, images, userId, null);
+                saveReport(reportId, itemName, category, description, date, location, manualLocation, handlingStatus, authorityName, hiddenQuestion, contactName, contactPhone, contactEmail, preferredContact, remoteUrls, userId, null);
             } else {
-                generateDisplayIdAndSave(reportId, itemName, category, description, date, location, manualLocation, handlingStatus, authorityName, hiddenQuestion, contactName, contactPhone, contactEmail, preferredContact, images, userId);
+                generateDisplayIdAndSave(reportId, itemName, category, description, date, location, manualLocation, handlingStatus, authorityName, hiddenQuestion, contactName, contactPhone, contactEmail, preferredContact, remoteUrls, userId);
             }
         }
     }
@@ -756,8 +745,10 @@ public class CampusReportFoundActivity extends AppCompatActivity {
         report.setUserEmail(contactEmail);
         report.setPreferredContactMethod(preferredContact);
         report.setImageUrls(imageUrls);
-        if (!imageUrls.isEmpty()) {
+        if (imageUrls != null && !imageUrls.isEmpty()) {
             report.setImageUrl(imageUrls.get(0));
+        } else {
+            report.setImageUrl(null);
         }
 
         if (currentUser != null) {
@@ -773,6 +764,13 @@ public class CampusReportFoundActivity extends AppCompatActivity {
             SupabaseDatabaseHelper.update("found_reports", "id=eq." + reportId, report, new SupabaseDatabaseHelper.DatabaseCallback<String>() {
                 @Override
                 public void onSuccess(String result) {
+                    if (oldImageUrlsToDelete != null && !oldImageUrlsToDelete.isEmpty()) {
+                        for (String url : oldImageUrlsToDelete) {
+                            if (url != null && url.contains("supabase.co")) {
+                                SupabaseStorageHelper.deleteImage(url, null);
+                            }
+                        }
+                    }
                     SnackbarManager.show(SnackbarManager.Type.SUCCESS, "Report updated successfully");
                     finish();
                 }

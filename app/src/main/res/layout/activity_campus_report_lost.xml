@@ -186,68 +186,21 @@
                             android:textSize="11sp" />
                     </LinearLayout>
 
-                    <!-- State 2: Selected State (Gone by default) -->
-                    <RelativeLayout
-                        android:id="@+id/layoutUploadSelected"
+                    <!-- State 2: Scrollable Thumbnail List (Gone by default) -->
+                    <HorizontalScrollView
+                        android:id="@+id/scrollUploadImages"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
+                        android:scrollbars="none"
                         android:visibility="gone">
 
-                        <!-- Thumbnail Preview -->
-                        <com.google.android.material.imageview.ShapeableImageView
-                            android:id="@+id/ivUploadedImage"
-                            android:layout_width="64dp"
-                            android:layout_height="64dp"
-                            android:scaleType="centerCrop"
-                            android:src="@drawable/ic_image"
-                            app:tint="@color/rl_icon_thumbnail"
-                            app:shapeAppearanceOverlay="@style/ShapeAppearance.App.SmallComponent"
-                            android:layout_alignParentStart="true"
-                            android:layout_centerVertical="true" />
-
-                        <!-- Text Content -->
                         <LinearLayout
-                            android:layout_width="match_parent"
+                            android:id="@+id/layoutUploadImagesContainer"
+                            android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:orientation="vertical"
-                            android:layout_toEndOf="@id/ivUploadedImage"
-                            android:layout_toStartOf="@id/btnDeleteImage"
-                            android:layout_centerVertical="true"
-                            android:layout_marginStart="12dp"
-                            android:layout_marginEnd="8dp">
-
-                            <TextView
-                                android:id="@+id/tvUploadStatus"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:text="1 Image Selected"
-                                android:textColor="@color/rl_upload_title_text"
-                                android:textSize="14sp"
-                                android:textStyle="bold" />
-
-                            <TextView
-                                android:id="@+id/tvUploadStatusSubtext"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:layout_marginTop="2dp"
-                                android:text="Tap card to change selection"
-                                android:textColor="@color/rl_upload_subtitle_text"
-                                android:textSize="11sp" />
-                        </LinearLayout>
-
-                        <!-- Delete / Clear Button -->
-                        <ImageButton
-                            android:id="@+id/btnDeleteImage"
-                            android:layout_width="36dp"
-                            android:layout_height="36dp"
-                            android:background="?attr/selectableItemBackgroundBorderless"
-                            android:src="@drawable/ic_close"
-                            app:tint="@color/rl_icon_delete"
-                            android:layout_alignParentEnd="true"
-                            android:layout_centerVertical="true"
-                            android:contentDescription="Remove image" />
-
-                    </RelativeLayout>
+                            android:orientation="horizontal"
+                            android:gravity="center_vertical" />
+                    </HorizontalScrollView>
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 
