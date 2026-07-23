@@ -216,13 +216,6 @@
                                 tools:text="170104001" />
                         </LinearLayout>
 
-                        <ImageView
-                            android:layout_width="14dp"
-                            android:layout_height="14dp"
-                            android:src="@drawable/ic_copy"
-                            app:tint="@color/cd_icon_copy_tint"
-                            android:alpha="0.7"
-                            android:layout_marginStart="8dp" />
                     </LinearLayout>
 
                     <!-- Gender Row -->
@@ -641,13 +634,6 @@
                                 tools:text="+8801234567890" />
                         </LinearLayout>
 
-                        <ImageView
-                            android:layout_width="16dp"
-                            android:layout_height="16dp"
-                            android:src="@drawable/ic_copy"
-                            app:tint="@color/cd_icon_copy_tint"
-                            android:alpha="0.7"
-                            android:layout_marginStart="8dp" />
                     </LinearLayout>
                 </com.google.android.material.card.MaterialCardView>
 
@@ -717,13 +703,6 @@
                                 tools:text="claimer@university.edu" />
                         </LinearLayout>
 
-                        <ImageView
-                            android:layout_width="16dp"
-                            android:layout_height="16dp"
-                            android:src="@drawable/ic_copy"
-                            app:tint="@color/cd_icon_copy_tint"
-                            android:alpha="0.7"
-                            android:layout_marginStart="8dp" />
                     </LinearLayout>
                 </com.google.android.material.card.MaterialCardView>
 
