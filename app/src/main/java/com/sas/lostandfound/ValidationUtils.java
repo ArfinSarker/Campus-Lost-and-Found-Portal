@@ -398,20 +398,14 @@ public class ValidationUtils {
      * one uppercase letter, one lowercase letter, and one digit.
      */
     public static boolean isValidPassword(String password) {
-        if (TextUtils.isEmpty(password) || password.length() < 8) return false;
-        
-        boolean hasUppercase = !password.equals(password.toLowerCase());
-        boolean hasLowercase = !password.equals(password.toUpperCase());
-        boolean hasDigit = password.matches(".*\\d.*");
-        
-        return hasUppercase && hasLowercase && hasDigit;
+        return !TextUtils.isEmpty(password) && password.length() >= 6;
     }
     
     /**
      * Returns the requirements for a valid password.
      */
     public static String getPasswordRequirements() {
-        return "Password must be at least 8 characters and include uppercase, lowercase, and a number.";
+        return "Password must be at least 6 characters long.";
     }
 
     /**

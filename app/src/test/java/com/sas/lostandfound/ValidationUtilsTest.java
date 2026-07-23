@@ -49,4 +49,22 @@ public class ValidationUtilsTest {
         assertArrayEquals(new String[]{"+880", "1712345678"}, ValidationUtils.parsePhoneNumber("+8801712345678"));
         assertArrayEquals(new String[]{"+1", "2025550143"}, ValidationUtils.parsePhoneNumber("+12025550143"));
     }
+
+    @Test
+    public void testIsValidPassword() {
+        // Valid password (at least 6 characters, no complexity rules needed)
+        assertTrue(ValidationUtils.isValidPassword("123456"));
+        assertTrue(ValidationUtils.isValidPassword("abcdef"));
+        assertTrue(ValidationUtils.isValidPassword("ABCDEF"));
+        assertTrue(ValidationUtils.isValidPassword("a1B2c3"));
+        assertTrue(ValidationUtils.isValidPassword("password"));
+        
+        // Invalid password (too short or null/empty)
+        assertFalse(ValidationUtils.isValidPassword("12345"));
+        assertFalse(ValidationUtils.isValidPassword(""));
+        assertFalse(ValidationUtils.isValidPassword(null));
+        
+        // Requirements string check
+        assertEquals("Password must be at least 6 characters long.", ValidationUtils.getPasswordRequirements());
+    }
 }
