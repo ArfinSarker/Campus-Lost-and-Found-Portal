@@ -1066,14 +1066,19 @@ public class ItemDetailActivity extends AppCompatActivity {
     private void deleteItem(String itemId, String status) {
         DeleteReportDialogHelper.show(this, () -> {
             if (currentItem != null) deleteItemImages(currentItem);
-            String table = "lost".equalsIgnoreCase(status) ? "lost_reports" : "found_reports";
-            SupabaseDatabaseHelper.delete(table, "id=eq." + itemId, new SupabaseDatabaseHelper.DatabaseCallback<Void>() {
-                @Override public void onSuccess(Void r) { 
+            
+            java.util.Map<String, Object> params = new java.util.HashMap<>();
+            params.put("target_report_id", itemId);
+            
+            SupabaseDatabaseHelper.rpc("delete_report", params, new SupabaseDatabaseHelper.DatabaseCallback<String>() {
+                @Override
+                public void onSuccess(String result) {
                     SnackbarManager.show(SnackbarManager.Type.SUCCESS, "Report deleted successfully"); 
                     finish(); 
                 }
-                @Override public void onFailure(String e) { 
-                    android.util.Log.e("ItemDetail", "Delete failed for " + table + " with ID " + itemId + ": " + e);
+                @Override
+                public void onFailure(String e) {
+                    android.util.Log.e("ItemDetail", "Delete failed for ID " + itemId + ": " + e);
                     ErrorHelper.showError(tvItemName, "Delete failed: " + e); 
                 }
             });
@@ -1082,8 +1087,14 @@ public class ItemDetailActivity extends AppCompatActivity {
 
     private void deleteItemImages(Item item) {
         List<String> urls = item.getImageUrls();
-        if (urls == null) urls = new ArrayList<>();
-        if (item.getImageUrl() != null && !urls.contains(item.getImageUrl())) urls.add(item.getImageUrl());
-        for (String url : urls) { if (url != null && url.contains("supabase.co")) SupabaseStorageHelper.deleteImage(url, null); }
+        List<String> mutableUrls = urls != null ? new ArrayList<>(urls) : new ArrayList<>();
+        if (item.getImageUrl() != null && !mutableUrls.contains(item.getImageUrl())) {
+            mutableUrls.add(item.getImageUrl());
+        }
+        for (String url : mutableUrls) {
+            if (url != null && url.contains("supabase.co")) {
+                SupabaseStorageHelper.deleteImage(url, null);
+            }
+        }
     }
 }
