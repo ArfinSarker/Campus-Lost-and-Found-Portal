@@ -966,4 +966,90 @@
 
     <!-- Text Cursor & Selection Handle Color (Night Mode - Electric Lavender/Indigo) -->
     <color name="cursor_color">#818CF8</color>
+
+    <!-- Claimer Details Screen Premium Night Mode Colors -->
+    <color name="cd_screen_bg">#121620</color>
+    <color name="cd_header_bg">#1B2232</color>
+    <color name="cd_header_title">#FFFFFF</color>
+    <color name="cd_card_bg">#1F293D</color>
+    <color name="cd_card_border">#2D3D5A</color>
+    <color name="cd_primary_text">#F1F5F9</color>
+    <color name="cd_secondary_text">#94A3B8</color>
+    <color name="cd_btn_bg">#3B82F6</color>
+    <color name="cd_btn_text">#FFFFFF</color>
+    <color name="cd_btn_call_bg">#1E3A5F</color>
+    <color name="cd_btn_call_text">#60A5FA</color>
+    <color name="cd_btn_email_bg">#311D4B</color>
+    <color name="cd_btn_email_text">#C084FC</color>
+    <color name="cd_divider">#2D3D5A</color>
+    <color name="cd_desc_bg">#1E293B</color>
+    <color name="cd_status_badge_student_bg">#1E3A5F</color>
+    <color name="cd_status_badge_student_text">#60A5FA</color>
+    <color name="cd_status_badge_staff_bg">#3B185F</color>
+    <color name="cd_status_badge_staff_text">#D8B4FE</color>
+    <color name="cd_report_id_bg">#2D3D5A</color>
+    <color name="cd_report_id_text">#94A3B8</color>
+    <color name="cd_category_bg">#0F766E</color>
+    <color name="cd_category_text">#2DD4BF</color>
+    <color name="cd_ownership_bg">#1A202C</color>
+    <color name="cd_ownership_border">#3182CE</color>
+    <color name="cd_ownership_text">#90CDF4</color>
+    <color name="cd_handling_bg">#1A202C</color>
+    <color name="cd_handling_border">#38A169</color>
+    <color name="cd_handling_text">#9AE6B4</color>
+    <color name="cd_security_bg">#1A202C</color>
+    <color name="cd_security_border">#DD6B20</color>
+    <color name="cd_security_text">#FBD38D</color>
+    
+    <!-- Icons Premium Night Mode Colors (Every icon is unique and does not repeat) -->
+    <color name="cd_icon_back_tint">#FFFFFF</color>
+    <color name="cd_avatar_stroke">#F59E0B</color>
+    
+    <color name="cd_icon_id_tint">#38BDF8</color>
+    <color name="cd_icon_id_bg">#0F2E4A</color>
+    
+    <color name="cd_icon_copy_tint">#64748B</color>
+    
+    <color name="cd_icon_gender_tint">#FB7185</color>
+    <color name="cd_icon_gender_bg">#4C102F</color>
+    
+    <color name="cd_icon_designation_tint">#F472B6</color>
+    <color name="cd_icon_designation_bg">#4C1D3A</color>
+    
+    <color name="cd_icon_batch_tint">#34D399</color>
+    <color name="cd_icon_batch_bg">#064E3B</color>
+    
+    <color name="cd_icon_level_term_tint">#A78BFA</color>
+    <color name="cd_icon_level_term_bg">#321E59</color>
+    
+    <color name="cd_icon_department_tint">#FBBF24</color>
+    <color name="cd_icon_department_bg">#452A0A</color>
+    
+    <color name="cd_icon_section_tint">#FB923C</color>
+    <color name="cd_icon_section_bg">#4A200B</color>
+    
+    <color name="cd_icon_phone_tint">#22D3EE</color>
+    <color name="cd_icon_phone_bg">#0E3F4C</color>
+    
+    <color name="cd_icon_email_tint">#C084FC</color>
+    <color name="cd_icon_email_bg">#30184A</color>
+    
+    <color name="cd_icon_preferred_contact_tint">#818CF8</color>
+    <color name="cd_icon_preferred_contact_bg">#1E1B4B</color>
+    
+    <color name="cd_icon_info_tint">#A1A1AA</color>
+    <color name="cd_icon_info_bg">#27272A</color>
+    
+    <color name="cd_icon_ownership_tint">#60A5FA</color>
+    <color name="cd_icon_ownership_bg">#1E3A8A</color>
+    
+    <color name="cd_icon_handling_tint">#4ADE80</color>
+    <color name="cd_icon_handling_bg">#064E3B</color>
+    
+    <color name="cd_icon_security_tint">#F87171</color>
+    <color name="cd_icon_security_bg">#4A200B</color>
+    
+    <color name="cd_icon_btn_mark_tint">#FFFFFF</color>
+    <color name="cd_icon_btn_call_tint">#60A5FA</color>
+    <color name="cd_icon_btn_email_tint">#C084FC</color>
 </resources>

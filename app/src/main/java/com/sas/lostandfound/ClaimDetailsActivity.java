@@ -294,7 +294,10 @@ public class ClaimDetailsActivity extends AppCompatActivity {
 
         com.google.android.material.appbar.AppBarLayout appBarLayout = findViewById(R.id.appBarLayout);
         if (appBarLayout != null) {
-            HeaderColorHelper.setup(this, appBarLayout, toolbar);
+            int headerColor = getResources().getColor(R.color.cd_header_bg);
+            boolean isNightMode = (getResources().getConfiguration().uiMode & android.content.res.Configuration.UI_MODE_NIGHT_MASK) 
+                    == android.content.res.Configuration.UI_MODE_NIGHT_YES;
+            HeaderColorHelper.setup(this, appBarLayout, headerColor, headerColor, !isNightMode);
         }
     }
 
@@ -336,11 +339,13 @@ public class ClaimDetailsActivity extends AppCompatActivity {
                                 tvClaimantRoleBadge.setText(userType);
                                 tvClaimantRoleBadge.setVisibility(View.VISIBLE);
                                 if (isStudent) {
-                                    tvClaimantRoleBadge.setTextColor(getResources().getColor(R.color.primaryColor));
+                                    tvClaimantRoleBadge.setTextColor(getResources().getColor(R.color.cd_status_badge_student_text));
                                     tvClaimantRoleBadge.setBackgroundResource(R.drawable.bg_circle_accent_light);
+                                    tvClaimantRoleBadge.setBackgroundTintList(android.content.res.ColorStateList.valueOf(getResources().getColor(R.color.cd_status_badge_student_bg)));
                                 } else {
-                                    tvClaimantRoleBadge.setTextColor(getResources().getColor(R.color.admin_accent));
+                                    tvClaimantRoleBadge.setTextColor(getResources().getColor(R.color.cd_status_badge_staff_text));
                                     tvClaimantRoleBadge.setBackgroundResource(R.drawable.bg_circle_neutral_light);
+                                    tvClaimantRoleBadge.setBackgroundTintList(android.content.res.ColorStateList.valueOf(getResources().getColor(R.color.cd_status_badge_staff_bg)));
                                 }
                             } else {
                                 tvClaimantRoleBadge.setVisibility(View.GONE);
@@ -642,7 +647,7 @@ public class ClaimDetailsActivity extends AppCompatActivity {
             public void updateDrawState(@NonNull android.text.TextPaint ds) {
                 super.updateDrawState(ds);
                 ds.setUnderlineText(true);
-                ds.setColor(getResources().getColor(R.color.primaryColor));
+                ds.setColor(getResources().getColor(R.color.cd_icon_preferred_contact_tint));
             }
         };
 

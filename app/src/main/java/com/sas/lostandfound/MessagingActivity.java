@@ -52,6 +52,7 @@ public class MessagingActivity extends AppCompatActivity {
     private TextView tvEmptyTitle, tvEmptyDesc;
 
     private String currentUnivId;
+    private boolean isLoading = false;
 
     private List<Conversation> conversationList = new ArrayList<>();
     private ConversationsAdapter conversationsAdapter;
@@ -100,6 +101,7 @@ public class MessagingActivity extends AppCompatActivity {
         setupRecyclerViews();
         setupSwipeRefresh();
 
+        loadCachedConversations();
         loadConversations();
     }
 
@@ -126,6 +128,10 @@ public class MessagingActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
+        if (currentUnivId == null) {
+            SharedPreferences prefs = getSharedPreferences("MyApp", MODE_PRIVATE);
+            currentUnivId = prefs.getString("universityId", null);
+        }
         refreshCurrentTab();
         markChatNotificationsAsRead();
         markAllReceivedMessagesAsDelivered();
@@ -240,6 +246,11 @@ public class MessagingActivity extends AppCompatActivity {
             return;
         }
 
+        if (!silent) {
+            isLoading = true;
+            updateEmptyState();
+        }
+
         String query = "or=(blocker_id.eq." + currentUnivId + ",blocked_id.eq." + currentUnivId + ")";
         SupabaseDatabaseHelper.select("blocked_users", query, new TypeToken<List<ChatActivity.BlockedRecord>>(){}.getType(), new SupabaseDatabaseHelper.DatabaseCallback<List<ChatActivity.BlockedRecord>>() {
             @Override
@@ -288,12 +299,14 @@ public class MessagingActivity extends AppCompatActivity {
         SupabaseDatabaseHelper.rpc("get_user_conversations", params, new SupabaseDatabaseHelper.DatabaseCallback<String>() {
             @Override
             public void onSuccess(String result) {
+                isLoading = false;
                 if (swipeRefreshLayout != null) swipeRefreshLayout.setRefreshing(false);
                 try {
                     List<Conversation> list = new com.google.gson.Gson().fromJson(result, new TypeToken<List<Conversation>>(){}.getType());
                     fullConversationList.clear();
                     if (list != null) {
                         fullConversationList.addAll(list);
+                        saveConversationsToCache(list);
                     }
                     filterConversations(etSearchChats != null ? etSearchChats.getText().toString() : "");
                 } catch (Exception e) {
@@ -304,6 +317,7 @@ public class MessagingActivity extends AppCompatActivity {
 
             @Override
             public void onFailure(String errorMessage) {
+                isLoading = false;
                 if (swipeRefreshLayout != null) swipeRefreshLayout.setRefreshing(false);
                 updateEmptyState();
             }
@@ -322,6 +336,7 @@ public class MessagingActivity extends AppCompatActivity {
                     if (list != null) {
                         fullConversationList.clear();
                         fullConversationList.addAll(list);
+                        saveConversationsToCache(list);
                         filterConversations(etSearchChats != null ? etSearchChats.getText().toString() : "");
                     }
                 } catch (Exception e) {
@@ -330,6 +345,29 @@ public class MessagingActivity extends AppCompatActivity {
             }
             @Override public void onFailure(String errorMessage) {}
         });
+    }
+
+    private void saveConversationsToCache(List<Conversation> list) {
+        if (currentUnivId == null || list == null) return;
+        android.content.SharedPreferences prefs = getSharedPreferences("ChatPrefs_" + currentUnivId.trim(), Context.MODE_PRIVATE);
+        String json = new com.google.gson.Gson().toJson(list);
+        prefs.edit().putString("cached_conversations", json).apply();
+    }
+
+    private void loadCachedConversations() {
+        if (currentUnivId == null) return;
+        android.content.SharedPreferences prefs = getSharedPreferences("ChatPrefs_" + currentUnivId.trim(), Context.MODE_PRIVATE);
+        String json = prefs.getString("cached_conversations", "[]");
+        try {
+            List<Conversation> list = new com.google.gson.Gson().fromJson(json, new TypeToken<List<Conversation>>(){}.getType());
+            if (list != null && !list.isEmpty()) {
+                fullConversationList.clear();
+                fullConversationList.addAll(list);
+                filterConversations(etSearchChats != null ? etSearchChats.getText().toString() : "");
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     private void filterConversations(String query) {
@@ -848,9 +886,13 @@ public class MessagingActivity extends AppCompatActivity {
 
     private void updateEmptyState() {
         if (conversationList.isEmpty()) {
-            tvEmptyTitle.setText(R.string.no_conversations);
-            tvEmptyDesc.setText("Ongoing chats and message requests will appear here.");
-            llEmptyState.setVisibility(View.VISIBLE);
+            if (isLoading) {
+                llEmptyState.setVisibility(View.GONE);
+            } else {
+                tvEmptyTitle.setText(R.string.no_conversations);
+                tvEmptyDesc.setText("Ongoing chats and message requests will appear here.");
+                llEmptyState.setVisibility(View.VISIBLE);
+            }
         } else {
             llEmptyState.setVisibility(View.GONE);
         }

@@ -4,14 +4,14 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/backgroundColor"
+    android:background="@color/cd_screen_bg"
     android:fitsSystemWindows="true">
 
     <com.google.android.material.appbar.AppBarLayout
         android:id="@+id/appBarLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@color/primaryDarkColor"
+        android:background="@color/cd_header_bg"
         android:fitsSystemWindows="true"
         app:elevation="0dp">
 
@@ -20,9 +20,9 @@
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
             app:navigationIcon="@drawable/ic_arrow_back"
-            app:navigationIconTint="@color/white"
+            app:navigationIconTint="@color/cd_icon_back_tint"
             app:title=""
-            app:titleTextColor="@color/white">
+            app:titleTextColor="@color/cd_header_title">
 
             <TextView
                 android:id="@+id/tvHeaderTitle"
@@ -30,7 +30,7 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_horizontal"
                 android:text="Claimer Details"
-                android:textColor="@color/white"
+                android:textColor="@color/cd_header_title"
                 android:textSize="20sp"
                 android:textStyle="bold" />
 
@@ -58,8 +58,9 @@
                 android:layout_marginBottom="16dp"
                 app:cardCornerRadius="24dp"
                 app:cardElevation="3dp"
-                app:strokeWidth="0dp"
-                app:cardBackgroundColor="@color/cardBackgroundColor">
+                app:strokeWidth="1dp"
+                app:strokeColor="@color/cd_card_border"
+                app:cardBackgroundColor="@color/cd_card_bg">
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -82,7 +83,7 @@
                             android:scaleType="centerCrop"
                             android:src="@drawable/ic_user"
                             app:shapeAppearanceOverlay="@style/ShapeAppearance.App.Circle"
-                            app:strokeColor="@color/primaryColor"
+                            app:strokeColor="@color/cd_avatar_stroke"
                             app:strokeWidth="2.5dp" />
                     </FrameLayout>
 
@@ -92,7 +93,7 @@
                         android:layout_height="wrap_content"
                         android:layout_marginBottom="8dp"
                         android:text="Claimer Name"
-                        android:textColor="@color/textPrimary"
+                        android:textColor="@color/cd_primary_text"
                         android:textSize="20sp"
                         android:textStyle="bold"
                         android:fontFamily="sans-serif-medium"
@@ -104,10 +105,11 @@
                         android:layout_height="wrap_content"
                         android:paddingHorizontal="16dp"
                         android:paddingVertical="5dp"
-                        android:textColor="@color/primaryColor"
+                        android:textColor="@color/cd_status_badge_student_text"
                         android:textSize="12sp"
                         android:textStyle="bold"
                         android:background="@drawable/bg_circle_accent_light"
+                        android:backgroundTint="@color/cd_status_badge_student_bg"
                         android:visibility="gone"
                         tools:text="Student"
                         tools:visibility="visible" />
@@ -134,7 +136,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Information"
-                    android:textColor="@color/primaryColor"
+                    android:textColor="@color/cd_icon_preferred_contact_tint"
                     android:textSize="15sp"
                     android:textStyle="bold" />
             </LinearLayout>
@@ -148,8 +150,8 @@
                 app:cardCornerRadius="16dp"
                 app:cardElevation="0dp"
                 app:strokeWidth="1dp"
-                app:strokeColor="@color/dividerColor"
-                app:cardBackgroundColor="@color/cardBackgroundColor">
+                app:strokeColor="@color/cd_card_border"
+                app:cardBackgroundColor="@color/cd_card_bg">
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -157,7 +159,7 @@
                     android:orientation="vertical"
                     android:paddingHorizontal="14dp"
                     android:paddingVertical="6dp"
-                    android:divider="?android:attr/listDivider"
+                    android:divider="@drawable/cd_divider_line"
                     android:showDividers="middle">
 
                     <!-- University ID Row -->
@@ -176,6 +178,7 @@
                             android:layout_width="34dp"
                             android:layout_height="34dp"
                             android:background="@drawable/bg_circle_accent_light"
+                            android:backgroundTint="@color/cd_icon_id_bg"
                             android:layout_marginEnd="12dp">
 
                             <ImageView
@@ -183,7 +186,7 @@
                                 android:layout_height="16dp"
                                 android:layout_gravity="center"
                                 android:src="@drawable/ic_id_card"
-                                app:tint="@color/primaryColor" />
+                                app:tint="@color/cd_icon_id_tint" />
                         </FrameLayout>
 
                         <LinearLayout
@@ -196,7 +199,7 @@
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:text="UNIVERSITY ID"
-                                android:textColor="@color/textSecondary"
+                                android:textColor="@color/cd_secondary_text"
                                 android:textSize="9.5sp"
                                 android:fontFamily="sans-serif-medium"
                                 android:letterSpacing="0.02" />
@@ -206,7 +209,7 @@
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
                                 android:layout_marginTop="1dp"
-                                android:textColor="@color/textPrimary"
+                                android:textColor="@color/cd_primary_text"
                                 android:textSize="13.5sp"
                                 android:textStyle="bold"
                                 android:fontFamily="sans-serif"
@@ -217,7 +220,7 @@
                             android:layout_width="14dp"
                             android:layout_height="14dp"
                             android:src="@drawable/ic_copy"
-                            app:tint="@color/textSecondary"
+                            app:tint="@color/cd_icon_copy_tint"
                             android:alpha="0.7"
                             android:layout_marginStart="8dp" />
                     </LinearLayout>
@@ -234,6 +237,7 @@
                             android:layout_width="34dp"
                             android:layout_height="34dp"
                             android:background="@drawable/bg_circle_accent_light"
+                            android:backgroundTint="@color/cd_icon_gender_bg"
                             android:layout_marginEnd="12dp">
 
                             <ImageView
@@ -241,7 +245,7 @@
                                 android:layout_height="16dp"
                                 android:layout_gravity="center"
                                 android:src="@drawable/ic_user"
-                                app:tint="@color/primaryColor" />
+                                app:tint="@color/cd_icon_gender_tint" />
                         </FrameLayout>
 
                         <LinearLayout
@@ -253,7 +257,7 @@
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:text="GENDER"
-                                android:textColor="@color/textSecondary"
+                                android:textColor="@color/cd_secondary_text"
                                 android:textSize="9.5sp"
                                 android:fontFamily="sans-serif-medium"
                                 android:letterSpacing="0.02" />
@@ -263,7 +267,7 @@
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
                                 android:layout_marginTop="1dp"
-                                android:textColor="@color/textPrimary"
+                                android:textColor="@color/cd_primary_text"
                                 android:textSize="13.5sp"
                                 android:textStyle="bold"
                                 android:fontFamily="sans-serif"
@@ -286,6 +290,7 @@
                             android:layout_width="34dp"
                             android:layout_height="34dp"
                             android:background="@drawable/bg_circle_accent_light"
+                            android:backgroundTint="@color/cd_icon_designation_bg"
                             android:layout_marginEnd="12dp">
 
                             <ImageView
@@ -293,7 +298,7 @@
                                 android:layout_height="16dp"
                                 android:layout_gravity="center"
                                 android:src="@drawable/ic_admin_id"
-                                app:tint="@color/primaryColor" />
+                                app:tint="@color/cd_icon_designation_tint" />
                         </FrameLayout>
 
                         <LinearLayout
@@ -305,7 +310,7 @@
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:text="DESIGNATION"
-                                android:textColor="@color/textSecondary"
+                                android:textColor="@color/cd_secondary_text"
                                 android:textSize="9.5sp"
                                 android:fontFamily="sans-serif-medium"
                                 android:letterSpacing="0.02" />
@@ -315,7 +320,7 @@
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
                                 android:layout_marginTop="1dp"
-                                android:textColor="@color/textPrimary"
+                                android:textColor="@color/cd_primary_text"
                                 android:textSize="13.5sp"
                                 android:textStyle="bold"
                                 android:fontFamily="sans-serif"
@@ -338,6 +343,7 @@
                             android:layout_width="34dp"
                             android:layout_height="34dp"
                             android:background="@drawable/bg_circle_accent_light"
+                            android:backgroundTint="@color/cd_icon_batch_bg"
                             android:layout_marginEnd="12dp">
 
                             <ImageView
@@ -345,7 +351,7 @@
                                 android:layout_height="16dp"
                                 android:layout_gravity="center"
                                 android:src="@drawable/ic_graduation_cap"
-                                app:tint="@color/primaryColor" />
+                                app:tint="@color/cd_icon_batch_tint" />
                         </FrameLayout>
 
                         <LinearLayout
@@ -357,7 +363,7 @@
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:text="BATCH"
-                                android:textColor="@color/textSecondary"
+                                android:textColor="@color/cd_secondary_text"
                                 android:textSize="9.5sp"
                                 android:fontFamily="sans-serif-medium"
                                 android:letterSpacing="0.02" />
@@ -367,7 +373,7 @@
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
                                 android:layout_marginTop="1dp"
-                                android:textColor="@color/textPrimary"
+                                android:textColor="@color/cd_primary_text"
                                 android:textSize="13.5sp"
                                 android:textStyle="bold"
                                 android:fontFamily="sans-serif"
@@ -390,6 +396,7 @@
                             android:layout_width="34dp"
                             android:layout_height="34dp"
                             android:background="@drawable/bg_circle_accent_light"
+                            android:backgroundTint="@color/cd_icon_level_term_bg"
                             android:layout_marginEnd="12dp">
 
                             <ImageView
@@ -397,7 +404,7 @@
                                 android:layout_height="16dp"
                                 android:layout_gravity="center"
                                 android:src="@drawable/ic_layers"
-                                app:tint="@color/primaryColor" />
+                                app:tint="@color/cd_icon_level_term_tint" />
                         </FrameLayout>
 
                         <LinearLayout
@@ -409,7 +416,7 @@
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:text="LEVEL &amp; TERM"
-                                android:textColor="@color/textSecondary"
+                                android:textColor="@color/cd_secondary_text"
                                 android:textSize="9.5sp"
                                 android:fontFamily="sans-serif-medium"
                                 android:letterSpacing="0.02" />
@@ -419,7 +426,7 @@
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
                                 android:layout_marginTop="1dp"
-                                android:textColor="@color/textPrimary"
+                                android:textColor="@color/cd_primary_text"
                                 android:textSize="13.5sp"
                                 android:textStyle="bold"
                                 android:fontFamily="sans-serif"
@@ -442,6 +449,7 @@
                             android:layout_width="34dp"
                             android:layout_height="34dp"
                             android:background="@drawable/bg_circle_accent_light"
+                            android:backgroundTint="@color/cd_icon_department_bg"
                             android:layout_marginEnd="12dp">
 
                             <ImageView
@@ -449,7 +457,7 @@
                                 android:layout_height="16dp"
                                 android:layout_gravity="center"
                                 android:src="@drawable/ic_building"
-                                app:tint="@color/primaryColor" />
+                                app:tint="@color/cd_icon_department_tint" />
                         </FrameLayout>
 
                         <LinearLayout
@@ -461,7 +469,7 @@
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:text="DEPARTMENT"
-                                android:textColor="@color/textSecondary"
+                                android:textColor="@color/cd_secondary_text"
                                 android:textSize="9.5sp"
                                 android:fontFamily="sans-serif-medium"
                                 android:letterSpacing="0.02" />
@@ -471,7 +479,7 @@
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
                                 android:layout_marginTop="1dp"
-                                android:textColor="@color/textPrimary"
+                                android:textColor="@color/cd_primary_text"
                                 android:textSize="13.5sp"
                                 android:textStyle="bold"
                                 android:fontFamily="sans-serif"
@@ -494,6 +502,7 @@
                             android:layout_width="34dp"
                             android:layout_height="34dp"
                             android:background="@drawable/bg_circle_accent_light"
+                            android:backgroundTint="@color/cd_icon_section_bg"
                             android:layout_marginEnd="12dp">
 
                             <ImageView
@@ -501,7 +510,7 @@
                                 android:layout_height="16dp"
                                 android:layout_gravity="center"
                                 android:src="@drawable/ic_list"
-                                app:tint="@color/primaryColor" />
+                                app:tint="@color/cd_icon_section_tint" />
                         </FrameLayout>
 
                         <LinearLayout
@@ -513,7 +522,7 @@
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:text="SECTION"
-                                android:textColor="@color/textSecondary"
+                                android:textColor="@color/cd_secondary_text"
                                 android:textSize="9.5sp"
                                 android:fontFamily="sans-serif-medium"
                                 android:letterSpacing="0.02" />
@@ -523,7 +532,7 @@
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
                                 android:layout_marginTop="1dp"
-                                android:textColor="@color/textPrimary"
+                                android:textColor="@color/cd_primary_text"
                                 android:textSize="13.5sp"
                                 android:textStyle="bold"
                                 android:fontFamily="sans-serif"
@@ -561,7 +570,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Contact"
-                        android:textColor="@color/primaryColor"
+                        android:textColor="@color/cd_icon_preferred_contact_tint"
                         android:textSize="15sp"
                         android:textStyle="bold" />
                 </LinearLayout>
@@ -576,8 +585,8 @@
                     app:cardCornerRadius="16dp"
                     app:cardElevation="0dp"
                     app:strokeWidth="1dp"
-                    app:strokeColor="@color/dividerColor"
-                    app:cardBackgroundColor="@color/cardBackgroundColor"
+                    app:strokeColor="@color/cd_card_border"
+                    app:cardBackgroundColor="@color/cd_card_bg"
                     android:clickable="true"
                     android:focusable="true"
                     android:foreground="?attr/selectableItemBackground">
@@ -594,6 +603,7 @@
                             android:layout_width="38dp"
                             android:layout_height="38dp"
                             android:background="@drawable/bg_circle_accent_light"
+                            android:backgroundTint="@color/cd_icon_phone_bg"
                             android:layout_marginEnd="12dp">
 
                             <ImageView
@@ -601,7 +611,7 @@
                                 android:layout_height="18dp"
                                 android:layout_gravity="center"
                                 android:src="@drawable/ic_phone"
-                                app:tint="@color/primaryColor" />
+                                app:tint="@color/cd_icon_phone_tint" />
                         </FrameLayout>
 
                         <LinearLayout
@@ -614,7 +624,7 @@
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:text="PHONE NUMBER"
-                                android:textColor="@color/textSecondary"
+                                android:textColor="@color/cd_secondary_text"
                                 android:textSize="10sp"
                                 android:fontFamily="sans-serif-medium"
                                 android:letterSpacing="0.02" />
@@ -624,7 +634,7 @@
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
                                 android:layout_marginTop="2dp"
-                                android:textColor="@color/textPrimary"
+                                android:textColor="@color/cd_primary_text"
                                 android:textSize="14sp"
                                 android:textStyle="bold"
                                 android:fontFamily="sans-serif"
@@ -635,7 +645,7 @@
                             android:layout_width="16dp"
                             android:layout_height="16dp"
                             android:src="@drawable/ic_copy"
-                            app:tint="@color/textSecondary"
+                            app:tint="@color/cd_icon_copy_tint"
                             android:alpha="0.7"
                             android:layout_marginStart="8dp" />
                     </LinearLayout>
@@ -651,8 +661,8 @@
                     app:cardCornerRadius="16dp"
                     app:cardElevation="0dp"
                     app:strokeWidth="1dp"
-                    app:strokeColor="@color/dividerColor"
-                    app:cardBackgroundColor="@color/cardBackgroundColor"
+                    app:strokeColor="@color/cd_card_border"
+                    app:cardBackgroundColor="@color/cd_card_bg"
                     android:clickable="true"
                     android:focusable="true"
                     android:foreground="?attr/selectableItemBackground">
@@ -669,6 +679,7 @@
                             android:layout_width="38dp"
                             android:layout_height="38dp"
                             android:background="@drawable/bg_circle_accent_light"
+                            android:backgroundTint="@color/cd_icon_email_bg"
                             android:layout_marginEnd="12dp">
 
                             <ImageView
@@ -676,7 +687,7 @@
                                 android:layout_height="18dp"
                                 android:layout_gravity="center"
                                 android:src="@drawable/ic_email"
-                                app:tint="@color/primaryColor" />
+                                app:tint="@color/cd_icon_email_tint" />
                         </FrameLayout>
 
                         <LinearLayout
@@ -689,7 +700,7 @@
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:text="EMAIL ADDRESS"
-                                android:textColor="@color/textSecondary"
+                                android:textColor="@color/cd_secondary_text"
                                 android:textSize="10sp"
                                 android:fontFamily="sans-serif-medium"
                                 android:letterSpacing="0.02" />
@@ -699,7 +710,7 @@
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
                                 android:layout_marginTop="2dp"
-                                android:textColor="@color/textPrimary"
+                                android:textColor="@color/cd_primary_text"
                                 android:textSize="14sp"
                                 android:textStyle="bold"
                                 android:fontFamily="sans-serif"
@@ -710,7 +721,7 @@
                             android:layout_width="16dp"
                             android:layout_height="16dp"
                             android:src="@drawable/ic_copy"
-                            app:tint="@color/textSecondary"
+                            app:tint="@color/cd_icon_copy_tint"
                             android:alpha="0.7"
                             android:layout_marginStart="8dp" />
                     </LinearLayout>
@@ -726,8 +737,8 @@
                     app:cardCornerRadius="16dp"
                     app:cardElevation="0dp"
                     app:strokeWidth="1dp"
-                    app:strokeColor="@color/dividerColor"
-                    app:cardBackgroundColor="@color/cardBackgroundColor"
+                    app:strokeColor="@color/cd_card_border"
+                    app:cardBackgroundColor="@color/cd_card_bg"
                     android:visibility="gone"
                     tools:visibility="visible">
 
@@ -743,6 +754,7 @@
                             android:layout_width="38dp"
                             android:layout_height="38dp"
                             android:background="@drawable/bg_circle_accent_light"
+                            android:backgroundTint="@color/cd_icon_preferred_contact_bg"
                             android:layout_marginEnd="12dp">
 
                             <ImageView
@@ -750,7 +762,7 @@
                                 android:layout_height="18dp"
                                 android:layout_gravity="center"
                                 android:src="@drawable/ic_check_circle"
-                                app:tint="@color/primaryColor" />
+                                app:tint="@color/cd_icon_preferred_contact_tint" />
                         </FrameLayout>
 
                         <LinearLayout
@@ -763,7 +775,7 @@
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:text="PREFERRED CONTACT METHOD"
-                                android:textColor="@color/textSecondary"
+                                android:textColor="@color/cd_secondary_text"
                                 android:textSize="10sp"
                                 android:fontFamily="sans-serif-medium"
                                 android:letterSpacing="0.02" />
@@ -773,7 +785,7 @@
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
                                 android:layout_marginTop="2dp"
-                                android:textColor="@color/textPrimary"
+                                android:textColor="@color/cd_primary_text"
                                 android:textSize="14sp"
                                 android:textStyle="bold"
                                 android:fontFamily="sans-serif"
@@ -803,7 +815,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Item Claimed"
-                    android:textColor="@color/primaryColor"
+                    android:textColor="@color/cd_icon_preferred_contact_tint"
                     android:textSize="15sp"
                     android:textStyle="bold" />
             </LinearLayout>
@@ -815,8 +827,9 @@
                 android:layout_marginBottom="24dp"
                 app:cardCornerRadius="24dp"
                 app:cardElevation="3dp"
-                app:strokeWidth="0dp"
-                app:cardBackgroundColor="@color/cardBackgroundColor">
+                app:strokeWidth="1dp"
+                app:strokeColor="@color/cd_card_border"
+                app:cardBackgroundColor="@color/cd_card_bg">
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -875,9 +888,10 @@
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:background="@drawable/bg_report_id_badge"
+                                android:backgroundTint="@color/cd_report_id_bg"
                                 android:paddingHorizontal="12dp"
                                 android:paddingVertical="6dp"
-                                android:textColor="@color/white"
+                                android:textColor="@color/cd_report_id_text"
                                 android:textSize="11sp"
                                 android:textStyle="bold"
                                 android:letterSpacing="0.05"
@@ -892,10 +906,11 @@
                                 android:id="@+id/tvCategory"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:background="@drawable/btn_gradient_primary"
+                                android:background="@drawable/bg_circle_accent_light"
+                                android:backgroundTint="@color/cd_category_bg"
                                 android:paddingHorizontal="12dp"
                                 android:paddingVertical="6dp"
-                                android:textColor="@color/white"
+                                android:textColor="@color/cd_category_text"
                                 android:textSize="11sp"
                                 android:textStyle="bold"
                                 tools:text="Electronics" />
@@ -928,7 +943,7 @@
                                 android:id="@+id/tvItemName"
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
-                                android:textColor="@color/textPrimary"
+                                android:textColor="@color/cd_primary_text"
                                 android:textSize="22sp"
                                 android:textStyle="bold"
                                 android:fontFamily="sans-serif-medium"
@@ -946,7 +961,7 @@
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:text="DESCRIPTION"
-                                android:textColor="@color/textSecondary"
+                                android:textColor="@color/cd_secondary_text"
                                 android:textSize="10sp"
                                 android:textStyle="bold"
                                 android:letterSpacing="0.05"
@@ -958,8 +973,9 @@
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
                                 android:background="@drawable/edit_text_bg"
+                                android:backgroundTint="@color/cd_desc_bg"
                                 android:padding="12dp"
-                                android:textColor="@color/textPrimary"
+                                android:textColor="@color/cd_primary_text"
                                 android:textSize="14sp"
                                 android:lineSpacingMultiplier="1.2"
                                 tools:text="Found near the library cafeteria. It has a black cover." />
@@ -976,7 +992,7 @@
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:text="REPORT METADATA"
-                                android:textColor="@color/textSecondary"
+                                android:textColor="@color/cd_secondary_text"
                                 android:textSize="10sp"
                                 android:textStyle="bold"
                                 android:letterSpacing="0.05"
@@ -988,6 +1004,7 @@
                                 android:layout_height="wrap_content"
                                 android:orientation="horizontal"
                                 android:background="@drawable/edit_text_bg"
+                                android:backgroundTint="@color/cd_desc_bg"
                                 android:padding="12dp"
                                 android:gravity="center_vertical">
 
@@ -995,14 +1012,14 @@
                                     android:layout_width="20dp"
                                     android:layout_height="20dp"
                                     android:src="@drawable/ic_info"
-                                    app:tint="@color/primaryColor"
+                                    app:tint="@color/cd_icon_info_tint"
                                     android:layout_marginEnd="10dp" />
 
                                 <TextView
                                     android:id="@+id/tvItemDetails"
                                     android:layout_width="match_parent"
                                     android:layout_height="wrap_content"
-                                    android:textColor="@color/textPrimary"
+                                    android:textColor="@color/cd_primary_text"
                                     android:textSize="13sp"
                                     android:lineSpacingMultiplier="1.2"
                                     tools:text="Date: 2026-07-15\nTime: 14:30\nLocation: Library Cafeteria" />
@@ -1024,8 +1041,8 @@
                                 android:layout_height="wrap_content"
                                 app:cardCornerRadius="14dp"
                                 app:cardElevation="0dp"
-                                app:cardBackgroundColor="@color/blue_badge_bg"
-                                app:strokeColor="@color/blue_badge_icon"
+                                app:cardBackgroundColor="@color/cd_ownership_bg"
+                                app:strokeColor="@color/cd_ownership_border"
                                 app:strokeWidth="1dp">
 
                                 <LinearLayout
@@ -1039,7 +1056,7 @@
                                         android:layout_width="38dp"
                                         android:layout_height="38dp"
                                         android:background="@drawable/bg_circle_accent_light"
-                                        android:backgroundTint="@color/blue_badge_bg"
+                                        android:backgroundTint="@color/cd_icon_ownership_bg"
                                         android:layout_marginEnd="16dp">
 
                                         <ImageView
@@ -1047,7 +1064,7 @@
                                             android:layout_height="18dp"
                                             android:layout_gravity="center"
                                             android:src="@drawable/ic_shield"
-                                            app:tint="@color/blue_badge_icon" />
+                                            app:tint="@color/cd_icon_ownership_tint" />
                                     </FrameLayout>
 
                                     <LinearLayout
@@ -1060,7 +1077,7 @@
                                             android:layout_width="wrap_content"
                                             android:layout_height="wrap_content"
                                             android:text="OWNERSHIP PROOF"
-                                            android:textColor="@color/blue_badge_icon"
+                                            android:textColor="@color/cd_icon_ownership_tint"
                                             android:textSize="10sp"
                                             android:textStyle="bold"
                                             android:letterSpacing="0.05"
@@ -1071,7 +1088,7 @@
                                             android:id="@+id/tvOwnershipVerification"
                                             android:layout_width="match_parent"
                                             android:layout_height="wrap_content"
-                                            android:textColor="@color/textPrimary"
+                                            android:textColor="@color/cd_primary_text"
                                             android:textSize="14sp"
                                             android:lineSpacingMultiplier="1.2"
                                             tools:text="I have the original box and purchase receipt with IMEI matching." />
@@ -1096,8 +1113,8 @@
                                 android:layout_marginBottom="12dp"
                                 app:cardCornerRadius="14dp"
                                 app:cardElevation="0dp"
-                                app:cardBackgroundColor="@color/green_badge_bg"
-                                app:strokeColor="@color/green_badge_icon"
+                                app:cardBackgroundColor="@color/cd_handling_bg"
+                                app:strokeColor="@color/cd_handling_border"
                                 app:strokeWidth="1dp">
 
                                 <LinearLayout
@@ -1111,7 +1128,7 @@
                                         android:layout_width="38dp"
                                         android:layout_height="38dp"
                                         android:background="@drawable/bg_circle_accent_light"
-                                        android:backgroundTint="@color/green_badge_bg"
+                                        android:backgroundTint="@color/cd_icon_handling_bg"
                                         android:layout_marginEnd="16dp">
 
                                         <ImageView
@@ -1119,7 +1136,7 @@
                                             android:layout_height="18dp"
                                             android:layout_gravity="center"
                                             android:src="@drawable/ic_package"
-                                            app:tint="@color/green_badge_icon" />
+                                            app:tint="@color/cd_icon_handling_tint" />
                                     </FrameLayout>
 
                                     <LinearLayout
@@ -1132,7 +1149,7 @@
                                             android:layout_width="wrap_content"
                                             android:layout_height="wrap_content"
                                             android:text="HANDLING STATUS"
-                                            android:textColor="@color/green_badge_icon"
+                                            android:textColor="@color/cd_icon_handling_tint"
                                             android:textSize="10sp"
                                             android:textStyle="bold"
                                             android:letterSpacing="0.05"
@@ -1143,7 +1160,7 @@
                                             android:id="@+id/tvHandlingStatus"
                                             android:layout_width="match_parent"
                                             android:layout_height="wrap_content"
-                                            android:textColor="@color/textPrimary"
+                                            android:textColor="@color/cd_primary_text"
                                             android:textSize="14sp"
                                             tools:text="Kept at Office Room 302" />
                                     </LinearLayout>
@@ -1156,8 +1173,8 @@
                                 android:layout_height="wrap_content"
                                 app:cardCornerRadius="14dp"
                                 app:cardElevation="0dp"
-                                app:cardBackgroundColor="@color/orange_badge_bg"
-                                app:strokeColor="@color/orange_badge_icon"
+                                app:cardBackgroundColor="@color/cd_security_bg"
+                                app:strokeColor="@color/cd_security_border"
                                 app:strokeWidth="1dp">
 
                                 <LinearLayout
@@ -1171,7 +1188,7 @@
                                         android:layout_width="38dp"
                                         android:layout_height="38dp"
                                         android:background="@drawable/bg_circle_accent_light"
-                                        android:backgroundTint="@color/orange_badge_bg"
+                                        android:backgroundTint="@color/cd_icon_security_bg"
                                         android:layout_marginEnd="16dp">
 
                                         <ImageView
@@ -1179,7 +1196,7 @@
                                             android:layout_height="18dp"
                                             android:layout_gravity="center"
                                             android:src="@drawable/ic_lock"
-                                            app:tint="@color/orange_badge_icon" />
+                                            app:tint="@color/cd_icon_security_tint" />
                                     </FrameLayout>
 
                                     <LinearLayout
@@ -1192,7 +1209,7 @@
                                             android:layout_width="wrap_content"
                                             android:layout_height="wrap_content"
                                             android:text="SECURITY QUESTION"
-                                            android:textColor="@color/orange_badge_icon"
+                                            android:textColor="@color/cd_icon_security_tint"
                                             android:textSize="10sp"
                                             android:textStyle="bold"
                                             android:letterSpacing="0.05"
@@ -1203,7 +1220,7 @@
                                             android:id="@+id/tvSecurityQuestion"
                                             android:layout_width="match_parent"
                                             android:layout_height="wrap_content"
-                                            android:textColor="@color/textPrimary"
+                                            android:textColor="@color/cd_primary_text"
                                             android:textSize="14sp"
                                             android:lineSpacingMultiplier="1.2"
                                             tools:text="What is the lock screen wallpaper?" />
@@ -1229,14 +1246,14 @@
                     android:layout_height="56dp"
                     android:layout_marginBottom="12dp"
                     android:text="Mark as Returned"
-                    android:textColor="@color/white"
+                    android:textColor="@color/cd_btn_text"
                     android:textSize="16sp"
                     android:textStyle="bold"
                     app:icon="@drawable/ic_check_square"
-                    app:iconTint="@color/white"
+                    app:iconTint="@color/cd_icon_btn_mark_tint"
                     app:iconSize="20dp"
                     android:background="@drawable/btn_gradient_primary"
-                    app:backgroundTint="@null"
+                    app:backgroundTint="@color/cd_btn_bg"
                     app:cornerRadius="28dp"
                     android:elevation="4dp"
                     android:stateListAnimator="@null"
@@ -1256,13 +1273,13 @@
                         android:layout_weight="1"
                         android:layout_marginEnd="6dp"
                         android:text="Call"
-                        android:textColor="@color/primaryColor"
+                        android:textColor="@color/cd_btn_call_text"
                         android:textStyle="bold"
                         android:textSize="14sp"
-                        app:backgroundTint="@color/primaryLightColor"
+                        app:backgroundTint="@color/cd_btn_call_bg"
                         app:cornerRadius="25dp"
                         app:icon="@drawable/ic_phone"
-                        app:iconTint="@color/primaryColor"
+                        app:iconTint="@color/cd_icon_btn_call_tint"
                         app:iconGravity="textStart"
                         android:elevation="0dp"
                         android:visibility="gone"
@@ -1276,13 +1293,13 @@
                         android:layout_weight="1"
                         android:layout_marginStart="6dp"
                         android:text="Email"
-                        android:textColor="@color/admin_accent"
+                        android:textColor="@color/cd_btn_email_text"
                         android:textStyle="bold"
                         android:textSize="14sp"
-                        app:backgroundTint="@color/purple_badge_bg"
+                        app:backgroundTint="@color/cd_btn_email_bg"
                         app:cornerRadius="25dp"
                         app:icon="@drawable/ic_email"
-                        app:iconTint="@color/admin_accent"
+                        app:iconTint="@color/cd_icon_btn_email_tint"
                         app:iconGravity="textStart"
                         android:elevation="0dp"
                         android:visibility="gone"
