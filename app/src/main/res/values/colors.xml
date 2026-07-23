@@ -293,6 +293,7 @@
     <color name="badge_lost_bg">#FF3B30</color>
     <color name="badge_found_bg">#34C759</color>
     <color name="badge_resolved_bg">#2AABEE</color>
+    <color name="badge_report_id_dark_bg">#CC1F2937</color>
 
     <!-- Admin Portal Colors -->
     <color name="admin_text_light">#F0F0F0</color>
@@ -810,6 +811,9 @@
     <color name="delete_report_dialog_btn_cancel_bg">#F8FAFC</color>
     <color name="delete_report_dialog_btn_cancel_text">#64748B</color>
     <color name="delete_report_dialog_btn_cancel_stroke">#E2E8F0</color>
+    <color name="delete_report_dialog_btn_delete_bg">#E11D48</color>
+    <color name="delete_report_dialog_btn_delete_text">#FFFFFF</color>
+    <color name="delete_report_dialog_btn_delete_stroke">#BE123C</color>
     <!-- Emoji Picker Colors (Day Mode) -->
     <color name="ep_background">#FFFFFF</color>
     <color name="ep_card_background">#F1F5F9</color>
