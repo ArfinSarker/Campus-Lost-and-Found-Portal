@@ -1,0 +1,155 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="20dp"
+    android:background="@color/ca_sheet_bg">
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Custom Mute Duration"
+        android:textColor="@color/ca_sheet_text"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        android:gravity="center"
+        android:layout_marginBottom="20dp" />
+
+    <!-- Inputs Row -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginBottom="6dp">
+
+        <EditText
+            android:id="@+id/etMuteDays"
+            android:layout_width="0dp"
+            android:layout_height="48dp"
+            android:layout_weight="1"
+            android:layout_marginEnd="6dp"
+            android:gravity="center"
+            android:inputType="number"
+            android:text="0"
+            android:textColor="@color/ca_sheet_text"
+            android:textSize="16sp"
+            android:background="@drawable/bg_dev_info_button"
+            android:backgroundTint="@color/ca_sheet_ripple" />
+
+        <EditText
+            android:id="@+id/etMuteHours"
+            android:layout_width="0dp"
+            android:layout_height="48dp"
+            android:layout_weight="1"
+            android:layout_marginHorizontal="3dp"
+            android:gravity="center"
+            android:inputType="number"
+            android:text="0"
+            android:textColor="@color/ca_sheet_text"
+            android:textSize="16sp"
+            android:background="@drawable/bg_dev_info_button"
+            android:backgroundTint="@color/ca_sheet_ripple" />
+
+        <EditText
+            android:id="@+id/etMuteMinutes"
+            android:layout_width="0dp"
+            android:layout_height="48dp"
+            android:layout_weight="1"
+            android:layout_marginHorizontal="3dp"
+            android:gravity="center"
+            android:inputType="number"
+            android:text="0"
+            android:textColor="@color/ca_sheet_text"
+            android:textSize="16sp"
+            android:background="@drawable/bg_dev_info_button"
+            android:backgroundTint="@color/ca_sheet_ripple" />
+
+        <EditText
+            android:id="@+id/etMuteSeconds"
+            android:layout_width="0dp"
+            android:layout_height="48dp"
+            android:layout_weight="1"
+            android:layout_marginStart="6dp"
+            android:gravity="center"
+            android:inputType="number"
+            android:text="0"
+            android:textColor="@color/ca_sheet_text"
+            android:textSize="16sp"
+            android:background="@drawable/bg_dev_info_button"
+            android:backgroundTint="@color/ca_sheet_ripple" />
+    </LinearLayout>
+
+    <!-- Labels Row -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginBottom="24dp">
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_marginEnd="6dp"
+            android:gravity="center"
+            android:text="Days"
+            android:textColor="@color/chat_list_text_secondary"
+            android:textSize="12sp" />
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_marginHorizontal="3dp"
+            android:gravity="center"
+            android:text="Hours"
+            android:textColor="@color/chat_list_text_secondary"
+            android:textSize="12sp" />
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_marginHorizontal="3dp"
+            android:gravity="center"
+            android:text="Minutes"
+            android:textColor="@color/chat_list_text_secondary"
+            android:textSize="12sp" />
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_marginStart="6dp"
+            android:gravity="center"
+            android:text="Seconds"
+            android:textColor="@color/chat_list_text_secondary"
+            android:textSize="12sp" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="end">
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnCancelMute"
+            style="@style/Widget.MaterialComponents.Button.TextButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Cancel"
+            android:textColor="@color/chat_list_text_secondary"
+            android:layout_marginEnd="8dp" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnConfirmMute"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Mute"
+            android:backgroundTint="@color/ca_accent_mute"
+            android:textColor="@color/white" />
+    </LinearLayout>
+
+</LinearLayout>

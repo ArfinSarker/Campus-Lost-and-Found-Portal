@@ -18,13 +18,18 @@
         <com.google.android.material.appbar.MaterialToolbar
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
-            android:layout_height="?attr/actionBarSize">
+            android:layout_height="72dp"
+            app:contentInsetStart="0dp"
+            app:contentInsetLeft="0dp"
+            app:contentInsetEnd="0dp"
+            app:contentInsetRight="0dp">
 
             <RelativeLayout
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:gravity="center_vertical"
-                android:translationY="2.5dp">
+                android:layout_marginTop="12dp"
+                android:layout_marginBottom="4dp"
+                android:gravity="center_vertical">
 
                 <ImageButton
                     android:id="@+id/btnBack"
@@ -32,7 +37,7 @@
                     android:layout_height="48dp"
                     android:layout_alignParentStart="true"
                     android:layout_centerVertical="true"
-                    android:layout_marginStart="-12dp"
+                    android:layout_marginStart="4dp"
                     android:background="?attr/selectableItemBackgroundBorderless"
                     android:src="@drawable/ic_arrow_back"
                     android:contentDescription="Back"
@@ -46,6 +51,9 @@
                     android:gravity="center_vertical"
                     android:layout_toEndOf="@+id/btnBack"
                     android:layout_toStartOf="@+id/btnSettings"
+                    android:layout_centerVertical="true"
+                    android:paddingVertical="4dp"
+                    android:paddingHorizontal="6dp"
                     android:clickable="true"
                     android:focusable="true"
                     android:background="?attr/selectableItemBackground">
@@ -72,6 +80,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:orientation="vertical"
+                        android:layout_gravity="center_vertical"
                         android:gravity="start|center_vertical">
 
                         <TextView
@@ -92,6 +101,7 @@
                             android:text=""
                             android:textColor="@color/chat_header_last_seen"
                             android:textSize="12sp"
+                            android:includeFontPadding="false"
                             android:ellipsize="end"
                             android:maxLines="1"
                             android:visibility="gone" />
@@ -104,6 +114,7 @@
                     android:layout_height="48dp"
                     android:layout_alignParentEnd="true"
                     android:layout_centerVertical="true"
+                    android:layout_marginEnd="4dp"
                     android:background="?attr/selectableItemBackgroundBorderless"
                     android:src="@drawable/ic_settings"
                     android:contentDescription="Settings"
@@ -114,6 +125,74 @@
         </com.google.android.material.appbar.MaterialToolbar>
     </com.google.android.material.appbar.AppBarLayout>
 
+    <!-- Pinned Message Banner Redesigned -->
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/layoutPinnedBanner"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        android:layout_marginHorizontal="14dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginBottom="4dp"
+        android:clickable="true"
+        android:focusable="true"
+        android:foreground="?attr/selectableItemBackground"
+        app:cardElevation="3dp"
+        app:cardCornerRadius="16dp"
+        app:strokeWidth="1.2dp"
+        app:strokeColor="@color/pinned_banner_border"
+        app:cardBackgroundColor="@color/pinned_banner_bg"
+        app:layout_constraintTop_toBottomOf="@id/appBarLayout"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:paddingHorizontal="16dp"
+            android:paddingVertical="12dp">
+
+            <ImageView
+                android:id="@+id/ivPinIcon"
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:src="@drawable/ic_pin"
+                app:tint="@color/pinned_banner_icon"
+                android:layout_marginEnd="12dp" />
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/tvPinnedTitle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Pinned Message"
+                    android:textColor="@color/pinned_banner_sender"
+                    android:textSize="12sp"
+                    android:textStyle="bold"
+                    android:letterSpacing="0.05" />
+
+                <TextView
+                    android:id="@+id/tvPinnedContent"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="2dp"
+                    android:text=""
+                    android:textColor="@color/pinned_banner_content"
+                    android:textSize="13sp"
+                    android:ellipsize="end"
+                    android:maxLines="1" />
+            </LinearLayout>
+
+        </LinearLayout>
+    </com.google.android.material.card.MaterialCardView>
+
     <!-- Messages Recycler -->
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rvMessages"
@@ -122,7 +201,7 @@
         android:clipToPadding="false"
         android:padding="8dp"
         android:background="@color/chat_conv_bg"
-        app:layout_constraintTop_toBottomOf="@id/appBarLayout"
+        app:layout_constraintTop_toBottomOf="@id/layoutPinnedBanner"
         app:layout_constraintBottom_toTopOf="@id/layoutBottomArea"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
@@ -138,6 +217,72 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
 
+        <!-- WhatsApp-style Block Notice -->
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/cardBlockNotice"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="16dp"
+            android:layout_marginVertical="8dp"
+            app:cardCornerRadius="12dp"
+            app:cardElevation="0dp"
+            app:strokeWidth="1.2dp"
+            app:strokeColor="@color/block_notice_border"
+            app:cardBackgroundColor="@color/block_notice_bg"
+            android:visibility="gone">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="16dp"
+                android:gravity="center">
+
+                <TextView
+                    android:id="@+id/tvBlockNoticeText"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="You blocked this person. Tap to unblock."
+                    android:textColor="@color/block_notice_text"
+                    android:textSize="14sp"
+                    android:gravity="center"
+                    android:padding="4dp"
+                    android:fontFamily="sans-serif-medium" />
+
+                <!-- Action buttons -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center"
+                    android:layout_marginTop="12dp">
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btnBlockNoticeDelete"
+                        style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Delete Chat"
+                        android:textColor="@color/block_notice_delete_text"
+                        app:strokeColor="@color/block_notice_delete_border"
+                        app:cornerRadius="16dp"
+                        android:layout_marginEnd="12dp"
+                        android:textSize="13sp" />
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btnBlockNoticeUnblock"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Unblock"
+                        android:backgroundTint="@color/block_notice_unblock_bg"
+                        android:textColor="@color/white"
+                        app:cornerRadius="16dp"
+                        android:textSize="13sp" />
+                </LinearLayout>
+
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
         <!-- Input Box Area -->
         <LinearLayout
             android:id="@+id/layoutInputArea"
@@ -151,7 +296,63 @@
                 android:layout_height="1dp"
                 android:background="@color/chat_input_border" />
 
+            <!-- Reply Preview Layout -->
             <LinearLayout
+                android:id="@+id/layoutReplyPreview"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:paddingHorizontal="16dp"
+                android:paddingVertical="8dp"
+                android:background="@color/chat_conv_bg"
+                android:visibility="gone"
+                android:gravity="center_vertical">
+
+                <View
+                    android:id="@+id/replyPreviewLine"
+                    android:layout_width="3dp"
+                    android:layout_height="32dp"
+                    android:background="@color/messenger_accent"
+                    android:layout_marginEnd="8dp"/>
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:id="@+id/tvReplyName"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Replying to John Doe"
+                        android:textColor="@color/messenger_accent"
+                        android:textSize="12sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:id="@+id/tvReplyContent"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Message body preview..."
+                        android:textColor="@color/messenger_text_secondary"
+                        android:textSize="12sp"
+                        android:maxLines="1"
+                        android:ellipsize="end" />
+                </LinearLayout>
+
+                <ImageButton
+                    android:id="@+id/btnCancelReply"
+                    android:layout_width="28dp"
+                    android:layout_height="28dp"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:src="@drawable/ic_close"
+                    app:tint="@color/messenger_icons"
+                    android:contentDescription="Cancel Reply" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/layoutNormalComposer"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
@@ -193,7 +394,8 @@
                     app:cardCornerRadius="22dp"
                     app:cardElevation="0dp"
                     app:strokeWidth="0dp"
-                    app:cardBackgroundColor="@color/chat_send_button_bg"
+                    app:cardBackgroundColor="@color/transparent"
+                    android:background="@drawable/bg_send_button"
                     android:clickable="true"
                     android:focusable="true">
 
@@ -206,6 +408,47 @@
                         android:contentDescription="Send Message" />
                 </com.google.android.material.card.MaterialCardView>
 
+            </LinearLayout>
+
+            <!-- Blocked Composer Replacement Area -->
+            <LinearLayout
+                android:id="@+id/layoutBlockedComposer"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:paddingHorizontal="16dp"
+                android:paddingVertical="12dp"
+                android:gravity="center"
+                android:visibility="gone">
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnBlockedDeleteChat"
+                    style="@style/Widget.MaterialComponents.Button.OutlinedButton.Icon"
+                    android:layout_width="0dp"
+                    android:layout_height="50dp"
+                    android:layout_weight="1"
+                    android:text="Delete Chat"
+                    android:textColor="@color/block_notice_delete_text"
+                    app:icon="@drawable/ic_delete"
+                    app:iconTint="@color/block_notice_delete_text"
+                    app:strokeColor="@color/block_notice_delete_border"
+                    app:strokeWidth="1.2dp"
+                    app:cornerRadius="24dp"
+                    android:layout_marginEnd="8dp" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnBlockedUnblock"
+                    style="@style/Widget.MaterialComponents.Button.Icon"
+                    android:layout_width="0dp"
+                    android:layout_height="50dp"
+                    android:layout_weight="1"
+                    android:text="Unblock"
+                    android:textColor="@color/white"
+                    app:icon="@drawable/ic_unblock"
+                    app:iconTint="@color/white"
+                    android:backgroundTint="@color/block_notice_unblock_bg"
+                    app:cornerRadius="24dp"
+                    android:layout_marginStart="8dp" />
             </LinearLayout>
         </LinearLayout>
 

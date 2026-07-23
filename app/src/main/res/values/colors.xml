@@ -351,15 +351,17 @@
     <color name="transparent">#00000000</color>
     
     <!-- Messaging Section Colors -->
-    <color name="msg_sender_bg">#3B82F6</color>
+    <color name="msg_sender_bg">#0084FF</color>
     <color name="msg_sender_text">#FFFFFF</color>
+    <color name="msg_sender_unsent_text">#DBEAFE</color>
     <color name="msg_sender_time">#DBEAFE</color>
-    <color name="msg_sender_status_read">#FFFFFF</color>
-    <color name="msg_sender_status_delivered">#DBEAFE</color>
-    <color name="msg_sender_status_sent">#BFDBFE</color>
-    <color name="msg_receiver_bg">#F1F5F9</color>
-    <color name="msg_receiver_text">#0F172A</color>
-    <color name="msg_receiver_time">#64748B</color>
+    <color name="msg_sender_status_read">#67E8F9</color>
+    <color name="msg_sender_status_delivered">#FFFFFF</color>
+    <color name="msg_sender_status_sent">#DBEAFE</color>
+    <color name="msg_receiver_bg">#F0F2F5</color>
+    <color name="msg_receiver_text">#1C1E21</color>
+    <color name="msg_receiver_unsent_text">#64748B</color>
+    <color name="msg_receiver_time">#65676B</color>
     <color name="chat_disabled_send_bg">#94A3B8</color>
     
     <!-- Avatar Colors -->
@@ -436,22 +438,63 @@
     <color name="chat_list_header_title">#0F172A</color>
     <color name="chat_list_header_back_icon_tint">#0F172A</color>
     
-    <color name="chat_conv_bg">#F8FAFC</color>
+    <color name="chat_conv_bg">#FAFBFC</color>
     <color name="chat_header_bg">#FFFFFF</color>
     <color name="chat_header_avatar_border">@color/chat_list_border</color>
-    <color name="chat_header_user_name">#0F172A</color>
-    <color name="chat_header_last_active">#10B981</color>
+    <color name="chat_header_user_name">#334155</color>
+    <color name="chat_header_last_active">#06B6D4</color>
     <color name="chat_header_last_seen">#64748B</color>
-    <color name="chat_header_back_icon_tint">#0F172A</color>
+    <color name="chat_header_back_icon_tint">#334155</color>
     <color name="chat_attachment_icon">#8B5CF6</color>
     <color name="chat_emoji_icon">#F59E0B</color>
-    <color name="chat_send_button_bg">#3B82F6</color>
+    <color name="chat_send_button_bg">@color/transparent</color>
+    <color name="chat_send_button_bg_start">#2563EB</color>
+    <color name="chat_send_button_bg_end">#1D4ED8</color>
     <color name="chat_send_button_icon">#FFFFFF</color>
     <color name="chat_input_bg">#F1F5F9</color>
-    <color name="chat_input_text">#0F172A</color>
+    <color name="chat_input_text">#334155</color>
     <color name="chat_input_placeholder">#94A3B8</color>
-    <color name="chat_input_border">#E2E8F0</color>
-    <color name="chat_settings_icon">#64748B</color>
+    <color name="chat_input_border">#CBD5E1</color>
+    <color name="chat_settings_icon">#334155</color>
+    
+    <!-- Messenger Action / Floating Sheet Elements (Day) -->
+    <color name="messenger_bottom_sheet_bg">#FFFFFF</color>
+    <color name="messenger_menu_icon_tint">#334155</color>
+    <color name="messenger_menu_text_color">#334155</color>
+    <color name="messenger_accent">#06B6D4</color>
+    <color name="messenger_delete_color">#EF4444</color>
+    <color name="messenger_card_bg">#FFFFFF</color>
+    <color name="messenger_card_border">#CBD5E1</color>
+    <color name="messenger_text_primary">#0F172A</color>
+    <color name="messenger_text_secondary">#64748B</color>
+    <color name="messenger_bg">#FAFBFC</color>
+    <color name="messenger_icons">#334155</color>
+    <color name="messenger_search_bar">#F1F5F9</color>
+    <color name="messenger_reaction_highlight">#E5E7EB</color>
+    <color name="messenger_pinned_banner_bg">#EFF6FF</color>
+    <color name="messenger_pinned_banner_text">#1E3A8A</color>
+    
+    <!-- Chat Mention and Reply Preview Redesign (Day Mode) -->
+    <color name="mention_bg">#E7F3FF</color>
+    <color name="mention_text">#0064FF</color>
+    <color name="reply_bubble_sender_bg">#0074E0</color>
+    <color name="reply_bubble_receiver_bg">#E4E6EB</color>
+    
+    <!-- Messenger Reaction Details UI Colors (Day Mode) -->
+    <color name="reaction_details_bg">#FFFFFF</color>
+    <color name="reaction_details_card_bg">#F8FAFC</color>
+    <color name="reaction_details_tab_bg">#F1F5F9</color>
+    <color name="reaction_details_tab_selected_bg">#0084FF</color>
+    <color name="reaction_details_tab_selected_text">#FFFFFF</color>
+    <color name="reaction_details_tab_text">#64748B</color>
+    <color name="reaction_details_divider">#E2E8F0</color>
+    
+    <!-- Message Actions Menu Accent Colors (Day Mode) -->
+    <color name="action_pin_color">#E11D48</color>
+    <color name="action_copy_color">#0284C7</color>
+    <color name="action_reply_color">#16A34A</color>
+    <color name="action_forward_color">#7C3AED</color>
+    <color name="action_delete_color">#EA580C</color>
     
     <color name="chat_menu_bg">#FFFFFF</color>
     <color name="chat_menu_profile_text">#0F172A</color>
@@ -767,7 +810,164 @@
     <color name="delete_report_dialog_btn_cancel_bg">#F8FAFC</color>
     <color name="delete_report_dialog_btn_cancel_text">#64748B</color>
     <color name="delete_report_dialog_btn_cancel_stroke">#E2E8F0</color>
-    <color name="delete_report_dialog_btn_delete_bg">#BE123C</color>
-    <color name="delete_report_dialog_btn_delete_text">#FFFFFF</color>
-    <color name="delete_report_dialog_btn_delete_stroke">#9F1239</color>
+    <!-- Emoji Picker Colors (Day Mode) -->
+    <color name="ep_background">#FFFFFF</color>
+    <color name="ep_card_background">#F1F5F9</color>
+    <color name="ep_search_bar_bg">#F1F5F9</color>
+    <color name="ep_search_bar_text">#0F172A</color>
+    <color name="ep_text_primary">#0F172A</color>
+    <color name="ep_text_secondary">#64748B</color>
+    <color name="ep_accent">#0084FF</color>
+    <color name="ep_accent_bg">#E0F2FE</color>
+    <color name="ep_slot_border_selected">#0284C7</color>
+    <color name="ep_slot_bg_selected">#E0F2FE</color>
+    <color name="ep_category_header_text">#4F46E5</color>
+    <color name="ep_divider">#E2E8F0</color>
+    <color name="ep_plus_button_bg">#F1F5F9</color>
+    <color name="ep_plus_button_text">#64748B</color>
+    
+    <!-- Pinned Message Banner Colors (Day Mode) -->
+    <color name="pinned_banner_bg">#F5F3FF</color>
+    <color name="pinned_banner_border">#DDD6FE</color>
+    <color name="pinned_banner_icon">#6D28D9</color>
+    <color name="pinned_banner_sender">#7C3AED</color>
+    <color name="pinned_banner_content">#374151</color>
+
+    <!-- Conversation actions bottom sheet (Day Mode) -->
+    <color name="ca_sheet_bg">#FFFFFF</color>
+    <color name="ca_sheet_text">#0F172A</color>
+    <color name="ca_sheet_ripple">#E2E8F0</color>
+    <color name="ca_accent_pin">#0284C7</color>
+    <color name="ca_accent_archive">#10B981</color>
+    <color name="ca_accent_mute">#F59E0B</color>
+    <color name="ca_accent_unread">#6366F1</color>
+    <color name="ca_accent_block">#EF4444</color>
+    <color name="ca_accent_delete">#DC2626</color>
+
+    <!-- Pinned chat indicator colors (Day Mode) -->
+    <color name="pin_indicator_tint">#06B6D4</color>
+
+    <!-- Archived Row Colors (Day Mode) -->
+    <color name="archived_row_bg">#F8FAFC</color>
+    <color name="archived_row_border">#E2E8F0</color>
+    <color name="archived_row_icon_tint">#10B981</color>
+    <color name="archived_row_text_color">#0F172A</color>
+    <color name="archived_row_arrow_tint">#64748B</color>
+
+    <!-- Mute chat indicator colors (Day Mode) -->
+    <color name="mute_indicator_tint">#EF4444</color>
+
+    <!-- Block Notice Colors (Day Mode) -->
+    <color name="block_notice_bg">#FEF2F2</color>
+    <color name="block_notice_border">#FCA5A5</color>
+    <color name="block_notice_text">#991B1B</color>
+    <color name="block_notice_delete_text">#DC2626</color>
+    <color name="block_notice_delete_border">#FCA5A5</color>
+    <color name="block_notice_unblock_bg">#DC2626</color>
+
+    <!-- Chat System Message Colors (Day Mode) -->
+    <color name="chat_system_msg_bg">#FFF9E6</color>
+    <color name="chat_system_msg_border">#FFEAA7</color>
+    <color name="chat_system_msg_text">#7F5F00</color>
+
+    <!-- Report Lost Colors (Day Mode) -->
+    <color name="rl_header_bg">#FFFFFF</color>
+    <color name="rl_screen_bg">@color/backgroundColor</color>
+    <color name="rl_section_title">@color/primaryColor</color>
+    <color name="rl_text_primary">@color/textPrimary</color>
+    <color name="rl_text_secondary">@color/textSecondary</color>
+    <color name="rl_input_bg">#FFFFFF</color>
+    <color name="rl_input_border">#CBD5E1</color>
+    <color name="rl_dropdown_bg">#FFFFFF</color>
+    <color name="rl_dropdown_popup_bg">#FFFFFF</color>
+    <color name="rl_dropdown_text">#0F172A</color>
+    <color name="rl_dropdown_menu_item_text">#0F172A</color>
+    <color name="rl_dropdown_arrow">@color/primaryColor</color>
+    <color name="rl_dropdown_item_selected">#EFF6FF</color>
+    <color name="rl_dropdown_item_hovered">#F1F5F9</color>
+    <color name="rl_dropdown_item_pressed">#E2E8F0</color>
+    <color name="rl_btn_bg">@color/primaryColor</color>
+    <color name="rl_btn_text">#FFFFFF</color>
+    <color name="rl_upload_bg">#F8FAFC</color>
+    <color name="rl_upload_border">#CBD5E1</color>
+    <color name="rl_upload_label_text">@color/textSecondary</color>
+    <color name="rl_upload_title_text">@color/primaryColor</color>
+    <color name="rl_upload_subtitle_text">@color/textSecondary</color>
+
+    <!-- Report Lost Icons (Day Mode) -->
+    <color name="rl_icon_back">#0F172A</color>
+    <color name="rl_icon_upload">@color/primaryColor</color>
+    <color name="rl_icon_thumbnail">@color/primaryColor</color>
+    <color name="rl_icon_delete">@color/statusLost</color>
+    <color name="rl_icon_calendar">@color/primaryColor</color>
+    <color name="rl_icon_clock">@color/primaryColor</color>
+    <color name="rl_icon_phone">@color/primaryColor</color>
+    <color name="rl_icon_email">@color/primaryColor</color>
+
+    <!-- Report Found Colors (Day Mode) -->
+    <color name="rf_header_bg">#FFFFFF</color>
+    <color name="rf_screen_bg">@color/backgroundColor</color>
+    <color name="rf_section_title">@color/primaryColor</color>
+    <color name="rf_text_primary">@color/textPrimary</color>
+    <color name="rf_text_secondary">@color/textSecondary</color>
+    <color name="rf_input_bg">#FFFFFF</color>
+    <color name="rf_input_border">#CBD5E1</color>
+    <color name="rf_dropdown_bg">#FFFFFF</color>
+    <color name="rf_dropdown_popup_bg">#FFFFFF</color>
+    <color name="rf_dropdown_text">#0F172A</color>
+    <color name="rf_dropdown_menu_item_text">#0F172A</color>
+    <color name="rf_dropdown_arrow">@color/primaryColor</color>
+    <color name="rf_dropdown_item_selected">#EFF6FF</color>
+    <color name="rf_dropdown_item_hovered">#F1F5F9</color>
+    <color name="rf_dropdown_item_pressed">#E2E8F0</color>
+    <color name="rf_upload_bg">#F8FAFC</color>
+    <color name="rf_upload_border">#CBD5E1</color>
+    <color name="rf_upload_label_text">@color/textSecondary</color>
+    <color name="rf_upload_title_text">@color/primaryColor</color>
+    <color name="rf_upload_subtitle_text">@color/textSecondary</color>
+    <color name="rf_btn_bg">@color/primaryColor</color>
+    <color name="rf_btn_text">#FFFFFF</color>
+
+    <!-- Report Found Icons (Day Mode) -->
+    <color name="rf_icon_back">#0F172A</color>
+    <color name="rf_icon_upload">@color/primaryColor</color>
+    <color name="rf_icon_thumbnail">@color/primaryColor</color>
+    <color name="rf_icon_delete">@color/statusFound</color>
+    <color name="rf_icon_calendar">@color/primaryColor</color>
+    <color name="rf_icon_clock">@color/primaryColor</color>
+    <color name="rf_icon_phone">@color/primaryColor</color>
+    <color name="rf_icon_email">@color/primaryColor</color>
+
+    <!-- DatePicker Colors (Day Mode Defaults) -->
+    <color name="dp_night_bg">#FFFFFF</color>
+    <color name="dp_night_header_text">@color/primaryColor</color>
+    <color name="dp_night_primary_text">#0F172A</color>
+    <color name="dp_night_secondary_text">#64748B</color>
+    <color name="dp_night_icon_tint">@color/primaryColor</color>
+    <color name="dp_night_selection_indicator">@color/primaryColor</color>
+    <color name="dp_night_selected_text">#FFFFFF</color>
+    <color name="dp_night_unselected_text">#0F172A</color>
+    <color name="dp_night_button_text">@color/primaryColor</color>
+    <color name="dp_night_box_bg">#F8FAFC</color>
+    <color name="dp_night_border">#CBD5E1</color>
+
+    <!-- TimePicker Colors (Day Mode Defaults) -->
+    <color name="tp_night_bg">#FFFFFF</color>
+    <color name="tp_night_primary_text">#0F172A</color>
+    <color name="tp_night_dial_number_text">#0F172A</color>
+    <color name="tp_night_hand_indicator">@color/primaryColor</color>
+    <color name="tp_night_selected_number_text">#FFFFFF</color>
+    <color name="tp_night_box_bg_selected">@color/primaryColor</color>
+    <color name="tp_night_box_text_selected">#FFFFFF</color>
+    <color name="tp_night_box_bg_unselected">#F1F5F9</color>
+    <color name="tp_night_box_text_unselected">#0F172A</color>
+    <color name="tp_night_ampm_bg_selected">@color/primaryColor</color>
+    <color name="tp_night_ampm_text_selected">#FFFFFF</color>
+    <color name="tp_night_ampm_text_unselected">#64748B</color>
+    <color name="tp_night_clock_face_bg">#F8FAFC</color>
+    <color name="tp_night_button_text">@color/primaryColor</color>
+    <color name="tp_night_border">#CBD5E1</color>
+
+    <!-- Text Cursor & Selection Handle Color (Day Mode) -->
+    <color name="cursor_color">@color/primaryColor</color>
 </resources>

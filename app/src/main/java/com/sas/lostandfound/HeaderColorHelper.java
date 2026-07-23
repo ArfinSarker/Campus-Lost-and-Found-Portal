@@ -70,9 +70,8 @@ public class HeaderColorHelper {
             controller.setAppearanceLightStatusBars(lightStatusBar);
         }
 
-        // Move the text and icons container slightly upward to improve alignment and visual appearance
         float density = activity.getResources().getDisplayMetrics().density;
-        float translationY = -12 * density;
+        float translationY = 0f;
 
         // Ensure no cutout/notch obstruction by dynamically adjusting top padding based on system bar & cutout insets
         ViewCompat.setOnApplyWindowInsetsListener(appBarLayout, (v, insets) -> {
@@ -86,10 +85,9 @@ public class HeaderColorHelper {
             }
 
             int topPadding = Math.max(statusBarHeight, cutoutHeight);
-            int extraPadding = (int) Math.abs(translationY);
 
-            // Set the top padding of the AppBarLayout to match the status bar/cutout height + extra padding
-            v.setPadding(v.getPaddingLeft(), topPadding + extraPadding, v.getPaddingRight(), v.getPaddingBottom());
+            // Set the top padding of the AppBarLayout to match the status bar/cutout height exactly
+            v.setPadding(v.getPaddingLeft(), topPadding, v.getPaddingRight(), 0);
             
             return insets;
         });
@@ -99,7 +97,7 @@ public class HeaderColorHelper {
         activity.getWindow().setStatusBarColor(startColor);
         appBarLayout.setElevation(0f);
 
-        // Apply the upward translation to the header contents
+        // Apply the translation to the header contents if needed
         for (int i = 0; i < appBarLayout.getChildCount(); i++) {
             View child = appBarLayout.getChildAt(i);
             if (!child.getClass().getSimpleName().equals("TabLayout")) {
@@ -118,11 +116,7 @@ public class HeaderColorHelper {
             separator.setLayoutParams(separatorParams);
             int dividerColor = lightStatusBar ? Color.parseColor("#E2E8F0") : startColor;
             separator.setBackgroundColor(dividerColor);
-            
-            // On User Dashboard (where TabLayout exists), do not shift the separator line up too much.
-            // A translation of 0f keeps it positioned cleanly under the tabs.
-            float separatorTranslation = hasTabLayout(appBarLayout) ? 0f : translationY;
-            separator.setTranslationY(separatorTranslation); 
+            separator.setTranslationY(0f);
             
             appBarLayout.addView(separator);
         }

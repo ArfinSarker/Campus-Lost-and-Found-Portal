@@ -80,6 +80,8 @@ public class AdminReportReviewActivity extends AppCompatActivity {
     private boolean isUserInteracting = false;
 
     private String currentAdminUnivId;
+    private View loadingLayout;
+    private String loadedReporterUniversityId = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -104,7 +106,29 @@ public class AdminReportReviewActivity extends AppCompatActivity {
         setupToolbar();
         setupStatusDropdown();
         setupSwipeRefresh();
-        fetchReportDetails();
+
+        // 1. Check if reportJson is passed via Intent (Cache-First loading)
+        String reportJson = getIntent().getStringExtra("reportJson");
+        if (reportJson != null && !reportJson.isEmpty()) {
+            try {
+                currentReport = new com.google.gson.Gson().fromJson(reportJson, AdminReport.class);
+                if (currentReport != null) {
+                    displayReportDetails(currentReport);
+                    if (swipeRefreshLayout != null) swipeRefreshLayout.setVisibility(View.VISIBLE);
+                    if (loadingLayout != null) loadingLayout.setVisibility(View.GONE);
+
+                    // Fetch reporter profiles and updates in parallel/background
+                    fetchReporterExtraInfo(currentReport.getUniversityId());
+                    fetchReportDetailsSilent();
+                } else {
+                    showLoadingAndFetch();
+                }
+            } catch (Exception e) {
+                showLoadingAndFetch();
+            }
+        } else {
+            showLoadingAndFetch();
+        }
 
         btnUpdate.setOnClickListener(v -> updateReport());
         btnDelete.setOnClickListener(v -> confirmDelete());
@@ -200,6 +224,7 @@ public class AdminReportReviewActivity extends AppCompatActivity {
         toolbar = findViewById(R.id.toolbar);
         progressBar = findViewById(R.id.progressBar);
         swipeRefreshLayout = findViewById(R.id.swipeRefreshLayout);
+        loadingLayout = findViewById(R.id.loadingLayout);
 
         // Slider interaction handling
         viewPagerEvidence.registerOnPageChangeCallback(new ViewPager2.OnPageChangeCallback() {
@@ -274,31 +299,62 @@ public class AdminReportReviewActivity extends AppCompatActivity {
         }
     }
 
+    private void showLoadingAndFetch() {
+        if (swipeRefreshLayout != null) swipeRefreshLayout.setVisibility(View.GONE);
+        if (loadingLayout != null) loadingLayout.setVisibility(View.VISIBLE);
+        fetchReportDetails();
+    }
+
+    private void fetchReportDetailsSilent() {
+        if (reportId == null) return;
+        SupabaseDatabaseHelper.select("admin_reports", "id=eq." + reportId + "&limit=1", new TypeToken<List<AdminReport>>(){}.getType(), new SupabaseDatabaseHelper.DatabaseCallback<List<AdminReport>>() {
+            @Override
+            public void onSuccess(List<AdminReport> reports) {
+                if (reports != null && !reports.isEmpty()) {
+                    currentReport = reports.get(0);
+                    displayReportDetails(currentReport);
+                }
+            }
+            @Override public void onFailure(String errorMessage) {}
+        });
+    }
+
     private void fetchReportDetails() {
         if (isFetching) return;
         isFetching = true;
         
-        if (swipeRefreshLayout == null || !swipeRefreshLayout.isRefreshing()) {
-            if (progressBar != null) progressBar.setVisibility(View.VISIBLE);
+        boolean isPullToRefresh = swipeRefreshLayout != null && swipeRefreshLayout.isRefreshing();
+        if (!isPullToRefresh) {
+            if (swipeRefreshLayout != null) swipeRefreshLayout.setVisibility(View.GONE);
+            if (loadingLayout != null) loadingLayout.setVisibility(View.VISIBLE);
         }
         
         SupabaseDatabaseHelper.select("admin_reports", "id=eq." + reportId + "&limit=1", new TypeToken<List<AdminReport>>(){}.getType(), new SupabaseDatabaseHelper.DatabaseCallback<List<AdminReport>>() {
             @Override
             public void onSuccess(List<AdminReport> reports) {
                 isFetching = false;
-                if (progressBar != null) progressBar.setVisibility(View.GONE);
-                if (swipeRefreshLayout != null) swipeRefreshLayout.setRefreshing(false);
+                if (loadingLayout != null) loadingLayout.setVisibility(View.GONE);
+                if (swipeRefreshLayout != null) {
+                    swipeRefreshLayout.setVisibility(View.VISIBLE);
+                    swipeRefreshLayout.setRefreshing(false);
+                }
                 if (reports != null && !reports.isEmpty()) {
                     currentReport = reports.get(0);
                     displayReportDetails(currentReport);
+                } else {
+                    finish();
                 }
             }
 
             @Override
             public void onFailure(String errorMessage) {
                 isFetching = false;
-                if (progressBar != null) progressBar.setVisibility(View.GONE);
-                if (swipeRefreshLayout != null) swipeRefreshLayout.setRefreshing(false);
+                if (loadingLayout != null) loadingLayout.setVisibility(View.GONE);
+                if (swipeRefreshLayout != null) {
+                    swipeRefreshLayout.setVisibility(View.VISIBLE);
+                    swipeRefreshLayout.setRefreshing(false);
+                }
+                ErrorHelper.showError(tvDetailTitle, "Failed to load report: " + errorMessage);
             }
         });
     }
@@ -407,6 +463,11 @@ public class AdminReportReviewActivity extends AppCompatActivity {
 
     private void fetchReporterExtraInfo(String universityId) {
         if (universityId == null || tvReporterRole == null) return;
+        if (universityId.equals(loadedReporterUniversityId)) {
+            return;
+        }
+        loadedReporterUniversityId = universityId;
+        
         SupabaseDatabaseHelper.select("profiles", "university_id=eq." + universityId + "&limit=1", new TypeToken<List<User>>(){}.getType(), new SupabaseDatabaseHelper.DatabaseCallback<List<User>>() {
             @Override
             public void onSuccess(List<User> users) {
@@ -521,6 +582,7 @@ public class AdminReportReviewActivity extends AppCompatActivity {
         intent.putExtra("itemStatus", item.getStatus());
         intent.putExtra("userId", item.getUserId());
         intent.putExtra("itemName", item.getName());
+        intent.putExtra("itemAdminStatus", item.getAdminStatus());
         startActivity(intent);
     }
 

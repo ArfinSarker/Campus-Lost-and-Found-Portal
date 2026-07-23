@@ -67,12 +67,21 @@ public class ProfileContextMenuHelper {
     }
 
     private static void confirmBlockUser(Context context, String currentUserId, String otherUserId, Callback callback) {
-        new AlertDialog.Builder(context)
-                .setTitle("Block User?")
-                .setMessage("You will no longer be able to send or receive messages with this user.")
-                .setPositiveButton("Block", (dialog, which) -> executeBlockUser(context, currentUserId, otherUserId, callback))
+        AlertDialog dialog = new AlertDialog.Builder(context)
+                .setTitle("Block this user?")
+                .setMessage("You won't receive messages, calls, or notifications from this user until you unblock them. You can unblock them at any time.")
+                .setPositiveButton("Block", (d, which) -> executeBlockUser(context, currentUserId, otherUserId, callback))
                 .setNegativeButton("Cancel", null)
-                .show();
+                .create();
+        dialog.setOnShowListener(d -> {
+            boolean isNightMode = (context.getResources().getConfiguration().uiMode & android.content.res.Configuration.UI_MODE_NIGHT_MASK) 
+                    == android.content.res.Configuration.UI_MODE_NIGHT_YES;
+            int positiveColor = isNightMode ? android.graphics.Color.parseColor("#FCA5A5") : android.graphics.Color.parseColor("#DC2626");
+            dialog.getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(positiveColor);
+            int negativeColor = isNightMode ? android.graphics.Color.parseColor("#94A3B8") : android.graphics.Color.parseColor("#64748B");
+            dialog.getButton(AlertDialog.BUTTON_NEGATIVE).setTextColor(negativeColor);
+        });
+        dialog.show();
     }
 
     private static void executeBlockUser(Context context, String currentUserId, String otherUserId, Callback callback) {
@@ -99,12 +108,21 @@ public class ProfileContextMenuHelper {
     }
 
     private static void confirmUnblockUser(Context context, String currentUserId, String otherUserId, Callback callback) {
-        new AlertDialog.Builder(context)
-                .setTitle("Unblock User?")
-                .setMessage("You will be able to send and receive messages with this user again.")
-                .setPositiveButton("Unblock", (dialog, which) -> executeUnblockUser(context, currentUserId, otherUserId, callback))
+        AlertDialog dialog = new AlertDialog.Builder(context)
+                .setTitle("Unblock this user?")
+                .setMessage("You'll be able to send and receive messages again.")
+                .setPositiveButton("Unblock", (d, which) -> executeUnblockUser(context, currentUserId, otherUserId, callback))
                 .setNegativeButton("Cancel", null)
-                .show();
+                .create();
+        dialog.setOnShowListener(d -> {
+            boolean isNightMode = (context.getResources().getConfiguration().uiMode & android.content.res.Configuration.UI_MODE_NIGHT_MASK) 
+                    == android.content.res.Configuration.UI_MODE_NIGHT_YES;
+            int positiveColor = isNightMode ? android.graphics.Color.parseColor("#34D399") : android.graphics.Color.parseColor("#10B981");
+            dialog.getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(positiveColor);
+            int negativeColor = isNightMode ? android.graphics.Color.parseColor("#94A3B8") : android.graphics.Color.parseColor("#64748B");
+            dialog.getButton(AlertDialog.BUTTON_NEGATIVE).setTextColor(negativeColor);
+        });
+        dialog.show();
     }
 
     private static void executeUnblockUser(Context context, String currentUserId, String otherUserId, Callback callback) {

@@ -48,11 +48,20 @@ public class Conversation {
     @SerializedName("last_message_is_delivered")
     private Boolean lastMessageIsDelivered;
 
+    @SerializedName("last_message_receiver_marked_unread")
+    private Boolean lastMessageReceiverMarkedUnread;
+
     @SerializedName("request_status")
     private String requestStatus;
 
     @SerializedName("request_sender_id")
     private String requestSenderId;
+
+    @SerializedName("pinned_message_id")
+    private String pinnedMessageId;
+
+    public String getPinnedMessageId() { return pinnedMessageId; }
+    public void setPinnedMessageId(String pinnedMessageId) { this.pinnedMessageId = pinnedMessageId; }
 
     public Conversation() {}
 
@@ -100,6 +109,9 @@ public class Conversation {
 
     public Boolean getLastMessageIsDelivered() { return lastMessageIsDelivered != null ? lastMessageIsDelivered : false; }
     public void setLastMessageIsDelivered(Boolean lastMessageIsDelivered) { this.lastMessageIsDelivered = lastMessageIsDelivered; }
+
+    public Boolean getLastMessageReceiverMarkedUnread() { return lastMessageReceiverMarkedUnread != null ? lastMessageReceiverMarkedUnread : false; }
+    public void setLastMessageReceiverMarkedUnread(Boolean lastMessageReceiverMarkedUnread) { this.lastMessageReceiverMarkedUnread = lastMessageReceiverMarkedUnread; }
 
     public String getRequestStatus() { return requestStatus != null ? requestStatus : "accepted"; }
     public void setRequestStatus(String requestStatus) { this.requestStatus = requestStatus; }

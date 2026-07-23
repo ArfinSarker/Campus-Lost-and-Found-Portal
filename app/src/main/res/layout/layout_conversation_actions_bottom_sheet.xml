@@ -1,0 +1,212 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    app:cardCornerRadius="24dp"
+    app:cardElevation="8dp"
+    app:strokeWidth="0dp"
+    app:cardBackgroundColor="@color/ca_sheet_bg"
+    android:layout_margin="12dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:paddingHorizontal="16dp"
+        android:paddingVertical="18dp">
+
+        <View
+            android:layout_width="36dp"
+            android:layout_height="4dp"
+            android:layout_gravity="center"
+            android:layout_marginBottom="16dp"
+            android:background="#D1D5DB" />
+
+        <TextView
+            android:id="@+id/tvSheetTitle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Conversation Actions"
+            android:textColor="@color/ca_sheet_text"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:gravity="center"
+            android:layout_marginBottom="16dp" />
+
+        <!-- Pin option -->
+        <LinearLayout
+            android:id="@+id/optionPin"
+            android:layout_width="match_parent"
+            android:layout_height="52dp"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:paddingHorizontal="16dp"
+            android:background="?attr/selectableItemBackground"
+            android:clickable="true"
+            android:focusable="true">
+
+            <ImageView
+                android:id="@+id/ivIconPin"
+                android:layout_width="22dp"
+                android:layout_height="22dp"
+                android:src="@drawable/ic_pin"
+                app:tint="@color/ca_accent_pin"
+                android:layout_marginEnd="16dp" />
+
+            <TextView
+                android:id="@+id/tvTextPin"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Pin Chat"
+                android:textColor="@color/ca_sheet_text"
+                android:textSize="15sp" />
+        </LinearLayout>
+
+        <!-- Archive option -->
+        <LinearLayout
+            android:id="@+id/optionArchive"
+            android:layout_width="match_parent"
+            android:layout_height="52dp"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:paddingHorizontal="16dp"
+            android:background="?attr/selectableItemBackground"
+            android:clickable="true"
+            android:focusable="true">
+
+            <ImageView
+                android:id="@+id/ivIconArchive"
+                android:layout_width="22dp"
+                android:layout_height="22dp"
+                android:src="@drawable/ic_inbox"
+                app:tint="@color/ca_accent_archive"
+                android:layout_marginEnd="16dp" />
+
+            <TextView
+                android:id="@+id/tvTextArchive"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Archive"
+                android:textColor="@color/ca_sheet_text"
+                android:textSize="15sp" />
+        </LinearLayout>
+
+        <!-- Mute option -->
+        <LinearLayout
+            android:id="@+id/optionMute"
+            android:layout_width="match_parent"
+            android:layout_height="52dp"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:paddingHorizontal="16dp"
+            android:background="?attr/selectableItemBackground"
+            android:clickable="true"
+            android:focusable="true">
+
+            <ImageView
+                android:id="@+id/ivIconMute"
+                android:layout_width="22dp"
+                android:layout_height="22dp"
+                android:src="@drawable/ic_notification"
+                app:tint="@color/ca_accent_mute"
+                android:layout_marginEnd="16dp" />
+
+            <TextView
+                android:id="@+id/tvTextMute"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Mute"
+                android:textColor="@color/ca_sheet_text"
+                android:textSize="15sp" />
+        </LinearLayout>
+
+        <!-- Mark as Unread option -->
+        <LinearLayout
+            android:id="@+id/optionUnread"
+            android:layout_width="match_parent"
+            android:layout_height="52dp"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:paddingHorizontal="16dp"
+            android:background="?attr/selectableItemBackground"
+            android:clickable="true"
+            android:focusable="true">
+
+            <ImageView
+                android:id="@+id/ivIconUnread"
+                android:layout_width="22dp"
+                android:layout_height="22dp"
+                android:src="@drawable/ic_file_text"
+                app:tint="@color/ca_accent_unread"
+                android:layout_marginEnd="16dp" />
+
+            <TextView
+                android:id="@+id/tvTextUnread"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Mark as Unread"
+                android:textColor="@color/ca_sheet_text"
+                android:textSize="15sp" />
+        </LinearLayout>
+
+        <!-- Block option -->
+        <LinearLayout
+            android:id="@+id/optionBlock"
+            android:layout_width="match_parent"
+            android:layout_height="52dp"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:paddingHorizontal="16dp"
+            android:background="?attr/selectableItemBackground"
+            android:clickable="true"
+            android:focusable="true">
+
+            <ImageView
+                android:id="@+id/ivIconBlock"
+                android:layout_width="22dp"
+                android:layout_height="22dp"
+                android:src="@drawable/ic_block"
+                app:tint="@color/ca_accent_block"
+                android:layout_marginEnd="16dp" />
+
+            <TextView
+                android:id="@+id/tvTextBlock"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Block"
+                android:textColor="@color/ca_sheet_text"
+                android:textSize="15sp" />
+        </LinearLayout>
+
+        <!-- Delete option -->
+        <LinearLayout
+            android:id="@+id/optionDelete"
+            android:layout_width="match_parent"
+            android:layout_height="52dp"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:paddingHorizontal="16dp"
+            android:background="?attr/selectableItemBackground"
+            android:clickable="true"
+            android:focusable="true">
+
+            <ImageView
+                android:id="@+id/ivIconDelete"
+                android:layout_width="22dp"
+                android:layout_height="22dp"
+                android:src="@drawable/ic_delete"
+                app:tint="@color/ca_accent_delete"
+                android:layout_marginEnd="16dp" />
+
+            <TextView
+                android:id="@+id/tvTextDelete"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Delete Conversation"
+                android:textColor="@color/ca_sheet_text"
+                android:textSize="15sp" />
+        </LinearLayout>
+
+    </LinearLayout>
+</com.google.android.material.card.MaterialCardView>

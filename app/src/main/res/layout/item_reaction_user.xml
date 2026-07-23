@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:padding="12dp"
+    android:layout_marginBottom="6dp"
+    android:clickable="true"
+    android:focusable="true"
+    android:foreground="?android:attr/selectableItemBackground"
+    android:background="@drawable/bg_reaction_user_row">
+
+    <!-- Profile Avatar -->
+    <ImageView
+        android:id="@+id/ivReactionUserAvatar"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:layout_alignParentStart="true"
+        android:layout_centerVertical="true"
+        android:src="@drawable/ic_user_placeholder_white"
+        android:background="@drawable/bg_circle_avatar"
+        android:padding="0dp" />
+
+    <!-- Emoji Reaction (Right Aligned) -->
+    <TextView
+        android:id="@+id/tvReactionUserEmoji"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
+        android:layout_centerVertical="true"
+        android:text="❤️"
+        android:textSize="20sp"
+        android:layout_marginEnd="4dp" />
+
+    <!-- Name (Bounded between Avatar and Emoji) -->
+    <TextView
+        android:id="@+id/tvReactionUserName"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_toEndOf="@id/ivReactionUserAvatar"
+        android:layout_toStartOf="@id/tvReactionUserEmoji"
+        android:layout_centerVertical="true"
+        android:layout_marginStart="12dp"
+        android:layout_marginEnd="12dp"
+        android:text="John Doe"
+        android:textSize="15sp"
+        android:textStyle="bold"
+        android:singleLine="true"
+        android:ellipsize="end"
+        android:textColor="@color/messenger_text_primary" />
+</RelativeLayout>

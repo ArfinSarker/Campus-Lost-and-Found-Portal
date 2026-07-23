@@ -80,6 +80,7 @@ public class ItemDetailActivity extends AppCompatActivity {
         itemId = getIntent().getStringExtra("itemId");
         itemStatus = getIntent().getStringExtra("itemStatus");
         reporterId = getIntent().getStringExtra("userId");
+        currentAdminStatus = getIntent().getStringExtra("itemAdminStatus");
 
         initializeViews();
         setupToolbar();
@@ -479,27 +480,36 @@ public class ItemDetailActivity extends AppCompatActivity {
         tvDateTime.setText(fullDateTime);
 
         if (itemStatus != null) {
-            boolean isResolved = "Claimed".equalsIgnoreCase(currentAdminStatus) || "Returned".equalsIgnoreCase(currentAdminStatus);
-            String statusText;
-            int statusColor;
-            if (isResolved) {
-                statusText = getString(R.string.status_resolved);
-                statusColor = getResources().getColor(R.color.badge_resolved_bg);
-            } else {
-                if (itemStatus.equalsIgnoreCase("lost")) {
-                    statusText = getString(R.string.status_lost_label);
-                    statusColor = getResources().getColor(R.color.badge_lost_bg);
-                } else {
-                    statusText = getString(R.string.status_found_label);
-                    statusColor = getResources().getColor(R.color.badge_found_bg);
+            if (currentAdminStatus == null) {
+                if (cardStatusBadge != null) {
+                    cardStatusBadge.setVisibility(View.GONE);
                 }
-            }
+            } else {
+                if (cardStatusBadge != null) {
+                    cardStatusBadge.setVisibility(View.VISIBLE);
+                }
+                boolean isResolved = "Claimed".equalsIgnoreCase(currentAdminStatus) || "Returned".equalsIgnoreCase(currentAdminStatus);
+                String statusText;
+                int statusColor;
+                if (isResolved) {
+                    statusText = getString(R.string.status_resolved);
+                    statusColor = getResources().getColor(R.color.badge_resolved_bg);
+                } else {
+                    if (itemStatus.equalsIgnoreCase("lost")) {
+                        statusText = getString(R.string.status_lost_label);
+                        statusColor = getResources().getColor(R.color.badge_lost_bg);
+                    } else {
+                        statusText = getString(R.string.status_found_label);
+                        statusColor = getResources().getColor(R.color.badge_found_bg);
+                    }
+                }
 
-            if (tvStatusBadge != null) {
-                tvStatusBadge.setText(statusText.toUpperCase());
-            }
-            if (cardStatusBadge != null) {
-                cardStatusBadge.setCardBackgroundColor(statusColor);
+                if (tvStatusBadge != null) {
+                    tvStatusBadge.setText(statusText.toUpperCase());
+                }
+                if (cardStatusBadge != null) {
+                    cardStatusBadge.setCardBackgroundColor(statusColor);
+                }
             }
         }
 

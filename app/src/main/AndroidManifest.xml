@@ -126,8 +126,10 @@
 
         <!-- Messaging System Activities -->
         <activity android:name=".MessagingActivity" />
+        <activity android:name=".ArchivedChatsActivity" />
         <activity android:name=".ChatRequestActivity" />
         <activity android:name=".ChatActivity" />
+        <activity android:name=".ForwardActivity" />
 
         <!-- Firebase Messaging Service -->
         <service

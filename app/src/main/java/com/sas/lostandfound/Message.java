@@ -21,6 +21,9 @@ public class Message {
     @SerializedName("is_delivered")
     private boolean isDelivered;
 
+    @SerializedName("receiver_marked_unread")
+    private boolean receiverMarkedUnread;
+
     @SerializedName("created_at")
     private String createdAt;
 
@@ -49,6 +52,9 @@ public class Message {
 
     public boolean isDelivered() { return isDelivered; }
     public void setDelivered(boolean delivered) { isDelivered = delivered; }
+
+    public boolean isReceiverMarkedUnread() { return receiverMarkedUnread; }
+    public void setReceiverMarkedUnread(boolean receiverMarkedUnread) { this.receiverMarkedUnread = receiverMarkedUnread; }
 
     public String getCreatedAt() { return createdAt; }
     public void setCreatedAt(String createdAt) { this.createdAt = createdAt; }

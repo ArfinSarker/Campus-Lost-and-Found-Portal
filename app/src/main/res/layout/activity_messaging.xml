@@ -93,6 +93,61 @@
                     </LinearLayout>
                 </com.google.android.material.card.MaterialCardView>
 
+                <!-- Archived Chats Row (WhatsApp Style) -->
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/cardArchivedRow"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginHorizontal="16dp"
+                    android:layout_marginVertical="4dp"
+                    app:cardCornerRadius="12dp"
+                    app:cardElevation="0dp"
+                    app:strokeWidth="1.2dp"
+                    app:strokeColor="@color/archived_row_border"
+                    app:cardBackgroundColor="@color/archived_row_bg"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:foreground="?attr/selectableItemBackground"
+                    android:visibility="gone">
+
+                    <RelativeLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="48dp"
+                        android:paddingHorizontal="16dp">
+
+                        <ImageView
+                            android:id="@+id/ivArchiveRowIcon"
+                            android:layout_width="20dp"
+                            android:layout_height="20dp"
+                            android:layout_alignParentStart="true"
+                            android:layout_centerVertical="true"
+                            android:src="@drawable/ic_inbox"
+                            app:tint="@color/archived_row_icon_tint"
+                            android:contentDescription="@null" />
+
+                        <TextView
+                            android:id="@+id/tvArchiveRowText"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_toEndOf="@+id/ivArchiveRowIcon"
+                            android:layout_centerVertical="true"
+                            android:layout_marginStart="12dp"
+                            android:text="Archived"
+                            android:textColor="@color/archived_row_text_color"
+                            android:textSize="15sp"
+                            android:textStyle="bold" />
+
+                        <ImageView
+                            android:layout_width="16dp"
+                            android:layout_height="16dp"
+                            android:layout_alignParentEnd="true"
+                            android:layout_centerVertical="true"
+                            android:src="@drawable/ic_chevron_right_small"
+                            app:tint="@color/archived_row_arrow_tint"
+                            android:contentDescription="@null" />
+                    </RelativeLayout>
+                </com.google.android.material.card.MaterialCardView>
+
                 <FrameLayout
                     android:layout_width="match_parent"
                     android:layout_height="0dp"

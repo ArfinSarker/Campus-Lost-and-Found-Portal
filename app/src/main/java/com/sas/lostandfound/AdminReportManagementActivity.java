@@ -384,6 +384,7 @@ public class AdminReportManagementActivity extends AppCompatActivity {
                     return;
                 Intent intent = new Intent(AdminReportManagementActivity.this, AdminReportReviewActivity.class);
                 intent.putExtra("reportId", report.getReportId());
+                intent.putExtra("reportJson", new com.google.gson.Gson().toJson(report));
                 startActivity(intent);
             });
 
@@ -401,6 +402,7 @@ public class AdminReportManagementActivity extends AppCompatActivity {
                 sliderAdapter.setOnImageClickListener(pos -> {
                     Intent intent = new Intent(AdminReportManagementActivity.this, AdminReportReviewActivity.class);
                     intent.putExtra("reportId", report.getReportId());
+                    intent.putExtra("reportJson", new com.google.gson.Gson().toJson(report));
                     startActivity(intent);
                 });
                 holder.viewPagerSlider.setAdapter(sliderAdapter);

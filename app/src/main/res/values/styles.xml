@@ -2,6 +2,7 @@
     <!-- Component and Helper Styles -->
     <style name="Widget.App.EditText" parent="Widget.Material3.TextInputEditText.OutlinedBox">
         <item name="android:padding">12dp</item>
+        <item name="android:textCursorDrawable">@drawable/bg_cursor</item>
     </style>
 
     <!-- Splash screen theme - Updated to follow design rules (no fullscreen) -->

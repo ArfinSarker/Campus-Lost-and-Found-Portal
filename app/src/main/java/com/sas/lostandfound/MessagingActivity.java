@@ -179,6 +179,14 @@ public class MessagingActivity extends AppCompatActivity {
                 @Override public void afterTextChanged(android.text.Editable s) {}
             });
         }
+
+        View cardArchivedRow = findViewById(R.id.cardArchivedRow);
+        if (cardArchivedRow != null) {
+            cardArchivedRow.setOnClickListener(v -> {
+                Intent intent = new Intent(this, ArchivedChatsActivity.class);
+                startActivity(intent);
+            });
+        }
     }
 
     private void setupToolbar() {
@@ -326,20 +334,516 @@ public class MessagingActivity extends AppCompatActivity {
 
     private void filterConversations(String query) {
         conversationList.clear();
-        if (query == null || query.trim().isEmpty()) {
-            conversationList.addAll(fullConversationList);
-        } else {
-            String lowerQuery = query.toLowerCase().trim();
-            for (Conversation c : fullConversationList) {
-                if (c.getOtherUserName() != null && c.getOtherUserName().toLowerCase().contains(lowerQuery)) {
-                    conversationList.add(c);
-                }
+        String lowerQuery = (query != null) ? query.toLowerCase().trim() : "";
+        for (Conversation c : fullConversationList) {
+            if (isConversationLocallyDeleted(c.getConversationId())) {
+                continue;
+            }
+            if (isConversationArchived(c.getConversationId())) {
+                continue;
+            }
+            if (lowerQuery.isEmpty() || (c.getOtherUserName() != null && c.getOtherUserName().toLowerCase().contains(lowerQuery))) {
+                conversationList.add(c);
             }
         }
+        
+        sortConversationsList(conversationList);
+        
         if (conversationsAdapter != null) {
             conversationsAdapter.notifyDataSetChanged();
         }
         updateEmptyState();
+        updateArchivedRowVisibility();
+    }
+
+    private void updateArchivedRowVisibility() {
+        int archivedCount = 0;
+        for (Conversation c : fullConversationList) {
+            if (isConversationLocallyDeleted(c.getConversationId())) {
+                continue;
+            }
+            if (isConversationArchived(c.getConversationId())) {
+                archivedCount++;
+            }
+        }
+        
+        View cardArchivedRow = findViewById(R.id.cardArchivedRow);
+        TextView tvArchiveRowText = findViewById(R.id.tvArchiveRowText);
+        if (cardArchivedRow != null && tvArchiveRowText != null) {
+            if (archivedCount > 0) {
+                tvArchiveRowText.setText("Archived (" + archivedCount + ")");
+                cardArchivedRow.setVisibility(View.VISIBLE);
+            } else {
+                cardArchivedRow.setVisibility(View.GONE);
+            }
+        }
+    }
+
+    private void sortConversationsList(java.util.List<Conversation> list) {
+        java.util.List<String> pinnedList = getPinnedConversationsList();
+        java.util.Collections.sort(list, (c1, c2) -> {
+            boolean p1 = pinnedList.contains(c1.getConversationId());
+            boolean p2 = pinnedList.contains(c2.getConversationId());
+            if (p1 && !p2) return -1;
+            if (!p1 && p2) return 1;
+            if (p1 && p2) {
+                return pinnedList.indexOf(c1.getConversationId()) - pinnedList.indexOf(c2.getConversationId());
+            }
+            String t1 = c1.getLastMessageTime();
+            String t2 = c2.getLastMessageTime();
+            if (t1 == null) return 1;
+            if (t2 == null) return -1;
+            return t2.compareTo(t1);
+        });
+    }
+
+    public java.util.List<String> getPinnedConversationsList() {
+        android.content.SharedPreferences prefs = getSharedPreferences("ChatPrefs_" + (currentUnivId != null ? currentUnivId.trim() : "default"), Context.MODE_PRIVATE);
+        String json = prefs.getString("pinned_conversations_list", "[]");
+        try {
+            return new com.google.gson.Gson().fromJson(json, new com.google.gson.reflect.TypeToken<java.util.List<String>>(){}.getType());
+        } catch (Exception e) {
+            return new java.util.ArrayList<>();
+        }
+    }
+
+    public void savePinnedConversationsList(java.util.List<String> list) {
+        android.content.SharedPreferences prefs = getSharedPreferences("ChatPrefs_" + (currentUnivId != null ? currentUnivId.trim() : "default"), Context.MODE_PRIVATE);
+        String json = new com.google.gson.Gson().toJson(list);
+        prefs.edit().putString("pinned_conversations_list", json).apply();
+    }
+
+    public boolean isConversationPinned(String conversationId) {
+        if (conversationId == null) return false;
+        return getPinnedConversationsList().contains(conversationId);
+    }
+
+    public void togglePinConversation(String conversationId) {
+        if (conversationId == null) return;
+        java.util.List<String> pinnedList = getPinnedConversationsList();
+        boolean wasPinned = pinnedList.contains(conversationId);
+        if (wasPinned) {
+            pinnedList.remove(conversationId);
+            SnackbarManager.show(SnackbarManager.Type.SUCCESS, "Chat unpinned");
+        } else {
+            pinnedList.add(conversationId);
+            SnackbarManager.show(SnackbarManager.Type.SUCCESS, "Chat pinned to top");
+        }
+        savePinnedConversationsList(pinnedList);
+        filterConversations(etSearchChats != null ? etSearchChats.getText().toString() : "");
+    }
+
+    public void togglePinConversationAnimated(int adapterPosition) {
+        if (adapterPosition < 0 || adapterPosition >= conversationList.size()) return;
+        Conversation c = conversationList.get(adapterPosition);
+        String conversationId = c.getConversationId();
+        
+        java.util.List<String> pinnedList = getPinnedConversationsList();
+        boolean wasPinned = pinnedList.contains(conversationId);
+        
+        if (wasPinned) {
+            pinnedList.remove(conversationId);
+            SnackbarManager.show(SnackbarManager.Type.SUCCESS, "Chat unpinned");
+        } else {
+            pinnedList.add(conversationId);
+            SnackbarManager.show(SnackbarManager.Type.SUCCESS, "Chat pinned to top");
+        }
+        savePinnedConversationsList(pinnedList);
+        
+        sortConversationsList(conversationList);
+        
+        int newPosition = conversationList.indexOf(c);
+        if (conversationsAdapter != null) {
+            if (adapterPosition != newPosition) {
+                conversationsAdapter.notifyItemMoved(adapterPosition, newPosition);
+            }
+            conversationsAdapter.notifyItemChanged(newPosition);
+        }
+    }
+
+    public boolean isConversationLocallyDeleted(String conversationId) {
+        if (conversationId == null) return false;
+        android.content.SharedPreferences prefs = getSharedPreferences("ChatPrefs_" + (currentUnivId != null ? currentUnivId.trim() : "default"), Context.MODE_PRIVATE);
+        java.util.Set<String> deleted = prefs.getStringSet("locally_deleted_conversations", new java.util.HashSet<>());
+        return deleted.contains(conversationId);
+    }
+
+    public boolean isConversationArchived(String conversationId) {
+        if (conversationId == null) return false;
+        android.content.SharedPreferences prefs = getSharedPreferences("ChatPrefs_" + (currentUnivId != null ? currentUnivId.trim() : "default"), Context.MODE_PRIVATE);
+        java.util.Set<String> archived = prefs.getStringSet("archived_conversations", new java.util.HashSet<>());
+        return archived.contains(conversationId);
+    }
+
+    public void toggleArchiveConversation(String conversationId) {
+        if (conversationId == null) return;
+        android.content.SharedPreferences prefs = getSharedPreferences("ChatPrefs_" + (currentUnivId != null ? currentUnivId.trim() : "default"), Context.MODE_PRIVATE);
+        java.util.Set<String> archived = new java.util.HashSet<>(prefs.getStringSet("archived_conversations", new java.util.HashSet<>()));
+        boolean wasArchived = archived.contains(conversationId);
+        if (wasArchived) {
+            archived.remove(conversationId);
+            SnackbarManager.show(SnackbarManager.Type.SUCCESS, "Conversation unarchived");
+        } else {
+            archived.add(conversationId);
+            SnackbarManager.show(SnackbarManager.Type.SUCCESS, "Conversation archived");
+        }
+        prefs.edit().putStringSet("archived_conversations", archived).apply();
+        filterConversations(etSearchChats != null ? etSearchChats.getText().toString() : "");
+    }
+
+    public void toggleArchiveConversationAnimated(int adapterPosition) {
+        if (adapterPosition < 0 || adapterPosition >= conversationList.size()) return;
+        Conversation c = conversationList.get(adapterPosition);
+        toggleArchiveConversation(c.getConversationId());
+        if (conversationsAdapter != null) {
+            conversationsAdapter.notifyItemRemoved(adapterPosition);
+        }
+    }
+
+    public boolean isConversationMuted(String conversationId) {
+        if (conversationId == null) return false;
+        android.content.SharedPreferences prefs = getSharedPreferences("ChatPrefs_" + (currentUnivId != null ? currentUnivId.trim() : "default"), Context.MODE_PRIVATE);
+        long muteUntil = prefs.getLong("mute_" + conversationId, 0);
+        if (muteUntil == -1) return true; // until turned off
+        return System.currentTimeMillis() < muteUntil;
+    }
+
+    public void muteConversation(String conversationId, long durationMs) {
+        if (conversationId == null) return;
+        android.content.SharedPreferences prefs = getSharedPreferences("ChatPrefs_" + (currentUnivId != null ? currentUnivId.trim() : "default"), Context.MODE_PRIVATE);
+        long muteUntil = durationMs == -1 ? -1 : (System.currentTimeMillis() + durationMs);
+        prefs.edit().putLong("mute_" + conversationId, muteUntil).apply();
+        if (conversationsAdapter != null) conversationsAdapter.notifyDataSetChanged();
+    }
+
+    public void unmuteConversation(String conversationId) {
+        if (conversationId == null) return;
+        android.content.SharedPreferences prefs = getSharedPreferences("ChatPrefs_" + (currentUnivId != null ? currentUnivId.trim() : "default"), Context.MODE_PRIVATE);
+        prefs.edit().remove("mute_" + conversationId).apply();
+        if (conversationsAdapter != null) conversationsAdapter.notifyDataSetChanged();
+    }
+
+    public boolean isLocalUnread(String conversationId) {
+        if (conversationId == null) return false;
+        android.content.SharedPreferences prefs = getSharedPreferences("ChatPrefs_" + (currentUnivId != null ? currentUnivId.trim() : "default"), Context.MODE_PRIVATE);
+        java.util.Set<String> unread = prefs.getStringSet("unread_conversations", new java.util.HashSet<>());
+        return unread.contains(conversationId);
+    }
+
+    public void markChatAsUnreadLocally(String conversationId) {
+        markChatAsUnreadLocally(conversationId, null);
+    }
+
+    public void markChatAsUnreadLocally(String conversationId, String otherUserId) {
+        if (conversationId == null) return;
+        android.content.SharedPreferences prefs = getSharedPreferences("ChatPrefs_" + (currentUnivId != null ? currentUnivId.trim() : "default"), Context.MODE_PRIVATE);
+        java.util.Set<String> unread = new java.util.HashSet<>(prefs.getStringSet("unread_conversations", new java.util.HashSet<>()));
+        unread.add(conversationId);
+        prefs.edit().putStringSet("unread_conversations", unread).apply();
+        if (conversationsAdapter != null) conversationsAdapter.notifyDataSetChanged();
+
+        if (currentUnivId != null) {
+            java.lang.reflect.Type listType = new com.google.gson.reflect.TypeToken<java.util.List<java.util.Map<String, Object>>>(){}.getType();
+            String filter = "conversation_id=eq." + conversationId + "&sender_id=eq." + currentUnivId + "&select=created_at&order=created_at.desc&limit=1";
+            SupabaseDatabaseHelper.select("messages", filter, listType, new SupabaseDatabaseHelper.DatabaseCallback<java.util.List<java.util.Map<String, Object>>>() {
+                @Override
+                public void onSuccess(java.util.List<java.util.Map<String, Object>> list) {
+                    String lastSentTime = null;
+                    if (list != null && !list.isEmpty() && list.get(0) != null && list.get(0).containsKey("created_at")) {
+                        Object cat = list.get(0).get("created_at");
+                        if (cat != null) lastSentTime = cat.toString();
+                    }
+
+                    java.util.Map<String, Object> data = new java.util.HashMap<>();
+                    data.put("receiver_marked_unread", true);
+                    String query;
+                    if (otherUserId != null && !otherUserId.isEmpty()) {
+                        if (lastSentTime != null && !lastSentTime.isEmpty()) {
+                            query = "conversation_id=eq." + conversationId + "&sender_id=eq." + otherUserId + "&created_at=gt." + lastSentTime;
+                        } else {
+                            query = "conversation_id=eq." + conversationId + "&sender_id=eq." + otherUserId;
+                        }
+                    } else {
+                        if (lastSentTime != null && !lastSentTime.isEmpty()) {
+                            query = "conversation_id=eq." + conversationId + "&sender_id=neq." + currentUnivId + "&created_at=gt." + lastSentTime;
+                        } else {
+                            query = "conversation_id=eq." + conversationId + "&sender_id=neq." + currentUnivId;
+                        }
+                    }
+
+                    SupabaseDatabaseHelper.update("messages", query, data, new SupabaseDatabaseHelper.DatabaseCallback<String>() {
+                        @Override public void onSuccess(String result) {
+                            UnreadBadgeHelper.sendBadgeUpdateBroadcast(MessagingActivity.this);
+                        }
+                        @Override public void onFailure(String errorMessage) {}
+                    });
+                }
+
+                @Override
+                public void onFailure(String errorMessage) {
+                    java.util.Map<String, Object> data = new java.util.HashMap<>();
+                    data.put("receiver_marked_unread", true);
+                    String query = (otherUserId != null && !otherUserId.isEmpty()) ?
+                            "conversation_id=eq." + conversationId + "&sender_id=eq." + otherUserId :
+                            "conversation_id=eq." + conversationId + "&sender_id=neq." + currentUnivId;
+                    SupabaseDatabaseHelper.update("messages", query, data, new SupabaseDatabaseHelper.DatabaseCallback<String>() {
+                        @Override public void onSuccess(String result) {
+                            UnreadBadgeHelper.sendBadgeUpdateBroadcast(MessagingActivity.this);
+                        }
+                        @Override public void onFailure(String errorMessage) {}
+                    });
+                }
+            });
+        }
+    }
+
+    public void markChatAsReadLocally(String conversationId) {
+        markChatAsReadLocally(conversationId, null);
+    }
+
+    public void markChatAsReadLocally(String conversationId, String otherUserId) {
+        if (conversationId == null) return;
+        android.content.SharedPreferences prefs = getSharedPreferences("ChatPrefs_" + (currentUnivId != null ? currentUnivId.trim() : "default"), Context.MODE_PRIVATE);
+        java.util.Set<String> unread = new java.util.HashSet<>(prefs.getStringSet("unread_conversations", new java.util.HashSet<>()));
+        if (unread.contains(conversationId)) {
+            unread.remove(conversationId);
+            prefs.edit().putStringSet("unread_conversations", unread).apply();
+            if (conversationsAdapter != null) conversationsAdapter.notifyDataSetChanged();
+        }
+
+        if (currentUnivId != null) {
+            java.util.Map<String, Object> data = new java.util.HashMap<>();
+            data.put("is_read", true);
+            data.put("is_delivered", true);
+            data.put("receiver_marked_unread", false);
+            String query;
+            if (otherUserId != null && !otherUserId.trim().isEmpty()) {
+                query = "conversation_id=eq." + conversationId.trim() + "&sender_id=eq." + otherUserId.trim();
+            } else {
+                query = "conversation_id=eq." + conversationId.trim() + "&sender_id=neq." + currentUnivId.trim();
+            }
+            SupabaseDatabaseHelper.update("messages", query, data, new SupabaseDatabaseHelper.DatabaseCallback<String>() {
+                @Override public void onSuccess(String result) {
+                    UnreadBadgeHelper.sendBadgeUpdateBroadcast(MessagingActivity.this);
+                }
+                @Override public void onFailure(String errorMessage) {}
+            });
+        }
+    }
+
+    public void showConversationActionMenu(Conversation c, int adapterPosition) {
+        if (c == null) return;
+        com.google.android.material.bottomsheet.BottomSheetDialog sheetDialog = new com.google.android.material.bottomsheet.BottomSheetDialog(this);
+        View view = getLayoutInflater().inflate(R.layout.layout_conversation_actions_bottom_sheet, null);
+        sheetDialog.setContentView(view);
+
+        View parent = (View) view.getParent();
+        if (parent != null) {
+            parent.setBackgroundTintList(android.content.res.ColorStateList.valueOf(android.graphics.Color.TRANSPARENT));
+        }
+
+        TextView tvTitle = view.findViewById(R.id.tvSheetTitle);
+        tvTitle.setText(c.getOtherUserName());
+
+        // 1. Pin option
+        TextView tvTextPin = view.findViewById(R.id.tvTextPin);
+        ImageView ivIconPin = view.findViewById(R.id.ivIconPin);
+        boolean isPinned = isConversationPinned(c.getConversationId());
+        tvTextPin.setText(isPinned ? "Unpin Chat" : "Pin Chat");
+        ivIconPin.setImageResource(isPinned ? R.drawable.ic_pin : R.drawable.ic_pin);
+
+        view.findViewById(R.id.optionPin).setOnClickListener(v -> {
+            sheetDialog.dismiss();
+            togglePinConversationAnimated(adapterPosition);
+        });
+
+        // 2. Archive option
+        TextView tvTextArchive = view.findViewById(R.id.tvTextArchive);
+        boolean isArchived = isConversationArchived(c.getConversationId());
+        tvTextArchive.setText(isArchived ? "Unarchive" : "Archive");
+        view.findViewById(R.id.optionArchive).setOnClickListener(v -> {
+            sheetDialog.dismiss();
+            toggleArchiveConversationAnimated(adapterPosition);
+        });
+
+        // 3. Mute option
+        TextView tvTextMute = view.findViewById(R.id.tvTextMute);
+        boolean isMuted = isConversationMuted(c.getConversationId());
+        tvTextMute.setText(isMuted ? "Unmute Notifications" : "Mute Notifications");
+        view.findViewById(R.id.optionMute).setOnClickListener(v -> {
+            sheetDialog.dismiss();
+            if (isMuted) {
+                unmuteConversation(c.getConversationId());
+                SnackbarManager.show(SnackbarManager.Type.SUCCESS, "Conversation unmuted");
+            } else {
+                showMuteOptionsDialog(c.getConversationId());
+            }
+        });
+
+        // 4. Mark as Unread option
+        TextView tvTextUnread = view.findViewById(R.id.tvTextUnread);
+        boolean isCurrentlyUnread = (c.getUnreadCount() > 0 || isLocalUnread(c.getConversationId()));
+        tvTextUnread.setText(isCurrentlyUnread ? "Mark as Read" : "Mark as Unread");
+        view.findViewById(R.id.optionUnread).setOnClickListener(v -> {
+            sheetDialog.dismiss();
+            if (isCurrentlyUnread) {
+                markChatAsReadLocally(c.getConversationId(), c.getOtherUserId());
+            } else {
+                markChatAsUnreadLocally(c.getConversationId(), c.getOtherUserId());
+            }
+        });
+
+        // 5. Block option
+        TextView tvTextBlock = view.findViewById(R.id.tvTextBlock);
+        boolean isBlockedByMe = blockedUserIds.contains(c.getOtherUserId());
+        tvTextBlock.setText(isBlockedByMe ? "Unblock User" : "Block User");
+        view.findViewById(R.id.optionBlock).setOnClickListener(v -> {
+            sheetDialog.dismiss();
+            ProfileContextMenuHelper.toggleUserBlock(this, currentUnivId, c.getOtherUserId(), isBlockedByMe, isNowBlocked -> {
+                fetchBlockListsAndLoadConversations(true);
+            });
+        });
+
+        // 6. Delete option
+        view.findViewById(R.id.optionDelete).setOnClickListener(v -> {
+            sheetDialog.dismiss();
+            new androidx.appcompat.app.AlertDialog.Builder(this)
+                .setTitle("Delete Conversation?")
+                .setMessage("Are you sure you want to permanently delete this conversation? This action cannot be undone.")
+                .setPositiveButton("Delete", (dialog, which) -> deleteConversationFromServer(c.getConversationId()))
+                .setNegativeButton("Cancel", null)
+                .show();
+        });
+
+        sheetDialog.show();
+    }
+
+    private void showMuteOptionsDialog(String conversationId) {
+        String[] options = {
+            "For 15 minutes",
+            "For 1 hour",
+            "For 8 hours",
+            "For 24 hours",
+            "Until I turn it back on",
+            "Custom..."
+        };
+        long[] durations = {
+            15 * 60 * 1000L,
+            60 * 60 * 1000L,
+            8 * 60 * 60 * 1000L,
+            24 * 60 * 60 * 1000L,
+            -1L,
+            -2L // Custom trigger
+        };
+
+        new androidx.appcompat.app.AlertDialog.Builder(this)
+            .setTitle("Mute notifications for this chat")
+            .setItems(options, (dialog, which) -> {
+                long duration = durations[which];
+                if (duration == -2L) {
+                    showCustomMuteDialog(conversationId);
+                } else {
+                    muteConversation(conversationId, duration);
+                    SnackbarManager.show(SnackbarManager.Type.SUCCESS, "Chat muted " + options[which].toLowerCase());
+                }
+            })
+            .setNegativeButton("Cancel", null)
+            .show();
+    }
+
+    private void showCustomMuteDialog(String conversationId) {
+        View dialogView = getLayoutInflater().inflate(R.layout.layout_custom_mute_dialog, null);
+        AlertDialog dialog = new AlertDialog.Builder(this)
+                .setView(dialogView)
+                .create();
+
+        EditText etDays = dialogView.findViewById(R.id.etMuteDays);
+        EditText etHours = dialogView.findViewById(R.id.etMuteHours);
+        EditText etMinutes = dialogView.findViewById(R.id.etMuteMinutes);
+        EditText etSeconds = dialogView.findViewById(R.id.etMuteSeconds);
+
+        dialogView.findViewById(R.id.btnCancelMute).setOnClickListener(v -> dialog.dismiss());
+        dialogView.findViewById(R.id.btnConfirmMute).setOnClickListener(v -> {
+            int days = 0, hours = 0, minutes = 0, seconds = 0;
+            try {
+                days = Integer.parseInt(etDays.getText().toString().trim());
+                hours = Integer.parseInt(etHours.getText().toString().trim());
+                minutes = Integer.parseInt(etMinutes.getText().toString().trim());
+                seconds = Integer.parseInt(etSeconds.getText().toString().trim());
+            } catch (Exception ignored) {}
+
+            if (days < 0 || hours < 0 || minutes < 0 || seconds < 0) {
+                SnackbarManager.show(SnackbarManager.Type.ERROR, "Duration values cannot be negative.");
+                return;
+            }
+            if (days == 0 && hours == 0 && minutes == 0 && seconds == 0) {
+                SnackbarManager.show(SnackbarManager.Type.ERROR, "Duration cannot be zero.");
+                return;
+            }
+
+            long totalSeconds = ((days * 24L + hours) * 60L + minutes) * 60L + seconds;
+            long durationMs = totalSeconds * 1000L;
+
+            muteConversation(conversationId, durationMs);
+            dialog.dismiss();
+
+            StringBuilder sb = new StringBuilder("Muted for ");
+            if (days > 0) sb.append(days).append("d ");
+            if (hours > 0) sb.append(hours).append("h ");
+            if (minutes > 0) sb.append(minutes).append("m ");
+            if (seconds > 0) sb.append(seconds).append("s ");
+            SnackbarManager.show(SnackbarManager.Type.SUCCESS, sb.toString().trim());
+        });
+
+        dialog.show();
+    }
+
+    private void deleteConversationFromServer(String conversationId) {
+        if (conversationId == null) return;
+        SupabaseDatabaseHelper.delete("messages", "conversation_id=eq." + conversationId, new SupabaseDatabaseHelper.DatabaseCallback<Void>() {
+            @Override
+            public void onSuccess(Void result) {
+                deleteConversationRecord(conversationId);
+            }
+
+            @Override
+            public void onFailure(String error) {
+                deleteConversationRecord(conversationId);
+            }
+        });
+    }
+
+    private void deleteConversationRecord(String conversationId) {
+        SupabaseDatabaseHelper.delete("conversations", "id=eq." + conversationId, new SupabaseDatabaseHelper.DatabaseCallback<Void>() {
+            @Override
+            public void onSuccess(Void result) {
+                cleanUpLocalConversationState(conversationId);
+                SnackbarManager.show(SnackbarManager.Type.SUCCESS, "Conversation deleted successfully.");
+                fetchBlockListsAndLoadConversations(true);
+            }
+
+            @Override
+            public void onFailure(String error) {
+                SnackbarManager.show(SnackbarManager.Type.ERROR, "Failed to delete conversation: " + error);
+            }
+        });
+    }
+
+    private void cleanUpLocalConversationState(String conversationId) {
+        if (conversationId == null) return;
+        try {
+            java.util.List<String> pinnedList = getPinnedConversationsList();
+            if (pinnedList.contains(conversationId)) {
+                pinnedList.remove(conversationId);
+                savePinnedConversationsList(pinnedList);
+            }
+            android.content.SharedPreferences prefs = getSharedPreferences("ChatPrefs_" + (currentUnivId != null ? currentUnivId.trim() : "default"), Context.MODE_PRIVATE);
+            java.util.Set<String> archived = new java.util.HashSet<>(prefs.getStringSet("archived_conversations", new java.util.HashSet<>()));
+            if (archived.contains(conversationId)) {
+                archived.remove(conversationId);
+                prefs.edit().putStringSet("archived_conversations", archived).apply();
+            }
+        } catch (Exception ignored) {}
     }
 
     private void updateEmptyState() {
@@ -386,7 +890,36 @@ public class MessagingActivity extends AppCompatActivity {
         @Override
         public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
             Conversation c = list.get(position);
-            holder.tvUserName.setText(c.getOtherUserName());
+            
+            boolean isPinned = false;
+            boolean isMuted = false;
+            if (context instanceof MessagingActivity) {
+                isPinned = ((MessagingActivity) context).isConversationPinned(c.getConversationId());
+                isMuted = ((MessagingActivity) context).isConversationMuted(c.getConversationId());
+            }
+
+            StringBuilder nameBuilder = new StringBuilder(c.getOtherUserName() != null ? c.getOtherUserName() : "");
+            holder.tvUserName.setText(nameBuilder.toString());
+
+            if (holder.ivPinIndicator != null) {
+                if (isPinned) {
+                    holder.ivPinIndicator.setVisibility(View.VISIBLE);
+                    int pinColor = androidx.core.content.ContextCompat.getColor(context, R.color.pin_indicator_tint);
+                    holder.ivPinIndicator.setImageTintList(android.content.res.ColorStateList.valueOf(pinColor));
+                } else {
+                    holder.ivPinIndicator.setVisibility(View.GONE);
+                }
+            }
+
+            if (holder.ivMuteIndicator != null) {
+                if (isMuted) {
+                    holder.ivMuteIndicator.setVisibility(View.VISIBLE);
+                    int muteColor = androidx.core.content.ContextCompat.getColor(context, R.color.mute_indicator_tint);
+                    holder.ivMuteIndicator.setImageTintList(android.content.res.ColorStateList.valueOf(muteColor));
+                } else {
+                    holder.ivMuteIndicator.setVisibility(View.GONE);
+                }
+            }
             
             // Online & Last Active Status calculation
             boolean isBlockedRelationship = blockedUserIds.contains(c.getOtherUserId()) || usersWhoBlockedMe.contains(c.getOtherUserId());
@@ -437,8 +970,9 @@ public class MessagingActivity extends AppCompatActivity {
                     } catch (Exception ignored) {}
                 }
             } else {
-                // Not accepted. If incoming pending/rejected, receiver sees "New Message Request"
-                if (!isBlockedRelationship && currentUserId != null && !currentUserId.equals(c.getRequestSenderId())) {
+                if (blockedUserIds.contains(c.getOtherUserId())) {
+                    statusText = "Blocked";
+                } else if (currentUserId != null && !currentUserId.equals(c.getRequestSenderId()) && !usersWhoBlockedMe.contains(c.getOtherUserId())) {
                     statusText = "New Message Request";
                 }
             }
@@ -453,6 +987,9 @@ public class MessagingActivity extends AppCompatActivity {
                         holder.tvUserStatus.setTypeface(null, Typeface.BOLD);
                     } else if ("New Message Request".equals(statusText)) {
                         holder.tvUserStatus.setTextColor(androidx.core.content.ContextCompat.getColor(context, R.color.chat_list_loading_indicator));
+                        holder.tvUserStatus.setTypeface(null, Typeface.BOLD);
+                    } else if ("Blocked".equals(statusText)) {
+                        holder.tvUserStatus.setTextColor(androidx.core.content.ContextCompat.getColor(context, R.color.ca_accent_block));
                         holder.tvUserStatus.setTypeface(null, Typeface.BOLD);
                     } else {
                         holder.tvUserStatus.setTextColor(androidx.core.content.ContextCompat.getColor(context, R.color.chat_list_text_secondary));
@@ -469,21 +1006,43 @@ public class MessagingActivity extends AppCompatActivity {
             }
 
             // Bind last message & timestamp
-            holder.tvLastMessage.setText(c.getLastMessage() != null ? c.getLastMessage() : "No messages yet");
+            String displayLastMsg = "No messages yet";
+            String lastMsg = c.getLastMessage();
+            if (lastMsg != null && !lastMsg.isEmpty()) {
+                displayLastMsg = lastMsg;
+                ChatActivity.MessageMeta meta = ChatActivity.MessageMeta.parseMeta(lastMsg);
+                if (meta != null) {
+                    if (meta.isUnsent) {
+                        String senderId = c.getLastMessageSenderId();
+                        if (senderId != null && senderId.equals(currentUserId)) {
+                            displayLastMsg = "You unsent a message";
+                        } else {
+                            displayLastMsg = "This message was unsent";
+                        }
+                    } else if (meta.deletedForUsers != null && meta.deletedForUsers.contains(currentUserId)) {
+                        displayLastMsg = "Message deleted";
+                    } else {
+                        displayLastMsg = meta.text;
+                    }
+                }
+            }
+            holder.tvLastMessage.setText(displayLastMsg);
             holder.tvTimestamp.setText(formatTime(c.getLastMessageTime()));
 
             // Highlight unread conversations
-            if (c.getUnreadCount() > 0) {
+            boolean isLocalUnread = false;
+            if (context instanceof MessagingActivity) {
+                isLocalUnread = ((MessagingActivity) context).isLocalUnread(c.getConversationId());
+            }
+            if (c.getUnreadCount() > 0 || isLocalUnread) {
+                int displayCount = c.getUnreadCount() > 0 ? c.getUnreadCount() : 1;
                 holder.tvLastMessage.setTypeface(null, Typeface.BOLD);
                 holder.tvLastMessage.setTextColor(androidx.core.content.ContextCompat.getColor(context, R.color.chat_list_text_primary));
                 holder.tvTimestamp.setTypeface(null, Typeface.BOLD);
                 holder.tvTimestamp.setTextColor(androidx.core.content.ContextCompat.getColor(context, R.color.chat_list_loading_indicator));
                 
-                holder.tvUnreadBadge.setText(String.valueOf(c.getUnreadCount()));
+                holder.tvUnreadBadge.setText(String.valueOf(displayCount));
                 holder.tvUnreadBadge.setVisibility(View.VISIBLE);
-                if (holder.ivLastMessageStatus != null) {
-                    holder.ivLastMessageStatus.setVisibility(View.GONE);
-                }
             } else {
                 holder.tvLastMessage.setTypeface(null, Typeface.NORMAL);
                 holder.tvLastMessage.setTextColor(androidx.core.content.ContextCompat.getColor(context, R.color.chat_list_last_message));
@@ -491,24 +1050,31 @@ public class MessagingActivity extends AppCompatActivity {
                 holder.tvTimestamp.setTextColor(androidx.core.content.ContextCompat.getColor(context, R.color.chat_list_time));
                 
                 holder.tvUnreadBadge.setVisibility(View.GONE);
-                
-                // Show last message status tick (if sent by us)
-                if (holder.ivLastMessageStatus != null) {
-                    if (c.getLastMessageSenderId() != null && c.getLastMessageSenderId().equals(currentUserId)) {
-                        holder.ivLastMessageStatus.setVisibility(View.VISIBLE);
-                        if (!usersWhoBlockedMe.contains(c.getOtherUserId()) && c.getLastMessageIsRead() != null && c.getLastMessageIsRead()) {
-                            holder.ivLastMessageStatus.setImageResource(R.drawable.ic_double_check);
-                            holder.ivLastMessageStatus.setImageTintList(ColorStateList.valueOf(androidx.core.content.ContextCompat.getColor(context, R.color.chat_list_read_double_tick)));
-                        } else if (!usersWhoBlockedMe.contains(c.getOtherUserId()) && c.getLastMessageIsDelivered() != null && c.getLastMessageIsDelivered()) {
-                            holder.ivLastMessageStatus.setImageResource(R.drawable.ic_double_check);
-                            holder.ivLastMessageStatus.setImageTintList(ColorStateList.valueOf(androidx.core.content.ContextCompat.getColor(context, R.color.chat_list_double_tick)));
-                        } else {
-                            holder.ivLastMessageStatus.setImageResource(R.drawable.ic_single_check);
-                            holder.ivLastMessageStatus.setImageTintList(ColorStateList.valueOf(androidx.core.content.ContextCompat.getColor(context, R.color.chat_list_single_tick)));
-                        }
+            }
+
+            // Show last message status tick (if sent by us), independently of unread badge
+            if (holder.ivLastMessageStatus != null) {
+                if (c.getLastMessageSenderId() != null && c.getLastMessageSenderId().equals(currentUserId)) {
+                    holder.ivLastMessageStatus.setVisibility(View.VISIBLE);
+                    boolean isReceiverMarkedUnread = c.getLastMessageReceiverMarkedUnread() != null && c.getLastMessageReceiverMarkedUnread();
+                    boolean isRead = c.getLastMessageIsRead() != null && c.getLastMessageIsRead();
+                    boolean isDelivered = c.getLastMessageIsDelivered() != null && c.getLastMessageIsDelivered();
+
+                    if (isReceiverMarkedUnread) {
+                        holder.ivLastMessageStatus.setImageResource(R.drawable.ic_double_check);
+                        holder.ivLastMessageStatus.setImageTintList(ColorStateList.valueOf(androidx.core.content.ContextCompat.getColor(context, R.color.chat_list_double_tick)));
+                    } else if (isRead) {
+                        holder.ivLastMessageStatus.setImageResource(R.drawable.ic_double_check);
+                        holder.ivLastMessageStatus.setImageTintList(ColorStateList.valueOf(androidx.core.content.ContextCompat.getColor(context, R.color.chat_list_read_double_tick)));
+                    } else if (isDelivered) {
+                        holder.ivLastMessageStatus.setImageResource(R.drawable.ic_double_check);
+                        holder.ivLastMessageStatus.setImageTintList(ColorStateList.valueOf(androidx.core.content.ContextCompat.getColor(context, R.color.chat_list_double_tick)));
                     } else {
-                        holder.ivLastMessageStatus.setVisibility(View.GONE);
+                        holder.ivLastMessageStatus.setImageResource(R.drawable.ic_single_check);
+                        holder.ivLastMessageStatus.setImageTintList(ColorStateList.valueOf(androidx.core.content.ContextCompat.getColor(context, R.color.chat_list_single_tick)));
                     }
+                } else {
+                    holder.ivLastMessageStatus.setVisibility(View.GONE);
                 }
             }
 
@@ -533,7 +1099,17 @@ public class MessagingActivity extends AppCompatActivity {
                 holder.itemView.performClick();
             });
 
+            holder.itemView.setOnLongClickListener(v -> {
+                if (context instanceof MessagingActivity) {
+                    ((MessagingActivity) context).showConversationActionMenu(c, holder.getAdapterPosition());
+                }
+                return true;
+            });
+
             holder.itemView.setOnClickListener(v -> {
+                if (context instanceof MessagingActivity) {
+                    ((MessagingActivity) context).markChatAsReadLocally(c.getConversationId());
+                }
                 Intent intent = new Intent(context, ChatActivity.class);
                 intent.putExtra("conversationId", c.getConversationId());
                 intent.putExtra("otherUserId", c.getOtherUserId());
@@ -544,6 +1120,16 @@ public class MessagingActivity extends AppCompatActivity {
                 intent.putExtra("requestSenderId", c.getRequestSenderId());
                 intent.putExtra("initialMessage", c.getLastMessage());
                 intent.putExtra("requestCreatedAt", c.getLastMessageTime());
+
+                boolean blockedByMe = false;
+                boolean blockedByOther = false;
+                if (context instanceof MessagingActivity) {
+                    blockedByMe = ((MessagingActivity) context).blockedUserIds.contains(c.getOtherUserId());
+                    blockedByOther = ((MessagingActivity) context).usersWhoBlockedMe.contains(c.getOtherUserId());
+                }
+                intent.putExtra("isBlockedByMe", blockedByMe);
+                intent.putExtra("isBlockedByOther", blockedByOther);
+
                 context.startActivity(intent);
             });
         }
@@ -555,7 +1141,7 @@ public class MessagingActivity extends AppCompatActivity {
 
         public static class ViewHolder extends RecyclerView.ViewHolder {
             MaterialCardView cardUserAvatar;
-            ImageView ivUserAvatar, ivLastMessageStatus;
+            ImageView ivUserAvatar, ivLastMessageStatus, ivPinIndicator, ivMuteIndicator;
             TextView tvUserName, tvUserStatus, tvLastMessage, tvTimestamp, tvUnreadBadge;
             View viewActiveIndicator;
 
@@ -564,6 +1150,8 @@ public class MessagingActivity extends AppCompatActivity {
                 cardUserAvatar = itemView.findViewById(R.id.cardUserAvatar);
                 ivUserAvatar = itemView.findViewById(R.id.ivUserAvatar);
                 ivLastMessageStatus = itemView.findViewById(R.id.ivLastMessageStatus);
+                ivPinIndicator = itemView.findViewById(R.id.ivPinIndicator);
+                ivMuteIndicator = itemView.findViewById(R.id.ivMuteIndicator);
                 tvUserName = itemView.findViewById(R.id.tvUserName);
                 tvUserStatus = itemView.findViewById(R.id.tvUserStatus);
                 tvLastMessage = itemView.findViewById(R.id.tvLastMessage);

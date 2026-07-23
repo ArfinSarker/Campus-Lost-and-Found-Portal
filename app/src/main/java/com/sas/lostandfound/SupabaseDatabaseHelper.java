@@ -96,6 +96,7 @@ public class SupabaseDatabaseHelper {
     private static final Handler mainHandler = new Handler(Looper.getMainLooper());
     private static final MediaType JSON = MediaType.get("application/json; charset=utf-8");
     private static final Gson gson = new Gson();
+    private static final Gson gsonWithNulls = new com.google.gson.GsonBuilder().serializeNulls().create();
     private static String authToken = null;
 
     public static void init(Context context) {
@@ -265,7 +266,7 @@ public class SupabaseDatabaseHelper {
         }
         
         String url = baseUrl + "/rest/v1/" + table + "?" + query;
-        String jsonStr = gson.toJson(data);
+        String jsonStr = gsonWithNulls.toJson(data);
         android.util.Log.d("SupabaseDB", "UPDATE URL: " + url);
         android.util.Log.d("SupabaseDB", "UPDATE BODY: " + jsonStr);
 

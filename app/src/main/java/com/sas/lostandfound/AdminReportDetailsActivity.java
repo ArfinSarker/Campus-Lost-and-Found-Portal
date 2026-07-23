@@ -64,6 +64,10 @@ public class AdminReportDetailsActivity extends AppCompatActivity {
 
     private String reportId;
     private AdminReport currentReport;
+    private View loadingLayout;
+    private View nestedScrollView;
+    private String loadedReporterUniversityId = null;
+    private String loadedAdminId = null;
 
     private Handler sliderHandler = new Handler(Looper.getMainLooper());
     private Runnable sliderRunnable;
@@ -86,7 +90,29 @@ public class AdminReportDetailsActivity extends AppCompatActivity {
 
         initializeViews();
         setupToolbar();
-        fetchReportDetails();
+
+        // 1. Check if reportJson is passed via Intent (Cache-First loading)
+        String reportJson = getIntent().getStringExtra("reportJson");
+        if (reportJson != null && !reportJson.isEmpty()) {
+            try {
+                currentReport = new com.google.gson.Gson().fromJson(reportJson, AdminReport.class);
+                if (currentReport != null) {
+                    displayReportDetails(currentReport);
+                    if (nestedScrollView != null) nestedScrollView.setVisibility(View.VISIBLE);
+                    if (loadingLayout != null) loadingLayout.setVisibility(View.GONE);
+
+                    // Fetch reporter profiles and updates in parallel/background
+                    fetchReporterExtraInfo(currentReport.getUniversityId());
+                    fetchReportDetailsSilent();
+                } else {
+                    showLoadingAndFetch();
+                }
+            } catch (Exception e) {
+                showLoadingAndFetch();
+            }
+        } else {
+            showLoadingAndFetch();
+        }
 
         getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
             @Override
@@ -150,6 +176,8 @@ public class AdminReportDetailsActivity extends AppCompatActivity {
         
         toolbar = findViewById(R.id.toolbar);
         progressBar = findViewById(R.id.progressBar);
+        loadingLayout = findViewById(R.id.loadingLayout);
+        nestedScrollView = findViewById(R.id.nestedScrollView);
 
         ivEvidence.setOnClickListener(v -> {
             if (currentReport != null) {
@@ -215,24 +243,59 @@ public class AdminReportDetailsActivity extends AppCompatActivity {
         }
     }
 
-    private void fetchReportDetails() {
-        if (progressBar != null) progressBar.setVisibility(View.VISIBLE);
+    private void showLoadingAndFetch() {
+        if (nestedScrollView != null) nestedScrollView.setVisibility(View.GONE);
+        if (loadingLayout != null) loadingLayout.setVisibility(View.VISIBLE);
+        fetchReportDetails();
+    }
+
+    private void fetchReportDetailsSilent() {
+        if (reportId == null) return;
         SupabaseDatabaseHelper.select("admin_reports", "id=eq." + reportId + "&limit=1", new TypeToken<List<AdminReport>>(){}.getType(), new SupabaseDatabaseHelper.DatabaseCallback<List<AdminReport>>() {
             @Override
             public void onSuccess(List<AdminReport> reports) {
-                if (progressBar != null) progressBar.setVisibility(View.GONE);
+                if (reports != null && !reports.isEmpty()) {
+                    currentReport = reports.get(0);
+                    displayReportDetails(currentReport);
+                    fetchReporterExtraInfo(currentReport.getUniversityId());
+                }
+            }
+            @Override public void onFailure(String errorMessage) {}
+        });
+    }
+
+    private void fetchReportDetails() {
+        if (nestedScrollView != null) nestedScrollView.setVisibility(View.GONE);
+        if (loadingLayout != null) loadingLayout.setVisibility(View.VISIBLE);
+        
+        SupabaseDatabaseHelper.select("admin_reports", "id=eq." + reportId + "&limit=1", new TypeToken<List<AdminReport>>(){}.getType(), new SupabaseDatabaseHelper.DatabaseCallback<List<AdminReport>>() {
+            @Override
+            public void onSuccess(List<AdminReport> reports) {
+                if (loadingLayout != null) loadingLayout.setVisibility(View.GONE);
+                if (nestedScrollView != null) nestedScrollView.setVisibility(View.VISIBLE);
                 if (reports != null && !reports.isEmpty()) {
                     currentReport = reports.get(0);
                     displayReportDetails(currentReport);
                     fetchReporterExtraInfo(currentReport.getUniversityId());
                 } else finish();
             }
-            @Override public void onFailure(String e) { if (progressBar != null) progressBar.setVisibility(View.GONE); }
+
+            @Override
+            public void onFailure(String errorMessage) {
+                if (loadingLayout != null) loadingLayout.setVisibility(View.GONE);
+                if (nestedScrollView != null) nestedScrollView.setVisibility(View.VISIBLE);
+                ErrorHelper.showError(tvTitle, "Failed to load report details: " + errorMessage);
+            }
         });
     }
 
     private void fetchReporterExtraInfo(String universityId) {
         if (universityId == null) return;
+        if (universityId.equals(loadedReporterUniversityId)) {
+            return;
+        }
+        loadedReporterUniversityId = universityId;
+        
         SupabaseDatabaseHelper.select("profiles", "university_id=eq." + universityId + "&limit=1", new TypeToken<List<User>>(){}.getType(), new SupabaseDatabaseHelper.DatabaseCallback<List<User>>() {
             @Override
             public void onSuccess(List<User> users) {
@@ -511,6 +574,11 @@ public class AdminReportDetailsActivity extends AppCompatActivity {
 
     private void fetchAdminInfoForTimeline(String adminId) {
         if (adminId == null || adminId.isEmpty() || tvReviewedByDetails == null) return;
+        if (adminId.equals(loadedAdminId)) {
+            return;
+        }
+        loadedAdminId = adminId;
+        
         SupabaseDatabaseHelper.select("profiles", "university_id=eq." + adminId + "&limit=1", new TypeToken<List<User>>(){}.getType(), new SupabaseDatabaseHelper.DatabaseCallback<List<User>>() {
             @Override
             public void onSuccess(List<User> users) {
@@ -629,6 +697,7 @@ public class AdminReportDetailsActivity extends AppCompatActivity {
         intent.putExtra("itemStatus", item.getStatus());
         intent.putExtra("userId", item.getUserId());
         intent.putExtra("itemName", item.getName());
+        intent.putExtra("itemAdminStatus", item.getAdminStatus());
         startActivity(intent);
     }
 

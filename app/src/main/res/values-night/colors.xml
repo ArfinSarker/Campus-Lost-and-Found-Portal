@@ -334,14 +334,16 @@
     <color name="transparent">#00000000</color>
     
     <!-- Messaging Section Colors -->
-    <color name="msg_sender_bg">#4F46E5</color>
-    <color name="msg_sender_text">#FFFFFF</color>
-    <color name="msg_sender_time">#C7D2FE</color>
-    <color name="msg_sender_status_read">#FFFFFF</color>
-    <color name="msg_sender_status_delivered">#818CF8</color>
-    <color name="msg_sender_status_sent">#C7D2FE</color>
-    <color name="msg_receiver_bg">#1E293B</color>
+    <color name="msg_sender_bg">#1E293B</color>
+    <color name="msg_sender_text">#F8FAFC</color>
+    <color name="msg_sender_unsent_text">#94A3B8</color>
+    <color name="msg_sender_time">#94A3B8</color>
+    <color name="msg_sender_status_read">#00E5FF</color>
+    <color name="msg_sender_status_delivered">#CBD5E1</color>
+    <color name="msg_sender_status_sent">#94A3B8</color>
+    <color name="msg_receiver_bg">#162033</color>
     <color name="msg_receiver_text">#E2E8F0</color>
+    <color name="msg_receiver_unsent_text">#94A3B8</color>
     <color name="msg_receiver_time">#94A3B8</color>
     <color name="chat_disabled_send_bg">#3E3F42</color>
     
@@ -419,22 +421,63 @@
     <color name="chat_list_header_title">#E2E8F0</color>
     <color name="chat_list_header_back_icon_tint">#60A5FA</color>
     
-    <color name="chat_conv_bg">#0F172A</color>
-    <color name="chat_header_bg">#0F172A</color>
-    <color name="chat_header_avatar_border">#C084FC</color>
-    <color name="chat_header_user_name">#FFFFFF</color>
-    <color name="chat_header_last_active">#34D399</color>
+    <color name="chat_conv_bg">#0B1220</color>
+    <color name="chat_header_bg">#162033</color>
+    <color name="chat_header_avatar_border">#38BDF8</color>
+    <color name="chat_header_user_name">#E2E8F0</color>
+    <color name="chat_header_last_active">#38BDF8</color>
     <color name="chat_header_last_seen">#94A3B8</color>
-    <color name="chat_header_back_icon_tint">#93C5FD</color>
+    <color name="chat_header_back_icon_tint">#E2E8F0</color>
     <color name="chat_attachment_icon">#A78BFA</color>
     <color name="chat_emoji_icon">#FBBF24</color>
-    <color name="chat_send_button_bg">#EC4899</color>
-    <color name="chat_send_button_icon">#FDF2F8</color>
-    <color name="chat_input_bg">#1E293B</color>
+    <color name="chat_send_button_bg">@color/transparent</color>
+    <color name="chat_send_button_bg_start">#38BDF8</color>
+    <color name="chat_send_button_bg_end">#0EA5E9</color>
+    <color name="chat_send_button_icon">#0B1220</color>
+    <color name="chat_input_bg">#273449</color>
     <color name="chat_input_text">#F8FAFC</color>
-    <color name="chat_input_placeholder">#64748B</color>
-    <color name="chat_input_border">#334155</color>
-    <color name="chat_settings_icon">#FCD34D</color>
+    <color name="chat_input_placeholder">#94A3B8</color>
+    <color name="chat_input_border">#1E293B</color>
+    <color name="chat_settings_icon">#E2E8F0</color>
+    
+    <!-- Messenger Action / Floating Sheet Elements (Night) -->
+    <color name="messenger_bottom_sheet_bg">#162033</color>
+    <color name="messenger_menu_icon_tint">#E2E8F0</color>
+    <color name="messenger_menu_text_color">#E2E8F0</color>
+    <color name="messenger_accent">#38BDF8</color>
+    <color name="messenger_delete_color">#F87171</color>
+    <color name="messenger_card_bg">#1E293B</color>
+    <color name="messenger_card_border">#273449</color>
+    <color name="messenger_text_primary">#F8FAFC</color>
+    <color name="messenger_text_secondary">#94A3B8</color>
+    <color name="messenger_bg">#0B1220</color>
+    <color name="messenger_icons">#E2E8F0</color>
+    <color name="messenger_search_bar">#273449</color>
+    <color name="messenger_reaction_highlight">#374151</color>
+    <color name="messenger_pinned_banner_bg">#1E293B</color>
+    <color name="messenger_pinned_banner_text">#93C5FD</color>
+    
+    <!-- Chat Mention and Reply Preview Redesign (Night Mode - Preserving Original) -->
+    <color name="mention_bg">#1E293B</color>
+    <color name="mention_text">#FFFFFF</color>
+    <color name="reply_bubble_sender_bg">#1A8A8A8A</color>
+    <color name="reply_bubble_receiver_bg">#1A8A8A8A</color>
+    
+    <!-- Messenger Reaction Details UI Colors (Night Mode) -->
+    <color name="reaction_details_bg">#0F172A</color>
+    <color name="reaction_details_card_bg">#1E293B</color>
+    <color name="reaction_details_tab_bg">#1E293B</color>
+    <color name="reaction_details_tab_selected_bg">#38BDF8</color>
+    <color name="reaction_details_tab_selected_text">#0F172A</color>
+    <color name="reaction_details_tab_text">#94A3B8</color>
+    <color name="reaction_details_divider">#334155</color>
+    
+    <!-- Message Actions Menu Accent Colors (Night Mode) -->
+    <color name="action_pin_color">#FB7185</color>
+    <color name="action_copy_color">#38BDF8</color>
+    <color name="action_reply_color">#4ADE80</color>
+    <color name="action_forward_color">#A78BFA</color>
+    <color name="action_delete_color">#F97316</color>
     
     <color name="chat_menu_bg">#1E293B</color>
     <color name="chat_menu_profile_text">#F8FAFC</color>
@@ -762,4 +805,165 @@
     <color name="delete_report_dialog_btn_delete_bg">#E11D48</color>
     <color name="delete_report_dialog_btn_delete_text">#FFFFFF</color>
     <color name="delete_report_dialog_btn_delete_stroke">#BE123C</color>
+    
+    <!-- Emoji Picker Colors (Night Mode) -->
+    <color name="ep_background">#0A0F1D</color>
+    <color name="ep_card_background">#161F30</color>
+    <color name="ep_search_bar_bg">#1E293B</color>
+    <color name="ep_search_bar_text">#F8FAFC</color>
+    <color name="ep_text_primary">#F8FAFC</color>
+    <color name="ep_text_secondary">#94A3B8</color>
+    <color name="ep_accent">#00F0FF</color>
+    <color name="ep_accent_bg">#162E44</color>
+    <color name="ep_slot_border_selected">#00F0FF</color>
+    <color name="ep_slot_bg_selected">#162E44</color>
+    <color name="ep_category_header_text">#00F0FF</color>
+    <color name="ep_divider">#1E293B</color>
+    <color name="ep_plus_button_bg">#1E293B</color>
+    <color name="ep_plus_button_text">#94A3B8</color>
+    
+    <!-- Pinned Message Banner Colors (Night Mode) -->
+    <color name="pinned_banner_bg">#1B1924</color>
+    <color name="pinned_banner_border">#3B3550</color>
+    <color name="pinned_banner_icon">#C084FC</color>
+    <color name="pinned_banner_sender">#D8B4FE</color>
+    <color name="pinned_banner_content">#E2E8F0</color>
+
+    <!-- Conversation actions bottom sheet (Night Mode) -->
+    <color name="ca_sheet_bg">#0F172A</color>
+    <color name="ca_sheet_text">#F1F5F9</color>
+    <color name="ca_sheet_ripple">#1E293B</color>
+    <color name="ca_accent_pin">#38BDF8</color>
+    <color name="ca_accent_archive">#34D399</color>
+    <color name="ca_accent_mute">#FBBF24</color>
+    <color name="ca_accent_unread">#818CF8</color>
+    <color name="ca_accent_block">#F87171</color>
+    <color name="ca_accent_delete">#F87171</color>
+
+    <!-- Pinned chat indicator colors (Night Mode) -->
+    <color name="pin_indicator_tint">#22D3EE</color>
+
+    <!-- Archived Row Colors (Night Mode) -->
+    <color name="archived_row_bg">#1E293B</color>
+    <color name="archived_row_border">#334155</color>
+    <color name="archived_row_icon_tint">#34D399</color>
+    <color name="archived_row_text_color">#F8FAFC</color>
+    <color name="archived_row_arrow_tint">#94A3B8</color>
+
+    <!-- Mute chat indicator colors (Night Mode) -->
+    <color name="mute_indicator_tint">#FCA5A5</color>
+
+    <!-- Block Notice Colors (Night Mode) -->
+    <color name="block_notice_bg">#451A1A</color>
+    <color name="block_notice_border">#7F1D1D</color>
+    <color name="block_notice_text">#FCA5A5</color>
+    <color name="block_notice_delete_text">#F87171</color>
+    <color name="block_notice_delete_border">#7F1D1D</color>
+    <color name="block_notice_unblock_bg">#EF4444</color>
+
+    <!-- Chat System Message Colors (Night Mode) -->
+    <color name="chat_system_msg_bg">#2D2510</color>
+    <color name="chat_system_msg_border">#453818</color>
+    <color name="chat_system_msg_text">#FFEAA7</color>
+
+    <!-- Report Lost Unique Night Mode Palette -->
+    <color name="rl_header_bg">#141D2B</color>
+    <color name="rl_screen_bg">#0B0F19</color>
+    <color name="rl_section_title">#818CF8</color>
+    <color name="rl_text_primary">#F3F4F6</color>
+    <color name="rl_text_secondary">#9CA3AF</color>
+    <color name="rl_input_bg">#182232</color>
+    <color name="rl_input_border">#374151</color>
+    <color name="rl_dropdown_bg">#182232</color>
+    <color name="rl_dropdown_popup_bg">#111827</color>
+    <color name="rl_dropdown_text">#E0E7FF</color>
+    <color name="rl_dropdown_menu_item_text">#F3F4F6</color>
+    <color name="rl_dropdown_arrow">#818CF8</color>
+    <color name="rl_dropdown_item_selected">#2E3A52</color>
+    <color name="rl_dropdown_item_hovered">#253043</color>
+    <color name="rl_dropdown_item_pressed">#1F293D</color>
+    <color name="rl_btn_bg">#6366F1</color>
+    <color name="rl_btn_text">#FFFFFF</color>
+    <color name="rl_upload_bg">#151E2E</color>
+    <color name="rl_upload_border">#4F46E5</color>
+    <color name="rl_upload_label_text">#C7D2FE</color>
+    <color name="rl_upload_title_text">#F8FAFC</color>
+    <color name="rl_upload_subtitle_text">#A5B4FC</color>
+
+    <!-- Report Lost Icons (100% Unique Per Icon - No Repetition) -->
+    <color name="rl_icon_back">#A5F3FC</color>
+    <color name="rl_icon_upload">#F472B6</color>
+    <color name="rl_icon_thumbnail">#FB923C</color>
+    <color name="rl_icon_delete">#F87171</color>
+    <color name="rl_icon_calendar">#34D399</color>
+    <color name="rl_icon_clock">#FBBF24</color>
+    <color name="rl_icon_phone">#C084FC</color>
+    <color name="rl_icon_email">#38BDF8</color>
+
+    <!-- Report Found Unique Night Mode Emerald Palette -->
+    <color name="rf_header_bg">#0F291E</color>
+    <color name="rf_screen_bg">#06120D</color>
+    <color name="rf_section_title">#34D399</color>
+    <color name="rf_text_primary">#F0FDF4</color>
+    <color name="rf_text_secondary">#94A3B8</color>
+    <color name="rf_input_bg">#11221A</color>
+    <color name="rf_input_border">#1F3A2B</color>
+    <color name="rf_dropdown_bg">#11221A</color>
+    <color name="rf_dropdown_popup_bg">#0B1913</color>
+    <color name="rf_dropdown_text">#D1FAE5</color>
+    <color name="rf_dropdown_menu_item_text">#ECFDF5</color>
+    <color name="rf_dropdown_arrow">#34D399</color>
+    <color name="rf_dropdown_item_selected">#1B3B2B</color>
+    <color name="rf_dropdown_item_hovered">#163224</color>
+    <color name="rf_dropdown_item_pressed">#122A1E</color>
+    <color name="rf_upload_bg">#0F241C</color>
+    <color name="rf_upload_border">#10B981</color>
+    <color name="rf_upload_label_text">#A7F3D0</color>
+    <color name="rf_upload_title_text">#F0FDF4</color>
+    <color name="rf_upload_subtitle_text">#6EE7B7</color>
+    <color name="rf_btn_bg">#059669</color>
+    <color name="rf_btn_text">#FFFFFF</color>
+
+    <!-- Report Found Icons (100% Unique Per Icon - No Repetition) -->
+    <color name="rf_icon_back">#6EE7B7</color>
+    <color name="rf_icon_upload">#F43F5E</color>
+    <color name="rf_icon_thumbnail">#F59E0B</color>
+    <color name="rf_icon_delete">#EF4444</color>
+    <color name="rf_icon_calendar">#38BDF8</color>
+    <color name="rf_icon_clock">#A855F7</color>
+    <color name="rf_icon_phone">#22C55E</color>
+    <color name="rf_icon_email">#EAB308</color>
+
+    <!-- DatePicker Unique Night Mode Palette -->
+    <color name="dp_night_bg">#0D1117</color>
+    <color name="dp_night_header_text">#E0F2FE</color>
+    <color name="dp_night_primary_text">#F8FAFC</color>
+    <color name="dp_night_secondary_text">#94A3B8</color>
+    <color name="dp_night_icon_tint">#2DD4BF</color>
+    <color name="dp_night_selection_indicator">#8B5CF6</color>
+    <color name="dp_night_selected_text">#FFFFFF</color>
+    <color name="dp_night_unselected_text">#E2E8F0</color>
+    <color name="dp_night_button_text">#F43F5E</color>
+    <color name="dp_night_box_bg">#1E293B</color>
+    <color name="dp_night_border">#334155</color>
+
+    <!-- TimePicker Unique Night Mode Palette -->
+    <color name="tp_night_bg">#0B0E14</color>
+    <color name="tp_night_primary_text">#EEF2FF</color>
+    <color name="tp_night_dial_number_text">#6EE7B7</color>
+    <color name="tp_night_hand_indicator">#A855F7</color>
+    <color name="tp_night_selected_number_text">#FFFFFF</color>
+    <color name="tp_night_box_bg_selected">#1E1B4B</color>
+    <color name="tp_night_box_text_selected">#FBBF24</color>
+    <color name="tp_night_box_bg_unselected">#1E293B</color>
+    <color name="tp_night_box_text_unselected">#CBD5E1</color>
+    <color name="tp_night_ampm_bg_selected">#F43F5E</color>
+    <color name="tp_night_ampm_text_selected">#FFFFFF</color>
+    <color name="tp_night_ampm_text_unselected">#C7D2FE</color>
+    <color name="tp_night_clock_face_bg">#151D2A</color>
+    <color name="tp_night_button_text">#10B981</color>
+    <color name="tp_night_border">#4338CA</color>
+
+    <!-- Text Cursor & Selection Handle Color (Night Mode - Electric Lavender/Indigo) -->
+    <color name="cursor_color">#818CF8</color>
 </resources>

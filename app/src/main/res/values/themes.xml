@@ -50,7 +50,16 @@
         <!-- TextInputLayout Style -->
         <item name="textInputStyle">@style/Widget.App.TextInputLayout</item>
         
-        <!-- Exposed Dropdown Popup Background -->
+        <!-- Exposed Dropdown Style -->
+        <item name="autoCompleteTextViewStyle">@style/Widget.App.AutoCompleteTextView</item>
+
+        <!-- Text Cursor & Selection Tint (Day Mode) -->
+        <item name="android:textCursorDrawable">@drawable/bg_cursor</item>
+        <item name="android:colorControlActivated">@color/cursor_color</item>
+        <item name="android:colorControlHighlight">#260084FF</item>
+    </style>
+
+    <style name="Widget.App.AutoCompleteTextView" parent="Widget.Material3.AutoCompleteTextView.OutlinedBox">
         <item name="android:popupBackground">@color/dropdown_popup_bg</item>
     </style>
 

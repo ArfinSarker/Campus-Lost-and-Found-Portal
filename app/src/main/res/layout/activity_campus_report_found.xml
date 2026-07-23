@@ -5,14 +5,14 @@
     android:id="@+id/reportFoundRoot"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/backgroundColor"
+    android:background="@color/rf_screen_bg"
     android:fitsSystemWindows="true">
 
     <com.google.android.material.appbar.AppBarLayout
         android:id="@+id/appBarLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@color/primaryDarkColor"
+        android:background="@color/rf_header_bg"
         android:fitsSystemWindows="true"
         app:elevation="0dp"
         app:liftOnScroll="false">
@@ -22,9 +22,9 @@
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
             app:navigationIcon="@drawable/ic_arrow_back"
-            app:navigationIconTint="@color/white"
+            app:navigationIconTint="@color/rf_icon_back"
             app:title=""
-            app:titleTextColor="@color/white">
+            app:titleTextColor="@color/rf_text_primary">
 
             <TextView
                 android:id="@+id/tvHeaderTitle"
@@ -32,7 +32,7 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_horizontal"
                 android:text="@string/report_found_btn"
-                android:textColor="@color/white"
+                android:textColor="@color/rf_text_primary"
                 android:textSize="19sp"
                 android:textStyle="bold" />
 
@@ -55,7 +55,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Basic Information"
-                android:textColor="@color/primaryColor" />
+                android:textColor="@color/rf_section_title" />
 
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/tilItemName"
@@ -64,12 +64,17 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="4dp"
                 android:hint="Item Name"
+                app:boxBackgroundColor="@color/rf_input_bg"
+                app:boxStrokeColor="@color/rf_input_border"
+                app:hintTextColor="@color/rf_text_secondary"
                 app:shapeAppearanceOverlay="@style/ShapeAppearance.App.SmallComponent">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/etItemName"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:textColor="@color/rf_text_primary"
+                    android:textColorHint="@color/rf_text_secondary"
                     android:inputType="text" />
             </com.google.android.material.textfield.TextInputLayout>
 
@@ -80,6 +85,10 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="4dp"
                 android:hint="Category"
+                app:boxBackgroundColor="@color/rf_dropdown_bg"
+                app:boxStrokeColor="@color/rf_input_border"
+                app:hintTextColor="@color/rf_text_secondary"
+                app:endIconTint="@color/rf_dropdown_arrow"
                 app:boxCornerRadiusBottomEnd="8dp"
                 app:boxCornerRadiusBottomStart="8dp"
                 app:boxCornerRadiusTopEnd="8dp"
@@ -90,7 +99,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:inputType="none"
-                    android:textColor="@color/text_black_dynamic" />
+                    android:textColor="@color/rf_dropdown_text" />
             </com.google.android.material.textfield.TextInputLayout>
 
             <com.google.android.material.textfield.TextInputLayout
@@ -100,12 +109,17 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="4dp"
                 android:hint="Description"
+                app:boxBackgroundColor="@color/rf_input_bg"
+                app:boxStrokeColor="@color/rf_input_border"
+                app:hintTextColor="@color/rf_text_secondary"
                 app:shapeAppearanceOverlay="@style/ShapeAppearance.App.SmallComponent">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/etDescription"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:textColor="@color/rf_text_primary"
+                    android:textColorHint="@color/rf_text_secondary"
                     android:gravity="top"
                     android:inputType="textMultiLine"
                     android:minLines="3" />
@@ -117,6 +131,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
                 android:text="Upload Image"
+                android:textColor="@color/rf_upload_label_text"
                 android:textStyle="bold" />
 
             <com.google.android.material.card.MaterialCardView
@@ -133,7 +148,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
-                    android:background="@drawable/bg_upload_dashed"
+                    android:background="@drawable/bg_rf_upload_dashed"
                     android:padding="16dp">
 
                     <!-- State 1: Empty / Prompt State (Visible by default) -->
@@ -150,7 +165,7 @@
                             android:layout_width="40dp"
                             android:layout_height="40dp"
                             android:src="@drawable/ic_upload"
-                            app:tint="@color/primaryColor"
+                            app:tint="@color/rf_icon_upload"
                             android:contentDescription="@null" />
 
                         <TextView
@@ -159,7 +174,7 @@
                             android:layout_height="wrap_content"
                             android:layout_marginTop="8dp"
                             android:text="@string/label_upload_image"
-                            android:textColor="@color/primaryColor"
+                            android:textColor="@color/rf_upload_title_text"
                             android:textSize="14sp"
                             android:textStyle="bold" />
 
@@ -169,7 +184,7 @@
                             android:layout_height="wrap_content"
                             android:layout_marginTop="2dp"
                             android:text="@string/tap_to_upload"
-                            android:textColor="@color/textSecondary"
+                            android:textColor="@color/rf_upload_subtitle_text"
                             android:textSize="11sp" />
                     </LinearLayout>
 
@@ -187,6 +202,7 @@
                             android:layout_height="64dp"
                             android:scaleType="centerCrop"
                             android:src="@drawable/ic_image"
+                            app:tint="@color/rf_icon_thumbnail"
                             app:shapeAppearanceOverlay="@style/ShapeAppearance.App.SmallComponent"
                             android:layout_alignParentStart="true"
                             android:layout_centerVertical="true" />
@@ -207,7 +223,7 @@
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:text="1 Image Selected"
-                                android:textColor="@color/textPrimary"
+                                android:textColor="@color/rf_upload_title_text"
                                 android:textSize="14sp"
                                 android:textStyle="bold" />
 
@@ -217,7 +233,7 @@
                                 android:layout_height="wrap_content"
                                 android:layout_marginTop="2dp"
                                 android:text="Tap card to change selection"
-                                android:textColor="@color/textSecondary"
+                                android:textColor="@color/rf_upload_subtitle_text"
                                 android:textSize="11sp" />
                         </LinearLayout>
 
@@ -228,7 +244,7 @@
                             android:layout_height="36dp"
                             android:background="?attr/selectableItemBackgroundBorderless"
                             android:src="@drawable/ic_close"
-                            app:tint="@color/statusLost"
+                            app:tint="@color/rf_icon_delete"
                             android:layout_alignParentEnd="true"
                             android:layout_centerVertical="true"
                             android:contentDescription="Remove image" />
@@ -243,7 +259,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="24dp"
                 android:text="Found Details"
-                android:textColor="@color/primaryColor" />
+                android:textColor="@color/rf_section_title" />
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -259,13 +275,18 @@
                     android:layout_marginEnd="8dp"
                     android:layout_weight="1"
                     android:hint="Date"
+                    app:boxBackgroundColor="@color/rf_input_bg"
+                    app:boxStrokeColor="@color/rf_input_border"
+                    app:hintTextColor="@color/rf_text_secondary"
                     app:shapeAppearanceOverlay="@style/ShapeAppearance.App.SmallComponent"
-                    app:startIconDrawable="@drawable/ic_calendar">
+                    app:startIconDrawable="@drawable/ic_calendar"
+                    app:startIconTint="@color/rf_icon_calendar">
 
                     <com.google.android.material.textfield.TextInputEditText
                         android:id="@+id/etDateFound"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
+                        android:textColor="@color/rf_text_primary"
                         android:focusable="false" />
                 </com.google.android.material.textfield.TextInputLayout>
 
@@ -277,13 +298,18 @@
                     android:layout_marginStart="8dp"
                     android:layout_weight="1"
                     android:hint="Time"
+                    app:boxBackgroundColor="@color/rf_input_bg"
+                    app:boxStrokeColor="@color/rf_input_border"
+                    app:hintTextColor="@color/rf_text_secondary"
                     app:shapeAppearanceOverlay="@style/ShapeAppearance.App.SmallComponent"
-                    app:startIconDrawable="@drawable/ic_clock">
+                    app:startIconDrawable="@drawable/ic_clock"
+                    app:startIconTint="@color/rf_icon_clock">
 
                     <com.google.android.material.textfield.TextInputEditText
                         android:id="@+id/etTimeFound"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
+                        android:textColor="@color/rf_text_primary"
                         android:focusable="false" />
                 </com.google.android.material.textfield.TextInputLayout>
             </LinearLayout>
@@ -295,6 +321,10 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="4dp"
                 android:hint="Location"
+                app:boxBackgroundColor="@color/rf_dropdown_bg"
+                app:boxStrokeColor="@color/rf_input_border"
+                app:hintTextColor="@color/rf_text_secondary"
+                app:endIconTint="@color/rf_dropdown_arrow"
                 app:boxCornerRadiusBottomEnd="8dp"
                 app:boxCornerRadiusBottomStart="8dp"
                 app:boxCornerRadiusTopEnd="8dp"
@@ -305,7 +335,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:inputType="none"
-                    android:textColor="@color/text_black_dynamic" />
+                    android:textColor="@color/rf_dropdown_text" />
             </com.google.android.material.textfield.TextInputLayout>
 
             <com.google.android.material.textfield.TextInputLayout
@@ -316,12 +346,16 @@
                 android:layout_marginTop="4dp"
                 android:hint="Enter Location"
                 android:visibility="gone"
+                app:boxBackgroundColor="@color/rf_input_bg"
+                app:boxStrokeColor="@color/rf_input_border"
+                app:hintTextColor="@color/rf_text_secondary"
                 app:shapeAppearanceOverlay="@style/ShapeAppearance.App.SmallComponent">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/etManualLocation"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content" />
+                    android:layout_height="wrap_content"
+                    android:textColor="@color/rf_text_primary" />
             </com.google.android.material.textfield.TextInputLayout>
 
             <com.google.android.material.textfield.TextInputLayout
@@ -331,12 +365,16 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="4dp"
                 android:hint="Additional Location Details"
+                app:boxBackgroundColor="@color/rf_input_bg"
+                app:boxStrokeColor="@color/rf_input_border"
+                app:hintTextColor="@color/rf_text_secondary"
                 app:shapeAppearanceOverlay="@style/ShapeAppearance.App.SmallComponent">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/etLocationDetails"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:textColor="@color/rf_text_primary"
                     android:inputType="text" />
             </com.google.android.material.textfield.TextInputLayout>
 
@@ -346,7 +384,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="24dp"
                 android:text="Handling Status"
-                android:textColor="@color/primaryColor" />
+                android:textColor="@color/rf_section_title" />
 
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/tilHandlingStatus"
@@ -355,6 +393,10 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="4dp"
                 android:hint="Current Item Status"
+                app:boxBackgroundColor="@color/rf_dropdown_bg"
+                app:boxStrokeColor="@color/rf_input_border"
+                app:hintTextColor="@color/rf_text_secondary"
+                app:endIconTint="@color/rf_dropdown_arrow"
                 app:boxCornerRadiusBottomEnd="8dp"
                 app:boxCornerRadiusBottomStart="8dp"
                 app:boxCornerRadiusTopEnd="8dp"
@@ -365,7 +407,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:inputType="none"
-                    android:textColor="@color/text_black_dynamic" />
+                    android:textColor="@color/rf_dropdown_text" />
             </com.google.android.material.textfield.TextInputLayout>
 
             <com.google.android.material.textfield.TextInputLayout
@@ -376,12 +418,16 @@
                 android:layout_marginTop="4dp"
                 android:hint="Authority/Person Name"
                 android:visibility="gone"
+                app:boxBackgroundColor="@color/rf_input_bg"
+                app:boxStrokeColor="@color/rf_input_border"
+                app:hintTextColor="@color/rf_text_secondary"
                 app:shapeAppearanceOverlay="@style/ShapeAppearance.App.SmallComponent">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/etAuthorityName"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content" />
+                    android:layout_height="wrap_content"
+                    android:textColor="@color/rf_text_primary" />
             </com.google.android.material.textfield.TextInputLayout>
 
             <com.google.android.material.textfield.TextInputLayout
@@ -392,12 +438,16 @@
                 android:layout_marginTop="4dp"
                 android:hint="Office/Room Number"
                 android:visibility="gone"
+                app:boxBackgroundColor="@color/rf_input_bg"
+                app:boxStrokeColor="@color/rf_input_border"
+                app:hintTextColor="@color/rf_text_secondary"
                 app:shapeAppearanceOverlay="@style/ShapeAppearance.App.SmallComponent">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/etOfficeRoom"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content" />
+                    android:layout_height="wrap_content"
+                    android:textColor="@color/rf_text_primary" />
             </com.google.android.material.textfield.TextInputLayout>
 
             <TextView
@@ -406,7 +456,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="24dp"
                 android:text="Verification &amp; Security"
-                android:textColor="@color/primaryColor" />
+                android:textColor="@color/rf_section_title" />
 
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/tilHiddenQuestion"
@@ -416,12 +466,16 @@
                 android:layout_marginTop="4dp"
                 android:hint="Security Question for Owner"
                 app:helperText="A question only the owner could answer (e.g., Lock screen wallpaper)"
+                app:boxBackgroundColor="@color/rf_input_bg"
+                app:boxStrokeColor="@color/rf_input_border"
+                app:hintTextColor="@color/rf_text_secondary"
                 app:shapeAppearanceOverlay="@style/ShapeAppearance.App.SmallComponent">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/etHiddenQuestion"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:textColor="@color/rf_text_primary"
                     android:inputType="text" />
             </com.google.android.material.textfield.TextInputLayout>
 
@@ -431,7 +485,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="24dp"
                 android:text="Contact Information"
-                android:textColor="@color/primaryColor" />
+                android:textColor="@color/rf_section_title" />
 
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/tilContactName"
@@ -440,12 +494,16 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="4dp"
                 android:hint="Your Name"
+                app:boxBackgroundColor="@color/rf_input_bg"
+                app:boxStrokeColor="@color/rf_input_border"
+                app:hintTextColor="@color/rf_text_secondary"
                 app:shapeAppearanceOverlay="@style/ShapeAppearance.App.SmallComponent">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/etContactName"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:textColor="@color/rf_text_primary"
                     android:inputType="textPersonName" />
             </com.google.android.material.textfield.TextInputLayout>
 
@@ -461,9 +519,12 @@
                     android:layout_width="153dp"
                     android:layout_height="0dp"
                     android:hint="Code"
+                    app:boxBackgroundColor="@color/rf_dropdown_bg"
+                    app:boxStrokeColor="@color/rf_input_border"
+                    app:hintTextColor="@color/rf_text_secondary"
                     app:shapeAppearanceOverlay="@style/ShapeAppearance.App.SmallComponent"
                     app:startIconDrawable="@drawable/ic_phone"
-                    app:startIconTint="@color/primaryColor"
+                    app:startIconTint="@color/rf_icon_phone"
                     app:endIconMode="none"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="@+id/tilContactPhone"
@@ -477,7 +538,7 @@
                         android:paddingTop="16dp"
                         android:paddingBottom="16dp"
                         android:inputType="text"
-                        android:textColor="@color/text_black_dynamic" />
+                        android:textColor="@color/rf_dropdown_text" />
                 </com.google.android.material.textfield.TextInputLayout>
 
                 <!-- Phone Number Body -->
@@ -487,6 +548,9 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:hint="Contact Phone"
+                    app:boxBackgroundColor="@color/rf_input_bg"
+                    app:boxStrokeColor="@color/rf_input_border"
+                    app:hintTextColor="@color/rf_text_secondary"
                     app:shapeAppearanceOverlay="@style/ShapeAppearance.App.SmallComponent"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toEndOf="@+id/tilCountryCode"
@@ -502,7 +566,7 @@
                         android:paddingTop="16dp"
                         android:paddingBottom="16dp"
                         android:inputType="phone"
-                        android:textColor="@color/text_black_dynamic" />
+                        android:textColor="@color/rf_text_primary" />
                 </com.google.android.material.textfield.TextInputLayout>
             </androidx.constraintlayout.widget.ConstraintLayout>
 
@@ -513,8 +577,11 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="4dp"
                 android:hint="Contact Email"
+                app:boxBackgroundColor="@color/rf_input_bg"
+                app:boxStrokeColor="@color/rf_input_border"
+                app:hintTextColor="@color/rf_text_secondary"
                 app:startIconDrawable="@drawable/ic_email"
-                app:startIconTint="@color/primaryColor"
+                app:startIconTint="@color/rf_icon_email"
                 app:shapeAppearanceOverlay="@style/ShapeAppearance.App.SmallComponent">
 
                 <com.google.android.material.textfield.TextInputEditText
@@ -522,7 +589,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:inputType="textEmailAddress"
-                    android:textColor="@color/text_black_dynamic" />
+                    android:textColor="@color/rf_text_primary" />
             </com.google.android.material.textfield.TextInputLayout>
 
             <com.google.android.material.textfield.TextInputLayout
@@ -532,6 +599,10 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="4dp"
                 android:hint="Preferred Contact"
+                app:boxBackgroundColor="@color/rf_dropdown_bg"
+                app:boxStrokeColor="@color/rf_input_border"
+                app:hintTextColor="@color/rf_text_secondary"
+                app:endIconTint="@color/rf_dropdown_arrow"
                 app:boxCornerRadiusBottomEnd="8dp"
                 app:boxCornerRadiusBottomStart="8dp"
                 app:boxCornerRadiusTopEnd="8dp"
@@ -542,7 +613,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:inputType="none"
-                    android:textColor="@color/text_black_dynamic" />
+                    android:textColor="@color/rf_dropdown_text" />
             </com.google.android.material.textfield.TextInputLayout>
 
             <com.google.android.material.checkbox.MaterialCheckBox
@@ -551,7 +622,8 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="24dp"
                 android:text="I confirm that the information provided is accurate."
-                android:textColor="@color/textSecondary" />
+                android:textColor="@color/rf_text_secondary"
+                app:buttonTint="@color/rf_btn_bg" />
 
             <FrameLayout
                 android:layout_width="match_parent"
@@ -563,7 +635,9 @@
                     android:id="@+id/btnSubmitReport"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Submit Report" />
+                    android:text="Submit Report"
+                    android:backgroundTint="@color/rf_btn_bg"
+                    android:textColor="@color/rf_btn_text" />
 
                 <com.airbnb.lottie.LottieAnimationView
                     android:id="@+id/loadingAnimation"
