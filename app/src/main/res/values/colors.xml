@@ -719,6 +719,7 @@
     <color name="report_details_btn_action_bg">@color/primaryColor</color>
     <color name="report_details_btn_delete_stroke">@color/errorColor</color>
     <color name="report_details_text_category">@color/primaryColor</color>
+    <color name="report_details_desc_inner_card_bg">@color/bg_f8fafc</color>
     <color name="profile_admin_view_email_text">#6D28D9</color>
     <color name="profile_admin_view_phone_text">#059669</color>
 
