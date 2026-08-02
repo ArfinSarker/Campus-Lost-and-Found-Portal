@@ -598,36 +598,37 @@
     <color name="item_details_icon_verification">#7C3AED</color>
     <color name="item_details_icon_reported_by">#DC2626</color>
     <color name="item_details_icon_returned_to">#CA8A04</color>
-    <color name="item_details_icon_btn_edit">#0D9488</color>
-    <color name="item_details_icon_btn_return">#65A30D</color>
-    <color name="item_details_icon_btn_claimed">#16A34A</color>
-    <color name="item_details_icon_btn_delete">#E11D48</color>
-    <color name="item_details_icon_btn_admin_delete">#B91C1C</color>
+    <color name="item_details_icon_btn_edit">#4F46E5</color>
+    <color name="item_details_icon_btn_return">#059669</color>
+    <color name="item_details_icon_btn_claimed">#059669</color>
+    <color name="item_details_icon_btn_delete">#DC2626</color>
+    <color name="item_details_icon_btn_admin_delete">#DC2626</color>
 
-    <!-- Redesigned Subtle Buttons (Light Mode) -->
-    <color name="item_details_btn_edit_bg">#6366F1</color>
-    <color name="item_details_btn_edit_stroke">#4F46E5</color>
-    <color name="item_details_btn_edit_text">#FFFFFF</color>
+    <!-- Redesigned High-Contrast Action Buttons (Light Mode) -->
+    <color name="item_details_btn_edit_bg">#EEF2FF</color>
+    <color name="item_details_btn_edit_stroke">#C7D2FE</color>
+    <color name="item_details_btn_edit_text">#4338CA</color>
 
-    <color name="item_details_btn_return_bg">@color/statusFound</color>
-    <color name="item_details_btn_return_stroke">#16A34A</color>
-    <color name="item_details_btn_return_text">#FFFFFF</color>
+    <color name="item_details_btn_return_bg">#ECFDF5</color>
+    <color name="item_details_btn_return_stroke">#A7F3D0</color>
+    <color name="item_details_btn_return_text">#047857</color>
 
-    <color name="item_details_btn_claimed_bg">@color/statusFound</color>
-    <color name="item_details_btn_claimed_stroke">#16A34A</color>
-    <color name="item_details_btn_claimed_text">#FFFFFF</color>
+    <color name="item_details_btn_claimed_bg">#ECFDF5</color>
+    <color name="item_details_btn_claimed_stroke">#A7F3D0</color>
+    <color name="item_details_btn_claimed_text">#047857</color>
 
-    <color name="item_details_btn_delete_bg">@color/errorColor</color>
-    <color name="item_details_btn_delete_stroke">#DC2626</color>
-    <color name="item_details_btn_delete_text">#FFFFFF</color>
+    <color name="item_details_btn_delete_bg">#FEF2F2</color>
+    <color name="item_details_btn_delete_stroke">#FECACA</color>
+    <color name="item_details_btn_delete_text">#B91C1C</color>
 
-    <color name="item_details_btn_admin_delete_bg">@color/errorColor</color>
-    <color name="item_details_btn_admin_delete_stroke">#B91C1C</color>
-    <color name="item_details_btn_admin_delete_text">#FFFFFF</color>
+    <color name="item_details_btn_admin_delete_bg">#FEF2F2</color>
+    <color name="item_details_btn_admin_delete_stroke">#FECACA</color>
+    <color name="item_details_btn_admin_delete_text">#B91C1C</color>
 
-    <color name="item_details_btn_contact_bg">@color/lime</color>
-    <color name="item_details_btn_contact_stroke">@color/lime</color>
-    <color name="item_details_btn_contact_text">@color/navyBlue</color>
+    <color name="item_details_btn_contact_bg">#F0F9FF</color>
+    <color name="item_details_btn_contact_stroke">#BAE6FD</color>
+    <color name="item_details_btn_contact_text">#0369A1</color>
+    <color name="item_details_icon_btn_contact">#0284C7</color>
 
     <color name="item_details_btn_claim_bg">#0284C7</color>
     <color name="item_details_btn_claim_stroke">#0369A1</color>

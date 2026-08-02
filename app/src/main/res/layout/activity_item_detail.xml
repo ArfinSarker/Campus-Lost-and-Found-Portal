@@ -644,7 +644,10 @@
                             android:visibility="gone"
                             app:backgroundTint="@color/item_details_btn_contact_bg"
                             app:strokeColor="@color/item_details_btn_contact_stroke"
-                            app:strokeWidth="1dp" />
+                            app:strokeWidth="1dp"
+                            app:icon="@drawable/ic_envelope"
+                            app:iconGravity="textStart"
+                            app:iconTint="@color/item_details_icon_btn_contact" />
                     </LinearLayout>
 
                     <!-- Resolved User Info Section -->
@@ -768,7 +771,10 @@
                             android:visibility="gone"
                             app:backgroundTint="@color/item_details_btn_contact_bg"
                             app:strokeColor="@color/item_details_btn_contact_stroke"
-                            app:strokeWidth="1dp" />
+                            app:strokeWidth="1dp"
+                            app:icon="@drawable/ic_envelope"
+                            app:iconGravity="textStart"
+                            app:iconTint="@color/item_details_icon_btn_contact" />
                     </LinearLayout>
 
                     <com.google.android.material.button.MaterialButton
