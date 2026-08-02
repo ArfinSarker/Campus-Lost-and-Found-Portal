@@ -54,6 +54,12 @@ public class CampusMyItemsActivity extends AppCompatActivity {
     private String currentUniversityId;
     private String currentAuthId;
 
+    private View llEmptyState;
+    private com.google.android.material.card.MaterialCardView cardEmptyIcon;
+    private ImageView ivEmptyIcon;
+    private TextView tvEmptyTitle;
+    private TextView tvEmptyDescription;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -73,6 +79,12 @@ public class CampusMyItemsActivity extends AppCompatActivity {
         tvHeaderTitle = findViewById(R.id.tvHeaderTitle);
         toolbar = findViewById(R.id.toolbar);
         swipeRefreshLayout = findViewById(R.id.swipeRefreshLayout);
+
+        llEmptyState = findViewById(R.id.llEmptyState);
+        cardEmptyIcon = findViewById(R.id.cardEmptyIcon);
+        ivEmptyIcon = findViewById(R.id.ivEmptyIcon);
+        tvEmptyTitle = findViewById(R.id.tvEmptyTitle);
+        tvEmptyDescription = findViewById(R.id.tvEmptyDescription);
 
         setSupportActionBar(toolbar);
         if (getSupportActionBar() != null) {
@@ -197,7 +209,7 @@ public class CampusMyItemsActivity extends AppCompatActivity {
                 tvHeaderTitle.setText("My Lost Reports");
                 break;
             case "resolved":
-                tvHeaderTitle.setText("My Resolved Items");
+                tvHeaderTitle.setText("My Resolved Reports");
                 break;
             case "admin_reports":
                 tvHeaderTitle.setText("My Admin Reports");
@@ -371,9 +383,103 @@ public class CampusMyItemsActivity extends AppCompatActivity {
         itemList.clear();
         itemList.addAll(accumulatedItems);
 
+        if (accumulatedItems.isEmpty()) {
+            if (rvMyItems != null) rvMyItems.setVisibility(View.GONE);
+            if (llEmptyState != null) {
+                llEmptyState.setVisibility(View.VISIBLE);
+                configureEmptyState();
+            }
+        } else {
+            if (rvMyItems != null) rvMyItems.setVisibility(View.VISIBLE);
+            if (llEmptyState != null) llEmptyState.setVisibility(View.GONE);
+        }
+
         isFetching = false;
         if (swipeRefreshLayout != null)
             swipeRefreshLayout.setRefreshing(false);
+    }
+
+    private void configureEmptyState() {
+        if (llEmptyState == null) return;
+        
+        int iconRes;
+        String title;
+        String desc;
+        int iconTintRes;
+        int titleColorRes;
+        int descColorRes;
+        int cardBgRes;
+        int strokeRes;
+
+        switch (filterType) {
+            case "reported":
+                iconRes = R.drawable.ic_search_found;
+                title = "No Found Reports Yet";
+                desc = "You haven't submitted any found item reports yet.";
+                iconTintRes = R.color.empty_found_icon_tint;
+                titleColorRes = R.color.empty_found_title_color;
+                descColorRes = R.color.empty_found_desc_color;
+                cardBgRes = R.color.empty_found_card_bg;
+                strokeRes = R.color.empty_found_card_stroke;
+                break;
+            case "find":
+                iconRes = R.drawable.ic_search_lost;
+                title = "No Lost Reports Yet";
+                desc = "You haven't submitted any lost item reports yet.";
+                iconTintRes = R.color.empty_lost_icon_tint;
+                titleColorRes = R.color.empty_lost_title_color;
+                descColorRes = R.color.empty_lost_desc_color;
+                cardBgRes = R.color.empty_lost_card_bg;
+                strokeRes = R.color.empty_lost_card_stroke;
+                break;
+            case "resolved":
+                iconRes = R.drawable.ic_user_check;
+                title = "No Resolved Reports Yet";
+                desc = "You don't have any resolved reports yet.";
+                iconTintRes = R.color.empty_resolved_icon_tint;
+                titleColorRes = R.color.empty_resolved_title_color;
+                descColorRes = R.color.empty_resolved_desc_color;
+                cardBgRes = R.color.empty_resolved_card_bg;
+                strokeRes = R.color.empty_resolved_card_stroke;
+                break;
+            case "admin_reports":
+                iconRes = R.drawable.ic_report_management;
+                title = "No Admin Reports Available";
+                desc = "There are no admin reports available at the moment.";
+                iconTintRes = R.color.empty_admin_icon_tint;
+                titleColorRes = R.color.empty_admin_title_color;
+                descColorRes = R.color.empty_admin_desc_color;
+                cardBgRes = R.color.empty_admin_card_bg;
+                strokeRes = R.color.empty_admin_card_stroke;
+                break;
+            default:
+                iconRes = R.drawable.ic_package;
+                title = "No Reports Yet";
+                desc = "No reports available in this section.";
+                iconTintRes = R.color.empty_found_icon_tint;
+                titleColorRes = R.color.empty_found_title_color;
+                descColorRes = R.color.empty_found_desc_color;
+                cardBgRes = R.color.empty_found_card_bg;
+                strokeRes = R.color.empty_found_card_stroke;
+                break;
+        }
+
+        if (ivEmptyIcon != null) {
+            ivEmptyIcon.setImageResource(iconRes);
+            ivEmptyIcon.setImageTintList(android.content.res.ColorStateList.valueOf(ContextCompat.getColor(this, iconTintRes)));
+        }
+        if (tvEmptyTitle != null) {
+            tvEmptyTitle.setText(title);
+            tvEmptyTitle.setTextColor(ContextCompat.getColor(this, titleColorRes));
+        }
+        if (tvEmptyDescription != null) {
+            tvEmptyDescription.setText(desc);
+            tvEmptyDescription.setTextColor(ContextCompat.getColor(this, descColorRes));
+        }
+        if (cardEmptyIcon != null) {
+            cardEmptyIcon.setCardBackgroundColor(ContextCompat.getColor(this, cardBgRes));
+            cardEmptyIcon.setStrokeColor(ContextCompat.getColor(this, strokeRes));
+        }
     }
 
     private Item convertToItem(AdminReport report) {

@@ -611,6 +611,41 @@
     <color name="item_details_btn_contact_stroke">#38BDF8</color>
     <color name="item_details_btn_contact_text">#38BDF8</color>
 
+    <color name="item_details_btn_claim_bg">#1E293B</color>
+    <color name="item_details_btn_claim_stroke">#38BDF8</color>
+    <color name="item_details_btn_claim_text">#F8FAFC</color>
+    <color name="item_details_icon_btn_claim">#38BDF8</color>
+
+    <color name="btn_report_problem_bg">#2A1B0E</color>
+    <color name="btn_report_problem_stroke">#D97706</color>
+    <color name="btn_report_problem_text">#FBBF24</color>
+    <color name="btn_report_problem_icon">#FBBF24</color>
+
+    <!-- Empty State Custom Color Palette (Night Mode - Dedicated Palette) -->
+    <color name="empty_found_icon_tint">#2DD4BF</color>
+    <color name="empty_found_title_color">#5EEAD4</color>
+    <color name="empty_found_desc_color">#94A3B8</color>
+    <color name="empty_found_card_bg">#062F27</color>
+    <color name="empty_found_card_stroke">#0D9488</color>
+
+    <color name="empty_lost_icon_tint">#FB7185</color>
+    <color name="empty_lost_title_color">#FDA4AF</color>
+    <color name="empty_lost_desc_color">#94A3B8</color>
+    <color name="empty_lost_card_bg">#2E0A14</color>
+    <color name="empty_lost_card_stroke">#9F1239</color>
+
+    <color name="empty_resolved_icon_tint">#A78BFA</color>
+    <color name="empty_resolved_title_color">#C4B5FD</color>
+    <color name="empty_resolved_desc_color">#94A3B8</color>
+    <color name="empty_resolved_card_bg">#1E1035</color>
+    <color name="empty_resolved_card_stroke">#5B21B6</color>
+
+    <color name="empty_admin_icon_tint">#38BDF8</color>
+    <color name="empty_admin_title_color">#7DD3FC</color>
+    <color name="empty_admin_desc_color">#94A3B8</color>
+    <color name="empty_admin_card_bg">#082F49</color>
+    <color name="empty_admin_card_stroke">#0284C7</color>
+
     <!-- Custom Screens Backgrounds and Headers (Night Mode - Unique Premium Palettes) -->
     <!-- 1. All Reported Items (Deep Space Blue & Navy) -->
     <color name="all_reported_bg">#0B132B</color>
@@ -692,11 +727,11 @@
     <color name="dev_info_italic_text">#FBCFE8</color>
     <color name="dev_info_divider">#334155</color>
 
-    <!-- Developer Info Button Colors (Night Mode - Unique Premium Palette) -->
-    <color name="dev_btn_text">#0F172A</color>
-    <color name="dev_btn_bg">#F59E0B</color>
-    <color name="dev_btn_bg_pressed">#D97706</color>
-    <color name="dev_btn_border">#FBBF24</color>
+    <!-- Developer Info Button Colors (Night Mode - Subtle Modern Theme) -->
+    <color name="dev_btn_text">#F8FAFC</color>
+    <color name="dev_btn_bg">#1E293B</color>
+    <color name="dev_btn_bg_pressed">#334155</color>
+    <color name="dev_btn_border">#475569</color>
 
     <!-- Admin Dashboard Colors (Night Mode - Unique Premium Palette) -->
     <color name="admin_dash_header_bg">@color/profile_background</color>

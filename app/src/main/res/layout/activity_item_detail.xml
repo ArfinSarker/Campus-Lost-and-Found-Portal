@@ -759,7 +759,14 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="32dp"
-                        android:text="@string/btn_found_this" />
+                        android:text="@string/btn_found_this"
+                        android:textColor="@color/item_details_btn_claim_text"
+                        app:backgroundTint="@color/item_details_btn_claim_bg"
+                        app:strokeColor="@color/item_details_btn_claim_stroke"
+                        app:strokeWidth="1dp"
+                        app:icon="@drawable/ic_check_circle"
+                        app:iconGravity="textStart"
+                        app:iconTint="@color/item_details_icon_btn_claim" />
 
                     <!-- Reporter Actions Container -->
                     <LinearLayout

@@ -629,6 +629,41 @@
     <color name="item_details_btn_contact_stroke">@color/lime</color>
     <color name="item_details_btn_contact_text">@color/navyBlue</color>
 
+    <color name="item_details_btn_claim_bg">#0284C7</color>
+    <color name="item_details_btn_claim_stroke">#0369A1</color>
+    <color name="item_details_btn_claim_text">#FFFFFF</color>
+    <color name="item_details_icon_btn_claim">#FFFFFF</color>
+
+    <color name="btn_report_problem_bg">#D97706</color>
+    <color name="btn_report_problem_stroke">#B45309</color>
+    <color name="btn_report_problem_text">#FFFFFF</color>
+    <color name="btn_report_problem_icon">#FFFFFF</color>
+
+    <!-- Empty State Custom Color Palette (Light Mode - Dedicated Palette) -->
+    <color name="empty_found_icon_tint">#0D9488</color>
+    <color name="empty_found_title_color">#0F766E</color>
+    <color name="empty_found_desc_color">#475569</color>
+    <color name="empty_found_card_bg">#F0FDF4</color>
+    <color name="empty_found_card_stroke">#A7F3D0</color>
+
+    <color name="empty_lost_icon_tint">#E11D48</color>
+    <color name="empty_lost_title_color">#BE123C</color>
+    <color name="empty_lost_desc_color">#475569</color>
+    <color name="empty_lost_card_bg">#FFF1F2</color>
+    <color name="empty_lost_card_stroke">#FECDD3</color>
+
+    <color name="empty_resolved_icon_tint">#7C3AED</color>
+    <color name="empty_resolved_title_color">#6D28D9</color>
+    <color name="empty_resolved_desc_color">#475569</color>
+    <color name="empty_resolved_card_bg">#F5F3FF</color>
+    <color name="empty_resolved_card_stroke">#DDD6FE</color>
+
+    <color name="empty_admin_icon_tint">#0284C7</color>
+    <color name="empty_admin_title_color">#0369A1</color>
+    <color name="empty_admin_desc_color">#475569</color>
+    <color name="empty_admin_card_bg">#F0F9FF</color>
+    <color name="empty_admin_card_stroke">#BAE6FD</color>
+
     <!-- Custom Screens Backgrounds and Headers (Light/Day Mode Defaults) -->
     <color name="all_reported_bg">@color/profile_background</color>
     <color name="all_reported_header_bg">@color/profile_header_bg</color>
