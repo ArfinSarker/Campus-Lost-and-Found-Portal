@@ -103,6 +103,7 @@ public class ItemNavigationUtils {
         intent.putExtra("isAdmin", isAdmin);
         intent.putExtra("itemAdminStatus", item.getAdminStatus());
         intent.putExtra("claimedById", item.getClaimedById());
+        intent.putExtra("isEdited", item.isEdited());
 
         context.startActivity(intent);
         if (context instanceof android.app.Activity) {

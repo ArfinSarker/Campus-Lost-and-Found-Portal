@@ -286,7 +286,14 @@ public class ItemDetailActivity extends AppCompatActivity {
             tvDisplayId.setText(ReportIdFormatter.format(reportId));
         }
 
-        updateUI(itemName, itemDescription, itemLocation, manualLocation, additionalDetails, itemCategory, itemDate, itemTime, itemImageUrl, false, itemImageUrls);
+        boolean isEditedInitial = getIntent().getBooleanExtra("isEdited", false);
+        if (isEditedInitial && isAdminMode) {
+            if (cardEditedLabel != null) cardEditedLabel.setVisibility(View.VISIBLE);
+        } else {
+            if (cardEditedLabel != null) cardEditedLabel.setVisibility(View.GONE);
+        }
+
+        updateUI(itemName, itemDescription, itemLocation, manualLocation, additionalDetails, itemCategory, itemDate, itemTime, itemImageUrl, isEditedInitial, itemImageUrls);
     }
 
     private void startListeningToItemChanges() {

@@ -583,6 +583,7 @@ public class AdminReportReviewActivity extends AppCompatActivity {
         intent.putExtra("userId", item.getUserId());
         intent.putExtra("itemName", item.getName());
         intent.putExtra("itemAdminStatus", item.getAdminStatus());
+        intent.putExtra("isEdited", item.isEdited());
         startActivity(intent);
     }
 
