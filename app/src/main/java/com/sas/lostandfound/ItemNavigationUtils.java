@@ -92,6 +92,9 @@ public class ItemNavigationUtils {
         intent.putExtra("itemStatus", item.getStatus());
         intent.putExtra("itemCategory", item.getCategory());
         intent.putExtra("itemImageUrl", item.getImageUrl());
+        if (item.getImageUrls() != null && !item.getImageUrls().isEmpty()) {
+            intent.putStringArrayListExtra("itemImageUrls", new ArrayList<>(item.getImageUrls()));
+        }
         intent.putExtra("userName", item.getUserName());
         intent.putExtra("userDepartment", item.getUserDepartment());
         intent.putExtra("userPhone", item.getUserPhone());

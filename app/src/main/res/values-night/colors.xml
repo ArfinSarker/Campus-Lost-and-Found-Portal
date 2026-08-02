@@ -67,6 +67,7 @@
     <!-- Campus Dashboard Specific Colors (Night Mode) -->
     <color name="dashboard_background">#0F172A</color>
     <color name="dashboard_header_bg">#0F172A</color>
+    <color name="dashboard_nav_bar_bg">#1B2333</color>
     <color name="dashboard_header_icon_tint">#38BDF8</color>
     <color name="dashboard_tab_indicator_color">#38BDF8</color>
     <color name="dashboard_tab_selected_text_color">#38BDF8</color>
@@ -535,33 +536,80 @@
     <color name="search_chip_resolved_selected">#A78BFA</color>
     <color name="search_chip_resolved_selected_bg">#1AA78BFA</color>
 
-    <!-- Item Details Screen Colors (Night Mode - Unique Premium Palette) -->
-    <color name="item_details_header_bg_start">@color/profile_header_bg</color>
-    <color name="item_details_header_bg_end">@color/profile_header_bg</color>
-    <color name="item_details_card_bg">@color/profile_card_bg</color>
-    <color name="item_details_item_name_label">#D8B4FE</color>
-    <color name="item_details_item_name_val">#FFFFFF</color>
-    <color name="item_details_category_label">#40E0D0</color>
-    <color name="item_details_category_val">#E0FFFF</color>
-    <color name="item_details_desc_label">#FDE047</color>
-    <color name="item_details_desc_content">#FFFDD0</color>
-    <color name="item_details_handling_label">#FF8C00</color>
-    <color name="item_details_handling_val">#FFE4B5</color>
-    <color name="item_details_verification_label">#FF69B4</color>
-    <color name="item_details_verification_val">#FFB6C1</color>
-    <color name="item_details_location_label">#86EFAC</color>
-    <color name="item_details_location_val">#F0FFF0</color>
-    <color name="item_details_location_icon">#32CD32</color>
-    <color name="item_details_date_time_label">#93C5FD</color>
-    <color name="item_details_date_time_val">#F0F8FF</color>
-    <color name="item_details_date_time_icon">#1E90FF</color>
-    <color name="item_details_reported_by_label">#FF7F50</color>
-    <color name="item_details_returned_to_label">#FFD700</color>
-    <color name="item_details_user_id">#C7D2FE</color>
-    <color name="item_details_user_name">#E0F2F1</color>
+    <!-- Item Details Screen Colors (Night Mode - Premium Subtle Dark Theme) -->
+    <color name="item_details_header_bg">#0F172A</color>
+    <color name="item_details_header_bg_start">#0F172A</color>
+    <color name="item_details_header_bg_end">#0F172A</color>
+    <color name="item_details_header_title">#F8FAFC</color>
+    <color name="item_details_image_container_bg">#1E293B</color>
+    <color name="item_details_card_bg">#1E293B</color>
+    
+    <!-- Item Details Text Colors (Night Mode - Premium Balanced Contrast) -->
+    <color name="item_details_item_name_label">#94A3B8</color>
+    <color name="item_details_item_name_val">#F8FAFC</color>
+    <color name="item_details_category_label">#94A3B8</color>
+    <color name="item_details_category_val">#38BDF8</color>
+    <color name="item_details_desc_label">#F8FAFC</color>
+    <color name="item_details_desc_content">#CBD5E1</color>
+    <color name="item_details_handling_label">#F8FAFC</color>
+    <color name="item_details_handling_val">#CBD5E1</color>
+    <color name="item_details_verification_label">#F8FAFC</color>
+    <color name="item_details_verification_val">#CBD5E1</color>
+    <color name="item_details_location_label">#94A3B8</color>
+    <color name="item_details_location_val">#F8FAFC</color>
+    <color name="item_details_date_time_label">#94A3B8</color>
+    <color name="item_details_date_time_val">#F8FAFC</color>
+    <color name="item_details_reported_by_label">#F8FAFC</color>
+    <color name="item_details_returned_to_label">#F8FAFC</color>
+    <color name="item_details_user_id">#94A3B8</color>
+    <color name="item_details_user_name">#F8FAFC</color>
     <color name="item_details_user_role">#38BDF8</color>
-    <color name="item_details_user_designation">#E5E7EB</color>
-    <color name="item_details_user_contact">#F5DEB3</color>
+    <color name="item_details_user_designation">#CBD5E1</color>
+    <color name="item_details_user_contact">#FCD34D</color>
+
+    <!-- Unique Colors for Every Item Details Icon (Night Mode) -->
+    <color name="item_details_icon_nav_back">#F8FAFC</color>
+    <color name="item_details_icon_package">#64748B</color>
+    <color name="item_details_icon_item_name">#38BDF8</color>
+    <color name="item_details_icon_category">#22D3EE</color>
+    <color name="item_details_icon_description">#FBBF24</color>
+    <color name="item_details_icon_ownership">#F472B6</color>
+    <color name="item_details_icon_handling">#FB923C</color>
+    <color name="item_details_icon_verification">#A78BFA</color>
+    <color name="item_details_location_icon">#34D399</color>
+    <color name="item_details_date_time_icon">#60A5FA</color>
+    <color name="item_details_icon_reported_by">#F87171</color>
+    <color name="item_details_icon_returned_to">#FACC15</color>
+    <color name="item_details_icon_btn_edit">#818CF8</color>
+    <color name="item_details_icon_btn_return">#2DD4BF</color>
+    <color name="item_details_icon_btn_claimed">#4ADE80</color>
+    <color name="item_details_icon_btn_delete">#FF6B6B</color>
+    <color name="item_details_icon_btn_admin_delete">#FF4757</color>
+
+    <!-- Redesigned Subtle Dark Theme Buttons (Night Mode) -->
+    <color name="item_details_btn_edit_bg">#1E293B</color>
+    <color name="item_details_btn_edit_stroke">#475569</color>
+    <color name="item_details_btn_edit_text">#F8FAFC</color>
+
+    <color name="item_details_btn_return_bg">#062F22</color>
+    <color name="item_details_btn_return_stroke">#059669</color>
+    <color name="item_details_btn_return_text">#34D399</color>
+
+    <color name="item_details_btn_claimed_bg">#062F22</color>
+    <color name="item_details_btn_claimed_stroke">#10B981</color>
+    <color name="item_details_btn_claimed_text">#34D399</color>
+
+    <color name="item_details_btn_delete_bg">#2A080C</color>
+    <color name="item_details_btn_delete_stroke">#581C24</color>
+    <color name="item_details_btn_delete_text">#F87171</color>
+
+    <color name="item_details_btn_admin_delete_bg">#2A080C</color>
+    <color name="item_details_btn_admin_delete_stroke">#7F1D1D</color>
+    <color name="item_details_btn_admin_delete_text">#F87171</color>
+
+    <color name="item_details_btn_contact_bg">#1E293B</color>
+    <color name="item_details_btn_contact_stroke">#38BDF8</color>
+    <color name="item_details_btn_contact_text">#38BDF8</color>
 
     <!-- Custom Screens Backgrounds and Headers (Night Mode - Unique Premium Palettes) -->
     <!-- 1. All Reported Items (Deep Space Blue & Navy) -->

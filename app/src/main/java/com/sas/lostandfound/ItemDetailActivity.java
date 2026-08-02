@@ -259,13 +259,14 @@ public class ItemDetailActivity extends AppCompatActivity {
         String itemTime = getIntent().getStringExtra("itemTime");
         String itemCategory = getIntent().getStringExtra("itemCategory");
         String itemImageUrl = getIntent().getStringExtra("itemImageUrl");
+        ArrayList<String> itemImageUrls = getIntent().getStringArrayListExtra("itemImageUrls");
         String reportId = getIntent().getStringExtra("itemReportId");
 
         if (tvDisplayId != null && reportId != null) {
             tvDisplayId.setText(ReportIdFormatter.format(reportId));
         }
 
-        updateUI(itemName, itemDescription, itemLocation, manualLocation, additionalDetails, itemCategory, itemDate, itemTime, itemImageUrl, false, null);
+        updateUI(itemName, itemDescription, itemLocation, manualLocation, additionalDetails, itemCategory, itemDate, itemTime, itemImageUrl, false, itemImageUrls);
     }
 
     private void startListeningToItemChanges() {
@@ -541,43 +542,35 @@ public class ItemDetailActivity extends AppCompatActivity {
     }
 
     private void setupImageSlider(List<String> imageUrls, String fallbackUrl) {
-        if (imageUrls != null && imageUrls.size() > 1) {
+        List<String> validUrls = ReportDetailImageLoader.resolveValidUrls(imageUrls, fallbackUrl);
+
+        if (validUrls.size() > 1) {
             ivItemImage.setVisibility(View.GONE);
             viewPagerImageSlider.setVisibility(View.VISIBLE);
             tabLayoutIndicator.setVisibility(View.VISIBLE);
 
-            ImageSliderAdapter adapter = new ImageSliderAdapter(imageUrls, true);
-            adapter.setOnImageClickListener(position -> ItemNavigationUtils.openFullScreenImage(this, imageUrls, position));
+            ImageSliderAdapter adapter = new ImageSliderAdapter(validUrls, true);
+            adapter.setOnImageClickListener(position -> ItemNavigationUtils.openFullScreenImage(this, validUrls, position));
             
             viewPagerImageSlider.setAdapter(adapter);
 
             new TabLayoutMediator(tabLayoutIndicator, viewPagerImageSlider, (tab, position) -> {}).attach();
 
-            startAutoSlide(imageUrls.size());
+            startAutoSlide(validUrls.size());
         } else {
             stopAutoSlide();
             viewPagerImageSlider.setVisibility(View.GONE);
             tabLayoutIndicator.setVisibility(View.GONE);
             ivItemImage.setVisibility(View.VISIBLE);
 
-            String finalUrl = (imageUrls != null && !imageUrls.isEmpty()) ? imageUrls.get(0) : fallbackUrl;
-            if (finalUrl != null && !finalUrl.isEmpty()) {
-                GlideApp.with(this)
-                        .load(finalUrl)
-                        .placeholder(R.drawable.ic_package)
-                        .thumbnail(0.1f)
-                        .diskCacheStrategy(DiskCacheStrategy.ALL)
-                        .into(ivItemImage);
-                
-                ivItemImage.setOnClickListener(v -> {
+            String finalUrl = !validUrls.isEmpty() ? validUrls.get(0) : null;
+            ReportDetailImageLoader.loadImage(this, finalUrl, ivItemImage, v -> {
+                if (finalUrl != null) {
                     ArrayList<String> urls = new ArrayList<>();
                     urls.add(finalUrl);
                     ItemNavigationUtils.openFullScreenImage(this, urls, 0);
-                });
-            } else {
-                ivItemImage.setImageResource(R.drawable.ic_package);
-                ivItemImage.setOnClickListener(null);
-            }
+                }
+            });
         }
     }
 

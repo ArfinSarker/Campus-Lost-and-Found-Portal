@@ -68,6 +68,7 @@
     <!-- Campus Dashboard Specific Colors (Light Mode) -->
     <color name="dashboard_background">@color/backgroundColor</color>
     <color name="dashboard_header_bg">@color/white</color>
+    <color name="dashboard_nav_bar_bg">@color/primaryDarkColor</color>
     <color name="dashboard_header_icon_tint">#0F172A</color>
     <color name="dashboard_tab_indicator_color">@color/primaryColor</color>
     <color name="dashboard_tab_selected_text_color">@color/primaryColor</color>
@@ -554,13 +555,18 @@
     <color name="search_chip_resolved_selected_bg">#1A6366F1</color>
 
     <!-- Item Details Screen Colors (Light Mode Defaults) -->
+    <color name="item_details_header_bg">@color/primaryDarkColor</color>
     <color name="item_details_header_bg_start">@color/profile_header_bg</color>
     <color name="item_details_header_bg_end">@color/profile_header_bg</color>
+    <color name="item_details_header_title">#FFFFFF</color>
+    <color name="item_details_image_container_bg">@color/primaryDarkColor</color>
     <color name="item_details_card_bg">@color/profile_card_bg</color>
+    
+    <!-- Item Details Text Colors (Light Mode Defaults) -->
     <color name="item_details_item_name_label">@color/textSecondary</color>
     <color name="item_details_item_name_val">#0F172A</color>
     <color name="item_details_category_label">@color/textSecondary</color>
-    <color name="item_details_category_val">@color/textSecondary</color>
+    <color name="item_details_category_val">#0F172A</color>
     <color name="item_details_desc_label">#0F172A</color>
     <color name="item_details_desc_content">@color/textSecondary</color>
     <color name="item_details_handling_label">#0F172A</color>
@@ -580,6 +586,48 @@
     <color name="item_details_user_role">@color/primaryColor</color>
     <color name="item_details_user_designation">@color/textSecondary</color>
     <color name="item_details_user_contact">@color/textSecondary</color>
+
+    <!-- Unique Colors for Every Item Details Icon (Light Mode) -->
+    <color name="item_details_icon_nav_back">#FFFFFF</color>
+    <color name="item_details_icon_package">#94A3B8</color>
+    <color name="item_details_icon_item_name">#4F46E5</color>
+    <color name="item_details_icon_category">#0284C7</color>
+    <color name="item_details_icon_description">#D97706</color>
+    <color name="item_details_icon_ownership">#DB2777</color>
+    <color name="item_details_icon_handling">#EA580C</color>
+    <color name="item_details_icon_verification">#7C3AED</color>
+    <color name="item_details_icon_reported_by">#DC2626</color>
+    <color name="item_details_icon_returned_to">#CA8A04</color>
+    <color name="item_details_icon_btn_edit">#0D9488</color>
+    <color name="item_details_icon_btn_return">#65A30D</color>
+    <color name="item_details_icon_btn_claimed">#16A34A</color>
+    <color name="item_details_icon_btn_delete">#E11D48</color>
+    <color name="item_details_icon_btn_admin_delete">#B91C1C</color>
+
+    <!-- Redesigned Subtle Buttons (Light Mode) -->
+    <color name="item_details_btn_edit_bg">#6366F1</color>
+    <color name="item_details_btn_edit_stroke">#4F46E5</color>
+    <color name="item_details_btn_edit_text">#FFFFFF</color>
+
+    <color name="item_details_btn_return_bg">@color/statusFound</color>
+    <color name="item_details_btn_return_stroke">#16A34A</color>
+    <color name="item_details_btn_return_text">#FFFFFF</color>
+
+    <color name="item_details_btn_claimed_bg">@color/statusFound</color>
+    <color name="item_details_btn_claimed_stroke">#16A34A</color>
+    <color name="item_details_btn_claimed_text">#FFFFFF</color>
+
+    <color name="item_details_btn_delete_bg">@color/errorColor</color>
+    <color name="item_details_btn_delete_stroke">#DC2626</color>
+    <color name="item_details_btn_delete_text">#FFFFFF</color>
+
+    <color name="item_details_btn_admin_delete_bg">@color/errorColor</color>
+    <color name="item_details_btn_admin_delete_stroke">#B91C1C</color>
+    <color name="item_details_btn_admin_delete_text">#FFFFFF</color>
+
+    <color name="item_details_btn_contact_bg">@color/lime</color>
+    <color name="item_details_btn_contact_stroke">@color/lime</color>
+    <color name="item_details_btn_contact_text">@color/navyBlue</color>
 
     <!-- Custom Screens Backgrounds and Headers (Light/Day Mode Defaults) -->
     <color name="all_reported_bg">@color/profile_background</color>
