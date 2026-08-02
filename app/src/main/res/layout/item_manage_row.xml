@@ -45,18 +45,13 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:scaleType="centerCrop"
-                android:src="@drawable/ic_package"
-                android:background="@color/manage_header_bg"
                 android:contentDescription="@string/item_image_description" />
 
             <TextView
                 android:id="@+id/tvIcon"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:background="@color/manage_header_bg"
                 android:gravity="center"
-                android:text="📦"
-                android:textSize="36sp"
                 android:visibility="gone" />
 
             <com.google.android.material.tabs.TabLayout
@@ -131,124 +126,80 @@
                 android:id="@+id/tvDisplayId"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:paddingHorizontal="12dp"
-                android:paddingVertical="5dp"
-                android:textColor="@color/white"
+                android:paddingHorizontal="10dp"
+                android:paddingVertical="4dp"
+                android:textColor="#F8FAFC"
                 android:textSize="10sp"
-                android:letterSpacing="0.06"
+                android:textStyle="bold"
                 android:fontFamily="sans-serif-medium"
-                tools:text="#R1" />
+                android:letterSpacing="0.05"
+                tools:text="#RF-1042" />
         </com.google.android.material.card.MaterialCardView>
 
-        <!-- Clean, subtle separator line directly below the image -->
-        <View
-            android:id="@+id/vImageSeparator"
-            android:layout_width="0dp"
-            android:layout_height="1dp"
-            android:background="@color/manage_card_border"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/flImageContainer" />
-
-        <!-- Info Content Section with balanced padding and modern typography -->
+        <!-- Main Content Section -->
         <LinearLayout
-            android:id="@+id/llDetails"
-            android:layout_width="0dp"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:padding="14dp"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/vImageSeparator">
+            android:padding="16dp"
+            app:layout_constraintTop_toBottomOf="@id/flImageContainer">
 
-            <!-- Item Title / Name -->
-            <TextView
-                android:id="@+id/tvItemName"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:ellipsize="end"
-                android:fontFamily="sans-serif-medium"
-                android:maxLines="1"
-                android:textColor="@color/manage_text_primary"
-                android:textSize="16sp"
-                android:textStyle="bold"
-                tools:text="Black Lenovo Backpack" />
-
-            <!-- Location Row -->
+            <!-- Title & Date -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:gravity="center_vertical"
-                android:orientation="horizontal"
-                android:layout_marginTop="8dp">
+                android:orientation="horizontal">
+
+                <TextView
+                    android:id="@+id/tvItemTitle"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:ellipsize="end"
+                    android:fontFamily="sans-serif-medium"
+                    android:maxLines="1"
+                    android:textColor="@color/manage_card_title"
+                    android:textSize="17sp"
+                    android:textStyle="bold"
+                    tools:text="Black Leather Wallet" />
+
+                <TextView
+                    android:id="@+id/tvItemDate"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
+                    android:textColor="@color/manage_card_subtext"
+                    android:textSize="12sp"
+                    tools:text="Oct 24, 2024" />
+            </LinearLayout>
+
+            <!-- Location Meta -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
 
                 <ImageView
-                    android:layout_width="12dp"
-                    android:layout_height="12dp"
+                    android:layout_width="14dp"
+                    android:layout_height="14dp"
                     android:src="@drawable/ic_location"
-                    android:contentDescription="@null"
-                    app:tint="@color/manage_icon_location" />
+                    app:tint="@color/manage_card_icon_tint"
+                    tools:ignore="ContentDescription" />
 
                 <TextView
                     android:id="@+id/tvItemLocation"
-                    android:layout_width="match_parent"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="6dp"
                     android:ellipsize="end"
                     android:maxLines="1"
-                    android:textColor="@color/manage_text_secondary"
-                    android:textSize="12sp"
-                    android:fontFamily="sans-serif"
-                    tools:text="Library Ground Floor" />
+                    android:textColor="@color/manage_card_subtext"
+                    android:textSize="13sp"
+                    tools:text="Central Library, 2nd Floor" />
             </LinearLayout>
-
-            <!-- Bottom Row: Date & Action Link -->
-            <RelativeLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:gravity="center_vertical">
-
-                <!-- Date/Time -->
-                <LinearLayout
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:gravity="center_vertical"
-                    android:layout_alignParentStart="true"
-                    android:orientation="horizontal">
-
-                    <ImageView
-                        android:layout_width="12dp"
-                        android:layout_height="12dp"
-                        android:src="@drawable/ic_clock"
-                        android:contentDescription="@null"
-                        app:tint="@color/manage_icon_time" />
-
-                    <TextView
-                        android:id="@+id/tvItemDate"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginStart="6dp"
-                        android:textColor="@color/manage_date_text"
-                        android:textSize="12sp"
-                        android:fontFamily="sans-serif"
-                        tools:text="15 May 2024" />
-                </LinearLayout>
-
-                <!-- Chevron Right Link -->
-                <ImageView
-                    android:layout_width="14dp"
-                    android:layout_height="14dp"
-                    android:layout_alignParentEnd="true"
-                    android:layout_centerVertical="true"
-                    android:src="@drawable/ic_chevron_right_small"
-                    android:contentDescription="@null"
-                    app:tint="@color/manage_icon_chevron" />
-
-            </RelativeLayout>
         </LinearLayout>
-
     </androidx.constraintlayout.widget.ConstraintLayout>
-
 </com.google.android.material.card.MaterialCardView>

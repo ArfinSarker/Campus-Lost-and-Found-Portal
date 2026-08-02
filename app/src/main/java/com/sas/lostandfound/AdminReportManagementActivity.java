@@ -430,22 +430,24 @@ public class AdminReportManagementActivity extends AppCompatActivity {
                 stopSlider(position);
 
                 String imageUrl = (urls != null && !urls.isEmpty()) ? urls.get(0) : report.getImageUrl();
-                if (imageUrl != null && !imageUrl.isEmpty()) {
+                if (imageUrl != null && !imageUrl.isEmpty() && !"null".equalsIgnoreCase(imageUrl.trim())) {
                     holder.ivIcon.setScaleType(ImageView.ScaleType.CENTER_CROP);
                     holder.ivIcon.setPadding(0, 0, 0, 0);
                     holder.ivIcon.setImageTintList(null);
+                    holder.ivIcon.setBackground(null);
                     GlideApp.with(AdminReportManagementActivity.this)
-                            .load(imageUrl)
-                            .placeholder(R.drawable.ic_shield)
+                            .load(SupabaseStorageHelper.ensurePublicUrl(imageUrl))
                             .thumbnail(0.1f)
                             .diskCacheStrategy(DiskCacheStrategy.ALL)
+                            .centerCrop()
                             .into(holder.ivIcon);
                 } else {
                     holder.ivIcon.setScaleType(ImageView.ScaleType.CENTER_INSIDE);
-                    holder.ivIcon.setPadding(48, 48, 48, 48);
-                    holder.ivIcon.setImageResource(R.drawable.ic_shield);
-                    holder.ivIcon.setImageTintList(android.content.res.ColorStateList.valueOf(
-                            ContextCompat.getColor(AdminReportManagementActivity.this, R.color.primaryColor)));
+                    holder.ivIcon.setImageResource(R.drawable.ic_manage_no_image);
+                    int bg = ContextCompat.getColor(AdminReportManagementActivity.this, R.color.manage_placeholder_bg);
+                    int tint = ContextCompat.getColor(AdminReportManagementActivity.this, R.color.manage_placeholder_icon);
+                    holder.ivIcon.setBackgroundColor(bg);
+                    holder.ivIcon.setImageTintList(android.content.res.ColorStateList.valueOf(tint));
                 }
             }
         }

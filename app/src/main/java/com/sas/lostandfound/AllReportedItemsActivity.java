@@ -404,12 +404,18 @@ public class AllReportedItemsActivity extends AppCompatActivity {
                 holder.ivIcon.setVisibility(View.VISIBLE);
                 stopSlider(position);
 
-                if (item.getImageUrl() != null && !item.getImageUrl().isEmpty()) {
+                List<String> itemUrls = item.getImageUrls();
+                String imageUrl = item.getImageUrl();
+                if ((imageUrl == null || imageUrl.isEmpty()) && itemUrls != null && !itemUrls.isEmpty()) {
+                    imageUrl = itemUrls.get(0);
+                }
+
+                if (imageUrl != null && !imageUrl.isEmpty() && !"null".equalsIgnoreCase(imageUrl.trim())) {
                     holder.ivIcon.setImageTintList(null);
+                    holder.ivIcon.setBackground(null);
                     holder.ivIcon.setScaleType(ImageView.ScaleType.CENTER_CROP);
                     GlideApp.with(holder.itemView.getContext())
-                            .load(item.getImageUrl())
-                            .placeholder(R.drawable.ic_package)
+                            .load(SupabaseStorageHelper.ensurePublicUrl(imageUrl))
                             .thumbnail(0.1f)
                             .diskCacheStrategy(DiskCacheStrategy.ALL)
                             .centerCrop()
@@ -418,10 +424,20 @@ public class AllReportedItemsActivity extends AppCompatActivity {
                     // Image click leads to details - Use Activity's isAdmin flag
                     holder.ivIcon.setOnClickListener(v -> ItemNavigationUtils.navigateToDetail(v.getContext(), item, isAdmin));
                 } else {
-                    holder.ivIcon.setImageResource(R.drawable.ic_package);
-                    holder.ivIcon.setScaleType(ImageView.ScaleType.CENTER_INSIDE);
-                    holder.ivIcon.setImageTintList(android.content.res.ColorStateList.valueOf(
-                            ContextCompat.getColor(holder.itemView.getContext(), R.color.textSecondary)));
+                    if (isAdmin) {
+                        holder.ivIcon.setImageResource(R.drawable.ic_manage_no_image);
+                        holder.ivIcon.setScaleType(ImageView.ScaleType.CENTER_INSIDE);
+                        int bg = ContextCompat.getColor(holder.itemView.getContext(), R.color.manage_placeholder_bg);
+                        int tint = ContextCompat.getColor(holder.itemView.getContext(), R.color.manage_placeholder_icon);
+                        holder.ivIcon.setBackgroundColor(bg);
+                        holder.ivIcon.setImageTintList(android.content.res.ColorStateList.valueOf(tint));
+                    } else {
+                        holder.ivIcon.setImageResource(R.drawable.ic_package);
+                        holder.ivIcon.setScaleType(ImageView.ScaleType.CENTER_INSIDE);
+                        holder.ivIcon.setBackground(null);
+                        holder.ivIcon.setImageTintList(android.content.res.ColorStateList.valueOf(
+                                ContextCompat.getColor(holder.itemView.getContext(), R.color.textSecondary)));
+                    }
                     // Navigate even for placeholders - Use Activity's isAdmin flag
                     holder.ivIcon.setOnClickListener(v -> ItemNavigationUtils.navigateToDetail(v.getContext(), item, isAdmin));
                 }

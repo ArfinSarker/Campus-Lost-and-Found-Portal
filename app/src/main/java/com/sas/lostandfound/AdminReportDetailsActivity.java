@@ -233,12 +233,25 @@ public class AdminReportDetailsActivity extends AppCompatActivity {
                 getSupportActionBar().setDisplayHomeAsUpEnabled(true);
             }
             toolbar.setNavigationOnClickListener(v -> finish());
+
+            if (tvHeaderTitle != null) {
+                tvHeaderTitle.setText("Item Details");
+                tvHeaderTitle.setTextColor(androidx.core.content.ContextCompat.getColor(this, R.color.admin_item_details_header_title));
+            }
+            int navColor = androidx.core.content.ContextCompat.getColor(this, R.color.admin_item_details_header_nav_icon);
+            if (toolbar instanceof com.google.android.material.appbar.MaterialToolbar) {
+                ((com.google.android.material.appbar.MaterialToolbar) toolbar).setNavigationIconTint(navColor);
+            } else if (toolbar.getNavigationIcon() != null) {
+                androidx.core.graphics.drawable.DrawableCompat.setTint(toolbar.getNavigationIcon(), navColor);
+            }
+
             com.google.android.material.appbar.AppBarLayout appBarLayout = findViewById(R.id.appBarLayout);
             if (appBarLayout != null) {
-                int headerColor = androidx.core.content.ContextCompat.getColor(this, R.color.report_details_bg_main);
+                int headerColor = androidx.core.content.ContextCompat.getColor(this, R.color.admin_item_details_header_bg);
                 boolean isNight = (getResources().getConfiguration().uiMode & android.content.res.Configuration.UI_MODE_NIGHT_MASK) 
                         == android.content.res.Configuration.UI_MODE_NIGHT_YES;
                 HeaderColorHelper.setup(this, appBarLayout, headerColor, headerColor, !isNight);
+                appBarLayout.setBackgroundColor(headerColor);
             }
         }
     }

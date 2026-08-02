@@ -236,10 +236,30 @@ public class ItemDetailActivity extends AppCompatActivity {
     }
 
     private void setupScrollBehavior() {
-        int startColor = ContextCompat.getColor(this, R.color.item_details_header_bg_start);
-        int endColor = ContextCompat.getColor(this, R.color.item_details_header_bg_end);
-        boolean lightStatusBar = !ThemeManager.isDarkModeEnabled(this);
-        HeaderColorHelper.setup(this, appBarLayout, startColor, endColor, lightStatusBar);
+        if (isAdminMode) {
+            int headerColor = ContextCompat.getColor(this, R.color.admin_item_details_header_bg);
+            boolean lightStatusBar = !ThemeManager.isDarkModeEnabled(this);
+            HeaderColorHelper.setup(this, appBarLayout, headerColor, headerColor, lightStatusBar);
+            if (appBarLayout != null) {
+                appBarLayout.setBackgroundColor(headerColor);
+            }
+            if (toolbar != null) {
+                int navColor = ContextCompat.getColor(this, R.color.admin_item_details_header_nav_icon);
+                if (toolbar instanceof com.google.android.material.appbar.MaterialToolbar) {
+                    ((com.google.android.material.appbar.MaterialToolbar) toolbar).setNavigationIconTint(navColor);
+                } else if (toolbar.getNavigationIcon() != null) {
+                    androidx.core.graphics.drawable.DrawableCompat.setTint(toolbar.getNavigationIcon(), navColor);
+                }
+            }
+            if (tvHeaderTitle != null) {
+                tvHeaderTitle.setTextColor(ContextCompat.getColor(this, R.color.admin_item_details_header_title));
+            }
+        } else {
+            int startColor = ContextCompat.getColor(this, R.color.item_details_header_bg_start);
+            int endColor = ContextCompat.getColor(this, R.color.item_details_header_bg_end);
+            boolean lightStatusBar = !ThemeManager.isDarkModeEnabled(this);
+            HeaderColorHelper.setup(this, appBarLayout, startColor, endColor, lightStatusBar);
+        }
     }
 
     private void setupSwipeRefresh() {
@@ -496,7 +516,11 @@ public class ItemDetailActivity extends AppCompatActivity {
         tvLocation.setText(formattedLocation);
         tvCategory.setText(category != null ? category : "Uncategorized");
         
-        tvHeaderTitle.setText(name != null ? name : (itemStatus != null && itemStatus.equalsIgnoreCase("lost") ? "Lost Item" : "Found Item"));
+        if (isAdminMode) {
+            tvHeaderTitle.setText("Item Details");
+        } else {
+            tvHeaderTitle.setText(name != null ? name : (itemStatus != null && itemStatus.equalsIgnoreCase("lost") ? "Lost Item" : "Found Item"));
+        }
 
         String fullDateTime = date != null ? date : "";
         if (time != null && !time.isEmpty()) {

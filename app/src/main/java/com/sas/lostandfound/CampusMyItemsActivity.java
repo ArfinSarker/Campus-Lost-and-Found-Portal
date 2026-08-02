@@ -693,11 +693,19 @@ public class CampusMyItemsActivity extends AppCompatActivity {
                 holder.ivIcon.setVisibility(View.VISIBLE);
                 stopSlider(position);
 
-                if (item.getImageUrl() != null && !item.getImageUrl().isEmpty()) {
+                List<String> itemUrls = item.getImageUrls();
+                String mainUrl = item.getImageUrl();
+                if ((mainUrl == null || mainUrl.isEmpty()) && itemUrls != null && !itemUrls.isEmpty()) {
+                    mainUrl = itemUrls.get(0);
+                }
+
+                boolean isAdminCard = "admin_reports".equals(filterType) || "admin_report".equals(item.getStatus()) || ModeManager.isAdminMode(holder.itemView.getContext()) || holder.itemView.getContext() instanceof ManageItemsActivity;
+                if (mainUrl != null && !mainUrl.isEmpty() && !"null".equalsIgnoreCase(mainUrl.trim())) {
+                    holder.ivIcon.setImageTintList(null);
+                    holder.ivIcon.setBackground(null);
                     holder.ivIcon.setScaleType(ImageView.ScaleType.CENTER_CROP);
                     GlideApp.with(holder.itemView.getContext())
-                            .load(item.getImageUrl())
-                            .placeholder(R.drawable.ic_package)
+                            .load(SupabaseStorageHelper.ensurePublicUrl(mainUrl))
                             .thumbnail(0.1f)
                             .diskCacheStrategy(DiskCacheStrategy.ALL)
                             .centerCrop()
@@ -714,8 +722,20 @@ public class CampusMyItemsActivity extends AppCompatActivity {
                         }
                     });
                 } else {
-                    holder.ivIcon.setScaleType(ImageView.ScaleType.CENTER_INSIDE);
-                    holder.ivIcon.setImageResource(R.drawable.ic_package);
+                    if (isAdminCard) {
+                        holder.ivIcon.setScaleType(ImageView.ScaleType.CENTER_INSIDE);
+                        holder.ivIcon.setImageResource(R.drawable.ic_manage_no_image);
+                        int bg = ContextCompat.getColor(holder.itemView.getContext(), R.color.manage_placeholder_bg);
+                        int tint = ContextCompat.getColor(holder.itemView.getContext(), R.color.manage_placeholder_icon);
+                        holder.ivIcon.setBackgroundColor(bg);
+                        holder.ivIcon.setImageTintList(android.content.res.ColorStateList.valueOf(tint));
+                    } else {
+                        holder.ivIcon.setScaleType(ImageView.ScaleType.CENTER_INSIDE);
+                        holder.ivIcon.setImageResource(R.drawable.ic_package);
+                        holder.ivIcon.setBackground(null);
+                        holder.ivIcon.setImageTintList(android.content.res.ColorStateList.valueOf(
+                                ContextCompat.getColor(holder.itemView.getContext(), R.color.textSecondary)));
+                    }
                     // Still navigate to details on placeholder click
                     holder.ivIcon.setOnClickListener(v -> {
                         if ("admin_report".equals(item.getStatus())) {

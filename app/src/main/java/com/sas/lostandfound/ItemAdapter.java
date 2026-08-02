@@ -244,14 +244,21 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ViewHolder> {
                 holder.tabLayoutIndicator.setVisibility(View.GONE);
             stopSlider(position);
 
-            if (item.getImageUrl() != null && !item.getImageUrl().isEmpty()) {
-                holder.ivImage.setVisibility(View.VISIBLE);
-                holder.ivImage.setScaleType(ImageView.ScaleType.CENTER_CROP);
+            String imageUrl = item.getImageUrl();
+            if ((imageUrl == null || imageUrl.isEmpty()) && urls != null && !urls.isEmpty()) {
+                imageUrl = urls.get(0);
+            }
+
+            if (imageUrl != null && !imageUrl.isEmpty() && !"null".equalsIgnoreCase(imageUrl.trim())) {
                 if (holder.tvEmoji != null)
                     holder.tvEmoji.setVisibility(View.GONE);
+                holder.ivImage.setVisibility(View.VISIBLE);
+                holder.ivImage.setScaleType(ImageView.ScaleType.CENTER_CROP);
+                holder.ivImage.setImageTintList(null);
+                holder.ivImage.setBackground(null);
+
                 GlideApp.with(holder.itemView.getContext())
-                        .load(SupabaseStorageHelper.ensurePublicUrl(item.getImageUrl()))
-                        .placeholder(R.drawable.ic_package)
+                        .load(SupabaseStorageHelper.ensurePublicUrl(imageUrl))
                         .thumbnail(0.1f)
                         .diskCacheStrategy(DiskCacheStrategy.ALL)
                         .centerCrop()
@@ -266,9 +273,26 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ViewHolder> {
                     }
                 });
             } else {
+                if (holder.tvEmoji != null)
+                    holder.tvEmoji.setVisibility(View.GONE);
                 holder.ivImage.setVisibility(View.VISIBLE);
-                holder.ivImage.setScaleType(ImageView.ScaleType.CENTER_INSIDE);
-                holder.ivImage.setImageResource(R.drawable.ic_package);
+                
+                boolean isCardAdmin = isAdmin || ModeManager.isAdminMode(holder.itemView.getContext()) || holder.itemView.getContext() instanceof ManageItemsActivity;
+                if (isCardAdmin) {
+                    holder.ivImage.setScaleType(ImageView.ScaleType.CENTER_INSIDE);
+                    holder.ivImage.setImageResource(R.drawable.ic_manage_no_image);
+                    int bg = ContextCompat.getColor(holder.itemView.getContext(), R.color.manage_placeholder_bg);
+                    int tint = ContextCompat.getColor(holder.itemView.getContext(), R.color.manage_placeholder_icon);
+                    holder.ivImage.setBackgroundColor(bg);
+                    holder.ivImage.setImageTintList(android.content.res.ColorStateList.valueOf(tint));
+                } else {
+                    holder.ivImage.setScaleType(ImageView.ScaleType.CENTER_INSIDE);
+                    holder.ivImage.setImageResource(R.drawable.ic_package);
+                    holder.ivImage.setBackground(null);
+                    holder.ivImage.setImageTintList(android.content.res.ColorStateList.valueOf(
+                            ContextCompat.getColor(holder.itemView.getContext(), R.color.textSecondary)));
+                }
+
                 // Even if placeholder, click leads to details
                 holder.ivImage.setOnClickListener(v -> {
                     if (listener != null) {
@@ -277,11 +301,6 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ViewHolder> {
                         ItemNavigationUtils.navigateToDetail(v.getContext(), item, isAdmin);
                     }
                 });
-                if (holder.tvEmoji != null) {
-                    holder.ivImage.setVisibility(View.GONE);
-                    holder.tvEmoji.setVisibility(View.VISIBLE);
-                    holder.tvEmoji.setText("📦");
-                }
             }
         }
     }

@@ -537,11 +537,11 @@
     <color name="search_chip_resolved_selected_bg">#1AA78BFA</color>
 
     <!-- Item Details Screen Colors (Night Mode - Premium Subtle Dark Theme) -->
-    <color name="item_details_header_bg">#0F172A</color>
-    <color name="item_details_header_bg_start">#0F172A</color>
-    <color name="item_details_header_bg_end">#0F172A</color>
+    <color name="item_details_header_bg">@color/profile_background</color>
+    <color name="item_details_header_bg_start">@color/profile_background</color>
+    <color name="item_details_header_bg_end">@color/profile_background</color>
     <color name="item_details_header_title">#F8FAFC</color>
-    <color name="item_details_image_container_bg">#1E293B</color>
+    <color name="item_details_image_container_bg">@color/profile_background</color>
     <color name="item_details_card_bg">#1E293B</color>
     
     <!-- Item Details Text Colors (Night Mode - Premium Balanced Contrast) -->
@@ -616,6 +616,10 @@
     <color name="item_details_btn_claim_text">#F8FAFC</color>
     <color name="item_details_icon_btn_claim">#38BDF8</color>
 
+    <color name="badge_edited_bg">#2A1B0E</color>
+    <color name="badge_edited_stroke">#D97706</color>
+    <color name="badge_edited_text">#FBBF24</color>
+
     <color name="btn_report_problem_bg">#2A1B0E</color>
     <color name="btn_report_problem_stroke">#D97706</color>
     <color name="btn_report_problem_text">#FBBF24</color>
@@ -645,6 +649,11 @@
     <color name="empty_admin_desc_color">#94A3B8</color>
     <color name="empty_admin_card_bg">#082F49</color>
     <color name="empty_admin_card_stroke">#0284C7</color>
+
+    <!-- Admin Item Details Header Colors (Night Mode - Perfect Page Background Matching) -->
+    <color name="admin_item_details_header_bg">@color/profile_background</color>
+    <color name="admin_item_details_header_title">#F8FAFC</color>
+    <color name="admin_item_details_header_nav_icon">#38BDF8</color>
 
     <!-- Custom Screens Backgrounds and Headers (Night Mode - Unique Premium Palettes) -->
     <!-- 1. All Reported Items (Deep Space Blue & Navy) -->
@@ -797,9 +806,11 @@
     <color name="profile_admin_view_email_text">#A5B4FC</color>
     <color name="profile_admin_view_phone_text">#86EFAC</color>
 
-    <!-- Manage All Items Redesign Colors (Night Mode - Unique Premium Palette) -->
+    <!-- Admin Manage All Items Redesign Colors (Night Mode - Unique Premium Palette) -->
     <color name="manage_screen_bg">@color/profile_background</color>
     <color name="manage_header_bg">@color/profile_header_bg</color>
+    <color name="manage_placeholder_bg">#1E293B</color>
+    <color name="manage_placeholder_icon">#64748B</color>
     <color name="manage_stat_card_all_bg">#1E1B4B</color>
     <color name="manage_stat_card_lost_bg">#31102F</color>
     <color name="manage_stat_card_found_bg">#062F22</color>
@@ -825,6 +836,9 @@
     <color name="manage_filter_menu_text">#DDD6FE</color>
     <color name="manage_card_bg">#1E293B</color>
     <color name="manage_card_border">#334155</color>
+    <color name="manage_card_title">#F8FAFC</color>
+    <color name="manage_card_subtext">#94A3B8</color>
+    <color name="manage_card_icon_tint">#94A3B8</color>
     <color name="manage_text_primary">#F8FAFC</color>
     <color name="manage_text_secondary">#94A3B8</color>
     <color name="manage_icon_location">#34D399</color>
