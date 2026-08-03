@@ -1150,4 +1150,36 @@
     <color name="cd_icon_btn_mark_tint">#FFFFFF</color>
     <color name="cd_icon_btn_call_tint">#60A5FA</color>
     <color name="cd_icon_btn_email_tint">#C084FC</color>
+
+    <!-- Reset Password Specific Colors (Night Mode) -->
+    <color name="reset_password_background">#0F172A</color>
+    <color name="reset_password_header_bg">#1E293B</color>
+    <color name="reset_password_header_title">#F8FAFC</color>
+    <color name="reset_password_header_icon">#F8FAFC</color>
+    <color name="reset_password_text_primary">#F8FAFC</color>
+    <color name="reset_password_text_secondary">#94A3B8</color>
+    <color name="reset_password_logo_circle_bg">#1E293B</color>
+    <color name="reset_password_logo_circle_stroke">#334155</color>
+    <color name="reset_password_input_bg">#1E293B</color>
+    <color name="reset_password_input_stroke">#334155</color>
+    <color name="reset_password_input_stroke_focused">#6366F1</color>
+    <color name="reset_password_hint_text">#64748B</color>
+    <color name="reset_password_hint_focused">#818CF8</color>
+    <color name="reset_password_cursor">#818CF8</color>
+    <color name="reset_password_button_bg">#6366F1</color>
+    <color name="reset_password_button_text">#FFFFFF</color>
+    <color name="reset_password_button_stroke">#818CF8</color>
+    <color name="reset_password_progress_indicator">#6366F1</color>
+    <color name="reset_password_divider">#334155</color>
+
+    <!-- Unique Icon Colors for Reset Password (Night Mode - Every Icon Unique Accent) -->
+    <color name="reset_password_icon_university_id">#38BDF8</color>
+    <color name="reset_password_icon_email">#FB7185</color>
+    <color name="reset_password_icon_new_password">#F59E0B</color>
+    <color name="reset_password_icon_confirm_password">#818CF8</color>
+    <color name="reset_password_icon_password_toggle">#C084FC</color>
+    <color name="reset_password_icon_confirm_toggle">#2DD4BF</color>
+    <color name="reset_password_icon_success">#34D399</color>
+    <color name="reset_password_icon_back">#F8FAFC</color>
 </resources>
+

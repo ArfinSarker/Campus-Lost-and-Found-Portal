@@ -1159,4 +1159,36 @@
     <color name="cd_icon_btn_mark_tint">@color/white</color>
     <color name="cd_icon_btn_call_tint">@color/primaryColor</color>
     <color name="cd_icon_btn_email_tint">@color/admin_accent</color>
+
+    <!-- Reset Password Specific Colors (Light Mode) -->
+    <color name="reset_password_background">@color/backgroundColor</color>
+    <color name="reset_password_header_bg">@color/primaryDarkColor</color>
+    <color name="reset_password_header_title">@color/white</color>
+    <color name="reset_password_header_icon">@color/white</color>
+    <color name="reset_password_text_primary">@color/text_black_dynamic</color>
+    <color name="reset_password_text_secondary">@color/textSecondary</color>
+    <color name="reset_password_logo_circle_bg">#FFFFFF</color>
+    <color name="reset_password_logo_circle_stroke">#E2E8F0</color>
+    <color name="reset_password_input_bg">@color/transparent</color>
+    <color name="reset_password_input_stroke">#CBD5E1</color>
+    <color name="reset_password_input_stroke_focused">@color/primaryColor</color>
+    <color name="reset_password_hint_text">@color/textHint</color>
+    <color name="reset_password_hint_focused">@color/primaryColor</color>
+    <color name="reset_password_cursor">@color/primaryColor</color>
+    <color name="reset_password_button_bg">@color/primaryColor</color>
+    <color name="reset_password_button_text">@color/white</color>
+    <color name="reset_password_button_stroke">@color/primaryColor</color>
+    <color name="reset_password_progress_indicator">@color/primaryColor</color>
+    <color name="reset_password_divider">#E2E8F0</color>
+
+    <!-- Unique Icon Colors for Reset Password (Light Mode) -->
+    <color name="reset_password_icon_university_id">@color/primaryColor</color>
+    <color name="reset_password_icon_email">@color/primaryColor</color>
+    <color name="reset_password_icon_new_password">@color/primaryColor</color>
+    <color name="reset_password_icon_confirm_password">@color/primaryColor</color>
+    <color name="reset_password_icon_password_toggle">@color/primaryColor</color>
+    <color name="reset_password_icon_confirm_toggle">@color/primaryColor</color>
+    <color name="reset_password_icon_success">@color/success</color>
+    <color name="reset_password_icon_back">@color/white</color>
 </resources>
+

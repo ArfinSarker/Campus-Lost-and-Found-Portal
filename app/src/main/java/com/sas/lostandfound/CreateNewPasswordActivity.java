@@ -35,7 +35,9 @@ public class CreateNewPasswordActivity extends AppCompatActivity {
 
         initializeViews();
         if (appBarLayout != null) {
-            HeaderColorHelper.setup(this, appBarLayout);
+            int headerColor = androidx.core.content.ContextCompat.getColor(this, R.color.reset_password_header_bg);
+            boolean isNight = (getResources().getConfiguration().uiMode & android.content.res.Configuration.UI_MODE_NIGHT_MASK) == android.content.res.Configuration.UI_MODE_NIGHT_YES;
+            HeaderColorHelper.setup(this, appBarLayout, headerColor, headerColor, !isNight);
         }
         handleIntent(getIntent());
         setupKeyboardListener();
