@@ -1190,5 +1190,10 @@
     <color name="reset_password_icon_confirm_toggle">@color/primaryColor</color>
     <color name="reset_password_icon_success">@color/success</color>
     <color name="reset_password_icon_back">@color/white</color>
+
+    <!-- Submit Report Loading Specific Colors (Light Mode) -->
+    <color name="report_submit_loading_bg">#FFFFFF</color>
+    <color name="report_submit_loading_stroke">@color/primaryColor</color>
 </resources>
+
 

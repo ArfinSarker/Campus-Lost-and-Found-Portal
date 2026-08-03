@@ -1181,5 +1181,10 @@
     <color name="reset_password_icon_confirm_toggle">#2DD4BF</color>
     <color name="reset_password_icon_success">#34D399</color>
     <color name="reset_password_icon_back">#F8FAFC</color>
+
+    <!-- Submit Report Loading Specific Colors (Night Mode) -->
+    <color name="report_submit_loading_bg">#1E293B</color>
+    <color name="report_submit_loading_stroke">#334155</color>
 </resources>
+
 

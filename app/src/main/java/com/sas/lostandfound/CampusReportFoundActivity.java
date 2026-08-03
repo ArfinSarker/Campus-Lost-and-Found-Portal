@@ -802,10 +802,11 @@ public class CampusReportFoundActivity extends AppCompatActivity {
         if (isLoading) {
             btnSubmit.setEnabled(false);
             btnSubmit.setText("");
-            btnSubmit.setBackgroundTintList(android.content.res.ColorStateList.valueOf(android.graphics.Color.WHITE));
+            int loadingBg = androidx.core.content.ContextCompat.getColor(this, R.color.report_submit_loading_bg);
+            int loadingStroke = androidx.core.content.ContextCompat.getColor(this, R.color.report_submit_loading_stroke);
+            btnSubmit.setBackgroundTintList(android.content.res.ColorStateList.valueOf(loadingBg));
             btnSubmit.setStrokeWidth((int) (2 * getResources().getDisplayMetrics().density));
-            btnSubmit.setStrokeColor(android.content.res.ColorStateList.valueOf(
-                    androidx.core.content.ContextCompat.getColor(this, R.color.primaryColor)));
+            btnSubmit.setStrokeColor(android.content.res.ColorStateList.valueOf(loadingStroke));
             loadingAnimation.setVisibility(View.VISIBLE);
             loadingAnimation.playAnimation();
         } else {
