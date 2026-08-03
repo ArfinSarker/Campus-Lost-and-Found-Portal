@@ -1185,6 +1185,37 @@
     <!-- Submit Report Loading Specific Colors (Night Mode) -->
     <color name="report_submit_loading_bg">#1E293B</color>
     <color name="report_submit_loading_stroke">#334155</color>
+
+    <!-- Sent Chat Request Specific Colors (Night Mode - Dedicated Palette) -->
+    <color name="chat_request_background">#0F172A</color>
+    <color name="chat_request_header_bg">#1E293B</color>
+    <color name="chat_request_header_title">#F8FAFC</color>
+    <color name="chat_request_header_icon">#F8FAFC</color>
+    <color name="chat_request_section_title">#818CF8</color>
+    <color name="chat_request_text_primary">#F8FAFC</color>
+    <color name="chat_request_text_secondary">#94A3B8</color>
+    <color name="chat_request_text_category">#38BDF8</color>
+    <color name="chat_request_card_bg">#1E293B</color>
+    <color name="chat_request_card_stroke">#334155</color>
+    <color name="chat_request_avatar_bg">#0F172A</color>
+    <color name="chat_request_avatar_stroke">#334155</color>
+    <color name="chat_request_avatar_tint">#818CF8</color>
+    <color name="chat_request_input_bg">#1E293B</color>
+    <color name="chat_request_input_stroke">#334155</color>
+    <color name="chat_request_input_stroke_focused">#6366F1</color>
+    <color name="chat_request_hint_text">#64748B</color>
+    <color name="chat_request_hint_focused">#818CF8</color>
+    <color name="chat_request_input_text">#F8FAFC</color>
+    <color name="chat_request_cursor">#818CF8</color>
+    <color name="chat_request_button_bg">#6366F1</color>
+    <color name="chat_request_button_text">#FFFFFF</color>
+    <color name="chat_request_button_stroke">#818CF8</color>
+    <color name="chat_request_divider">#334155</color>
+    <color name="chat_request_progress_indicator">#6366F1</color>
+    <color name="chat_request_placeholder_bg">#0F172A</color>
+    <color name="chat_request_placeholder_icon">#38BDF8</color>
 </resources>
+
+
 
 

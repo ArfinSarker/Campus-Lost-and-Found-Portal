@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="80dp"
+    android:height="80dp"
+    android:viewportWidth="80"
+    android:viewportHeight="80">
+
+    <!-- Background Fill -->
+    <path
+        android:fillColor="@color/chat_request_placeholder_bg"
+        android:pathData="M12,0 L68,0 A12,12 0 0,1 80,12 L80,68 A12,12 0 0,1 68,80 L12,80 A12,12 0 0,1 0,68 L0,12 A12,12 0 0,1 12,0 Z" />
+
+    <!-- Centered Package Vector Icon -->
+    <path
+        android:strokeColor="@color/chat_request_placeholder_icon"
+        android:strokeWidth="2.5"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round"
+        android:fillColor="#00000000"
+        android:pathData="M40,25 L56,33.5 L40,42 L24,33.5 Z" />
+    <path
+        android:strokeColor="@color/chat_request_placeholder_icon"
+        android:strokeWidth="2.5"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round"
+        android:fillColor="#00000000"
+        android:pathData="M24,33.5 V51.5 L40,60 V42" />
+    <path
+        android:strokeColor="@color/chat_request_placeholder_icon"
+        android:strokeWidth="2.5"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round"
+        android:fillColor="#00000000"
+        android:pathData="M56,33.5 V51.5 L40,60" />
+</vector>

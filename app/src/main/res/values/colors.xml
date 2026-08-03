@@ -1194,6 +1194,37 @@
     <!-- Submit Report Loading Specific Colors (Light Mode) -->
     <color name="report_submit_loading_bg">#FFFFFF</color>
     <color name="report_submit_loading_stroke">@color/primaryColor</color>
+
+    <!-- Sent Chat Request Specific Colors (Light Mode) -->
+    <color name="chat_request_background">@color/backgroundColor</color>
+    <color name="chat_request_header_bg">@color/primaryDarkColor</color>
+    <color name="chat_request_header_title">@color/white</color>
+    <color name="chat_request_header_icon">@color/white</color>
+    <color name="chat_request_section_title">@color/primaryColor</color>
+    <color name="chat_request_text_primary">@color/textPrimary</color>
+    <color name="chat_request_text_secondary">@color/textSecondary</color>
+    <color name="chat_request_text_category">@color/primaryColor</color>
+    <color name="chat_request_card_bg">@color/surfaceColor</color>
+    <color name="chat_request_card_stroke">#CBD5E1</color>
+    <color name="chat_request_avatar_bg">@color/surfaceColor</color>
+    <color name="chat_request_avatar_stroke">#CBD5E1</color>
+    <color name="chat_request_avatar_tint">@color/primaryColor</color>
+    <color name="chat_request_input_bg">@color/transparent</color>
+    <color name="chat_request_input_stroke">#CBD5E1</color>
+    <color name="chat_request_input_stroke_focused">@color/primaryColor</color>
+    <color name="chat_request_hint_text">@color/textHint</color>
+    <color name="chat_request_hint_focused">@color/primaryColor</color>
+    <color name="chat_request_input_text">@color/textPrimary</color>
+    <color name="chat_request_cursor">@color/primaryColor</color>
+    <color name="chat_request_button_bg">@color/primaryColor</color>
+    <color name="chat_request_button_text">@color/white</color>
+    <color name="chat_request_button_stroke">@color/primaryColor</color>
+    <color name="chat_request_divider">#E2E8F0</color>
+    <color name="chat_request_progress_indicator">@color/primaryColor</color>
+    <color name="chat_request_placeholder_bg">#F1F5F9</color>
+    <color name="chat_request_placeholder_icon">#475569</color>
 </resources>
+
+
 
 
