@@ -536,10 +536,10 @@
     <color name="search_chip_resolved_selected">#A78BFA</color>
     <color name="search_chip_resolved_selected_bg">#1AA78BFA</color>
 
-    <!-- Item Details Screen Colors (Night Mode - Premium Subtle Dark Theme) -->
-    <color name="item_details_header_bg">@color/profile_background</color>
-    <color name="item_details_header_bg_start">@color/profile_background</color>
-    <color name="item_details_header_bg_end">@color/profile_background</color>
+    <!-- Item Details Screen Colors (Night Mode - Premium Elevated Slate Header) -->
+    <color name="item_details_header_bg">#1E293B</color>
+    <color name="item_details_header_bg_start">#1E293B</color>
+    <color name="item_details_header_bg_end">#1E293B</color>
     <color name="item_details_header_title">#F8FAFC</color>
     <color name="item_details_image_container_bg">@color/profile_background</color>
     <color name="item_details_card_bg">#1E293B</color>
@@ -650,10 +650,10 @@
     <color name="empty_admin_card_bg">#082F49</color>
     <color name="empty_admin_card_stroke">#0284C7</color>
 
-    <!-- Admin Item Details Header Colors (Night Mode - Perfect Page Background Matching) -->
-    <color name="admin_item_details_header_bg">@color/profile_background</color>
+    <!-- Admin Item Details Header Colors (Night Mode - High Contrast Header) -->
+    <color name="admin_item_details_header_bg">#1E293B</color>
     <color name="admin_item_details_header_title">#F8FAFC</color>
-    <color name="admin_item_details_header_nav_icon">#38BDF8</color>
+    <color name="admin_item_details_header_nav_icon">#F8FAFC</color>
 
     <!-- Custom Screens Backgrounds and Headers (Night Mode - Unique Premium Palettes) -->
     <!-- 1. All Reported Items (Deep Space Blue & Navy) -->
@@ -1214,7 +1214,26 @@
     <color name="chat_request_progress_indicator">#6366F1</color>
     <color name="chat_request_placeholder_bg">#0F172A</color>
     <color name="chat_request_placeholder_icon">#38BDF8</color>
+
+    <!-- Theme Toggle Switch Colors (Night Mode - Dedicated Premium Dark Palette) -->
+    <color name="theme_switch_track_on">#1E1B4B</color>
+    <color name="theme_switch_track_off">#334155</color>
+    <color name="theme_switch_thumb_on">#6366F1</color>
+    <color name="theme_switch_thumb_off">#FBBF24</color>
+    <color name="theme_switch_icon_on">#F8FAFC</color>
+    <color name="theme_switch_icon_off">#0F172A</color>
+
+    <!-- Modern Premium Material 3 Button Colors (Night Mode - Dedicated Premium Palette) -->
+    <color name="btn_primary_bg">#6366F1</color>
+    <color name="btn_primary_text">#FFFFFF</color>
+    <color name="btn_secondary_bg">#1E293B</color>
+    <color name="btn_secondary_stroke">#334155</color>
+    <color name="btn_secondary_text">#F8FAFC</color>
+    <color name="btn_text_color">#818CF8</color>
+    <color name="btn_ripple_color">#33818CF8</color>
 </resources>
+
+
 
 
 

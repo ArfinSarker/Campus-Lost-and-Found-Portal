@@ -236,10 +236,10 @@ public class ItemDetailActivity extends AppCompatActivity {
     }
 
     private void setupScrollBehavior() {
+        boolean isNight = (getResources().getConfiguration().uiMode & android.content.res.Configuration.UI_MODE_NIGHT_MASK) == android.content.res.Configuration.UI_MODE_NIGHT_YES;
         if (isAdminMode) {
             int headerColor = ContextCompat.getColor(this, R.color.admin_item_details_header_bg);
-            boolean lightStatusBar = !ThemeManager.isDarkModeEnabled(this);
-            HeaderColorHelper.setup(this, appBarLayout, headerColor, headerColor, lightStatusBar);
+            HeaderColorHelper.setup(this, appBarLayout, headerColor, headerColor, !isNight);
             if (appBarLayout != null) {
                 appBarLayout.setBackgroundColor(headerColor);
             }
@@ -257,8 +257,21 @@ public class ItemDetailActivity extends AppCompatActivity {
         } else {
             int startColor = ContextCompat.getColor(this, R.color.item_details_header_bg_start);
             int endColor = ContextCompat.getColor(this, R.color.item_details_header_bg_end);
-            boolean lightStatusBar = !ThemeManager.isDarkModeEnabled(this);
-            HeaderColorHelper.setup(this, appBarLayout, startColor, endColor, lightStatusBar);
+            HeaderColorHelper.setup(this, appBarLayout, startColor, endColor, !isNight);
+            if (appBarLayout != null) {
+                appBarLayout.setBackgroundColor(startColor);
+            }
+            if (toolbar != null) {
+                int navColor = ContextCompat.getColor(this, R.color.item_details_icon_nav_back);
+                if (toolbar instanceof com.google.android.material.appbar.MaterialToolbar) {
+                    ((com.google.android.material.appbar.MaterialToolbar) toolbar).setNavigationIconTint(navColor);
+                } else if (toolbar.getNavigationIcon() != null) {
+                    androidx.core.graphics.drawable.DrawableCompat.setTint(toolbar.getNavigationIcon(), navColor);
+                }
+            }
+            if (tvHeaderTitle != null) {
+                tvHeaderTitle.setTextColor(ContextCompat.getColor(this, R.color.item_details_header_title));
+            }
         }
     }
 

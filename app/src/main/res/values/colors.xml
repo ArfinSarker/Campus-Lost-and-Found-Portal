@@ -1223,7 +1223,26 @@
     <color name="chat_request_progress_indicator">@color/primaryColor</color>
     <color name="chat_request_placeholder_bg">#F1F5F9</color>
     <color name="chat_request_placeholder_icon">#475569</color>
+
+    <!-- Theme Toggle Switch Colors (Light Mode) -->
+    <color name="theme_switch_track_on">#312E81</color>
+    <color name="theme_switch_track_off">#E0F2FE</color>
+    <color name="theme_switch_thumb_on">#818CF8</color>
+    <color name="theme_switch_thumb_off">#F59E0B</color>
+    <color name="theme_switch_icon_on">#FFFFFF</color>
+    <color name="theme_switch_icon_off">#FFFFFF</color>
+
+    <!-- Modern Premium Material 3 Button Colors (Light Mode) -->
+    <color name="btn_primary_bg">#2563EB</color>
+    <color name="btn_primary_text">#FFFFFF</color>
+    <color name="btn_secondary_bg">#F1F5F9</color>
+    <color name="btn_secondary_stroke">#CBD5E1</color>
+    <color name="btn_secondary_text">#1E293B</color>
+    <color name="btn_text_color">#2563EB</color>
+    <color name="btn_ripple_color">#262563EB</color>
 </resources>
+
+
 
 
 

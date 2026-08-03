@@ -276,10 +276,11 @@ public class AdminReportReviewActivity extends AppCompatActivity {
             
             com.google.android.material.appbar.AppBarLayout appBarLayout = findViewById(R.id.appBarLayout);
             if (appBarLayout != null) {
-                int headerColor = ContextCompat.getColor(this, R.color.report_details_bg_main);
+                int headerColor = ContextCompat.getColor(this, R.color.item_details_header_bg_start);
                 boolean isNight = (getResources().getConfiguration().uiMode & android.content.res.Configuration.UI_MODE_NIGHT_MASK) 
                         == android.content.res.Configuration.UI_MODE_NIGHT_YES;
                 HeaderColorHelper.setup(this, appBarLayout, headerColor, headerColor, !isNight);
+                appBarLayout.setBackgroundColor(headerColor);
             }
         }
     }

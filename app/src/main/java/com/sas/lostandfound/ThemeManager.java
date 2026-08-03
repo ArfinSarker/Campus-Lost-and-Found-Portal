@@ -11,11 +11,13 @@ import androidx.appcompat.app.AppCompatDelegate;
 public class ThemeManager {
     private static final String PREFS_NAME = "MyApp";
     private static final String KEY_DARK_MODE = "darkModeEnabled";
+    private static Boolean cachedDarkMode = null;
 
     /**
      * Resolves the current theme setting from preferences and applies it.
      */
     public static void applyTheme(Context context) {
+        if (context == null) return;
         boolean isDark = isDarkModeEnabled(context);
         applyThemeMode(isDark);
     }
@@ -24,10 +26,9 @@ public class ThemeManager {
      * Applies the given theme mode using AppCompatDelegate.
      */
     public static void applyThemeMode(boolean isDark) {
-        if (isDark) {
-            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
-        } else {
-            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
+        int targetMode = isDark ? AppCompatDelegate.MODE_NIGHT_YES : AppCompatDelegate.MODE_NIGHT_NO;
+        if (AppCompatDelegate.getDefaultNightMode() != targetMode) {
+            AppCompatDelegate.setDefaultNightMode(targetMode);
         }
     }
 
@@ -35,14 +36,26 @@ public class ThemeManager {
      * Retrieves the persisted theme preference. Defaults to false (Light Mode).
      */
     public static boolean isDarkModeEnabled(Context context) {
+        if (cachedDarkMode != null) {
+            return cachedDarkMode;
+        }
+        if (context == null) return false;
         SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
-        return prefs.getBoolean(KEY_DARK_MODE, false);
+        cachedDarkMode = prefs.getBoolean(KEY_DARK_MODE, false);
+        return cachedDarkMode;
     }
 
     /**
      * Persists the selected theme preference and applies it immediately.
      */
     public static void setDarkModeEnabled(Context context, boolean enabled) {
+        if (context == null) return;
+        cachedDarkMode = enabled;
+        int targetMode = enabled ? AppCompatDelegate.MODE_NIGHT_YES : AppCompatDelegate.MODE_NIGHT_NO;
+        if (AppCompatDelegate.getDefaultNightMode() == targetMode) {
+            return;
+        }
+
         SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
         prefs.edit().putBoolean(KEY_DARK_MODE, enabled).apply();
         applyThemeMode(enabled);

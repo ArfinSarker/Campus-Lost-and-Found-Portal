@@ -490,12 +490,12 @@ public class CampusDashboardActivity extends AppCompatActivity {
                         if (switchView != null) {
                             boolean newState = !switchView.isChecked();
                             switchView.setChecked(newState);
+                            darkModeItem.setTitle(newState ? "Day Mode" : "Night Mode");
+                            darkModeItem.setIcon(newState ? R.drawable.ic_sun : R.drawable.ic_moon);
                             
-                            // Post-delay the theme change to allow the switch slide animation to complete smoothly
-                            new android.os.Handler(android.os.Looper.getMainLooper()).postDelayed(() -> {
-                                ThemeManager.setDarkModeEnabled(CampusDashboardActivity.this, newState);
-                                overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
-                            }, 220);
+                            // Apply theme synchronously so UI transitions immediately without frame lag
+                            ThemeManager.setDarkModeEnabled(CampusDashboardActivity.this, newState);
+                            overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
                         }
                     }
                     return true;
