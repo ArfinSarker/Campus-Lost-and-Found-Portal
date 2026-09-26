@@ -24,6 +24,12 @@ public class Message {
     @SerializedName("receiver_marked_unread")
     private boolean receiverMarkedUnread;
 
+    @SerializedName("image_url")
+    private String imageUrl;
+
+    @SerializedName("media_urls")
+    private java.util.List<String> mediaUrls;
+
     @SerializedName("created_at")
     private String createdAt;
 
@@ -33,6 +39,23 @@ public class Message {
         this.conversationId = conversationId;
         this.senderId = senderId;
         this.messageText = messageText;
+    }
+
+    public Message(String conversationId, String senderId, String messageText, String imageUrl) {
+        this.conversationId = conversationId;
+        this.senderId = senderId;
+        this.messageText = messageText;
+        this.imageUrl = imageUrl;
+    }
+
+    public Message(String conversationId, String senderId, String messageText, java.util.List<String> mediaUrls) {
+        this.conversationId = conversationId;
+        this.senderId = senderId;
+        this.messageText = messageText;
+        this.mediaUrls = mediaUrls;
+        if (mediaUrls != null && !mediaUrls.isEmpty()) {
+            this.imageUrl = mediaUrls.get(0);
+        }
     }
 
     public String getId() { return id; }
@@ -46,6 +69,27 @@ public class Message {
 
     public String getMessageText() { return messageText; }
     public void setMessageText(String messageText) { this.messageText = messageText; }
+
+    public String getImageUrl() { return imageUrl; }
+    public void setImageUrl(String imageUrl) { this.imageUrl = imageUrl; }
+
+    public java.util.List<String> getMediaUrls() { return mediaUrls; }
+    public void setMediaUrls(java.util.List<String> mediaUrls) {
+        this.mediaUrls = mediaUrls;
+        if ((this.imageUrl == null || this.imageUrl.isEmpty()) && mediaUrls != null && !mediaUrls.isEmpty()) {
+            this.imageUrl = mediaUrls.get(0);
+        }
+    }
+
+    public java.util.List<String> getAllImageUrls() {
+        java.util.List<String> result = new java.util.ArrayList<>();
+        if (mediaUrls != null && !mediaUrls.isEmpty()) {
+            result.addAll(mediaUrls);
+        } else if (imageUrl != null && !imageUrl.isEmpty()) {
+            result.add(imageUrl);
+        }
+        return result;
+    }
 
     public boolean isRead() { return isRead; }
     public void setRead(boolean read) { isRead = read; }

@@ -1067,6 +1067,11 @@ public class MessagingActivity extends AppCompatActivity {
                         displayLastMsg = meta.text;
                     }
                 }
+
+                if (displayLastMsg != null && (displayLastMsg.startsWith("http://") || displayLastMsg.startsWith("https://"))
+                        && (displayLastMsg.contains("/chat_images/") || displayLastMsg.contains(".jpg") || displayLastMsg.contains(".png") || displayLastMsg.contains(".webp"))) {
+                    displayLastMsg = "📷 Photo";
+                }
             }
             holder.tvLastMessage.setText(displayLastMsg);
             holder.tvTimestamp.setText(formatTime(c.getLastMessageTime()));

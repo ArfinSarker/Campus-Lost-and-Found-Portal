@@ -42,7 +42,15 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.TimeZone;
 
+import android.net.Uri;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
+
 public class ChatActivity extends AppCompatActivity {
+
+    private ActivityResultLauncher<Intent> imagePickerLauncher;
+    private ActivityResultLauncher<Intent> imagePreviewLauncher;
+    private View btnAttachImageCard, btnAttachImage;
 
     public static class MessageMeta {
         public String text;
@@ -146,6 +154,49 @@ public class ChatActivity extends AppCompatActivity {
         reportId = getIntent().getStringExtra("reportId");
         itemName = getIntent().getStringExtra("itemName");
 
+        imagePickerLauncher = registerForActivityResult(
+            new ActivityResultContracts.StartActivityForResult(),
+            result -> {
+                if (result.getResultCode() == RESULT_OK && result.getData() != null) {
+                    Intent data = result.getData();
+                    ArrayList<Uri> uris = new ArrayList<>();
+                    if (data.getClipData() != null) {
+                        int count = Math.min(data.getClipData().getItemCount(), 20);
+                        for (int i = 0; i < count; i++) {
+                            uris.add(data.getClipData().getItemAt(i).getUri());
+                        }
+                    } else if (data.getData() != null) {
+                        uris.add(data.getData());
+                    }
+
+                    if (!uris.isEmpty()) {
+                        Intent stagingIntent = new Intent(this, ImageStagingActivity.class);
+                        stagingIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+                        stagingIntent.putParcelableArrayListExtra("image_uris", uris);
+                        stagingIntent.putExtra("conversationId", conversationId);
+                        stagingIntent.putExtra("currentUnivId", currentUnivId);
+                        if (!uris.isEmpty()) {
+                            android.content.ClipData clipData = android.content.ClipData.newUri(getContentResolver(), "image", uris.get(0));
+                            for (int i = 1; i < uris.size(); i++) {
+                                clipData.addItem(new android.content.ClipData.Item(uris.get(i)));
+                            }
+                            stagingIntent.setClipData(clipData);
+                        }
+                        imagePreviewLauncher.launch(stagingIntent);
+                    }
+                }
+            }
+        );
+
+        imagePreviewLauncher = registerForActivityResult(
+            new ActivityResultContracts.StartActivityForResult(),
+            result -> {
+                if (result.getResultCode() == RESULT_OK) {
+                    loadMessages(true);
+                }
+            }
+        );
+
         initializeViews();
         setupToolbar();
 
@@ -241,6 +292,14 @@ public class ChatActivity extends AppCompatActivity {
         UnreadBadgeHelper.sendBadgeUpdateBroadcast(this);
     }
 
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if (pollHandler != null) {
+            pollHandler.removeCallbacks(pollRunnable);
+        }
+    }
+
     private void initializeViews() {
         toolbar = findViewById(R.id.toolbar);
         ivHeaderAvatar = findViewById(R.id.ivHeaderAvatar);
@@ -270,6 +329,87 @@ public class ChatActivity extends AppCompatActivity {
         layoutBlockedComposer = findViewById(R.id.layoutBlockedComposer);
         btnBlockedDeleteChat = findViewById(R.id.btnBlockedDeleteChat);
         btnBlockedUnblock = findViewById(R.id.btnBlockedUnblock);
+
+        btnAttachImageCard = findViewById(R.id.btnAttachImageCard);
+        btnAttachImage = findViewById(R.id.btnAttachImage);
+        if (btnAttachImageCard != null) {
+            btnAttachImageCard.setOnClickListener(v -> openGalleryPicker());
+        }
+        if (btnAttachImage != null) {
+            btnAttachImage.setOnClickListener(v -> openGalleryPicker());
+        }
+    }
+
+    private void openGalleryPicker() {
+        Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
+        intent.setType("image/*");
+        intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true);
+        intent.putExtra(Intent.EXTRA_MIME_TYPES, new String[]{"image/jpeg", "image/png", "image/webp"});
+        imagePickerLauncher.launch(Intent.createChooser(intent, "Select Images"));
+    }
+
+    private void uploadAndSendMultipleImages(List<Uri> imageUris) {
+        if (imageUris == null || imageUris.isEmpty() || conversationId == null || currentUnivId == null) return;
+
+        android.app.ProgressDialog progressDialog = new android.app.ProgressDialog(this);
+        progressDialog.setMessage("Uploading 1 of " + imageUris.size() + "...");
+        progressDialog.setCancelable(false);
+        progressDialog.show();
+
+        List<String> uploadedUrls = new ArrayList<>();
+        uploadNextImageInBatch(imageUris, 0, uploadedUrls, progressDialog);
+    }
+
+    private void uploadNextImageInBatch(List<Uri> imageUris, int index, List<String> uploadedUrls, android.app.ProgressDialog progressDialog) {
+        if (index >= imageUris.size()) {
+            if (!isFinishing() && !isDestroyed()) {
+                progressDialog.dismiss();
+            }
+            if (!uploadedUrls.isEmpty()) {
+                sendMultiImageMessagePayload(uploadedUrls);
+            }
+            return;
+        }
+
+        if (!isFinishing() && !isDestroyed()) {
+            progressDialog.setMessage("Uploading " + (index + 1) + " of " + imageUris.size() + "...");
+        }
+
+        Uri currentUri = imageUris.get(index);
+        SupabaseStorageHelper.uploadImage(this, currentUri, new SupabaseStorageHelper.UploadCallback() {
+            @Override
+            public void onSuccess(String publicUrl) {
+                if (publicUrl != null && !publicUrl.isEmpty()) {
+                    uploadedUrls.add(publicUrl);
+                }
+                uploadNextImageInBatch(imageUris, index + 1, uploadedUrls, progressDialog);
+            }
+
+            @Override
+            public void onFailure(Exception e) {
+                // Continue with remaining images if one fails
+                uploadNextImageInBatch(imageUris, index + 1, uploadedUrls, progressDialog);
+            }
+        });
+    }
+
+    private void sendMultiImageMessagePayload(List<String> imageUrls) {
+        if (imageUrls == null || imageUrls.isEmpty()) return;
+
+        String captionText = imageUrls.size() > 1 ? "[" + imageUrls.size() + " Photos]" : "[Photo]";
+        Message imageMessage = new Message(conversationId, currentUnivId, captionText, imageUrls);
+        SupabaseDatabaseHelper.insert("messages", imageMessage, new SupabaseDatabaseHelper.DatabaseCallback<String>() {
+            @Override
+            public void onSuccess(String result) {
+                UnreadBadgeHelper.sendBadgeUpdateBroadcast(ChatActivity.this);
+                loadMessages(true);
+            }
+
+            @Override
+            public void onFailure(String error) {
+                android.widget.Toast.makeText(ChatActivity.this, "Failed to send image message: " + error, android.widget.Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 
     private void setupToolbar() {
@@ -534,6 +674,7 @@ public class ChatActivity extends AppCompatActivity {
             etMessageInput.setText("");
             etMessageInput.setHint("You can't send messages to this user.");
             btnSendMessageCard.setVisibility(View.GONE);
+            if (btnAttachImageCard != null) btnAttachImageCard.setVisibility(View.GONE);
             if (tvHeaderStatus != null) tvHeaderStatus.setVisibility(View.GONE);
 
             if (cardBlockNotice != null) {
@@ -554,6 +695,7 @@ public class ChatActivity extends AppCompatActivity {
             btnSendMessageCard.setVisibility(View.VISIBLE);
             btnSendMessageCard.setEnabled(true);
             btnSendMessageCard.setCardBackgroundColor(ColorStateList.valueOf(getResources().getColor(R.color.primaryColor)));
+            if (btnAttachImageCard != null) btnAttachImageCard.setVisibility(View.VISIBLE);
 
             if (cardBlockNotice != null && !"You unblocked this person.".equals(tvBlockNoticeText.getText().toString())) {
                 cardBlockNotice.setVisibility(View.GONE);
@@ -1344,6 +1486,12 @@ public class ChatActivity extends AppCompatActivity {
     private void startForwardActivity(Message msg) {
         Intent intent = new Intent(this, ForwardActivity.class);
         intent.putExtra("messageText", msg.getMessageText());
+        if (msg.getImageUrl() != null && !msg.getImageUrl().isEmpty()) {
+            intent.putExtra("imageUrl", msg.getImageUrl());
+        }
+        if (msg.getMediaUrls() != null && !msg.getMediaUrls().isEmpty()) {
+            intent.putStringArrayListExtra("mediaUrls", new java.util.ArrayList<>(msg.getMediaUrls()));
+        }
         startActivity(intent);
     }
 
@@ -2467,6 +2615,100 @@ public class ChatActivity extends AppCompatActivity {
                     }
                 }
 
+                // Image & Multi-Image attachment payload binding
+                List<String> allImages = msg.getAllImageUrls();
+                if ((allImages == null || allImages.isEmpty()) && displayText != null && (displayText.startsWith("http://") || displayText.startsWith("https://"))) {
+                    allImages = new ArrayList<>();
+                    allImages.add(displayText);
+                }
+
+                if (allImages != null && !allImages.isEmpty() && !isUnsent) {
+                    final List<String> finalImageList = allImages;
+
+                    if (allImages.size() == 1) {
+                        if (msgHolder.layoutMultiImageGrid != null) msgHolder.layoutMultiImageGrid.setVisibility(View.GONE);
+                        if (msgHolder.cardMessageImage != null && msgHolder.ivMessageImage != null) {
+                            msgHolder.cardMessageImage.setVisibility(View.VISIBLE);
+                            com.bumptech.glide.Glide.with(context)
+                                .load(allImages.get(0))
+                                .centerCrop()
+                                .placeholder(R.drawable.ic_image_picker)
+                                .error(R.drawable.ic_image_picker)
+                                .into(msgHolder.ivMessageImage);
+
+                            msgHolder.cardMessageImage.setOnClickListener(v -> ItemNavigationUtils.openFullScreenImage(context, finalImageList, 0));
+                            msgHolder.ivMessageImage.setOnClickListener(v -> ItemNavigationUtils.openFullScreenImage(context, finalImageList, 0));
+                        }
+                    } else {
+                        if (msgHolder.cardMessageImage != null) msgHolder.cardMessageImage.setVisibility(View.GONE);
+                        if (msgHolder.layoutMultiImageGrid != null) {
+                            msgHolder.layoutMultiImageGrid.setVisibility(View.VISIBLE);
+
+                            // Image 1
+                            if (msgHolder.ivGridImage1 != null) {
+                                com.bumptech.glide.Glide.with(context).load(allImages.get(0)).centerCrop().placeholder(R.drawable.ic_image_picker).into(msgHolder.ivGridImage1);
+                                if (msgHolder.cardGridImage1 != null) msgHolder.cardGridImage1.setOnClickListener(v -> ItemNavigationUtils.openFullScreenImage(context, finalImageList, 0));
+                            }
+                            // Image 2
+                            if (msgHolder.ivGridImage2 != null) {
+                                com.bumptech.glide.Glide.with(context).load(allImages.get(1)).centerCrop().placeholder(R.drawable.ic_image_picker).into(msgHolder.ivGridImage2);
+                                if (msgHolder.cardGridImage2 != null) msgHolder.cardGridImage2.setOnClickListener(v -> ItemNavigationUtils.openFullScreenImage(context, finalImageList, 1));
+                            }
+
+                            if (allImages.size() == 2) {
+                                if (msgHolder.layoutGridRow2 != null) msgHolder.layoutGridRow2.setVisibility(View.GONE);
+                            } else {
+                                if (msgHolder.layoutGridRow2 != null) msgHolder.layoutGridRow2.setVisibility(View.VISIBLE);
+                                // Image 3
+                                if (msgHolder.ivGridImage3 != null) {
+                                    com.bumptech.glide.Glide.with(context).load(allImages.get(2)).centerCrop().placeholder(R.drawable.ic_image_picker).into(msgHolder.ivGridImage3);
+                                    if (msgHolder.cardGridImage3 != null) msgHolder.cardGridImage3.setOnClickListener(v -> ItemNavigationUtils.openFullScreenImage(context, finalImageList, 2));
+                                }
+
+                                if (allImages.size() == 3) {
+                                    if (msgHolder.cardGridImage4 != null) msgHolder.cardGridImage4.setVisibility(View.INVISIBLE);
+                                    if (msgHolder.viewMoreOverlay != null) msgHolder.viewMoreOverlay.setVisibility(View.GONE);
+                                    if (msgHolder.tvMoreImagesCount != null) msgHolder.tvMoreImagesCount.setVisibility(View.GONE);
+                                } else {
+                                    if (msgHolder.cardGridImage4 != null) msgHolder.cardGridImage4.setVisibility(View.VISIBLE);
+                                    if (msgHolder.ivGridImage4 != null) {
+                                        com.bumptech.glide.Glide.with(context).load(allImages.get(3)).centerCrop().placeholder(R.drawable.ic_image_picker).into(msgHolder.ivGridImage4);
+                                        if (msgHolder.cardGridImage4 != null) msgHolder.cardGridImage4.setOnClickListener(v -> ItemNavigationUtils.openFullScreenImage(context, finalImageList, 3));
+                                    }
+
+                                    if (allImages.size() > 4) {
+                                        if (msgHolder.viewMoreOverlay != null) {
+                                            msgHolder.viewMoreOverlay.setVisibility(View.VISIBLE);
+                                            msgHolder.viewMoreOverlay.setOnClickListener(v -> ItemNavigationUtils.openFullScreenImage(context, finalImageList, 3));
+                                        }
+                                        if (msgHolder.tvMoreImagesCount != null) {
+                                            msgHolder.tvMoreImagesCount.setVisibility(View.VISIBLE);
+                                            msgHolder.tvMoreImagesCount.setText("+" + (allImages.size() - 4));
+                                        }
+                                    } else {
+                                        if (msgHolder.viewMoreOverlay != null) msgHolder.viewMoreOverlay.setVisibility(View.GONE);
+                                        if (msgHolder.tvMoreImagesCount != null) msgHolder.tvMoreImagesCount.setVisibility(View.GONE);
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                    boolean isCaptionOrUrl = "[Photo]".equals(displayText)
+                            || (displayText != null && displayText.startsWith("[") && displayText.contains("Photo") && displayText.endsWith("]"))
+                            || (allImages != null && !allImages.isEmpty() && allImages.contains(displayText));
+
+                    if (isCaptionOrUrl) {
+                        msgHolder.tvMessageText.setVisibility(View.GONE);
+                    } else {
+                        msgHolder.tvMessageText.setVisibility(View.VISIBLE);
+                    }
+                } else {
+                    if (msgHolder.cardMessageImage != null) msgHolder.cardMessageImage.setVisibility(View.GONE);
+                    if (msgHolder.layoutMultiImageGrid != null) msgHolder.layoutMultiImageGrid.setVisibility(View.GONE);
+                    msgHolder.tvMessageText.setVisibility(View.VISIBLE);
+                }
+
                 msgHolder.tvMessageTime.setText(formatTime(msg.getCreatedAt()));
 
                 float roundedCorner = 18 * density;
@@ -2713,6 +2955,14 @@ public class ChatActivity extends AppCompatActivity {
             TextView tvMessageText, tvMessageTime;
             ImageView ivMessageStatus;
 
+            View cardMessageImage;
+            ImageView ivMessageImage;
+
+            View layoutMultiImageGrid;
+            View cardGridImage1, cardGridImage2, layoutGridRow2, cardGridImage3, cardGridImage4, viewMoreOverlay;
+            ImageView ivGridImage1, ivGridImage2, ivGridImage3, ivGridImage4;
+            TextView tvMoreImagesCount;
+
             View layoutReplyBubble;
             TextView tvReplyBubbleName, tvReplyBubbleText;
             View cardReactionsContainer;
@@ -2725,6 +2975,23 @@ public class ChatActivity extends AppCompatActivity {
                 tvMessageText = itemView.findViewById(R.id.tvMessageText);
                 tvMessageTime = itemView.findViewById(R.id.tvMessageTime);
                 ivMessageStatus = itemView.findViewById(R.id.ivMessageStatus);
+
+                cardMessageImage = itemView.findViewById(R.id.cardMessageImage);
+                ivMessageImage = itemView.findViewById(R.id.ivMessageImage);
+
+                layoutMultiImageGrid = itemView.findViewById(R.id.layoutMultiImageGrid);
+                cardGridImage1 = itemView.findViewById(R.id.cardGridImage1);
+                cardGridImage2 = itemView.findViewById(R.id.cardGridImage2);
+                layoutGridRow2 = itemView.findViewById(R.id.layoutGridRow2);
+                cardGridImage3 = itemView.findViewById(R.id.cardGridImage3);
+                cardGridImage4 = itemView.findViewById(R.id.cardGridImage4);
+                viewMoreOverlay = itemView.findViewById(R.id.viewMoreOverlay);
+
+                ivGridImage1 = itemView.findViewById(R.id.ivGridImage1);
+                ivGridImage2 = itemView.findViewById(R.id.ivGridImage2);
+                ivGridImage3 = itemView.findViewById(R.id.ivGridImage3);
+                ivGridImage4 = itemView.findViewById(R.id.ivGridImage4);
+                tvMoreImagesCount = itemView.findViewById(R.id.tvMoreImagesCount);
 
                 layoutReplyBubble = itemView.findViewById(R.id.layoutReplyBubble);
                 tvReplyBubbleName = itemView.findViewById(R.id.tvReplyBubbleName);

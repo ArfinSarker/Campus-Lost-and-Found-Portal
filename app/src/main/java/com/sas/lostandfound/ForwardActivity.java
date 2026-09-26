@@ -50,6 +50,8 @@ public class ForwardActivity extends AppCompatActivity {
     private List<Conversation> conversationList = new ArrayList<>();
     private List<Conversation> fullConversationList = new ArrayList<>();
     private List<String> selectedConversationIds = new ArrayList<>();
+    private String forwardedImageUrl;
+    private ArrayList<String> forwardedMediaUrls;
     private ForwardAdapter adapter;
 
     @Override
@@ -61,6 +63,8 @@ public class ForwardActivity extends AppCompatActivity {
         currentUnivId = prefs.getString("universityId", null);
 
         messageTextToForward = getIntent().getStringExtra("messageText");
+        forwardedImageUrl = getIntent().getStringExtra("imageUrl");
+        forwardedMediaUrls = getIntent().getStringArrayListExtra("mediaUrls");
         ChatActivity.MessageMeta meta = ChatActivity.MessageMeta.parseMeta(messageTextToForward);
         if (meta != null && meta.text != null) {
             messageTextToForward = meta.text;
@@ -182,7 +186,14 @@ public class ForwardActivity extends AppCompatActivity {
 
         for (String convoId : selectedConversationIds) {
             // Forward it as a fresh message
-            Message msg = new Message(convoId, currentUnivId, messageTextToForward);
+            Message msg;
+            if (forwardedMediaUrls != null && !forwardedMediaUrls.isEmpty()) {
+                msg = new Message(convoId, currentUnivId, messageTextToForward, forwardedMediaUrls);
+            } else if (forwardedImageUrl != null && !forwardedImageUrl.isEmpty()) {
+                msg = new Message(convoId, currentUnivId, messageTextToForward, forwardedImageUrl);
+            } else {
+                msg = new Message(convoId, currentUnivId, messageTextToForward);
+            }
             SupabaseDatabaseHelper.insert("messages", msg, new SupabaseDatabaseHelper.DatabaseCallback<String>() {
                 @Override
                 public void onSuccess(String result) {

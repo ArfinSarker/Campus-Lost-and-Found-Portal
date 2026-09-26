@@ -92,6 +92,17 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
 
         if (message == null || message.isEmpty()) {
             message = "You have a new update.";
+        } else {
+            if (message.trim().startsWith("{") && message.trim().endsWith("}")) {
+                ChatActivity.MessageMeta meta = ChatActivity.MessageMeta.parseMeta(message);
+                if (meta != null && meta.text != null) {
+                    message = meta.text;
+                }
+            }
+            if ((message.startsWith("http://") || message.startsWith("https://"))
+                    && (message.contains("/chat_images/") || message.contains(".jpg") || message.contains(".png") || message.contains(".webp"))) {
+                message = "📷 Photo";
+            }
         }
 
         // Build target intent pointing to SplashActivity
@@ -125,6 +136,9 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
 
         // Derive notification title
         String title = getNotificationTitle(type);
+        if ("chat_message".equals(type) && senderName != null && !senderName.trim().isEmpty()) {
+            title = senderName.trim();
+        }
 
         NotificationCompat.Builder builder = new NotificationCompat.Builder(this, CHANNEL_ID)
                 .setSmallIcon(R.drawable.ic_package) // Use the existing app notification icon

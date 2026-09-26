@@ -39,16 +39,43 @@ public class SupabaseStorageHelper {
         void onFailure(Exception e);
     }
 
+    public static void uploadImage(Context context, Uri fileUri, UploadCallback callback) {
+        String fileName = "chat_" + System.currentTimeMillis() + "_" + java.util.UUID.randomUUID().toString().substring(0, 8) + ".jpg";
+        uploadImage(context, fileUri, "chat_images", fileName, callback);
+    }
+
     public static void uploadImage(Context context, Uri fileUri, String folder, String fileName, UploadCallback callback) {
         executor.execute(() -> {
             try {
+                android.graphics.BitmapFactory.Options options = new android.graphics.BitmapFactory.Options();
+                options.inJustDecodeBounds = true;
+                try (InputStream isBounds = context.getContentResolver().openInputStream(fileUri)) {
+                    if (isBounds != null) {
+                        android.graphics.BitmapFactory.decodeStream(isBounds, null, options);
+                    }
+                } catch (Exception ignored) {}
+
+                int reqWidth = 2048;
+                int reqHeight = 2048;
+                int inSampleSize = 1;
+                if (options.outHeight > reqHeight || options.outWidth > reqWidth) {
+                    final int halfHeight = options.outHeight / 2;
+                    final int halfWidth = options.outWidth / 2;
+                    while ((halfHeight / inSampleSize) >= reqHeight && (halfWidth / inSampleSize) >= reqWidth) {
+                        inSampleSize *= 2;
+                    }
+                }
+
+                options.inSampleSize = inSampleSize;
+                options.inJustDecodeBounds = false;
+
                 InputStream inputStream = context.getContentResolver().openInputStream(fileUri);
                 if (inputStream == null) {
                     mainHandler.post(() -> callback.onFailure(new IOException("Could not open input stream")));
                     return;
                 }
 
-                android.graphics.Bitmap bitmap = android.graphics.BitmapFactory.decodeStream(inputStream);
+                android.graphics.Bitmap bitmap = android.graphics.BitmapFactory.decodeStream(inputStream, null, options);
                 inputStream.close();
 
                 if (bitmap == null) {

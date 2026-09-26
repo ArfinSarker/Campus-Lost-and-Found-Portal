@@ -1231,7 +1231,63 @@
     <color name="btn_secondary_text">#F8FAFC</color>
     <color name="btn_text_color">#818CF8</color>
     <color name="btn_ripple_color">#33818CF8</color>
+
+    <!-- Image Messaging Feature Colors (Night Mode - Dedicated Dark Palette) -->
+    <color name="chat_attach_btn_bg">#1E293B</color>
+    <color name="chat_attach_btn_icon">#818CF8</color>
+    <color name="chat_attach_btn_border">#334155</color>
+    <color name="image_preview_bg">#0F172A</color>
+    <color name="image_preview_toolbar_bg">#1E293B</color>
+    <color name="image_preview_btn_send_bg">#6366F1</color>
+    <color name="image_preview_btn_send_text">#FFFFFF</color>
+    <color name="image_preview_tool_active">#818CF8</color>
+    <color name="image_preview_tool_inactive">#94A3B8</color>
+    <color name="chat_image_bubble_overlay">#1F000000</color>
+    <color name="chat_image_bubble_stroke">#334155</color>
+
+    <!-- Staging & Professional Editor Night Mode Color Tokens -->
+    <color name="staging_bg">#0F172A</color>
+    <color name="staging_header_bg">#1E293B</color>
+    <color name="staging_btn_edit_bg">#312E81</color>
+    <color name="staging_btn_edit_text">#FFFFFF</color>
+    <color name="staging_btn_send_bg">#065F46</color>
+    <color name="staging_btn_send_text">#FFFFFF</color>
+    <color name="staging_card_bg">#1E293B</color>
+    <color name="staging_card_border_active">#818CF8</color>
+    <color name="staging_card_border_inactive">#334155</color>
+    <color name="editor_header_bg">#1E293B</color>
+    <color name="editor_segmented_bg">#0F172A</color>
+    <color name="editor_segmented_active">#6366F1</color>
+    <color name="editor_segmented_text_active">#FFFFFF</color>
+    <color name="editor_segmented_text_inactive">#94A3B8</color>
+    <color name="editor_slider_track">#334155</color>
+    <color name="editor_slider_thumb">#818CF8</color>
+
+    <!-- Dedicated Night Mode Colors for Image Selection Done & Preview Buttons -->
+    <color name="image_btn_done_bg">#6366F1</color>
+    <color name="image_btn_done_text">#FFFFFF</color>
+    <color name="image_btn_done_icon">#FFFFFF</color>
+    <color name="image_btn_done_ripple">#33FFFFFF</color>
+
+    <color name="image_btn_preview_bg">#0EA5E9</color>
+    <color name="image_btn_preview_text">#FFFFFF</color>
+    <color name="image_btn_preview_icon">#FFFFFF</color>
+    <color name="image_btn_preview_ripple">#33FFFFFF</color>
+
+    <!-- Dedicated Night Mode Colors for Professional Image Crop Tool -->
+    <color name="crop_overlay_dim">#B3000000</color>
+    <color name="crop_frame_stroke">#FFFFFF</color>
+    <color name="crop_handle_color">#818CF8</color>
+    <color name="crop_grid_line">#80FFFFFF</color>
+    <color name="crop_toolbar_bg">#1E293B</color>
+    <color name="crop_btn_apply_bg">#6366F1</color>
+    <color name="crop_btn_cancel_bg">#334155</color>
+    <color name="crop_chip_bg_active">#6366F1</color>
+    <color name="crop_chip_bg_inactive">#0F172A</color>
+    <color name="crop_chip_text_active">#FFFFFF</color>
+    <color name="crop_chip_text_inactive">#94A3B8</color>
 </resources>
+
 
 
 

@@ -129,6 +129,9 @@
         <activity android:name=".ArchivedChatsActivity" />
         <activity android:name=".ChatRequestActivity" />
         <activity android:name=".ChatActivity" />
+        <activity android:name=".ImagePreviewActivity" android:windowSoftInputMode="adjustResize" />
+        <activity android:name=".ImageStagingActivity" android:windowSoftInputMode="adjustResize" />
+        <activity android:name=".ImageEditorActivity" android:windowSoftInputMode="adjustResize" />
         <activity android:name=".ForwardActivity" />
 
         <!-- Firebase Messaging Service -->

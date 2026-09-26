@@ -1240,10 +1240,60 @@
     <color name="btn_secondary_text">#1E293B</color>
     <color name="btn_text_color">#2563EB</color>
     <color name="btn_ripple_color">#262563EB</color>
+
+    <!-- Image Messaging Feature Colors (Light Mode) -->
+    <color name="chat_attach_btn_bg">#F1F5F9</color>
+    <color name="chat_attach_btn_icon">#2563EB</color>
+    <color name="chat_attach_btn_border">#CBD5E1</color>
+    <color name="image_preview_bg">#F8FAFC</color>
+    <color name="image_preview_toolbar_bg">#FFFFFF</color>
+    <color name="image_preview_btn_send_bg">#2563EB</color>
+    <color name="image_preview_btn_send_text">#FFFFFF</color>
+    <color name="image_preview_tool_active">#2563EB</color>
+    <color name="image_preview_tool_inactive">#64748B</color>
+    <color name="chat_image_bubble_stroke">#CBD5E1</color>
+
+    <!-- Staging & Professional Editor Light Mode Color Tokens -->
+    <color name="staging_bg">#F8FAFC</color>
+    <color name="staging_header_bg">#FFFFFF</color>
+    <color name="staging_btn_edit_bg">#4F46E5</color>
+    <color name="staging_btn_edit_text">#FFFFFF</color>
+    <color name="staging_btn_send_bg">#059669</color>
+    <color name="staging_btn_send_text">#FFFFFF</color>
+    <color name="staging_card_bg">#FFFFFF</color>
+    <color name="staging_card_border_active">#4F46E5</color>
+    <color name="staging_card_border_inactive">#CBD5E1</color>
+    <color name="editor_header_bg">#FFFFFF</color>
+    <color name="editor_segmented_bg">#E2E8F0</color>
+    <color name="editor_segmented_active">#4F46E5</color>
+    <color name="editor_segmented_text_active">#FFFFFF</color>
+    <color name="editor_segmented_text_inactive">#475569</color>
+    <color name="editor_slider_track">#CBD5E1</color>
+    <color name="editor_slider_thumb">#4F46E5</color>
+
+    <!-- Dedicated Light Mode Colors for Image Selection Done & Preview Buttons -->
+    <color name="image_btn_done_bg">#2563EB</color>
+    <color name="image_btn_done_text">#FFFFFF</color>
+    <color name="image_btn_done_icon">#FFFFFF</color>
+    <color name="image_btn_done_ripple">#33FFFFFF</color>
+
+    <color name="image_btn_preview_bg">#0284C7</color>
+    <color name="image_btn_preview_text">#FFFFFF</color>
+    <color name="image_btn_preview_icon">#FFFFFF</color>
+    <color name="image_btn_preview_ripple">#33FFFFFF</color>
+
+    <!-- Dedicated Light Mode Colors for Professional Image Crop Tool -->
+    <color name="crop_overlay_dim">#80000000</color>
+    <color name="crop_frame_stroke">#FFFFFF</color>
+    <color name="crop_handle_color">#2563EB</color>
+    <color name="crop_grid_line">#80FFFFFF</color>
+    <color name="crop_toolbar_bg">#FFFFFF</color>
+    <color name="crop_btn_apply_bg">#2563EB</color>
+    <color name="crop_btn_cancel_bg">#64748B</color>
+    <color name="crop_chip_bg_active">#2563EB</color>
+    <color name="crop_chip_bg_inactive">#F1F5F9</color>
+    <color name="crop_chip_text_active">#FFFFFF</color>
+    <color name="crop_chip_text_inactive">#475569</color>
 </resources>
-
-
-
-
 
 

@@ -361,6 +361,30 @@
                 android:gravity="center_vertical">
 
                 <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/btnAttachImageCard"
+                    android:layout_width="44dp"
+                    android:layout_height="44dp"
+                    app:cardCornerRadius="22dp"
+                    app:cardElevation="0dp"
+                    app:strokeWidth="1dp"
+                    app:strokeColor="@color/chat_attach_btn_border"
+                    app:cardBackgroundColor="@color/chat_attach_btn_bg"
+                    android:layout_marginEnd="8dp"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:foreground="?attr/selectableItemBackground">
+
+                    <ImageView
+                        android:id="@+id/btnAttachImage"
+                        android:layout_width="20dp"
+                        android:layout_height="20dp"
+                        android:layout_gravity="center"
+                        android:src="@drawable/ic_image_picker"
+                        app:tint="@color/chat_attach_btn_icon"
+                        android:contentDescription="Attach Image" />
+                </com.google.android.material.card.MaterialCardView>
+
+                <com.google.android.material.card.MaterialCardView
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
