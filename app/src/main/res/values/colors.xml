@@ -1251,6 +1251,7 @@
     <color name="image_preview_btn_send_text">#FFFFFF</color>
     <color name="image_preview_tool_active">#2563EB</color>
     <color name="image_preview_tool_inactive">#64748B</color>
+    <color name="chat_image_bubble_overlay">#0A000000</color>
     <color name="chat_image_bubble_stroke">#CBD5E1</color>
 
     <!-- Staging & Professional Editor Light Mode Color Tokens -->
